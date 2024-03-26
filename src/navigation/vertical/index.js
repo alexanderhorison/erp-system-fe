@@ -2,7 +2,7 @@ const navigation = () => {
   return [
     {
       title: 'Dashboards',
-      icon: 'tabler:smart-home',
+      icon: 'tabler:brand-tabler',
       badgeContent: 'new',
       badgeColor: 'error',
       children: [
@@ -17,6 +17,36 @@ const navigation = () => {
         {
           title: 'eCommerce',
           path: '/dashboards/ecommerce'
+        }
+      ]
+    },
+    {
+      title: 'Master Data',
+      children: [
+        {
+          title: 'Produk',
+          path: '/master/products'
+        },
+        {
+          title: 'Tipe Produk',
+          path: '/master/types'
+        },
+        {
+          title: 'Satuan Produk',
+          path: '/master/units'
+        },
+        {
+          title: 'Kategori Produk',
+          path: '/master/categories',
+          icon: 'tabler:brand-tabler'
+        },
+        {
+          title: 'Gudang',
+          path: '/master/warehouses'
+        },
+        {
+          title: 'Rumus Transformasi',
+          path: '/master/transformation'
         }
       ]
     },
@@ -346,7 +376,6 @@ const navigation = () => {
       icon: 'tabler:brand-tabler'
     },
     {
-      
       title: 'Cards',
       icon: 'tabler:id',
       children: [
@@ -457,7 +486,7 @@ const navigation = () => {
         {
           title: 'More',
           path: '/components/more'
-        },
+        }
       ]
     },
     {
@@ -518,7 +547,7 @@ const navigation = () => {
         {
           title: 'Input Mask',
           path: '/forms/form-elements/input-mask'
-        },
+        }
       ]
     },
     {
