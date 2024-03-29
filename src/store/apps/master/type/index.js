@@ -11,7 +11,6 @@ export const fetchMasterDataType = createAsyncThunk('appMasterType/fetchData', a
 })
 
 export const addMasterDataPorduct = createAsyncThunk('appMasterType/addType', async (data, { getState, dispatch }) => {
-  console.log(data)
   const response = await axios({
     method: 'post',
     url: process.env.REACT_APP_BASE_URL + 'master/type/',
