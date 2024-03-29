@@ -182,7 +182,7 @@ const RowOptions = ({ id, data }) => {
             open={isModalDeleteUser}
             setOpen={setIsModalDeleteUser}
             title={'Yakin menghapus user?'}
-            content={`Anda ingin menghapus produk ${data?.name}`}
+            content={`Anda ingin menghapus user ${data?.name}`}
           />
         )}
       </Menu>
