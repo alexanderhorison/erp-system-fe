@@ -1,6 +1,3 @@
-// ** React Imports
-import { Fragment, useState } from 'react'
-
 // ** MUI Imports
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -10,9 +7,6 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
 
 export default function ModalConfirmation({ open, title, content, handleAgree, setOpen }) {
-  // ** State
-  // const [openModal, setOpen] = useState(false)
-
   return (
     <Dialog
       open={open}

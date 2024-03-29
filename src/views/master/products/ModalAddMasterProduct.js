@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, forwardRef, useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -9,7 +9,6 @@ import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import Fade from '@mui/material/Fade'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 
@@ -25,6 +24,10 @@ import { IconButton, MenuItem } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchDataMasterCategory } from 'src/store/apps/master/category'
 import { fetchMasterDataType } from 'src/store/apps/master/type'
+import { Controller, useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+import { addMasterDataPorduct, editMasterDataPorduct } from 'src/store/apps/master/product'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -41,46 +44,51 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   }
 }))
 
-const Transition = forwardRef(function Transition(props, ref) {
-  return <Fade ref={ref} {...props} />
-})
-
-export default function ModalAddMasterProduct({ open, setOpen, handleSubmitAdd }) {
+export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
-  // ** States
-  const [input, setInput] = useState({
-    name: '',
-    CategoryId: '',
-    TypeId: '',
-    description: ''
-  })
-
   const { data: masterDataCategory } = useSelector(state => state.category)
   const { data: masterDataType } = useSelector(state => state.type)
+  const { detail: detailProduct } = useSelector(state => state.masterProduct)
 
-  const handleInputChange = ({ target }) => {
-    const { name, value } = target
+  // SHCEMA YUP VALIDATION
+  const schema = yup.object().shape({
+    name: yup.string().min(3, 'Minimal 3 bang').required('Required Nih'),
+    CategoryId: yup.string().required('Kategori harus dipilih'),
+    TypeId: yup.string().required('Tipe harus dipilih')
+  })
 
-    setInput(prevInput => ({
-      ...prevInput,
-      [name]: value
-    }))
-  }
+  // REACT FORM
+  const {
+    control,
+    handleSubmit,
+    formState: { errors }
+  } = useForm({
+    values: typeModal === 'ADD' ? {} : detailProduct,
+    mode: 'onChange',
+    resolver: yupResolver(schema)
+  })
 
-  const handleClose = () => {
+  // ON SUBMIT
+  const onSubmit = data => {
+    if (typeModal === 'ADD') {
+      dispatch(addMasterDataPorduct(data))
+    } else {
+      dispatch(editMasterDataPorduct({ id, data }))
+    }
     setOpen(false)
-    setInput({ name: '', CategoryId: '', TypeId: '', description: '' })
-  }
-
-  const handleSubmit = () => {
-    const formData = input
-    handleSubmitAdd(formData)
   }
 
   useEffect(() => {
     dispatch(fetchDataMasterCategory())
     dispatch(fetchMasterDataType())
+    // disable warn for select if select not have a child item
+    console.warn = () => {}
   }, [])
+
+  // CLOSE MODAL AND RESET FORM
+  const handleClose = () => {
+    setOpen(false)
+  }
 
   return (
     <Card>
@@ -89,98 +97,148 @@ export default function ModalAddMasterProduct({ open, setOpen, handleSubmitAdd }
         open={open}
         maxWidth='sm'
         scroll='body'
-        onClose={() => setOpen(false)}
-        onBackdropClick={() => setOpen(false)}
-        TransitionComponent={Transition}
+        onClose={handleClose}
         sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
       >
-        <DialogContent
-          sx={{
-            pb: theme => `${theme.spacing(8)} !important`,
-            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-            pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-          }}
-        >
-          <CustomCloseButton onClick={handleClose}>
-            <Icon icon='tabler:x' fontSize='1.25rem' />
-          </CustomCloseButton>
-          <Box sx={{ mb: 4, textAlign: 'center' }}>
-            <Typography variant='h3' sx={{ mb: 3 }}>
-              Tambahkan Produk Baru
-            </Typography>
-          </Box>
-          <Grid container spacing={6}>
-            <Grid item xs={12}>
-              <Grid container spacing={6}>
-                <Grid item xs={12} sm={12}>
-                  <CustomTextField
-                    fullWidth
-                    name='name'
-                    value={input.name}
-                    autoComplete='off'
-                    label='Nama Produk'
-                    placeholder=''
-                    onChange={handleInputChange}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={12}>
-                  <CustomTextField
-                    select
-                    fullWidth
-                    name='CategoryId'
-                    label='Kategori'
-                    value={input.category}
-                    onChange={handleInputChange}
-                    id='form-layouts-tabs-select'
-                    defaultValue=''
-                  >
-                    {masterDataCategory.map(item => {
-                      return (
-                        <MenuItem key={item.id} value={item.id}>
-                          {item.name}
-                        </MenuItem>
-                      )
-                    })}
-                  </CustomTextField>
-                </Grid>
-                <Grid item xs={12} sm={12}>
-                  <CustomTextField
-                    select
-                    fullWidth
-                    name='TypeId'
-                    label='Tipe'
-                    value={input.type}
-                    onChange={handleInputChange}
-                    id='form-layouts-tabs-select'
-                    defaultValue=''
-                  >
-                    {masterDataType.map(item => {
-                      return (
-                        <MenuItem key={item.id} value={item.id}>
-                          {item.name}
-                        </MenuItem>
-                      )
-                    })}
-                  </CustomTextField>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <DialogContent
+            sx={{
+              pb: theme => `${theme.spacing(8)} !important`,
+              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+              pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+            }}
+          >
+            <CustomCloseButton onClick={handleClose}>
+              <Icon icon='tabler:x' fontSize='1.25rem' />
+            </CustomCloseButton>
+            <Box sx={{ mb: 4, textAlign: 'center' }}>
+              <Typography variant='h3' sx={{ mb: 3 }}>
+                {typeModal === 'ADD' ? 'Tambahkan Produk Baru' : typeModal === 'VIEW' ? 'Detail Produk' : 'Ubah Produk'}
+              </Typography>
+            </Box>
+            <Grid container spacing={6}>
+              <Grid item xs={12}>
+                <Grid container spacing={6}>
+                  <Grid item xs={12} sm={12}>
+                    <Controller
+                      name='name'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomTextField
+                          fullWidth
+                          value={value}
+                          label='Nama Produk'
+                          placeholder=''
+                          onChange={onChange}
+                          disabled={typeModal === 'VIEW'}
+                          error={Boolean(errors.name)}
+                          aria-describedby='validation-schema-name'
+                          {...(errors.name && { helperText: errors.name.message })}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={12}>
+                    <Controller
+                      name='CategoryId'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomTextField
+                          select
+                          fullWidth
+                          label='Kategori'
+                          value={value || ''}
+                          onChange={onChange}
+                          disabled={typeModal === 'VIEW'}
+                          error={Boolean(errors.CategoryId)}
+                          aria-describedby='validation-schema-CategoryId'
+                          {...(errors.CategoryId && { helperText: errors.CategoryId.message })}
+                        >
+                          {masterDataCategory.map(item => {
+                            return (
+                              <MenuItem key={item.id} value={item.id}>
+                                {item.name}
+                              </MenuItem>
+                            )
+                          })}
+                        </CustomTextField>
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={12}>
+                    <Controller
+                      name='TypeId'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomTextField
+                          select
+                          fullWidth
+                          label='Tipe'
+                          value={value || ''}
+                          onChange={onChange}
+                          disabled={typeModal === 'VIEW'}
+                          error={Boolean(errors.TypeId)}
+                          aria-describedby='validation-schema-TypeId'
+                          {...(errors.TypeId && { helperText: errors.TypeId.message })}
+                        >
+                          <MenuItem />
+                          {masterDataType.length > 0 &&
+                            masterDataType.map(item => {
+                              return (
+                                <MenuItem key={item.id} value={item.id}>
+                                  {item.name}
+                                </MenuItem>
+                              )
+                            })}
+                        </CustomTextField>
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Controller
+                      name='description'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomTextField
+                          rows={4}
+                          value={value}
+                          fullWidth
+                          multiline
+                          onChange={onChange}
+                          disabled={typeModal === 'VIEW'}
+                          label='Deskripsi'
+                          error={Boolean(errors.description)}
+                          aria-describedby='validation-basic-description'
+                          {...(errors.description && { helperText: 'This field is required' })}
+                        />
+                      )}
+                    />
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions
-          sx={{
-            justifyContent: 'center',
-            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-            pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-          }}
-        >
-          <Button variant='contained' sx={{ mr: 1 }} onClick={handleSubmit}>
-            Tambahkan
-          </Button>
-          <Button variant='tonal' color='secondary' onClick={handleClose}>
-            Batal
-          </Button>
-        </DialogActions>
+          </DialogContent>
+          {typeModal !== 'VIEW' && (
+            <DialogActions
+              sx={{
+                justifyContent: 'center',
+                px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+                pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+              }}
+            >
+              <Button type='submit' variant='contained' hidden={typeModal === 'VIEW'}>
+                Submit
+              </Button>
+              <Button variant='tonal' color='secondary' onClick={handleClose} hidden={typeModal === 'VIEW'}>
+                Batal
+              </Button>
+            </DialogActions>
+          )}
+        </form>
       </Dialog>
     </Card>
   )
