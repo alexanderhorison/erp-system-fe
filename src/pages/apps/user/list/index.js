@@ -44,6 +44,7 @@ import axios from 'axios'
 import TableHeader from 'src/views/apps/user/list/TableHeader'
 import AddUserDrawer from 'src/views/apps/user/list/AddUserDrawer'
 import ModalUserEdit from 'src/views/apps/modal/user/modalUserEdit'
+import ModalConfirmation from 'src/views/common/ModalConfirmation'
 
 // ** renders client column
 const userRoleObj = {
@@ -92,6 +93,10 @@ const RowOptions = ({ id, data }) => {
   const modalEditUserClosePress = useCallback(() => {
     setIsModalEditUser(false)
   }, [])
+
+  // State Modal Delete
+  const [isModalDeleteUser, setIsModalDeleteUser] = useState(false)
+
   // state on Open modal
   const modalEditUserOpenPress = useCallback(
     (data, isView = false) =>
@@ -103,17 +108,30 @@ const RowOptions = ({ id, data }) => {
     []
   )
 
-  const handleRowOptionsClick = event => {
-    setAnchorEl(event.currentTarget)
-  }
+  // state on Delete Modal
+  const modalDeleteUserOpenPress = useCallback(
+    () => () => {
+      setIsModalDeleteUser(true)
+    },
+    []
+  )
 
   const handleRowOptionsClose = () => {
     setAnchorEl(null)
   }
 
+  const handleRowOptionsClick = event => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  // state on Close modal delete
+  const modalDeleteUserClosePress = useCallback(() => {
+    setIsModalDeleteUser(false)
+  }, [])
+
   const handleDelete = () => {
     dispatch(deleteUser(id))
-    handleRowOptionsClose()
+    modalDeleteUserClosePress()
   }
 
   return (
@@ -146,7 +164,7 @@ const RowOptions = ({ id, data }) => {
             Sunting
           </MenuItem>
         )}
-        <MenuItem onClick={handleDelete} sx={{ '& svg': { mr: 2 } }}>
+        <MenuItem onClick={modalDeleteUserOpenPress()} sx={{ '& svg': { mr: 2 } }}>
           <Icon icon='tabler:trash' fontSize={20} />
           Hapus
         </MenuItem>
@@ -156,6 +174,15 @@ const RowOptions = ({ id, data }) => {
             isOpen={isModalEditUser}
             closePress={modalEditUserClosePress}
             isView={isView}
+          />
+        )}
+        {isModalDeleteUser && (
+          <ModalConfirmation
+            handleAgree={handleDelete}
+            open={isModalDeleteUser}
+            setOpen={setIsModalDeleteUser}
+            title={'Yakin menghapus user?'}
+            content={`Anda ingin menghapus produk ${data?.name}`}
           />
         )}
       </Menu>
