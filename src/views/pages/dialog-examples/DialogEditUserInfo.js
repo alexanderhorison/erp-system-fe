@@ -29,7 +29,7 @@ const Transition = forwardRef(function Transition(props, ref) {
   return <Fade ref={ref} {...props} />
 })
 
-const CustomCloseButton = styled(IconButton)(({ theme }) => ({
+export const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
   right: 0,
   color: 'grey.500',

@@ -1,33 +1,67 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import toast from 'react-hot-toast'
 
 // ** Axios Imports
-import axios from 'axios'
+import axios from 'src/configs/axios'
 
 // ** Fetch Users
-export const fetchData = createAsyncThunk('appUsers/fetchData', async params => {
-  const response = await axios.get('/apps/users/list', {
-    params
-  })
-
-  return response.data
+export const fetchDataUsers = createAsyncThunk('appUsers/fetchDataUsers', async () => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/user/all'
+    })
+    return response.data
+  } catch (error) {
+    toast.error(error.response.data.message || error)
+  }
 })
 
 // ** Add User
 export const addUser = createAsyncThunk('appUsers/addUser', async (data, { getState, dispatch }) => {
-  const response = await axios.post('/apps/users/add-user', {
-    data
-  })
-  dispatch(fetchData(getState().user.params))
+  try {
+    const response = await axios({
+      method: 'POST',
+      url: '/user/create',
+      data: data
+    })
+    toast.success(response.data.message)
+    dispatch(fetchDataUsers())
+    return
+  } catch (error) {
+    toast.error(error.response.data.message || error)
+  }
+})
 
-  return response.data
+// ** Edit User
+export const editUser = createAsyncThunk('appUsers/editUser', async (data, { getState, dispatch }) => {
+  try {
+    const response = await axios({
+      method: 'PUT',
+      url: `/user/${data.id}`,
+      data: data
+    })
+    toast.success(response.data.message)
+    dispatch(fetchDataUsers())
+    return
+  } catch (error) {
+    toast.error(error.response.data.message || error)
+  }
 })
 
 // ** Delete User
 export const deleteUser = createAsyncThunk('appUsers/deleteUser', async (id, { getState, dispatch }) => {
-  const response = await axios.delete('/apps/users/delete', {
-    data: id
-  })
-  dispatch(fetchData(getState().user.params))
+  try {
+    const response = await axios({
+      method: 'DELETE',
+      url: `/user/${id}`
+    })
+    toast.success(response.data.message)
+    dispatch(fetchDataUsers())
+    return
+  } catch (error) {
+    toast.error(error.response.data.message || error)
+  }
 
   return response.data
 })
@@ -35,18 +69,12 @@ export const deleteUser = createAsyncThunk('appUsers/deleteUser', async (id, { g
 export const appUsersSlice = createSlice({
   name: 'appUsers',
   initialState: {
-    data: [],
-    total: 1,
-    params: {},
-    allData: []
+    dataUsers: []
   },
   reducers: {},
   extraReducers: builder => {
-    builder.addCase(fetchData.fulfilled, (state, action) => {
-      state.data = action.payload.users
-      state.total = action.payload.total
-      state.params = action.payload.params
-      state.allData = action.payload.allData
+    builder.addCase(fetchDataUsers.fulfilled, (state, action) => {
+      state.dataUsers = action.payload.data
     })
   }
 })

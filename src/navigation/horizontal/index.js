@@ -25,49 +25,49 @@ const navigation = () => {
       icon: 'tabler:layout-grid-add',
       title: 'Apps',
       children: [
+        // {
+        //   title: 'Email',
+        //   icon: 'tabler:mail',
+        //   path: '/apps/email'
+        // },
+        // {
+        //   title: 'Chat',
+        //   icon: 'tabler:messages',
+        //   path: '/apps/chat'
+        // },
+        // {
+        //   title: 'Calendar',
+        //   icon: 'tabler:calendar',
+        //   path: '/apps/calendar'
+        // },
+        // {
+        //   title: 'Invoice',
+        //   icon: 'tabler:file-dollar',
+        //   children: [
+        //     {
+        //       title: 'List',
+        //       path: '/apps/invoice/list'
+        //     },
+        //     {
+        //       title: 'Preview',
+        //       path: '/apps/invoice/preview'
+        //     },
+        //     {
+        //       title: 'Edit',
+        //       path: '/apps/invoice/edit'
+        //     },
+        //     {
+        //       title: 'Add',
+        //       path: '/apps/invoice/add'
+        //     }
+        //   ]
+        // },
         {
-          title: 'Email',
-          icon: 'tabler:mail',
-          path: '/apps/email'
-        },
-        {
-          title: 'Chat',
-          icon: 'tabler:messages',
-          path: '/apps/chat'
-        },
-        {
-          title: 'Calendar',
-          icon: 'tabler:calendar',
-          path: '/apps/calendar'
-        },
-        {
-          title: 'Invoice',
-          icon: 'tabler:file-dollar',
-          children: [
-            {
-              title: 'List',
-              path: '/apps/invoice/list'
-            },
-            {
-              title: 'Preview',
-              path: '/apps/invoice/preview'
-            },
-            {
-              title: 'Edit',
-              path: '/apps/invoice/edit'
-            },
-            {
-              title: 'Add',
-              path: '/apps/invoice/add'
-            }
-          ]
-        },
-        {
-          title: 'User',
+          title: 'Pengguna',
           icon: 'tabler:user',
           children: [
             {
-              title: 'List',
+              title: 'List Pengguna',
               path: '/apps/user/list'
             },
             {
@@ -98,7 +98,7 @@ const navigation = () => {
           ]
         },
         {
-          title: 'Roles & Permissions',
+          title: 'Otoritas',
           icon: 'tabler:settings',
           children: [
             {
@@ -128,7 +128,6 @@ const navigation = () => {
           icon: 'tabler:brand-tabler'
         },
         {
-          
           title: 'Cards',
           icon: 'tabler:id',
           children: [
@@ -237,7 +236,7 @@ const navigation = () => {
             {
               title: 'More',
               path: '/components/more'
-            },
+            }
           ]
         }
       ]
@@ -530,7 +529,7 @@ const navigation = () => {
             {
               title: 'Input Mask',
               path: '/forms/form-elements/input-mask'
-            },
+            }
           ]
         },
         {
