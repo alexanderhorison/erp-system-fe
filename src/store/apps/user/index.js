@@ -45,7 +45,7 @@ export const editUser = createAsyncThunk('appUsers/editUser', async (data, { get
     dispatch(fetchDataUsers())
     return
   } catch (error) {
-    toast.error(error.response.data.message || error)
+    return toast.error(error.response.data.message || error)
   }
 })
 
@@ -62,8 +62,6 @@ export const deleteUser = createAsyncThunk('appUsers/deleteUser', async (id, { g
   } catch (error) {
     toast.error(error.response.data.message || error)
   }
-
-  return response.data
 })
 
 export const appUsersSlice = createSlice({

@@ -133,12 +133,8 @@ const navigation = () => {
       icon: 'tabler:settings',
       children: [
         {
-          title: 'Pengguna',
-          path: '/apps/roles'
-        },
-        {
           title: 'Otoritas Pengguna',
-          path: '/apps/permissions'
+          path: '/apps/roles'
         }
       ]
     },

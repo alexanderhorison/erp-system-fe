@@ -17,7 +17,7 @@ import { CustomCloseButton } from 'src/views/pages/dialog-examples/DialogEditUse
 import Icon from 'src/@core/components/icon'
 import { editUser } from 'src/store/apps/user'
 
-const Transition = forwardRef(function Transition(props, ref) {
+export const Transition = forwardRef(function Transition(props, ref) {
   return <Fade ref={ref} {...props} />
 })
 
