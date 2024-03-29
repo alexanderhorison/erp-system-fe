@@ -9,6 +9,9 @@ import invoice from 'src/store/apps/invoice'
 import calendar from 'src/store/apps/calendar'
 import permissions from 'src/store/apps/permissions'
 import role from 'src/store/apps/role'
+import category from './apps/master/category'
+import type from './apps/master/type'
+import masterProduct from './apps/master/product'
 
 export const store = configureStore({
   reducer: {
@@ -18,7 +21,10 @@ export const store = configureStore({
     invoice,
     calendar,
     permissions,
-    role
+    role,
+    category,
+    type,
+    masterProduct
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
