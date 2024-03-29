@@ -1,16 +1,12 @@
 import { Card, IconButton, Menu, MenuItem, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
-import TableHeaderMasterProduct from './TableHeaderMasterProduct'
+import TableHeaderMasterType from './TableHeaderMasterType'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'src/@core/components/icon'
-import {
-  deleteMasterDataProduct,
-  fetchMasterDataProduct,
-  fetchMasterDataProductDetail
-} from 'src/store/apps/master/product'
+import { deleteMasterDataType, fetchMasterDataType, fetchMasterDataTypeDetail } from 'src/store/apps/master/type'
 import ModalConfirmation from 'src/views/common/ModalConfirmation'
-import ModalAddMasterProduct from './ModalAddMasterProduct'
+import ModalAddMasterType from './ModalAddMasterType'
 
 const RowOptions = ({ id, name, handleEdit, handleView }) => {
   const dispatch = useDispatch()
@@ -28,8 +24,7 @@ const RowOptions = ({ id, name, handleEdit, handleView }) => {
   }
 
   const handleDelete = () => {
-    
-    dispatch(deleteMasterDataProduct(id))
+    dispatch(deleteMasterDataType(id))
     handleRowOptionsClose()
   }
 
@@ -39,8 +34,8 @@ const RowOptions = ({ id, name, handleEdit, handleView }) => {
         open={openModalConfirm}
         setOpen={setModalConfirm}
         handleAgree={handleDelete}
-        title={'Yakin menghapus produk?'}
-        content={`Anda ingin menghapus produk ${name}`}
+        title={'Yakin menghapus tipe?'}
+        content={`Anda ingin menghapus tipe ${name}`}
       />
       <IconButton size='small' onClick={handleRowOptionsClick}>
         <Icon icon='tabler:dots-vertical' />
@@ -95,7 +90,7 @@ const RowOptions = ({ id, name, handleEdit, handleView }) => {
   )
 }
 
-export default function TableMasterProduct({}) {
+export default function TableMasterType({}) {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
   const [openModalAdd, setOpenModalAdd] = useState(false)
@@ -105,25 +100,23 @@ export default function TableMasterProduct({}) {
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 })
 
-  const [productId, setProductId] = useState('')
+  const [typeId, setTypeId] = useState('')
+  const { data } = useSelector(state => state.type)
 
   const handleEdit = id => {
-    setProductId(id)
-    dispatch(fetchMasterDataProductDetail(id))
+    setTypeId(id)
+    dispatch(fetchMasterDataTypeDetail(id))
     setOpenModalEdit(true)
   }
 
   const handleView = id => {
-    setProductId(id)
-    dispatch(fetchMasterDataProductDetail(id))
+    setTypeId(id)
+    dispatch(fetchMasterDataTypeDetail(id))
     setOpenModalView(true)
   }
 
-  const { data } = useSelector(state => state.masterProduct)
-
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-
     if (searchValue.length) {
       const filteredRows = data.filter(row => row.name.toLowerCase().includes(searchValue.toLowerCase()))
       setFilteredData(filteredRows)
@@ -133,26 +126,26 @@ export default function TableMasterProduct({}) {
   }
 
   useEffect(() => {
-    dispatch(fetchMasterDataProduct())
+    dispatch(fetchMasterDataType())
   }, [])
   return (
     <Card>
       {openModalEdit && (
-        <ModalAddMasterProduct open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={productId} />
+        <ModalAddMasterType open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={typeId} />
       )}
-      {openModalAdd && <ModalAddMasterProduct open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
+      {openModalAdd && <ModalAddMasterType open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
       {openModalView && (
-        <ModalAddMasterProduct open={openModalView} setOpen={setOpenModalView} typeModal={'VIEW'} id={productId} />
+        <ModalAddMasterType open={openModalView} setOpen={setOpenModalView} typeModal={'VIEW'} id={typeId} />
       )}
 
       <DataGrid
         autoHeight
         columns={[
           {
-            flex: 0.2,
+            flex: 0.1,
             minWidth: 200,
             field: 'name',
-            headerName: 'Nama Produk',
+            headerName: 'Nama Tipe',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -162,27 +155,14 @@ export default function TableMasterProduct({}) {
             }
           },
           {
-            flex: 0.1,
+            flex: 0.2,
             minWidth: 120,
-            field: 'category',
-            headerName: 'Kategori',
+            field: 'description',
+            headerName: 'Deskripsi',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.category}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.1,
-            minWidth: 110,
-            field: 'type',
-            headerName: 'Tipe',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.type}
+                  {params.row.description}
                 </Typography>
               )
             }
@@ -200,7 +180,7 @@ export default function TableMasterProduct({}) {
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderMasterProduct }}
+        slots={{ toolbar: TableHeaderMasterType }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData.length ? filteredData : data}
         sx={{
@@ -215,7 +195,7 @@ export default function TableMasterProduct({}) {
           },
           toolbar: {
             value: searchText,
-            placeholder: 'Cari nama produk',
+            placeholder: 'Cari nama tipe',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
             openModalAdd: setOpenModalAdd

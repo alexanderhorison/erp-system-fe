@@ -3,15 +3,23 @@ import axios from 'src/configs/axios'
 import toast from 'react-hot-toast'
 
 export const fetchMasterDataProduct = createAsyncThunk('appMasterProduct/fetchData', async params => {
-  const response = await axios.get('http://localhost:5000/master/product/all', {
-    params
+  const response = await axios({
+    method: 'GET',
+    url: '/master/product/all'
   })
   return response.data
 })
 
 export const fetchMasterDataProductDetail = createAsyncThunk('appMasterProduct/fetchDataDetal', async id => {
-  const response = await axios.get('http://localhost:5000/master/product/' + id)
-  return response.data
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/master/product/' + id
+    })
+    return response.data
+  } catch (error) {
+    return error
+  }
 })
 
 // ADD PRODUCT
@@ -54,10 +62,17 @@ export const editMasterDataPorduct = createAsyncThunk(
 export const deleteMasterDataProduct = createAsyncThunk(
   'appProduct/deleteProduct',
   async (id, { getState, dispatch }) => {
-    const response = await axios.delete(`http://localhost:5000/master/product/${id}`)
-    dispatch(fetchMasterDataProduct())
-    toast.success('Sukses Menghapus Produk')
-    return response.data
+    try {
+      const response = await axios({
+        method: 'DELETE',
+        url: '/master/product/' + id,
+      })
+      dispatch(fetchMasterDataProduct())
+      toast.success('Sukses Menghapus Produk')
+      return response.data
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
   }
 )
 
@@ -67,12 +82,19 @@ export const appMasterProductSlice = createSlice({
     data: [],
     loading: false,
     error: false,
+    defaultValue: {
+      name: '',
+      CategoryId: '',
+      TypeId: '',
+      description: ''
+    },
     detail: {
       name: '',
       CategoryId: '',
       TypeId: '',
       description: ''
     },
+    loadingDetail: false,
     total: 1,
     params: {},
     allData: []
@@ -80,22 +102,35 @@ export const appMasterProductSlice = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
+      .addCase(fetchMasterDataProduct.pending, (state, action) => {
+        state.loading = true
+      })
       .addCase(fetchMasterDataProduct.fulfilled, (state, action) => {
         state.data = action.payload.data
         state.params = action.payload.params
         state.allData = action.payload.allData
         state.total = action.payload.total
       })
+      .addCase(fetchMasterDataProduct.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
+      })
       .addCase(fetchMasterDataProductDetail.pending, (state, action) => {
-        state.loading = true
+        state.loadingDetail = true
       })
       .addCase(fetchMasterDataProductDetail.fulfilled, (state, action) => {
         state.detail = action.payload.data
-        state.loading = false
+        state.loadingDetail = false
       })
       .addCase(fetchMasterDataProductDetail.rejected, (state, action) => {
-        state.loading = false
+        state.loadingDetail = false
         state.error = action.error.message
+        state.defaultValue = {
+          name: '',
+          CategoryId: '',
+          TypeId: '',
+          description: ''
+        }
       })
   }
 })

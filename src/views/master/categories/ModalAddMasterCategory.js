@@ -1,5 +1,5 @@
 // ** React Imports
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -20,14 +20,12 @@ import 'react-credit-cards/es/styles-compiled.css'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { IconButton, MenuItem } from '@mui/material'
+import { IconButton } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchDataMasterCategory } from 'src/store/apps/master/category'
-import { fetchMasterDataType } from 'src/store/apps/master/type'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { addMasterDataPorduct, editMasterDataPorduct } from 'src/store/apps/master/product'
+import { addMasterDataCategory, editMasterDataCategory } from 'src/store/apps/master/category'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -44,17 +42,13 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   }
 }))
 
-export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) {
+export default function ModalAddMasterCategory({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
-  const { data: masterDataCategory } = useSelector(state => state.category)
-  const { data: masterDataType } = useSelector(state => state.type)
-  const { defaultValue, detail: detailProduct } = useSelector(state => state.masterProduct)
+  const { defaultValue, detail: detailCategory } = useSelector(state => state.category)
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    name: yup.string().required('Nama tidak boleh kosong'),
-    CategoryId: yup.string().required('Kategori harus dipilih'),
-    TypeId: yup.string().required('Tipe harus dipilih')
+    name: yup.string().required('Nama kategori harus diisi')
   })
 
   // REACT FORM
@@ -63,7 +57,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
     handleSubmit,
     formState: { errors }
   } = useForm({
-    values: typeModal === 'ADD' ? defaultValue : detailProduct,
+    values: typeModal === 'ADD' ? defaultValue : detailCategory,
     mode: 'onChange',
     resolver: yupResolver(schema)
   })
@@ -71,19 +65,12 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
   // ON SUBMIT
   const onSubmit = data => {
     if (typeModal === 'ADD') {
-      dispatch(addMasterDataPorduct(data))
+      dispatch(addMasterDataCategory(data))
     } else {
-      dispatch(editMasterDataPorduct({ id, data }))
+      dispatch(editMasterDataCategory({ id, data }))
     }
     setOpen(false)
   }
-
-  useEffect(() => {
-    dispatch(fetchDataMasterCategory())
-    dispatch(fetchMasterDataType())
-    // disable warn for select if select not have a child item
-    console.warn = () => {}
-  }, [])
 
   // CLOSE MODAL AND RESET FORM
   const handleClose = () => {
@@ -113,7 +100,11 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
             </CustomCloseButton>
             <Box sx={{ mb: 4, textAlign: 'center' }}>
               <Typography variant='h3' sx={{ mb: 3 }}>
-                {typeModal === 'ADD' ? 'Tambahkan Produk Baru' : typeModal === 'VIEW' ? 'Detail Produk' : 'Ubah Produk'}
+                {typeModal === 'ADD'
+                  ? 'Tambahkan Kategori Baru'
+                  : typeModal === 'VIEW'
+                  ? 'Detail Kategori'
+                  : 'Ubah Kategori'}
               </Typography>
             </Box>
             <Grid container spacing={6}>
@@ -128,7 +119,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                         <CustomTextField
                           fullWidth
                           value={value}
-                          label='Nama Produk'
+                          label='Nama Kategori'
                           placeholder=''
                           onChange={onChange}
                           disabled={typeModal === 'VIEW'}
@@ -136,64 +127,6 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                           aria-describedby='validation-schema-name'
                           {...(errors.name && { helperText: errors.name.message })}
                         />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={12}>
-                    <Controller
-                      name='CategoryId'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          select
-                          fullWidth
-                          label='Kategori'
-                          value={value || ''}
-                          onChange={onChange}
-                          disabled={typeModal === 'VIEW'}
-                          error={Boolean(errors.CategoryId)}
-                          aria-describedby='validation-schema-CategoryId'
-                          {...(errors.CategoryId && { helperText: errors.CategoryId.message })}
-                        >
-                          {masterDataCategory.map(item => {
-                            return (
-                              <MenuItem key={item.id} value={item.id}>
-                                {item.name}
-                              </MenuItem>
-                            )
-                          })}
-                        </CustomTextField>
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={12}>
-                    <Controller
-                      name='TypeId'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          select
-                          fullWidth
-                          label='Tipe'
-                          value={value || ''}
-                          onChange={onChange}
-                          disabled={typeModal === 'VIEW'}
-                          error={Boolean(errors.TypeId)}
-                          aria-describedby='validation-schema-TypeId'
-                          {...(errors.TypeId && { helperText: errors.TypeId.message })}
-                        >
-                          <MenuItem />
-                          {masterDataType.length > 0 &&
-                            masterDataType.map(item => {
-                              return (
-                                <MenuItem key={item.id} value={item.id}>
-                                  {item.name}
-                                </MenuItem>
-                              )
-                            })}
-                        </CustomTextField>
                       )}
                     />
                   </Grid>
