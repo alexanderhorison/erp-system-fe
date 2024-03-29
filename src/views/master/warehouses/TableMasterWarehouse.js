@@ -1,16 +1,12 @@
 import { Card, IconButton, Menu, MenuItem, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
-import TableHeaderMasterProduct from './TableHeaderMasterProduct'
+import TableHeaderMasterWarehouse from './TableHeaderMasterWarehouse'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'src/@core/components/icon'
-import {
-  deleteMasterDataProduct,
-  fetchMasterDataProduct,
-  fetchMasterDataProductDetail
-} from 'src/store/apps/master/product'
+import { deleteMasterDataWarehouse, fetchMasterDataWarehouse, fetchMasterDataWarehouseDetail } from 'src/store/apps/master/warehouse'
 import ModalConfirmation from 'src/views/common/ModalConfirmation'
-import ModalAddMasterProduct from './ModalAddMasterProduct'
+import ModalAddMasterWarehouse from './ModalAddMasterWarehouse'
 
 const RowOptions = ({ id, name, handleEdit, handleView }) => {
   const dispatch = useDispatch()
@@ -28,8 +24,7 @@ const RowOptions = ({ id, name, handleEdit, handleView }) => {
   }
 
   const handleDelete = () => {
-    
-    dispatch(deleteMasterDataProduct(id))
+    dispatch(deleteMasterDataWarehouse(id))
     handleRowOptionsClose()
   }
 
@@ -39,8 +34,8 @@ const RowOptions = ({ id, name, handleEdit, handleView }) => {
         open={openModalConfirm}
         setOpen={setModalConfirm}
         handleAgree={handleDelete}
-        title={'Yakin menghapus produk?'}
-        content={`Anda ingin menghapus produk ${name}`}
+        title={'Yakin menghapus tipe?'}
+        content={`Anda ingin menghapus tipe ${name}`}
       />
       <IconButton size='small' onClick={handleRowOptionsClick}>
         <Icon icon='tabler:dots-vertical' />
@@ -95,7 +90,7 @@ const RowOptions = ({ id, name, handleEdit, handleView }) => {
   )
 }
 
-export default function TableMasterProduct({}) {
+export default function TableMasterWarehouse({}) {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
   const [openModalAdd, setOpenModalAdd] = useState(false)
@@ -105,25 +100,23 @@ export default function TableMasterProduct({}) {
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 })
 
-  const [productId, setProductId] = useState('')
+  const [warehouseId, setWarehouseId] = useState('')
+  const { data } = useSelector(state => state.warehouse)
 
   const handleEdit = id => {
-    setProductId(id)
-    dispatch(fetchMasterDataProductDetail(id))
+    setWarehouseId(id)
+    dispatch(fetchMasterDataWarehouseDetail(id))
     setOpenModalEdit(true)
   }
 
   const handleView = id => {
-    setProductId(id)
-    dispatch(fetchMasterDataProductDetail(id))
+    setWarehouseId(id)
+    dispatch(fetchMasterDataWarehouseDetail(id))
     setOpenModalView(true)
   }
 
-  const { data } = useSelector(state => state.masterProduct)
-
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-
     if (searchValue.length) {
       const filteredRows = data.filter(row => row.name.toLowerCase().includes(searchValue.toLowerCase()))
       setFilteredData(filteredRows)
@@ -133,26 +126,26 @@ export default function TableMasterProduct({}) {
   }
 
   useEffect(() => {
-    dispatch(fetchMasterDataProduct())
+    dispatch(fetchMasterDataWarehouse())
   }, [])
   return (
     <Card>
       {openModalEdit && (
-        <ModalAddMasterProduct open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={productId} />
+        <ModalAddMasterWarehouse open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={warehouseId} />
       )}
-      {openModalAdd && <ModalAddMasterProduct open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
+      {openModalAdd && <ModalAddMasterWarehouse open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
       {openModalView && (
-        <ModalAddMasterProduct open={openModalView} setOpen={setOpenModalView} typeModal={'VIEW'} id={productId} />
+        <ModalAddMasterWarehouse open={openModalView} setOpen={setOpenModalView} typeModal={'VIEW'} id={warehouseId} />
       )}
 
       <DataGrid
         autoHeight
         columns={[
           {
-            flex: 0.2,
+            flex: 0.1,
             minWidth: 200,
             field: 'name',
-            headerName: 'Nama Produk',
+            headerName: 'Nama Gudang',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -162,27 +155,14 @@ export default function TableMasterProduct({}) {
             }
           },
           {
-            flex: 0.1,
+            flex: 0.2,
             minWidth: 120,
-            field: 'category',
-            headerName: 'Kategori',
+            field: 'location',
+            headerName: 'Lokasi',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.category}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.1,
-            minWidth: 110,
-            field: 'type',
-            headerName: 'Tipe',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.type}
+                  {params.row.location}
                 </Typography>
               )
             }
@@ -200,7 +180,7 @@ export default function TableMasterProduct({}) {
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderMasterProduct }}
+        slots={{ toolbar: TableHeaderMasterWarehouse }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData.length ? filteredData : data}
         sx={{
@@ -215,7 +195,7 @@ export default function TableMasterProduct({}) {
           },
           toolbar: {
             value: searchText,
-            placeholder: 'Cari nama produk',
+            placeholder: 'Cari nama tipe',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
             openModalAdd: setOpenModalAdd

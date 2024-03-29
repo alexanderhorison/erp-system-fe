@@ -12,6 +12,8 @@ import category from './apps/master/category'
 import type from './apps/master/type'
 import masterProduct from './apps/master/product'
 import menu from 'src/store/apps/menu'
+import unit from './apps/master/unit'
+import warehouse from './apps/master/warehouse'
 
 export const store = configureStore({
   reducer: {
@@ -23,6 +25,8 @@ export const store = configureStore({
     role,
     category,
     type,
+    unit,
+    warehouse,
     masterProduct,
     menu
   },

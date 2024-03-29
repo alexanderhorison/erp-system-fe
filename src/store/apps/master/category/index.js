@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import toast from 'react-hot-toast'
 import axios from 'src/configs/axios'
 
 export const fetchDataMasterCategory = createAsyncThunk('appMasterCategory/fetchData', async params => {
@@ -6,9 +7,70 @@ export const fetchDataMasterCategory = createAsyncThunk('appMasterCategory/fetch
     method: 'GET',
     url: process.env.NEXT_PUBLIC_BASE_URL + '/master/category/all'
   })
-  console.log(response.data)
   return response.data
 })
+
+export const fetchDataMasterCategoryDetail = createAsyncThunk('appMasterCategory/fetchDataDetail', async id => {
+  const response = await axios({
+    method: 'GET',
+    url: process.env.NEXT_PUBLIC_BASE_URL + '/master/category/' + id
+  })
+  return response.data
+})
+
+// ADD CATEGORY
+export const addMasterDataCategory = createAsyncThunk(
+  'appMasterCategory/addCategory',
+  async (data, { getState, dispatch }) => {
+    try {
+      await axios({
+        method: 'post',
+        url: process.env.NEXT_PUBLIC_BASE_URL + '/master/category/create',
+        headers: {},
+        data
+      })
+      dispatch(fetchDataMasterCategory())
+      toast.success('Sukses Menambahkan Kategori')
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
+  }
+)
+
+// EDIT CATEGORY
+export const editMasterDataCategory = createAsyncThunk(
+  'appMasterCategory/editCategory',
+  async ({ id, data }, { getState, dispatch }) => {
+    try {
+      const response = await axios({
+        method: 'PUT',
+        url: '/master/category/' + id,
+        data: data
+      })
+      dispatch(fetchDataMasterCategory())
+      toast.success('Sukses Merubah Kategori')
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
+  }
+)
+
+// DELETE CATEGORY
+export const deleteMasterDataCategory = createAsyncThunk(
+  'appCategory/deleteCategory',
+  async (id, { getState, dispatch }) => {
+    try {
+      await axios({
+        method: 'DELETE',
+        url: '/master/category/' + id
+      })
+      dispatch(fetchDataMasterCategory())
+      toast.success('Sukses Menghapus Kategori')
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
+  }
+)
 
 export const appMasterCategorySlice = createSlice({
   name: 'masterCategory',
@@ -16,6 +78,17 @@ export const appMasterCategorySlice = createSlice({
     data: [],
     loading: false,
     error: false,
+    defaultValue: {
+      id: '',
+      name: '',
+      description: ''
+    },
+    detail: {
+      id: '',
+      name: '',
+      description: ''
+    },
+    loadingDetail: false,
     total: 1,
     params: {},
     allData: []
@@ -23,17 +96,29 @@ export const appMasterCategorySlice = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-      .addCase(fetchDataMasterCategory.fulfilled, (state, action) => {
-        state.data = action.payload.data
-        state.params = action.payload.params
-        state.allData = action.payload.allData
-        state.total = action.payload.total
-      })
       .addCase(fetchDataMasterCategory.pending, (state, action) => {
         state.loading = true
       })
+      .addCase(fetchDataMasterCategory.fulfilled, (state, action) => {
+        state.data = action.payload.data
+        state.loading = false
+        state.error = false
+      })
       .addCase(fetchDataMasterCategory.rejected, (state, action) => {
-        state.error = true
+        state.loading = false
+        state.error = action.error.message
+      })
+      .addCase(fetchDataMasterCategoryDetail.pending, (state, action) => {
+        state.loadingDetail = true
+      })
+      .addCase(fetchDataMasterCategoryDetail.fulfilled, (state, action) => {
+        state.detail = action.payload.data
+        state.loadingDetail = false
+        state.error = false
+      })
+      .addCase(fetchDataMasterCategoryDetail.rejected, (state, action) => {
+        state.loadingDetail = false
+        state.error = action.error.message
       })
   }
 })
