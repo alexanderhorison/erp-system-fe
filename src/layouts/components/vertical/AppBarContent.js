@@ -15,6 +15,7 @@ import ShortcutsDropdown from 'src/@core/layouts/components/shared-components/Sh
 
 // ** Hook Import
 import { useAuth } from 'src/hooks/useAuth'
+import { Typography } from '@mui/material'
 
 const notifications = [
   {
@@ -127,15 +128,26 @@ const AppBarContent = props => {
             <Icon fontSize='1.5rem' icon='tabler:menu-2' />
           </IconButton>
         ) : null}
-        {auth.user && <Autocomplete hidden={hidden} settings={settings} />}
+        {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && auth.user && (
+          <Autocomplete hidden={hidden} settings={settings} />
+        )}
+        <Typography>Inventory System</Typography>
       </Box>
       <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
-        <LanguageDropdown settings={settings} saveSettings={saveSettings} />
-        <ModeToggler settings={settings} saveSettings={saveSettings} />
+        {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
+          <>
+            <LanguageDropdown settings={settings} saveSettings={saveSettings} />
+            <ModeToggler settings={settings} saveSettings={saveSettings} />
+          </>
+        )}
         {auth.user && (
           <>
-            <ShortcutsDropdown settings={settings} shortcuts={shortcuts} />
-            <NotificationDropdown settings={settings} notifications={notifications} />
+            {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
+              <>
+                <ShortcutsDropdown settings={settings} shortcuts={shortcuts} />
+                <NotificationDropdown settings={settings} notifications={notifications} />
+              </>
+            )}
             <UserDropdown settings={settings} />
           </>
         )}
