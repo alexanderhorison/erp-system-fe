@@ -201,9 +201,9 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                       }}
                       disabled={isView}
                     >
-                      {roleStore?.map(data => {
+                      {roleStore?.map((data, index) => {
                         return (
-                          <MenuItem Select value={data.id}>
+                          <MenuItem Select key={index} value={data.id}>
                             {data.name}
                           </MenuItem>
                         )

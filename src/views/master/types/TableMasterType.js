@@ -127,7 +127,7 @@ export default function TableMasterType({}) {
 
   useEffect(() => {
     dispatch(fetchMasterDataType())
-  }, [])
+  }, [dispatch])
   return (
     <Card>
       {openModalEdit && (

@@ -83,7 +83,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
     dispatch(fetchMasterDataType())
     // disable warn for select if select not have a child item
     console.warn = () => {}
-  }, [])
+  }, [dispatch])
 
   // CLOSE MODAL AND RESET FORM
   const handleClose = () => {

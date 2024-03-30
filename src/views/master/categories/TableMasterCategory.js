@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react'
 import TableHeaderMasterCategory from './TableHeaderMasterCategory'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'src/@core/components/icon'
-import { deleteMasterDataCategory, fetchDataMasterCategory, fetchDataMasterCategoryDetail } from 'src/store/apps/master/category'
+import {
+  deleteMasterDataCategory,
+  fetchDataMasterCategory,
+  fetchDataMasterCategoryDetail
+} from 'src/store/apps/master/category'
 import ModalConfirmation from 'src/views/common/ModalConfirmation'
 import ModalAddMasterCategory from './ModalAddMasterCategory'
 
@@ -129,7 +133,7 @@ export default function TableMasterCategory({}) {
 
   useEffect(() => {
     dispatch(fetchDataMasterCategory())
-  }, [])
+  }, [dispatch])
   return (
     <Card>
       {openModalEdit && (

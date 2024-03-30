@@ -28,7 +28,6 @@ const RowOptions = ({ id, name, handleEdit, handleView }) => {
   }
 
   const handleDelete = () => {
-    
     dispatch(deleteMasterDataProduct(id))
     handleRowOptionsClose()
   }
@@ -134,7 +133,7 @@ export default function TableMasterProduct({}) {
 
   useEffect(() => {
     dispatch(fetchMasterDataProduct())
-  }, [])
+  }, [dispatch])
   return (
     <Card>
       {openModalEdit && (

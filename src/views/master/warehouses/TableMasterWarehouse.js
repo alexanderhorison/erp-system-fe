@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react'
 import TableHeaderMasterWarehouse from './TableHeaderMasterWarehouse'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'src/@core/components/icon'
-import { deleteMasterDataWarehouse, fetchMasterDataWarehouse, fetchMasterDataWarehouseDetail } from 'src/store/apps/master/warehouse'
+import {
+  deleteMasterDataWarehouse,
+  fetchMasterDataWarehouse,
+  fetchMasterDataWarehouseDetail
+} from 'src/store/apps/master/warehouse'
 import ModalConfirmation from 'src/views/common/ModalConfirmation'
 import ModalAddMasterWarehouse from './ModalAddMasterWarehouse'
 
@@ -127,7 +131,7 @@ export default function TableMasterWarehouse({}) {
 
   useEffect(() => {
     dispatch(fetchMasterDataWarehouse())
-  }, [])
+  }, [dispatch])
   return (
     <Card>
       {openModalEdit && (

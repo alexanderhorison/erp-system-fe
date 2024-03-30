@@ -145,7 +145,7 @@ const PermissionsTable = () => {
   useEffect(() => {
     dispatch(fetchRoles())
     dispatch(fetchMenus())
-  }, [])
+  }, [dispatch])
 
   const handleFilter = useCallback(val => {
     setValue(val)

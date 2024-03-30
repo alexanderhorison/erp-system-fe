@@ -305,7 +305,7 @@ const UserList = ({ apiData }) => {
   useEffect(() => {
     dispatch(fetchDataUsers())
     dispatch(fetchRoles())
-  }, [])
+  }, [dispatch])
 
   const handleFilter = useCallback(val => {
     setValue(val)
@@ -345,9 +345,9 @@ const UserList = ({ apiData }) => {
                   <MenuItem Select value=''>
                     Select Role
                   </MenuItem>
-                  {roles?.map(data => {
+                  {roles?.map((data, index) => {
                     return (
-                      <MenuItem Select value={data.id}>
+                      <MenuItem Select key={index} value={data.id}>
                         {data.name}
                       </MenuItem>
                     )
