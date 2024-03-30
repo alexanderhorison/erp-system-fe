@@ -2,82 +2,94 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import toast from 'react-hot-toast'
 import axios from 'src/configs/axios'
 
-export const fetchMasterDataWarehouse = createAsyncThunk('appMasterWarehouse/fetchData', async params => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/master/warehouse/all'
-    })
-    return response.data
-  } catch (error) {
-    console.log(error)
-    toast.error(error.response.data.message)
+export const fetchMasterDataWarehouse = createAsyncThunk(
+  'appMasterWarehouse/fetchData',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/master/warehouse/all'
+      })
+      return response.data
+    } catch (error) {
+      toast.error(error.response.data.message)
+      return rejectWithValue([])
+    }
   }
-})
+)
 
-export const fetchMasterDataWarehouseDetail = createAsyncThunk('appMasterWarehouse/fetchDataDetail', async id => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/master/warehouse/' + id
-    })
-    return response.data
-  } catch (error) {
-    console.log(error)
-    toast.error(error.response.data.message)
+export const fetchMasterDataWarehouseDetail = createAsyncThunk(
+  'appMasterWarehouse/fetchDataDetail',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/master/warehouse/' + id
+      })
+      return response.data
+    } catch (error) {
+      toast.error(error.response.data.message)
+      return rejectWithValue({})
+    }
   }
-})
+)
 
 // ADD UNIT
-export const addMasterDataWarehouse = createAsyncThunk('appMasterWarehouse/addWarehouse', async (data, { getState, dispatch }) => {
-  try {
-    await axios({
-      method: 'post',
-      url: '/master/warehouse/create',
-      headers: {},
-      data
-    })
-    dispatch(fetchMasterDataWarehouse())
-    toast.success('Sukses Menambahkan Gudang')
-  } catch (error) {
-    console.log(error)
-    toast.error(error.response.data.message)
+export const addMasterDataWarehouse = createAsyncThunk(
+  'appMasterWarehouse/addWarehouse',
+  async (data, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'post',
+        url: '/master/warehouse/create',
+        headers: {},
+        data
+      })
+      dispatch(fetchMasterDataWarehouse())
+      toast.success(response.data.message)
+    } catch (error) {
+      toast.error(error.response.data.message)
+      return rejectWithValue({})
+    }
   }
-})
+)
 
 // EDIT UNIT
 export const editMasterDataWarehouse = createAsyncThunk(
   'appMasterWarehouse/editWarehouse',
-  async ({ id, data }, { getState, dispatch }) => {
+  async ({ id, data }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'PUT',
         url: '/master/warehouse/' + id,
         data: data
       })
-      console.log(response);
       dispatch(fetchMasterDataWarehouse())
-      toast.success('Sukses Merubah Gudang')
+      toast.success(response.data.message)
     } catch (error) {
       toast.error(error.response.data.message)
+      return rejectWithValue({})
     }
   }
 )
 
 // DELETE UNIT
-export const deleteMasterDataWarehouse = createAsyncThunk('appWarehouse/deleteWarehouse', async (id, { getState, dispatch }) => {
-  try {
-    const response = await axios({
-      method: 'DELETE',
-      url: '/master/warehouse/' + id
-    })
-    dispatch(fetchMasterDataWarehouse())
-    toast.success('Sukses Menghapus Gudang')
-    return response.data
-  } catch (error) {
-    toast.error(error.response.data.message)
+export const deleteMasterDataWarehouse = createAsyncThunk(
+  'appWarehouse/deleteWarehouse',
+  async (id, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'DELETE',
+        url: '/master/warehouse/' + id
+      })
+      dispatch(fetchMasterDataWarehouse())
+      toast.success(response.data.message)
+    } catch (error) {
+      toast.error(error.response.data.message)
+      return rejectWithValue({})
+    }
   }
-})
+)
 
 export const appMasterWarehouseSlice = createSlice({
   name: 'appMasterWarehouse',

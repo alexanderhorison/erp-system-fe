@@ -2,37 +2,54 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import toast from 'react-hot-toast'
 import axios from 'src/configs/axios'
 
-export const fetchDataMasterCategory = createAsyncThunk('appMasterCategory/fetchData', async params => {
-  const response = await axios({
-    method: 'GET',
-    url: process.env.NEXT_PUBLIC_BASE_URL + '/master/category/all'
-  })
-  return response.data
-})
+export const fetchDataMasterCategory = createAsyncThunk(
+  'appMasterCategory/fetchData',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: process.env.NEXT_PUBLIC_BASE_URL + '/master/category/all'
+      })
+      return response.data
+    } catch (error) {
+      toast.error(error.response.data.message)
+      return rejectWithValue([])
+    }
+  }
+)
 
-export const fetchDataMasterCategoryDetail = createAsyncThunk('appMasterCategory/fetchDataDetail', async id => {
-  const response = await axios({
-    method: 'GET',
-    url: process.env.NEXT_PUBLIC_BASE_URL + '/master/category/' + id
-  })
-  return response.data
-})
+export const fetchDataMasterCategoryDetail = createAsyncThunk(
+  'appMasterCategory/fetchDataDetail',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: process.env.NEXT_PUBLIC_BASE_URL + '/master/category/' + id
+      })
+      return response.data
+    } catch (error) {
+      toast.error(error.response.data.message)
+      return rejectWithValue({})
+    }
+  }
+)
 
 // ADD CATEGORY
 export const addMasterDataCategory = createAsyncThunk(
   'appMasterCategory/addCategory',
-  async (data, { getState, dispatch }) => {
+  async (data, { dispatch, rejectWithValue }) => {
     try {
-      await axios({
+      const response = await axios({
         method: 'post',
         url: process.env.NEXT_PUBLIC_BASE_URL + '/master/category/create',
         headers: {},
         data
       })
       dispatch(fetchDataMasterCategory())
-      toast.success('Sukses Menambahkan Kategori')
+      toast.success(response.data.message)
     } catch (error) {
       toast.error(error.response.data.message)
+      return rejectWithValue({})
     }
   }
 )
@@ -40,7 +57,7 @@ export const addMasterDataCategory = createAsyncThunk(
 // EDIT CATEGORY
 export const editMasterDataCategory = createAsyncThunk(
   'appMasterCategory/editCategory',
-  async ({ id, data }, { getState, dispatch }) => {
+  async ({ id, data }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'PUT',
@@ -48,9 +65,10 @@ export const editMasterDataCategory = createAsyncThunk(
         data: data
       })
       dispatch(fetchDataMasterCategory())
-      toast.success('Sukses Merubah Kategori')
+      toast.success(response.data.message)
     } catch (error) {
       toast.error(error.response.data.message)
+      return rejectWithValue({})
     }
   }
 )
@@ -58,16 +76,17 @@ export const editMasterDataCategory = createAsyncThunk(
 // DELETE CATEGORY
 export const deleteMasterDataCategory = createAsyncThunk(
   'appCategory/deleteCategory',
-  async (id, { getState, dispatch }) => {
+  async (id, { dispatch, rejectWithValue }) => {
     try {
       await axios({
         method: 'DELETE',
         url: '/master/category/' + id
       })
       dispatch(fetchDataMasterCategory())
-      toast.success('Sukses Menghapus Kategori')
+      toast.success(response.data.message)
     } catch (error) {
       toast.error(error.response.data.message)
+      return rejectWithValue({})
     }
   }
 )
