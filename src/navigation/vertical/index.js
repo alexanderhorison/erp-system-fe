@@ -39,34 +39,34 @@ const navigation = () => {
       icon: 'tabler:user',
       children: [
         {
-          title: 'List Pengguna',
+          title: 'Daftar Pengguna',
           path: '/apps/user/list'
-        },
-        {
-          title: 'View',
-          children: [
-            {
-              title: 'Account',
-              path: '/apps/user/view/account'
-            },
-            {
-              title: 'Security',
-              path: '/apps/user/view/security'
-            },
-            {
-              title: 'Billing & Plans',
-              path: '/apps/user/view/billing-plan'
-            },
-            {
-              title: 'Notifications',
-              path: '/apps/user/view/notification'
-            },
-            {
-              title: 'Connection',
-              path: '/apps/user/view/connection'
-            }
-          ]
         }
+        // {
+        //   title: 'View',
+        //   children: [
+        //     {
+        //       title: 'Account',
+        //       path: '/apps/user/view/account'
+        //     },
+        //     {
+        //       title: 'Security',
+        //       path: '/apps/user/view/security'
+        //     },
+        //     {
+        //       title: 'Billing & Plans',
+        //       path: '/apps/user/view/billing-plan'
+        //     },
+        //     {
+        //       title: 'Notifications',
+        //       path: '/apps/user/view/notification'
+        //     },
+        //     {
+        //       title: 'Connection',
+        //       path: '/apps/user/view/connection'
+        //     }
+        //   ]
+        // }
       ]
     },
     {
@@ -182,32 +182,32 @@ const navigation = () => {
         {
           title: 'List Pengguna',
           path: '/apps/user/list'
-        },
-        {
-          title: 'View',
-          children: [
-            {
-              title: 'Account',
-              path: '/apps/user/view/account'
-            },
-            {
-              title: 'Security',
-              path: '/apps/user/view/security'
-            },
-            {
-              title: 'Billing & Plans',
-              path: '/apps/user/view/billing-plan'
-            },
-            {
-              title: 'Notifications',
-              path: '/apps/user/view/notification'
-            },
-            {
-              title: 'Connection',
-              path: '/apps/user/view/connection'
-            }
-          ]
         }
+        // {
+        //   title: 'View',
+        //   children: [
+        //     {
+        //       title: 'Account',
+        //       path: '/apps/user/view/account'
+        //     },
+        //     {
+        //       title: 'Security',
+        //       path: '/apps/user/view/security'
+        //     },
+        //     {
+        //       title: 'Billing & Plans',
+        //       path: '/apps/user/view/billing-plan'
+        //     },
+        //     {
+        //       title: 'Notifications',
+        //       path: '/apps/user/view/notification'
+        //     },
+        //     {
+        //       title: 'Connection',
+        //       path: '/apps/user/view/connection'
+        //     }
+        //   ]
+        // }
       ]
     },
     {
@@ -727,7 +727,7 @@ const navigation = () => {
     }
   ]
 
-  if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === "true") {
+  if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true') {
     return menu
   } else {
     return deploy

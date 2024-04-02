@@ -25,7 +25,7 @@ export const addUser = createAsyncThunk('appUsers/addUser', async (data, { getSt
       url: '/user/create',
       data: data
     })
-    toast.success(response.data.message)
+    toast.success(response?.data?.message)
     dispatch(fetchDataUsers())
     return
   } catch (error) {
