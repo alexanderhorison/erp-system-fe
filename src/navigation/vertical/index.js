@@ -135,8 +135,6 @@ const navigation = () => {
     {
       sectionTitle: 'Apps & Pages'
     },
-<<<<<<< HEAD
-=======
     {
       title: 'Email',
       icon: 'tabler:mail',
@@ -174,7 +172,6 @@ const navigation = () => {
         }
       ]
     },
->>>>>>> 2d2787359d7e57947b4990860fb83d90ce28ba18
     {
       sectionTitle: 'Pengaturan'
     },
