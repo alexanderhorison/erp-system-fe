@@ -14,6 +14,8 @@ import masterProduct from './apps/master/product'
 import menu from 'src/store/apps/menu'
 import unit from './apps/master/unit'
 import warehouse from './apps/master/warehouse'
+//import store from './src/store'; // Use relative path //
+
 
 export const store = configureStore({
   reducer: {

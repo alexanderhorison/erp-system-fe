@@ -53,43 +53,6 @@ const navigation = () => {
     {
       sectionTitle: 'Apps & Pages'
     },
-    // {
-    //   title: 'Email',
-    //   icon: 'tabler:mail',
-    //   path: '/apps/email'
-    // },
-    // {
-    //   title: 'Chat',
-    //   icon: 'tabler:messages',
-    //   path: '/apps/chat'
-    // },
-    // {
-    //   title: 'Calendar',
-    //   icon: 'tabler:calendar',
-    //   path: '/apps/calendar'
-    // },
-    // {
-    //   title: 'Invoice',
-    //   icon: 'tabler:file-dollar',
-    //   children: [
-    //     {
-    //       title: 'List',
-    //       path: '/apps/invoice/list'
-    //     },
-    //     {
-    //       title: 'Preview',
-    //       path: '/apps/invoice/preview'
-    //     },
-    //     {
-    //       title: 'Edit',
-    //       path: '/apps/invoice/edit'
-    //     },
-    //     {
-    //       title: 'Add',
-    //       path: '/apps/invoice/add'
-    //     }
-    //   ]
-    // },
     {
       sectionTitle: 'Pengaturan'
     },
