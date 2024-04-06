@@ -2,48 +2,61 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
 import toast from 'react-hot-toast'
 
-export const fetchMasterDataProduct = createAsyncThunk('appMasterProduct/fetchData', async params => {
-  const response = await axios({
-    method: 'GET',
-    url: '/master/product/all'
-  })
-  return response.data
-})
-
-export const fetchMasterDataProductDetail = createAsyncThunk('appMasterProduct/fetchDataDetal', async id => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/master/product/' + id
-    })
-    return response.data
-  } catch (error) {
-    return error
+export const fetchMasterDataProduct = createAsyncThunk(
+  'appMasterProduct/fetchData',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/master/product/all'
+      })
+      return response.data
+    } catch (error) {
+      toast.error(error.response.data.message)
+      return rejectWithValue([])
+    }
   }
-})
+)
+
+export const fetchMasterDataProductDetail = createAsyncThunk(
+  'appMasterProduct/fetchDataDetal',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/master/product/' + id
+      })
+      return response.data
+    } catch (error) {
+      toast.error(error.response.data.message)
+      return rejectWithValue({})
+    }
+  }
+)
 
 // ADD PRODUCT
 export const addMasterDataPorduct = createAsyncThunk(
   'appMasterProduct/addProduct',
-  async (data, { getState, dispatch }) => {
+  async (data, { dispatch, rejectWithValue }) => {
     try {
-      await axios({
+      const response = await axios({
         method: 'post',
         url: process.env.NEXT_PUBLIC_BASE_URL + '/master/product/create',
         headers: {},
         data
       })
       dispatch(fetchMasterDataProduct())
-      toast.success('Sukses Menambahkan Produk')
+      toast.success(response.data.message)
     } catch (error) {
       toast.error(error.response.data.message)
+      return rejectWithValue({})
     }
   }
 )
 
 export const editMasterDataPorduct = createAsyncThunk(
   'appMasterProduct/editProduct',
-  async ({ id, data }, { getState, dispatch }) => {
+  async ({ id, data }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'PUT',
@@ -51,9 +64,10 @@ export const editMasterDataPorduct = createAsyncThunk(
         data: data
       })
       dispatch(fetchMasterDataProduct())
-      toast.success('Sukses Merubah Produk')
+      toast.success(response.data.message)
     } catch (error) {
       toast.error(error.response.data.message)
+      return rejectWithValue({})
     }
   }
 )
@@ -61,17 +75,18 @@ export const editMasterDataPorduct = createAsyncThunk(
 // DELETE PRODUCT
 export const deleteMasterDataProduct = createAsyncThunk(
   'appProduct/deleteProduct',
-  async (id, { getState, dispatch }) => {
+  async (id, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'DELETE',
-        url: '/master/product/' + id,
+        url: '/master/product/' + id
       })
       dispatch(fetchMasterDataProduct())
-      toast.success('Sukses Menghapus Produk')
+      toast.success(response.data.message)
       return response.data
     } catch (error) {
       toast.error(error.response.data.message)
+      return rejectWithValue({})
     }
   }
 )

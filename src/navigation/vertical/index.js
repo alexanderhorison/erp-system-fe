@@ -1,5 +1,86 @@
 const navigation = () => {
-  return [
+  const deploy = [
+    {
+      title: 'Master Data',
+      icon: 'tabler:server-cog',
+      children: [
+        {
+          title: 'Produk',
+          path: '/master/products'
+        },
+        {
+          title: 'Tipe Produk',
+          path: '/master/types'
+        },
+        {
+          title: 'Satuan Produk',
+          path: '/master/units'
+        },
+        {
+          title: 'Kategori Produk',
+          path: '/master/categories',
+          icon: 'tabler:brand-tabler'
+        },
+        {
+          title: 'Gudang',
+          path: '/master/warehouses'
+        },
+        {
+          title: 'Rumus Transformasi',
+          path: '/master/transformation'
+        }
+      ]
+    },
+    {
+      sectionTitle: 'Pengaturan'
+    },
+    {
+      title: 'Pengguna',
+      icon: 'tabler:user',
+      children: [
+        {
+          title: 'Daftar Pengguna',
+          path: '/apps/user/list'
+        }
+        // {
+        //   title: 'View',
+        //   children: [
+        //     {
+        //       title: 'Account',
+        //       path: '/apps/user/view/account'
+        //     },
+        //     {
+        //       title: 'Security',
+        //       path: '/apps/user/view/security'
+        //     },
+        //     {
+        //       title: 'Billing & Plans',
+        //       path: '/apps/user/view/billing-plan'
+        //     },
+        //     {
+        //       title: 'Notifications',
+        //       path: '/apps/user/view/notification'
+        //     },
+        //     {
+        //       title: 'Connection',
+        //       path: '/apps/user/view/connection'
+        //     }
+        //   ]
+        // }
+      ]
+    },
+    {
+      title: 'Otoritas',
+      icon: 'tabler:settings',
+      children: [
+        {
+          title: 'Otoritas Pengguna',
+          path: '/apps/roles'
+        }
+      ]
+    }
+  ]
+  const menu = [
     {
       title: 'Dashboards',
       icon: 'tabler:brand-tabler',
@@ -22,6 +103,7 @@ const navigation = () => {
     },
     {
       title: 'Master Data',
+      icon: 'tabler:server-cog',
       children: [
         {
           title: 'Produk',
@@ -53,6 +135,46 @@ const navigation = () => {
     {
       sectionTitle: 'Apps & Pages'
     },
+<<<<<<< HEAD
+=======
+    {
+      title: 'Email',
+      icon: 'tabler:mail',
+      path: '/apps/email'
+    },
+    {
+      title: 'Chat',
+      icon: 'tabler:messages',
+      path: '/apps/chat'
+    },
+    {
+      title: 'Calendar',
+      icon: 'tabler:calendar',
+      path: '/apps/calendar'
+    },
+    {
+      title: 'Invoice',
+      icon: 'tabler:file-dollar',
+      children: [
+        {
+          title: 'List',
+          path: '/apps/invoice/list'
+        },
+        {
+          title: 'Preview',
+          path: '/apps/invoice/preview'
+        },
+        {
+          title: 'Edit',
+          path: '/apps/invoice/edit'
+        },
+        {
+          title: 'Add',
+          path: '/apps/invoice/add'
+        }
+      ]
+    },
+>>>>>>> 2d2787359d7e57947b4990860fb83d90ce28ba18
     {
       sectionTitle: 'Pengaturan'
     },
@@ -63,32 +185,32 @@ const navigation = () => {
         {
           title: 'List Pengguna',
           path: '/apps/user/list'
-        },
-        {
-          title: 'View',
-          children: [
-            {
-              title: 'Account',
-              path: '/apps/user/view/account'
-            },
-            {
-              title: 'Security',
-              path: '/apps/user/view/security'
-            },
-            {
-              title: 'Billing & Plans',
-              path: '/apps/user/view/billing-plan'
-            },
-            {
-              title: 'Notifications',
-              path: '/apps/user/view/notification'
-            },
-            {
-              title: 'Connection',
-              path: '/apps/user/view/connection'
-            }
-          ]
         }
+        // {
+        //   title: 'View',
+        //   children: [
+        //     {
+        //       title: 'Account',
+        //       path: '/apps/user/view/account'
+        //     },
+        //     {
+        //       title: 'Security',
+        //       path: '/apps/user/view/security'
+        //     },
+        //     {
+        //       title: 'Billing & Plans',
+        //       path: '/apps/user/view/billing-plan'
+        //     },
+        //     {
+        //       title: 'Notifications',
+        //       path: '/apps/user/view/notification'
+        //     },
+        //     {
+        //       title: 'Connection',
+        //       path: '/apps/user/view/connection'
+        //     }
+        //   ]
+        // }
       ]
     },
     {
@@ -607,6 +729,12 @@ const navigation = () => {
       ]
     }
   ]
+
+  if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true') {
+    return menu
+  } else {
+    return deploy
+  }
 }
 
 export default navigation
