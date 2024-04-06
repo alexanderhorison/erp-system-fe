@@ -3,5 +3,6 @@ export default {
   loginEndpoint: '/jwt/login',
   registerEndpoint: '/jwt/register',
   storageTokenKeyName: 'accessToken',
+  storageRefreshTokenKeyName: 'refreshToken',
   onTokenExpiration: 'refreshToken' // logout | refreshToken
 }
