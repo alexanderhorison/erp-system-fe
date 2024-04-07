@@ -86,8 +86,8 @@ const schema = yup.object().shape({
 })
 
 const defaultValues = {
-  password: 'admin',
-  email: 'admin@vuexy.com'
+  password: '',
+  email: ''
 }
 
 const LoginPage = () => {
@@ -192,14 +192,16 @@ const LoginPage = () => {
                 Please sign-in to your account and start the adventure
               </Typography>
             </Box>
-            <Alert icon={false} sx={{ py: 3, mb: 6, ...bgColors.primaryLight, '& .MuiAlert-message': { p: 0 } }}>
-              <Typography variant='body2' sx={{ mb: 2, color: 'primary.main' }}>
-                Admin: <strong>admin@vuexy.com</strong> / Pass: <strong>admin</strong>
-              </Typography>
-              <Typography variant='body2' sx={{ color: 'primary.main' }}>
-                Client: <strong>client@vuexy.com</strong> / Pass: <strong>client</strong>
-              </Typography>
-            </Alert>
+            {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
+              <Alert icon={false} sx={{ py: 3, mb: 6, ...bgColors.primaryLight, '& .MuiAlert-message': { p: 0 } }}>
+                <Typography variant='body2' sx={{ mb: 2, color: 'primary.main' }}>
+                  Admin: <strong>admin@vuexy.com</strong> / Pass: <strong>admin</strong>
+                </Typography>
+                <Typography variant='body2' sx={{ color: 'primary.main' }}>
+                  Client: <strong>client@vuexy.com</strong> / Pass: <strong>client</strong>
+                </Typography>
+              </Alert>
+            )}
             <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
               <Box sx={{ mb: 4 }}>
                 <Controller
