@@ -38,7 +38,7 @@ const schema = yup.object().shape({
 
 const TableHeader = props => {
   // ** Props
-  const { handleFilter, value } = props
+  const { handleFilter, value, clearFilter } = props
   const dispatch = useDispatch()
 
   const roleStore = useSelector(state => state.role.dataRoles)
@@ -83,21 +83,40 @@ const TableHeader = props => {
           justifyContent: 'space-between'
         }}
       >
-        {/* <Button color='secondary' variant='tonal' startIcon={<Icon icon='tabler:upload' />}>
-        Export
-      </Button> */}
-        <Box sx={{ rowGap: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-          <CustomTextField
-            value={value}
-            sx={{ mr: 4 }}
-            placeholder='Cari Pengguna'
-            onChange={e => handleFilter(e.target.value)}
-          />
-
-          <Button onClick={handleDialogToggle} variant='contained' sx={{ '& svg': { mr: 2 } }}>
-            <Icon fontSize='1.125rem' icon='tabler:plus' />
-            Tambah Pengguna Baru
-          </Button>
+        <Box
+          sx={{
+            gap: 2,
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%'
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center'
+            }}
+          >
+            <CustomTextField value={value} placeholder='Cari Pengguna' onChange={e => handleFilter(e.target.value)} />
+            <Button
+              onClick={e => {
+                clearFilter()
+              }}
+              sx={{ ml: -12, p: 0 }}
+              color='secondary'
+            >
+              X
+            </Button>
+          </Box>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+            <Button onClick={handleDialogToggle} variant='contained' sx={{ '& svg': { mr: 2 } }}>
+              <Icon fontSize='1.125rem' icon='tabler:plus' />
+              Tambah Pengguna Baru
+            </Button>
+          </Box>
         </Box>
       </Box>
       <Dialog fullWidth maxWidth='sm' onClose={handleDialogToggle} open={open}>
@@ -174,21 +193,6 @@ const TableHeader = props => {
                 )}
               />
               <Controller
-                name='description'
-                control={control}
-                rules={{ required: false }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    fullWidth
-                    label='Deskripsi'
-                    value={value}
-                    sx={{ mb: 4 }}
-                    onChange={onChange}
-                    placeholder='akun cakra'
-                  />
-                )}
-              />
-              <Controller
                 name='RoleId'
                 control={control}
                 rules={{ required: true }}
@@ -213,6 +217,23 @@ const TableHeader = props => {
                       )
                     })}
                   </CustomTextField>
+                )}
+              />
+              <Controller
+                name='description'
+                control={control}
+                rules={{ required: false }}
+                render={({ field: { value, onChange } }) => (
+                  <CustomTextField
+                    fullWidth
+                    label='Deskripsi'
+                    value={value}
+                    sx={{ mb: 4 }}
+                    onChange={onChange}
+                    placeholder='akun cakra'
+                    multiline
+                    rows={3}
+                  />
                 )}
               />
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-evenly' }}>

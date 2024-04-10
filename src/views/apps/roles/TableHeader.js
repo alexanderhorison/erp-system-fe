@@ -50,7 +50,7 @@ const MenuProps = {
 
 const TableHeader = props => {
   // ** Props
-  const { value, handleFilter } = props
+  const { value, handleFilter, clearFilter } = props
   const dispatch = useDispatch()
 
   // ** State
@@ -95,12 +95,23 @@ const TableHeader = props => {
       <Box
         sx={{ p: 5, pb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}
       >
-        <CustomTextField
-          value={value}
-          sx={{ mr: 4, mb: 2 }}
-          placeholder='Cari Otoritas'
-          onChange={e => handleFilter(e.target.value)}
-        />
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center'
+          }}
+        >
+          <CustomTextField
+            value={value}
+            // sx={{ mr: 4, mb: 2 }}
+            placeholder='Cari Otoritas'
+            onChange={e => handleFilter(e.target.value)}
+          />
+          <Button onClick={e => clearFilter()} sx={{ ml: -12, p: 0 }} color='secondary'>
+            X
+          </Button>
+        </Box>
         <Button sx={{ mb: 2 }} variant='contained' onClick={handleDialogToggle}>
           Tambah Otoritas
         </Button>
@@ -145,21 +156,6 @@ const TableHeader = props => {
                 )}
               />
               <Controller
-                name='description'
-                control={control}
-                rules={{ required: false }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    fullWidth
-                    value={value}
-                    sx={{ mb: 4 }}
-                    label='Deskripsi Otoritas'
-                    onChange={onChange}
-                    placeholder='Otoritas untuk manage data user'
-                  />
-                )}
-              />
-              <Controller
                 name='menuId'
                 control={control}
                 rules={{ required: false }}
@@ -198,6 +194,23 @@ const TableHeader = props => {
                       </MenuItem>
                     ))}
                   </CustomTextField>
+                )}
+              />
+              <Controller
+                name='description'
+                control={control}
+                rules={{ required: false }}
+                render={({ field: { value, onChange } }) => (
+                  <CustomTextField
+                    fullWidth
+                    value={value}
+                    sx={{ mb: 4 }}
+                    label='Deskripsi Otoritas'
+                    onChange={onChange}
+                    rows={3}
+                    multiline
+                    placeholder='Otoritas untuk manage data user'
+                  />
                 )}
               />
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-evenly' }}>

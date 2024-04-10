@@ -7,7 +7,6 @@ export const fetchMenus = createAsyncThunk('appMenus/fetchMenus', async params =
     method: 'GET',
     url: '/menu/all'
   })
-  console.log(response, '10')
   return response.data
 })
 

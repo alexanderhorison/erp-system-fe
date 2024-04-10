@@ -5,11 +5,12 @@ import toast from 'react-hot-toast'
 import axios from 'src/configs/axios'
 
 // ** Fetch Users
-export const fetchDataUsers = createAsyncThunk('appUsers/fetchDataUsers', async () => {
+export const fetchDataUsers = createAsyncThunk('appUsers/fetchDataUsers', async filter => {
   try {
     const response = await axios({
       method: 'GET',
-      url: '/user/all'
+      url: '/user/all',
+      params: filter
     })
     return response.data
   } catch (error) {

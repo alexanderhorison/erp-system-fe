@@ -135,20 +135,33 @@ const PermissionsTable = () => {
   // ** State
   const [value, setValue] = useState('')
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [filteredRoles, setFilteredRoles] = useState([])
 
   // ** Hooks
   const dispatch = useDispatch()
   const roles = useSelector(state => state.role.dataRoles)
-
-  console.log(roles)
 
   useEffect(() => {
     dispatch(fetchRoles())
     dispatch(fetchMenus())
   }, [dispatch])
 
-  const handleFilter = useCallback(val => {
-    setValue(val)
+  const handleFilter = useCallback(
+    val => {
+      setValue(val)
+      if (val.length) {
+        const filteredRows = roles.filter(row => row.name.toLowerCase().includes(val.toLowerCase()))
+        setFilteredRoles(filteredRows)
+      } else {
+        setFilteredRoles(roles)
+      }
+    },
+    [roles]
+  )
+
+  const clearFilter = useCallback(val => {
+    setValue('')
+    setFilteredRoles([])
   }, [])
 
   const onSubmit = e => {
@@ -181,10 +194,10 @@ const PermissionsTable = () => {
         </Grid>
         <Grid item xs={12}>
           <Card>
-            <TableHeader value={value} handleFilter={handleFilter} />
+            <TableHeader value={value} handleFilter={handleFilter} clearFilter={clearFilter} />
             <DataGrid
               autoHeight
-              rows={roles}
+              rows={value ? filteredRoles : roles}
               columns={columns}
               disableRowSelectionOnClick
               pageSizeOptions={[10, 25, 50]}

@@ -80,7 +80,6 @@ const AuthProvider = ({ children }) => {
       }
     })
       .then(async response => {
-        console.log(response.data.data)
         localStorage.setItem(authConfig.storageTokenKeyName, response.data.data.token)
         localStorage.setItem(authConfig.storageRefreshTokenKeyName, response.data.data.refreshToken)
         localStorage.setItem(authConfig.onTokenExpiration, response.data.data.refreshToken)
@@ -109,8 +108,6 @@ const AuthProvider = ({ children }) => {
     //     if (errorCallback) errorCallback(err)
     //   })
   }
-  console.log(user)
-
   const handleLogout = () => {
     setUser(null)
     window.localStorage.clear()

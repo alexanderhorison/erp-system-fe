@@ -102,8 +102,8 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
             )}
           </Box>
           <form onSubmit={handleSubmit(onSubmitEdit)}>
-            <Grid container spacing={6}>
-              <Grid item sm={6} xs={12}>
+            <Grid container spacing={1}>
+              <Grid item sm={12} xs={12}>
                 <Controller
                   name='name'
                   control={control}
@@ -123,7 +123,7 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                   )}
                 />
               </Grid>
-              <Grid item sm={6} xs={12}>
+              <Grid item sm={12} xs={8}>
                 <Controller
                   name='user_name'
                   control={control}
@@ -143,7 +143,7 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                   )}
                 />
               </Grid>
-              <Grid item sm={6} xs={12}>
+              <Grid item sm={12} xs={12}>
                 <Controller
                   name='email'
                   control={control}
@@ -160,24 +160,6 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                       error={Boolean(errors.email)}
                       placeholder='cakra@email.com'
                       {...(errors.email && { helperText: errors.email.message })}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item sm={6} xs={12}>
-                <Controller
-                  name='description'
-                  control={control}
-                  rules={{ required: false }}
-                  render={({ field: { value, onChange } }) => (
-                    <CustomTextField
-                      fullWidth
-                      label='Deskripsi'
-                      value={value}
-                      sx={{ mb: 4 }}
-                      onChange={onChange}
-                      placeholder='akun cakra'
-                      disabled={isView}
                     />
                   )}
                 />
@@ -209,6 +191,26 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                         )
                       })}
                     </CustomTextField>
+                  )}
+                />
+              </Grid>
+              <Grid item sm={12} xs={12}>
+                <Controller
+                  name='description'
+                  control={control}
+                  rules={{ required: false }}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      fullWidth
+                      multiline
+                      rows={3}
+                      label='Deskripsi'
+                      value={value}
+                      sx={{ mb: 4 }}
+                      onChange={onChange}
+                      placeholder='akun cakra'
+                      disabled={isView}
+                    />
                   )}
                 />
               </Grid>

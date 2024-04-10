@@ -42,9 +42,9 @@ import axios from 'axios'
 
 // ** Custom Table Components Imports
 import TableHeader from 'src/views/apps/user/list/TableHeader'
-import AddUserDrawer from 'src/views/apps/user/list/AddUserDrawer'
 import ModalUserEdit from 'src/views/apps/modal/user/modalUserEdit'
 import ModalConfirmation from 'src/views/common/ModalConfirmation'
+import Button from '@mui/material/Button'
 
 // ** renders client column
 const userRoleObj = {
@@ -79,11 +79,6 @@ const RowOptions = ({ id, data }) => {
   const dispatch = useDispatch()
 
   // ** State
-  const [anchorEl, setAnchorEl] = useState(null)
-  const rowOptionsOpen = Boolean(anchorEl)
-
-  // State Modal View
-  const [isView, setIsView] = useState(false)
 
   // State Modal Edit
   const [isModalEditUser, setIsModalEditUser] = useState(false)
@@ -102,7 +97,6 @@ const RowOptions = ({ id, data }) => {
     (data, isView = false) =>
       () => {
         setDataUser(data)
-        setIsView(isView)
         setIsModalEditUser(true)
       },
     []
@@ -136,56 +130,28 @@ const RowOptions = ({ id, data }) => {
 
   return (
     <>
-      <IconButton size='small' onClick={handleRowOptionsClick}>
-        <Icon icon='tabler:dots-vertical' />
-      </IconButton>
-      <Menu
-        keepMounted
-        anchorEl={anchorEl}
-        open={rowOptionsOpen}
-        onClose={handleRowOptionsClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
-        }}
-        PaperProps={{ style: { minWidth: '8rem' } }}
-      >
-        <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={modalEditUserOpenPress(data, true)}>
-          <Icon icon='tabler:eye' fontSize={20} />
-          Lihat
-        </MenuItem>
+      <Box sx={{ display: 'flex' }}>
+        <IconButton onClick={modalEditUserOpenPress(data)} sx={{ ml: data.deletedAt ? 5 : 0 }}>
+          <Icon icon='tabler:edit' />
+        </IconButton>
         {!data?.deletedAt && (
-          <MenuItem onClick={modalEditUserOpenPress(data)} sx={{ '& svg': { mr: 2 } }}>
-            <Icon icon='tabler:edit' fontSize={20} />
-            Sunting
-          </MenuItem>
+          <IconButton>
+            <Icon icon='tabler:trash' onClick={modalDeleteUserOpenPress()} />
+          </IconButton>
         )}
-        <MenuItem onClick={modalDeleteUserOpenPress()} sx={{ '& svg': { mr: 2 } }}>
-          <Icon icon='tabler:trash' fontSize={20} />
-          Hapus
-        </MenuItem>
-        {isModalEditUser && (
-          <ModalUserEdit
-            data={dataUser}
-            isOpen={isModalEditUser}
-            closePress={modalEditUserClosePress}
-            isView={isView}
-          />
-        )}
-        {isModalDeleteUser && (
-          <ModalConfirmation
-            handleAgree={handleDelete}
-            open={isModalDeleteUser}
-            setOpen={setIsModalDeleteUser}
-            title={'Yakin menghapus user?'}
-            content={`Anda ingin menghapus user ${data?.name}`}
-          />
-        )}
-      </Menu>
+      </Box>
+      {isModalEditUser && (
+        <ModalUserEdit data={dataUser} isOpen={isModalEditUser} closePress={modalEditUserClosePress} />
+      )}
+      {isModalDeleteUser && (
+        <ModalConfirmation
+          handleAgree={handleDelete}
+          open={isModalDeleteUser}
+          setOpen={setIsModalDeleteUser}
+          title={'Yakin menghapus user?'}
+          content={`Anda ingin menghapus user ${data?.name}`}
+        />
+      )}
     </>
   )
 }
@@ -288,15 +254,22 @@ const columns = [
   }
 ]
 
+const defaultFilter = {
+  RoleId: '',
+  status: ''
+}
+
 const UserList = ({ apiData }) => {
   // ** State
-  const [role, setRole] = useState('')
   const [value, setValue] = useState('')
-  const [status, setStatus] = useState('')
+  const [filterInput, setFilterInput] = useState(defaultFilter)
   const [addUserOpen, setAddUserOpen] = useState(false)
+  const [isFilter, setIsFilter] = useState(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
   const users = useSelector(state => state.user.dataUsers)
   const roles = useSelector(state => state.role.dataRoles)
+
+  const [filteredUser, setFilteredUser] = useState([])
 
   // ** Hooks
   const dispatch = useDispatch()
@@ -307,26 +280,63 @@ const UserList = ({ apiData }) => {
     dispatch(fetchRoles())
   }, [dispatch])
 
-  const handleFilter = useCallback(val => {
-    setValue(val)
-  }, [])
+  const handleFilter = useCallback(
+    val => {
+      setValue(val)
+      if (val?.length) {
+        const filteredRows = users.filter(row => row.name.toLowerCase().includes(val.toLowerCase()))
+        setIsFilter(true)
+        setFilteredUser(filteredRows)
+      } else {
+        setIsFilter(false)
+        setFilteredUser(users)
+      }
+    },
+    [users, value]
+  )
 
-  const handleRoleChange = useCallback(e => {
-    setRole(e.target.value)
-  }, [])
+  const submitFilter = useCallback(() => {
+    if (filterInput.RoleId || filterInput.status) {
+      dispatch(fetchDataUsers(filterInput))
+    } else {
+      dispatch(fetchDataUsers())
+    }
+  }, [dispatch, filterInput])
 
-  const handlePlanChange = useCallback(e => {
-    setPlan(e.target.value)
-  }, [])
+  const clearAllFilter = useCallback(
+    val => {
+      setValue('')
+      setFilteredUser([])
+      setIsFilter(false)
+      dispatch(fetchDataUsers())
+      setFilterInput(defaultFilter)
+    },
+    [dispatch]
+  )
 
-  const handleStatusChange = useCallback(e => {
-    setStatus(e.target.value)
-  }, [])
+  const clearSearch = useCallback(
+    val => {
+      setValue('')
+      handleFilter('')
+      dispatch(fetchDataUsers(filterInput))
+    },
+    [filterInput, value, dispatch, filteredUser]
+  )
+
+  const handleFilterInput = useCallback(
+    e => {
+      const { value, name } = e.target
+      setFilterInput({ ...filterInput, [name]: value })
+    },
+    [filterInput]
+  )
+
   const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
 
   return (
     <Grid container spacing={6.5}>
       <Grid item xs={12}>
+        <CardHeader title='Daftar Pengguna' />
         <Card>
           <CardHeader title='Pencarian' />
           <CardContent>
@@ -337,10 +347,11 @@ const UserList = ({ apiData }) => {
                   fullWidth
                   defaultValue='Pilih Otoritas'
                   SelectProps={{
-                    value: role,
+                    value: filterInput.RoleId,
                     displayEmpty: true,
-                    onChange: e => handleRoleChange(e)
+                    onChange: e => handleFilterInput(e)
                   }}
+                  name='RoleId'
                 >
                   <MenuItem Select value=''>
                     Select Role
@@ -359,25 +370,55 @@ const UserList = ({ apiData }) => {
                   select
                   fullWidth
                   defaultValue='Status Pengguna'
+                  name='status'
                   SelectProps={{
-                    value: status,
+                    value: filterInput.status,
                     displayEmpty: true,
-                    onChange: e => handleStatusChange(e)
+                    onChange: e => handleFilterInput(e)
                   }}
                 >
                   <MenuItem value=''>Status Pengguna</MenuItem>
                   <MenuItem value='active'>Aktif</MenuItem>
-                  <MenuItem value='inactive'>Tidak Aktif</MenuItem>
+                  <MenuItem value='notActive'>Tidak Aktif</MenuItem>
                 </CustomTextField>
+              </Grid>
+              <Grid item>
+                <Button
+                  color='primary'
+                  variant='contained'
+                  sx={{ '& svg': { p: 0 } }}
+                  onClick={() => {
+                    clearAllFilter()
+                  }}
+                >
+                  Clear Filter
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  color='primary'
+                  variant='contained'
+                  sx={{ '& svg': { p: 0 } }}
+                  onClick={() => {
+                    submitFilter()
+                  }}
+                >
+                  Apply Filter
+                </Button>
               </Grid>
             </Grid>
           </CardContent>
           <Divider sx={{ m: '0 !important' }} />
-          <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} />
+          <TableHeader
+            value={value}
+            handleFilter={handleFilter}
+            toggle={toggleAddUserDrawer}
+            clearFilter={clearSearch}
+          />
           <DataGrid
             autoHeight
             rowHeight={62}
-            rows={users || []}
+            rows={isFilter ? filteredUser : users}
             columns={columns}
             disableRowSelectionOnClick
             pageSizeOptions={[10, 25, 50]}
@@ -387,7 +428,7 @@ const UserList = ({ apiData }) => {
         </Card>
       </Grid>
 
-      <AddUserDrawer open={addUserOpen} toggle={toggleAddUserDrawer} />
+      {/* <AddUserDrawer open={addUserOpen} toggle={toggleAddUserDrawer} /> */}
     </Grid>
   )
 }

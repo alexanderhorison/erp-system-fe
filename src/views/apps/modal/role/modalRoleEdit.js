@@ -135,6 +135,8 @@ export default function ModalRoleEdit({ data, isOpen, closePress, isView }) {
                       label='Deskripsi Otoritas'
                       onChange={onChange}
                       placeholder='akun administrator'
+                      multiline
+                      rows={3}
                     />
                   )}
                 />

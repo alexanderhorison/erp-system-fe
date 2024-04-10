@@ -188,6 +188,8 @@ const SidebarAddUser = props => {
                 sx={{ mb: 4 }}
                 onChange={onChange}
                 placeholder='akun cakra'
+                multiline
+                rows={4}
               />
             )}
           />
