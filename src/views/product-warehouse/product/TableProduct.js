@@ -1,7 +1,6 @@
-import { Box, Card, IconButton, Typography } from '@mui/material'
+import { Box, Card, IconButton, Menu, MenuItem, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
-import TableHeaderMasterProduct from './TableHeaderMasterProduct'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'src/@core/components/icon'
 import {
@@ -9,26 +8,17 @@ import {
   fetchMasterDataProduct,
   fetchMasterDataProductDetail
 } from 'src/store/apps/master/product'
-import ModalAddMasterProduct from './ModalAddMasterProduct'
+import TableHeaderProduct from './TableHeaderProduct'
 
-const RowOptions = ({ id, name }) => {
+const RowOptions = ({ id, name, handleEdit }) => {
   const dispatch = useDispatch()
-  const [openModalEdit, setOpenModalEdit] = useState(false)
 
   const handleDelete = () => {
-    dispatch(deleteMasterDataProduct({id, name}))
-  }
-
-  const handleEdit = () => {
-    dispatch(fetchMasterDataProductDetail(id))
-    setOpenModalEdit(true)
+    dispatch(deleteMasterDataProduct(id))
   }
 
   return (
     <>
-      {openModalEdit && (
-        <ModalAddMasterProduct open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
-      )}
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <IconButton onClick={handleEdit}>
           <Icon icon='tabler:edit' />
@@ -41,100 +31,148 @@ const RowOptions = ({ id, name }) => {
   )
 }
 
-export default function TableMasterProduct({}) {
+export default function TableProduct({ data }) {
   const dispatch = useDispatch()
+  const [openModalEdit, setOpenModalEdit] = useState(false)
   const [openModalAdd, setOpenModalAdd] = useState(false)
+  const [openModalView, setOpenModalView] = useState(false)
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 })
 
-  const { data } = useSelector(state => state.masterProduct)
+  const [productId, setProductId] = useState('')
+
+  const handleEdit = id => {
+    setProductId(id)
+    dispatch(fetchMasterDataProductDetail(id))
+    setOpenModalEdit(true)
+  }
+
+  const handleView = id => {
+    setProductId(id)
+    dispatch(fetchMasterDataProductDetail(id))
+    setOpenModalView(true)
+  }
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
+
     if (searchValue.length) {
-      const filteredRows = data.filter(row => row.name.toLowerCase().includes(searchValue.toLowerCase()))
+      const filteredRows = data.filter(row => row.productName.toLowerCase().includes(searchValue.toLowerCase()))
       setFilteredData(filteredRows)
     } else {
       setFilteredData([])
     }
   }
 
+  const getRowId = row => {
+    // Assuming "ProductWarehouseId" is a unique identifier
+    return row.ProductWarehouseId
+  }
+
   useEffect(() => {
     dispatch(fetchMasterDataProduct())
-  }, [])
-
+  }, [dispatch])
   return (
     <Card>
-      {openModalAdd && <ModalAddMasterProduct open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
       <DataGrid
         autoHeight
+        getRowId={getRowId}
+        
         columns={[
           {
-            flex: 0.2,
-            minWidth: 200,
-            field: 'name',
+            flex: 0.4,
+            minWidth: 300,
+            field: 'productName',
             headerName: 'Nama Produk',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.name}
+                  {params.row.productName}
                 </Typography>
               )
             }
           },
           {
             flex: 0.1,
-            minWidth: 120,
-            field: 'category',
+            minWidth: 100,
+            field: 'categoryName',
             headerName: 'Kategori',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.category}
+                  {params.row.categoryName}
                 </Typography>
               )
             }
           },
           {
             flex: 0.1,
-            minWidth: 120,
-            field: 'type',
+            minWidth: 100,
+            field: 'unitName',
+            headerName: 'Satuan',
+            renderCell: params => {
+              return (
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  {params.row.unitName}
+                </Typography>
+              )
+            }
+          },
+          {
+            flex: 0.1,
+            minWidth: 100,
+            field: 'typeName',
             headerName: 'Tipe',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.type}
+                  {params.row.typeName}
                 </Typography>
               )
             }
           },
           {
             flex: 0.1,
-            minWidth: 110,
-            field: 'description',
-            headerName: 'Dekripsi Produk',
+            minWidth: 100,
+            field: 'quantity',
+            headerName: 'Kuantiti',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.description || '-'}
+                  {params.row.quantity}
+                </Typography>
+              )
+            }
+          },
+          {
+            flex: 0.1,
+            minWidth: 100,
+            field: 'minimum_stock',
+            headerName: 'Stok Minimum',
+            renderCell: params => {
+              return (
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  {params.row.minimum_stock}
                 </Typography>
               )
             }
           },
           {
             flex: 0.01,
-            minWidth: 120,
+            minWidth: 100,
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
+            renderCell: ({ row }) => (
+              <RowOptions id={row.id} name={row.name} handleEdit={handleEdit} handleView={handleView} />
+            )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderMasterProduct }}
+        slots={{ toolbar: TableHeaderProduct }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData.length ? filteredData : data}
         sx={{

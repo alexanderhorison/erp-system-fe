@@ -1,58 +1,36 @@
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Box, Card, IconButton, Typography } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 
-import {
-  deleteMasterDataCategory,
-  fetchDataMasterCategory,
-  fetchDataMasterCategoryDetail
-} from 'src/store/apps/master/category'
+import { DataGrid } from '@mui/x-data-grid'
 
-import TableHeaderMasterCategory from './TableHeaderMasterCategory'
-import ModalAddMasterCategory from './ModalAddMasterCategory'
+import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
+import TableHeaderProductWarehouse from './TableHeaderProductWarehouse'
 
-const RowOptions = ({ id, name }) => {
-  const dispatch = useDispatch()
-  const [openModalEdit, setOpenModalEdit] = useState(false)
-
-  const handleDelete = () => {
-    dispatch(deleteMasterDataCategory({ id, name }))
-  }
-
-  const handleEdit = () => {
-    dispatch(fetchDataMasterCategoryDetail(id))
-    setOpenModalEdit(true)
-  }
-
+const RowOptions = ({ handleView }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton>
-        <IconButton onClick={handleDelete}>
-          <Icon icon='tabler:trash' />
+        <IconButton onClick={handleView}>
+          <Icon icon='tabler:eye' />
         </IconButton>
       </Box>
-      {openModalEdit && (
-        <ModalAddMasterCategory open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
-      )}
     </>
   )
 }
 
-export default function TableMasterCategory({}) {
+export default function TableProductWarehouse({}) {
   const dispatch = useDispatch()
-  const [openModalAdd, setOpenModalAdd] = useState(false)
+  const router = useRouter()
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
-  const { data } = useSelector(state => state.category)
+  const { data } = useSelector(state => state.warehouse)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
@@ -64,13 +42,17 @@ export default function TableMasterCategory({}) {
     }
   }
 
+  const handleRowClick = params => {
+    const warehouseId = params.id // Assuming id is the field containing the warehouse id
+    router.push(`/product-warehouse/warehouse/${warehouseId}`)
+  }
+
   useEffect(() => {
-    dispatch(fetchDataMasterCategory())
+    dispatch(fetchMasterDataWarehouse())
   }, [])
 
   return (
     <Card>
-      {openModalAdd && <ModalAddMasterCategory open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
       <DataGrid
         autoHeight
         columns={[
@@ -78,10 +60,13 @@ export default function TableMasterCategory({}) {
             flex: 0.1,
             minWidth: 200,
             field: 'name',
-            headerName: 'Nama Kategori',
+            headerName: 'Nama Gudang',
+            cellClassName: {
+              cursor: 'pointer'
+            },
             renderCell: params => {
               return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
                   {params.row.name}
                 </Typography>
               )
@@ -90,12 +75,12 @@ export default function TableMasterCategory({}) {
           {
             flex: 0.2,
             minWidth: 120,
-            field: 'description',
-            headerName: 'Deskripsi',
+            field: 'location',
+            headerName: 'Lokasi',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.description}
+                  {params.row.location}
                 </Typography>
               )
             }
@@ -106,17 +91,21 @@ export default function TableMasterCategory({}) {
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
+            renderCell: ({ row }) => <RowOptions handleView={() => handleRowClick(row)} />
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
+        onCellClick={handleRowClick}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderMasterCategory }}
+        slots={{ toolbar: TableHeaderProductWarehouse }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData.length ? filteredData : data}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
+          },
+          '& .MuiDataGrid-cell': {
+            cursor: 'pointer'
           }
         }}
         slotProps={{
@@ -126,10 +115,9 @@ export default function TableMasterCategory({}) {
           },
           toolbar: {
             value: searchText,
-            placeholder: 'Cari nama kategori',
+            placeholder: 'Cari nama tipe',
             clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd
+            onChange: event => handleSearch(event.target.value)
           }
         }}
       />
