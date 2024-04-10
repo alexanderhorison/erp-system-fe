@@ -7,9 +7,8 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { Button } from '@mui/material'
 
-export default function TableHeaderMasterUnit(props) {
+export default function TableHeaderProductWarehouse(props) {
   return (
     <Box
       sx={{
@@ -23,7 +22,7 @@ export default function TableHeaderMasterUnit(props) {
     >
       <CustomTextField
         value={props.value}
-        placeholder={props?.placeholder || "Cari ..."}
+        placeholder='Search…'
         onChange={props.onChange}
         InputProps={{
           startAdornment: (
@@ -47,10 +46,6 @@ export default function TableHeaderMasterUnit(props) {
           }
         }}
       />
-      <Button onClick={() => props.openModalAdd(true)} variant='contained' sx={{ '& svg': { mr: 2 } }}>
-        <Icon fontSize='1.125rem' icon='tabler:plus' />
-        Tambahkan Satuan
-      </Button>
     </Box>
   )
 }

@@ -1,7 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import toast from 'react-hot-toast'
 import axios from 'src/configs/axios'
+import { swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+const label = 'gudang'
 
+// GET ALL WAREHOUSE
 export const fetchMasterDataWarehouse = createAsyncThunk(
   'appMasterWarehouse/fetchData',
   async (params, { rejectWithValue }) => {
@@ -12,12 +14,13 @@ export const fetchMasterDataWarehouse = createAsyncThunk(
       })
       return response.data
     } catch (error) {
-      toast.error(error.response.data.message)
+      swalToastError({ label, error })
       return rejectWithValue([])
     }
   }
 )
 
+// GET DETAIL WAREHOUSE
 export const fetchMasterDataWarehouseDetail = createAsyncThunk(
   'appMasterWarehouse/fetchDataDetail',
   async (id, { rejectWithValue }) => {
@@ -28,13 +31,13 @@ export const fetchMasterDataWarehouseDetail = createAsyncThunk(
       })
       return response.data
     } catch (error) {
-      toast.error(error.response.data.message)
+      swalToastError({ label, error })
       return rejectWithValue({})
     }
   }
 )
 
-// ADD UNIT
+// ADD WAREHOUSE
 export const addMasterDataWarehouse = createAsyncThunk(
   'appMasterWarehouse/addWarehouse',
   async (data, { dispatch, rejectWithValue }) => {
@@ -42,19 +45,18 @@ export const addMasterDataWarehouse = createAsyncThunk(
       const response = await axios({
         method: 'post',
         url: '/master/warehouse/create',
-        headers: {},
         data
       })
+      swalSuccess({ label, name: 'Gudang', response })
       dispatch(fetchMasterDataWarehouse())
-      toast.success(response.data.message)
     } catch (error) {
-      toast.error(error.response.data.message)
+      swalError({ error, label })
       return rejectWithValue({})
     }
   }
 )
 
-// EDIT UNIT
+// EDIT WAREHOUSE
 export const editMasterDataWarehouse = createAsyncThunk(
   'appMasterWarehouse/editWarehouse',
   async ({ id, data }, { dispatch, rejectWithValue }) => {
@@ -64,33 +66,40 @@ export const editMasterDataWarehouse = createAsyncThunk(
         url: '/master/warehouse/' + id,
         data: data
       })
+      swalSuccess({ label, name: 'Gudang', response })
       dispatch(fetchMasterDataWarehouse())
-      toast.success(response.data.message)
     } catch (error) {
-      toast.error(error.response.data.message)
+      swalError({ label, error })
       return rejectWithValue({})
     }
   }
 )
 
-// DELETE UNIT
+// DELETE WAREHOUSE
 export const deleteMasterDataWarehouse = createAsyncThunk(
   'appWarehouse/deleteWarehouse',
-  async (id, { dispatch, rejectWithValue }) => {
+  async ({ id, name }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await axios({
-        method: 'DELETE',
-        url: '/master/warehouse/' + id
+      await swalConfirmationDelete({
+        label,
+        name,
+        axiosRequest: () => {
+          return axios({
+            method: 'DELETE',
+            url: '/master/warehouse/' + id
+          })
+        },
+        dispatchRequest: () => {
+          return dispatch(fetchMasterDataWarehouse())
+        }
       })
-      dispatch(fetchMasterDataWarehouse())
-      toast.success(response.data.message)
     } catch (error) {
-      toast.error(error.response.data.message)
       return rejectWithValue({})
     }
   }
 )
 
+// REDUCER WAREHOUSE
 export const appMasterWarehouseSlice = createSlice({
   name: 'appMasterWarehouse',
   initialState: {

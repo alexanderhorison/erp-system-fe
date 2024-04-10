@@ -1,34 +1,37 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import toast from 'react-hot-toast'
 import axios from 'src/configs/axios'
+import { swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+const label = 'kategori'
 
+// GET ALL MASTER CATEGORY
 export const fetchDataMasterCategory = createAsyncThunk(
   'appMasterCategory/fetchData',
   async (params, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
-        url: process.env.NEXT_PUBLIC_BASE_URL + '/master/category/all'
+        url: '/master/category/all'
       })
       return response.data
     } catch (error) {
-      toast.error(error.response.data.message)
+      swalToastError({ label, error })
       return rejectWithValue([])
     }
   }
 )
 
+// GET DETAIL CATEGORY
 export const fetchDataMasterCategoryDetail = createAsyncThunk(
   'appMasterCategory/fetchDataDetail',
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
-        url: process.env.NEXT_PUBLIC_BASE_URL + '/master/category/' + id
+        url: '/master/category/' + id
       })
       return response.data
     } catch (error) {
-      toast.error(error.response.data.message)
+      swalToastError({ label, error })
       return rejectWithValue({})
     }
   }
@@ -45,10 +48,10 @@ export const addMasterDataCategory = createAsyncThunk(
         headers: {},
         data
       })
+      swalSuccess({ label, name: 'Kategori', response })
       dispatch(fetchDataMasterCategory())
-      toast.success(response.data.message)
     } catch (error) {
-      toast.error(error.response.data.message)
+      swalError({ label, error })
       return rejectWithValue({})
     }
   }
@@ -64,10 +67,10 @@ export const editMasterDataCategory = createAsyncThunk(
         url: '/master/category/' + id,
         data: data
       })
+      swalSuccess({ label, name: 'Kategori', response })
       dispatch(fetchDataMasterCategory())
-      toast.success(response.data.message)
     } catch (error) {
-      toast.error(error.response.data.message)
+      swalError({ label, error })
       return rejectWithValue({})
     }
   }
@@ -76,21 +79,29 @@ export const editMasterDataCategory = createAsyncThunk(
 // DELETE CATEGORY
 export const deleteMasterDataCategory = createAsyncThunk(
   'appCategory/deleteCategory',
-  async (id, { dispatch, rejectWithValue }) => {
+  async ({ id, name }, { dispatch, rejectWithValue }) => {
     try {
-      await axios({
-        method: 'DELETE',
-        url: '/master/category/' + id
+      await swalConfirmationDelete({
+        label,
+        name,
+        axiosRequest: () => {
+          return axios({
+            method: 'DELETE',
+            url: '/master/category/' + id
+          })
+        },
+        dispatchRequest: () => {
+          return dispatch(fetchDataMasterCategory())
+        }
       })
-      dispatch(fetchDataMasterCategory())
-      toast.success(response.data.message)
     } catch (error) {
-      toast.error(error.response.data.message)
+      swalToastError({ label, error })
       return rejectWithValue({})
     }
   }
 )
 
+// REDUCER MASTER KATEGORI
 export const appMasterCategorySlice = createSlice({
   name: 'masterCategory',
   initialState: {
