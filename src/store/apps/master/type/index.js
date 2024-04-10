@@ -1,20 +1,23 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import toast from 'react-hot-toast'
 import axios from 'src/configs/axios'
+import { swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+const label = 'tipe'
 
+// GET ALL TYPE
 export const fetchMasterDataType = createAsyncThunk('appMasterType/fetchData', async (params, { rejectWithValue }) => {
   try {
     const response = await axios({
       method: 'GET',
-      url: process.env.NEXT_PUBLIC_BASE_URL + '/master/type/all'
+      url: '/master/type/all'
     })
     return response.data
   } catch (error) {
-    toast.error(error.response.data.message)
+    swalToastError({ label, error })
     return rejectWithValue([])
   }
 })
 
+// GET DETAIL TYPE
 export const fetchMasterDataTypeDetail = createAsyncThunk(
   'appMasterType/fetchDataDetail',
   async (id, { rejectWithValue }) => {
@@ -25,7 +28,7 @@ export const fetchMasterDataTypeDetail = createAsyncThunk(
       })
       return response.data
     } catch (error) {
-      toast.error(error.response.data.message)
+      swalToastError({ label, error })
       return rejectWithValue({})
     }
   }
@@ -37,15 +40,15 @@ export const addMasterDataType = createAsyncThunk(
   async (data, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios({
-        method: 'post',
-        url: process.env.NEXT_PUBLIC_BASE_URL + '/master/type/create',
+        method: 'POST',
+        url: '/master/type/create',
         headers: {},
         data
       })
+      swalSuccess({ label, name: 'Tipe', response })
       dispatch(fetchMasterDataType())
-      toast.success(response.data.message)
     } catch (error) {
-      toast.error(error.response.data.message)
+      swalError({ error, label })
       return rejectWithValue({})
     }
   }
@@ -61,10 +64,10 @@ export const editMasterDataType = createAsyncThunk(
         url: '/master/type/' + id,
         data: data
       })
+      swalSuccess({ label, name: 'Gudang', response })
       dispatch(fetchMasterDataType())
-      toast.success(response.data.message)
     } catch (error) {
-      toast.error(error.response.data.message)
+      swalError({ label, error })
       return rejectWithValue({})
     }
   }
@@ -73,21 +76,28 @@ export const editMasterDataType = createAsyncThunk(
 // DELETE TYPE
 export const deleteMasterDataType = createAsyncThunk(
   'appType/deleteType',
-  async (id, { dispatch, rejectWithValue }) => {
+  async ({ id, name }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await axios({
-        method: 'DELETE',
-        url: '/master/type/' + id
+      await swalConfirmationDelete({
+        label,
+        name,
+        axiosRequest: () => {
+          return axios({
+            method: 'DELETE',
+            url: '/master/type/' + id
+          })
+        },
+        dispatchRequest: () => {
+          return dispatch(fetchMasterDataType())
+        }
       })
-      dispatch(fetchMasterDataType())
-      toast.success(response.data.message)
     } catch (error) {
-      toast.error(error.response.data.message)
       return rejectWithValue({})
     }
   }
 )
 
+// REDUCER MASTER TYPE
 export const appMasterTypeSlice = createSlice({
   name: 'appMasterType',
   initialState: {
@@ -95,6 +105,11 @@ export const appMasterTypeSlice = createSlice({
     loading: false,
     error: false,
     detail: {
+      id: '',
+      name: '',
+      description: ''
+    },
+    defaultValue: {
       id: '',
       name: '',
       description: ''

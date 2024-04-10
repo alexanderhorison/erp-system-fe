@@ -1,14 +1,14 @@
 import { Grid, Typography } from '@mui/material'
-import TableMasterWarehouse from 'src/views/master/warehouses/TableMasterWarehouse'
+import TableProductWarehouse from 'src/views/product-warehouse/warehouse/TableProductWarehouse'
 
-export default function homeMasterWarehouse() {
+export default function homeProductWarehouse() {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Typography paddingY={3} fontSize={20}>
-          Master Data Gudang
+          Daftar Gudang
         </Typography>
-        <TableMasterWarehouse />
+        <TableProductWarehouse />
       </Grid>
     </Grid>
   )

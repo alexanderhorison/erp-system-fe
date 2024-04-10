@@ -133,6 +133,23 @@ const navigation = () => {
       ]
     },
     {
+      sectionTitle: 'Produk Gudang'
+    },
+    {
+      title: 'Produk',
+      icon: 'tabler:list',
+      children: [
+        {
+          title: 'Daftar Gudang',
+          path: '/product-warehouse/warehouse'
+        },
+        {
+          title: 'Daftar Produk',
+          path: '/product-warehouse/product'
+        }
+      ]
+    },
+    {
       sectionTitle: 'Apps & Pages'
     },
     {
