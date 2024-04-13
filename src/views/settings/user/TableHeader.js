@@ -6,7 +6,7 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { showErrors } from './AddUserDrawer'
+import { showErrors } from './modalUserAdd'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'

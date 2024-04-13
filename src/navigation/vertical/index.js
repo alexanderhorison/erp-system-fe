@@ -37,12 +37,12 @@ const navigation = () => {
     {
       title: 'Pengguna',
       icon: 'tabler:user',
-      path: '/apps/user/list'
+      path: '/settings/user'
     },
     {
       title: 'Otoritas',
       icon: 'tabler:settings',
-      path: '/apps/roles'
+      path: '/settings/roles'
     }
   ]
   const menu = [
@@ -160,12 +160,12 @@ const navigation = () => {
     {
       title: 'Pengguna',
       icon: 'tabler:user',
-      path: '/apps/user/list'
+      path: '/settings/user'
     },
     {
       title: 'Otoritas',
       icon: 'tabler:settings',
-      path: '/apps/roles'
+      path: '/settings/roles'
     },
     {
       title: 'Pages',

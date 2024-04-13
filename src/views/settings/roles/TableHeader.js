@@ -17,9 +17,10 @@ import { Controller, useForm } from 'react-hook-form'
 
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { showErrors } from '../user/list/AddUserDrawer'
 import { MenuItem } from '@mui/material'
 import { addRole } from 'src/store/apps/role'
+import { Icon } from '@iconify/react'
+import { showErrors } from '../user/modalUserAdd'
 
 const schema = yup.object().shape({
   name: yup
@@ -112,7 +113,8 @@ const TableHeader = props => {
             X
           </Button>
         </Box>
-        <Button sx={{ mb: 2 }} variant='contained' onClick={handleDialogToggle}>
+        <Button sx={{ mb: 2, '& svg': { mr: 2 } }} variant='contained' onClick={handleDialogToggle}>
+          <Icon icon='tabler:plus' fontSize='1.125rem' />
           Tambah Otoritas
         </Button>
       </Box>

@@ -17,12 +17,11 @@ import { useDispatch, useSelector } from 'react-redux'
 
 // ** Custom Components Imports
 import PageHeader from 'src/@core/components/page-header'
-import TableHeader from 'src/views/apps/roles/TableHeader'
-import CustomTextField from 'src/@core/components/mui/text-field'
+import TableHeader from 'src/views/settings/roles/TableHeader'
 
 // ** Actions Imports
 import { deleteRole, fetchRoles } from 'src/store/apps/role'
-import ModalRoleEdit from 'src/views/apps/modal/role/modalRoleEdit'
+import ModalRoleEdit from 'src/views/settings/roles/modalRoleEdit'
 import { fetchMenus } from 'src/store/apps/menu'
 import ModalConfirmation from 'src/views/common/ModalConfirmation'
 

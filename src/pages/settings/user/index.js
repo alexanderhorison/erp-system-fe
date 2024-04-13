@@ -7,7 +7,6 @@ import Link from 'next/link'
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
-import Menu from '@mui/material/Menu'
 import Grid from '@mui/material/Grid'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
@@ -27,7 +26,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import CustomChip from 'src/@core/components/mui/chip'
 import CustomAvatar from 'src/@core/components/mui/avatar'
 import CustomTextField from 'src/@core/components/mui/text-field'
-import CardStatsHorizontalWithDetails from 'src/@core/components/card-statistics/card-stats-horizontal-with-details'
 
 // ** Utils Import
 import { getInitials } from 'src/@core/utils/get-initials'
@@ -41,8 +39,8 @@ import { fetchRoles } from 'src/store/apps/role'
 import axios from 'axios'
 
 // ** Custom Table Components Imports
-import TableHeader from 'src/views/apps/user/list/TableHeader'
-import ModalUserEdit from 'src/views/apps/modal/user/modalUserEdit'
+import TableHeader from 'src/views/settings/user/TableHeader'
+import ModalUserEdit from 'src/views/settings/user/modalUserEdit'
 import ModalConfirmation from 'src/views/common/ModalConfirmation'
 import Button from '@mui/material/Button'
 
