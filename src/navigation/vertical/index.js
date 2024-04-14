@@ -43,10 +43,6 @@ const navigation = () => {
       ]
     },
     {
-      sectionTitle: 'Manajemen Stok',
-      menuId: [8, 9]
-    },
-    {
       title: 'Manajemen Stok',
       icon: 'tabler:server-cog',
       children: [
