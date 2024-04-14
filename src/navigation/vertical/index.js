@@ -47,14 +47,20 @@ const navigation = () => {
       menuId: [8, 9]
     },
     {
-      title: 'Daftar Gudang',
-      path: '/product-warehouse/warehouse',
-      menuId: 8
-    },
-    {
-      title: 'Daftar Produk',
-      path: '/product-warehouse/product',
-      menuId: 9
+      title: 'Manajemen Stok',
+      icon: 'tabler:server-cog',
+      children: [
+        {
+          title: 'Daftar Gudang',
+          path: '/product-warehouse/warehouse',
+          menuId: 8
+        },
+        {
+          title: 'Daftar Produk',
+          path: '/product-warehouse/product',
+          menuId: 9
+        }
+      ]
     },
     {
       sectionTitle: 'Surat Jalan',
