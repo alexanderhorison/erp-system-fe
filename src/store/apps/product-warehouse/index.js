@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
 import toast from 'react-hot-toast'
-import { swalToastError } from 'src/helpers/swalFunction'
-const label = "produk"
+import { swalConfirmationAdd, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+
+const label = 'produk'
 // GET ALL WAREHOUSE
 export const fetchListWarehouse = createAsyncThunk(
   'appProductWarehouse/fetchListWarehouse',
@@ -11,6 +12,22 @@ export const fetchListWarehouse = createAsyncThunk(
       const response = await axios({
         method: 'GET',
         url: '/product-warehouse/warehouse'
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
+export const fetchProductWarehouseDetail = createAsyncThunk(
+  'appProductWarehouse/fetchProductWarehouseDetail',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/product-warehouse/' + id
       })
       return response.data
     } catch (error) {
@@ -40,37 +57,42 @@ export const fetchListProductByWarehouse = createAsyncThunk(
 // INITIATE PRODUCT
 export const initiateProductWarehouse = createAsyncThunk(
   'appProductWarehouse/initiateProductWarehouse',
-  async ({ data, WarehouseId }, { dispatch, rejectWithValue }) => {
+  async ({ data, warehouse, router }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await axios({
-        method: 'POST',
-        url: process.env.NEXT_PUBLIC_BASE_URL + '/product-warehouse/create',
-        headers: {},
-        data
+      console.log(data)
+      await swalConfirmationAdd({
+        label: 'Produk',
+        name: 'Produk',
+        axiosRequest: () => {
+          return axios({
+            method: 'POST',
+            url: '/product-warehouse/create',
+            data
+          })
+        },
+        dispatchRequest: () => {
+          router.push(`/product-warehouse/warehouse/${warehouse.id}`)
+        }
       })
-      dispatch(fetchListProductByWarehouse(WarehouseId))
-      toast.success(response.data.message)
     } catch (error) {
-      toast.error(error.response.data.message)
       return rejectWithValue({})
     }
   }
 )
 
 // ADJUST PRODUCT
-export const editMasterDataPorduct = createAsyncThunk(
+export const editProductWarehouse = createAsyncThunk(
   'appMasterProduct/editProduct',
-  async ({ id, data }, { dispatch, rejectWithValue }) => {
+  async ({ id, data, WarehouseId }, { dispatch, rejectWithValue }) => {
     try {
+      console.log(id, data)
       const response = await axios({
         method: 'PUT',
-        url: '/master/product/' + id,
+        url: '/product-warehouse/' + id,
         data: data
       })
-      dispatch(fetchMasterDataProduct())
-      toast.success(response.data.message)
+      dispatch(fetchListProductByWarehouse(WarehouseId))
     } catch (error) {
-      toast.error(error.response.data.message)
       return rejectWithValue({})
     }
   }
@@ -85,7 +107,11 @@ export const appMasterProductSlice = createSlice({
 
     dataListProductWarehouse: {},
     loadingListProductWarehouse: true,
-    errorListProductWarehouse: false
+    errorListProductWarehouse: false,
+
+    detailProductWarehouse: {},
+    loadingDetailProductWarehouse: true,
+    errorDetailProductWarehouse: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -114,6 +140,19 @@ export const appMasterProductSlice = createSlice({
         state.loadingListProductWarehouse = false
         state.errorListProductWarehouse = action.error.message
         state.dataListProductWarehouse = {}
+      })
+
+      .addCase(fetchProductWarehouseDetail.pending, (state, action) => {
+        state.loadingDetailProductWarehouse = true
+      })
+      .addCase(fetchProductWarehouseDetail.fulfilled, (state, action) => {
+        state.detailProductWarehouse = action.payload.data
+        state.loadingDetailProductWarehouse = false
+      })
+      .addCase(fetchProductWarehouseDetail.rejected, (state, action) => {
+        state.loadingDetailProductWarehouse = false
+        state.errorDetailProductWarehouse = action.error.message
+        state.detailProductWarehouse = {}
       })
   }
 })

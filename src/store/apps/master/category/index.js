@@ -1,6 +1,7 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+
 const label = 'kategori'
 
 // GET ALL MASTER CATEGORY

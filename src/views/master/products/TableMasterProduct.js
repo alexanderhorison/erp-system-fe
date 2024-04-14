@@ -63,7 +63,7 @@ export default function TableMasterProduct({}) {
 
   useEffect(() => {
     dispatch(fetchMasterDataProduct())
-  }, [])
+  }, [dispatch])
 
   return (
     <Card>

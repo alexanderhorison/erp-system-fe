@@ -47,7 +47,7 @@ export default function TableHeaderProduct(props) {
           }
         }}
       />
-      <Button onClick={() => props.openModalAdd(true)} variant='contained' sx={{ '& svg': { mr: 2 } }}>
+      <Button onClick={() => props.handleAdd()} variant='contained' sx={{ '& svg': { mr: 2 } }}>
         <Icon fontSize='1.125rem' icon='tabler:plus' />
         Tambahkan Produk
       </Button>

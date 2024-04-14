@@ -62,7 +62,7 @@ export default function TableMasterType({}) {
 
   useEffect(() => {
     dispatch(fetchMasterDataType())
-  }, [])
+  }, [dispatch])
   return (
     <Card>
       {openModalAdd && <ModalAddMasterType open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}

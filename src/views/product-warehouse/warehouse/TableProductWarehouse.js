@@ -43,13 +43,13 @@ export default function TableProductWarehouse({}) {
   }
 
   const handleRowClick = params => {
-    const warehouseId = params.id // Assuming id is the field containing the warehouse id
+    const warehouseId = params.id
     router.push(`/product-warehouse/warehouse/${warehouseId}`)
   }
 
   useEffect(() => {
     dispatch(fetchMasterDataWarehouse())
-  }, [])
+  }, [dispatch])
 
   return (
     <Card>

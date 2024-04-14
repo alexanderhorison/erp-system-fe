@@ -59,9 +59,10 @@ import '../../styles/globals.css'
 
 // ** Sweet Alert 2
 import Swal from './sweetalert'
-const SweetAlertContext = createContext()
+
 export const useSweetAlert = () => useContext(SweetAlertContext)
 
+const SweetAlertContext = createContext()
 const clientSideEmotionCache = createEmotionCache()
 
 // ** Pace Loader

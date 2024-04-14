@@ -66,7 +66,7 @@ export default function TableMasterCategory({}) {
 
   useEffect(() => {
     dispatch(fetchDataMasterCategory())
-  }, [])
+  }, [dispatch])
 
   return (
     <Card>

@@ -1,20 +1,27 @@
-import { Box, Card, IconButton, Menu, MenuItem, Typography } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
+import { useDispatch } from 'react-redux'
 import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import Icon from 'src/@core/components/icon'
-import {
-  deleteMasterDataProduct,
-  fetchMasterDataProduct,
-  fetchMasterDataProductDetail
-} from 'src/store/apps/master/product'
-import TableHeaderProduct from './TableHeaderProduct'
+import { useRouter } from 'next/router'
 
-const RowOptions = ({ id, name, handleEdit }) => {
+import { Box, Card, IconButton, Typography } from '@mui/material'
+import { DataGrid } from '@mui/x-data-grid'
+import Icon from 'src/@core/components/icon'
+
+import { deleteMasterDataProduct, fetchMasterDataProduct } from 'src/store/apps/master/product'
+import TableHeaderProduct from './TableHeaderProduct'
+import ModalAddProduct from './ModalAdjustProduct'
+import { fetchProductWarehouseDetail } from 'src/store/apps/product-warehouse'
+
+const RowOptions = ({ id, name, WarehouseId }) => {
   const dispatch = useDispatch()
+  const [openModalEdit, setOpenModalEdit] = useState(false)
 
   const handleDelete = () => {
     dispatch(deleteMasterDataProduct(id))
+  }
+
+  const handleEdit = () => {
+    dispatch(fetchProductWarehouseDetail(id))
+    setOpenModalEdit(true)
   }
 
   return (
@@ -27,37 +34,25 @@ const RowOptions = ({ id, name, handleEdit }) => {
           <Icon icon='tabler:trash' />
         </IconButton>
       </Box>
+      {openModalEdit && (
+        <ModalAddProduct open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} WarehouseId={WarehouseId} />
+      )}
     </>
   )
 }
 
-export default function TableProduct({ data }) {
+export default function TableProduct({ data, WarehouseId }) {
   const dispatch = useDispatch()
-  const [openModalEdit, setOpenModalEdit] = useState(false)
+  const router = useRouter()
+
   const [openModalAdd, setOpenModalAdd] = useState(false)
-  const [openModalView, setOpenModalView] = useState(false)
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 })
-
-  const [productId, setProductId] = useState('')
-
-  const handleEdit = id => {
-    setProductId(id)
-    dispatch(fetchMasterDataProductDetail(id))
-    setOpenModalEdit(true)
-  }
-
-  const handleView = id => {
-    setProductId(id)
-    dispatch(fetchMasterDataProductDetail(id))
-    setOpenModalView(true)
-  }
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-
     if (searchValue.length) {
       const filteredRows = data.filter(row => row.productName.toLowerCase().includes(searchValue.toLowerCase()))
       setFilteredData(filteredRows)
@@ -66,20 +61,26 @@ export default function TableProduct({ data }) {
     }
   }
 
+  const handleAdd = () => {
+    router.push(`/product-warehouse/warehouse/${WarehouseId}/add`)
+  }
+
   const getRowId = row => {
-    // Assuming "ProductWarehouseId" is a unique identifier
     return row.ProductWarehouseId
   }
 
   useEffect(() => {
     dispatch(fetchMasterDataProduct())
   }, [dispatch])
+
   return (
     <Card>
+      {openModalAdd && (
+        <ModalAddProduct open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} WarehouseId={WarehouseId} />
+      )}
       <DataGrid
         autoHeight
         getRowId={getRowId}
-        
         columns={[
           {
             flex: 0.4,
@@ -166,7 +167,7 @@ export default function TableProduct({ data }) {
             field: 'actions',
             headerName: 'Actions',
             renderCell: ({ row }) => (
-              <RowOptions id={row.id} name={row.name} handleEdit={handleEdit} handleView={handleView} />
+              <RowOptions id={row.ProductWarehouseId} name={row.productName} WarehouseId={WarehouseId} />
             )
           }
         ]}
@@ -190,7 +191,7 @@ export default function TableProduct({ data }) {
             placeholder: 'Cari nama produk',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd
+            handleAdd: handleAdd,
           }
         }}
       />
