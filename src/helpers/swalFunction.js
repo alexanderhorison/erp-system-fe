@@ -34,6 +34,34 @@ export async function swalConfirmationDelete({ label, name = 'Data', axiosReques
   }
 }
 
+// ONLY FOR ADD
+export async function swalConfirmationAdd({ label, name = 'Data', axiosRequest, dispatchRequest, title }) {
+  try {
+    const result = await swal.fire({
+      title: title ? title : `Anda akan menambahkan produk?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Iya',
+      cancelButtonText: 'Tidak',
+      reverseButtons: true
+    })
+    if (result.dismiss) {
+    } else {
+      const response = await axiosRequest()
+      if (dispatchRequest) {
+        dispatchRequest()
+      }
+      swal.fire({
+        title: response?.data?.message || `${name} berhasil ditambahkan`,
+        icon: 'success'
+      })
+    }
+  } catch (error) {
+    swalError({ error, label })
+    throw error
+  }
+}
+
 // DEFAULT SWAL SUCCESS
 export function swalSuccess({ name, response }) {
   return swal.fire({

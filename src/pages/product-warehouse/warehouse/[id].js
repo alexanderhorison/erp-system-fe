@@ -1,12 +1,11 @@
-import { CardHeader, Grid, Skeleton, Typography } from '@mui/material'
+import { Grid, Skeleton, Typography } from '@mui/material'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchListProductByWarehouse } from 'src/store/apps/product-warehouse'
 import TableProduct from 'src/views/product-warehouse/product/TableProduct'
-import TypographyTexts from 'src/views/ui/typography/TypographyTexts'
 
-export default function homeProductWarehouseId() {
+export default function HomeProductWarehouseId() {
   const router = useRouter()
   const id = router.query.id
   const dispatch = useDispatch()
@@ -18,7 +17,7 @@ export default function homeProductWarehouseId() {
     if (id) {
       dispatch(fetchListProductByWarehouse(id))
     }
-  }, [id])
+  }, [id, dispatch])
 
   if (loading) {
     return (
@@ -36,7 +35,7 @@ export default function homeProductWarehouseId() {
         <Typography paddingY={3} fontSize={20}>
           {`Daftar Produk di ${data?.warehouseName}`}
         </Typography>
-        <TableProduct data={data.data} />
+        <TableProduct data={data.data} WarehouseId={id} />
       </Grid>
     </Grid>
   )

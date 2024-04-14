@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Box, Card, IconButton, Menu, MenuItem, Typography } from '@mui/material'
+import { Box, Card, IconButton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 
@@ -66,7 +66,7 @@ export default function TableMasterWarehouse({}) {
 
   useEffect(() => {
     dispatch(fetchMasterDataWarehouse())
-  }, [])
+  }, [dispatch])
 
   return (
     <Card>
