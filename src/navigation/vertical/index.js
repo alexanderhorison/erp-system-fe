@@ -1,4 +1,10 @@
+import { UseAuth } from 'src/hooks/useAuth'
+
 const navigation = () => {
+  const auth = UseAuth()
+  /**
+   * Add menuId Based on Id in menuId database
+   */
   const deploy = [
     {
       title: 'Master Data',
@@ -6,43 +12,91 @@ const navigation = () => {
       children: [
         {
           title: 'Produk',
-          path: '/master/products'
+          path: '/master/products',
+          menuId: 5
         },
         {
           title: 'Tipe Produk',
-          path: '/master/types'
+          path: '/master/types',
+          menuId: 4
         },
         {
           title: 'Satuan Produk',
-          path: '/master/units'
+          path: '/master/units',
+          menuId: 12
         },
         {
           title: 'Kategori Produk',
           path: '/master/categories',
-          icon: 'tabler:brand-tabler'
+          menuId: 3
         },
         {
           title: 'Gudang',
-          path: '/master/warehouses'
+          path: '/master/warehouses',
+          menuId: 6
         },
         {
           title: 'Rumus Transformasi',
-          path: '/master/transformation'
+          path: '/master/transformation',
+          menuId: 7
         }
       ]
     },
     {
-      sectionTitle: 'Pengaturan'
+      sectionTitle: 'Produk Gudang',
+      menuId: [8, 9]
+    },
+    {
+      title: 'Produk',
+      icon: 'tabler:list',
+      children: [
+        {
+          title: 'Daftar Gudang',
+          path: '/product-warehouse/warehouse',
+          menuId: 8
+        },
+        {
+          title: 'Daftar Produk',
+          path: '/product-warehouse/product',
+          menuId: 9
+        }
+      ]
+    },
+    {
+      sectionTitle: 'Surat Jalan',
+      menuId: [10, 11]
+    },
+    {
+      title: 'Surat Jalan',
+      icon: 'tabler:server-cog',
+      children: [
+        {
+          title: 'Surat Jalan',
+          path: '/surat-jalan/invoice/list',
+          menuId: 10
+        },
+        {
+          title: 'Penerimaan Surat Jalan',
+          path: '/surat-jalan/invoice/preview',
+          menuId: 11
+        }
+      ]
+    },
+    {
+      sectionTitle: 'Pengguna & Otoritas',
+      menuId: [1, 2]
     },
     {
       title: 'Pengguna',
       icon: 'tabler:user',
-      path: '/settings/user'
+      path: '/settings/user',
+      menuId: 1
     },
     {
       title: 'Otoritas',
       icon: 'tabler:settings',
-      path: '/settings/roles'
+      path: '/settings/roles',
+      menuId: 2
     }
   ]
   const menu = [
@@ -155,7 +209,24 @@ const navigation = () => {
       ]
     },
     {
-      sectionTitle: 'Pengaturan'
+      sectionTitle: 'Surat Jalan'
+    },
+    {
+      title: 'Surat Jalan',
+      icon: 'tabler:server-cog',
+      children: [
+        {
+          title: 'Surat Jalan',
+          path: '/surat-jalan/invoice/list'
+        },
+        {
+          title: 'Penerimaan Surat Jalan',
+          path: '/surat-jalan/invoice/preview'
+        }
+      ]
+    },
+    {
+      sectionTitle: 'Pengguna & Otoritas'
     },
     {
       title: 'Pengguna',
@@ -674,10 +745,41 @@ const navigation = () => {
     }
   ]
 
+  const selectedMenu = []
+  if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'false') {
+    deploy?.forEach(item => {
+      if (item?.children && item?.children.length > 0) {
+        const section = {
+          title: item.title,
+          icon: item.icon,
+          children: []
+        }
+        item?.children.forEach(child => {
+          if (auth?.user?.Role?.MenuId?.includes(child?.menuId)) {
+            section.children.push(child)
+          }
+        })
+        if (section.children.length > 0) {
+          selectedMenu.push(section)
+        }
+      } else if (item?.hasOwnProperty('sectionTitle')) {
+        let isFlag = false
+        item?.menuId.forEach(number => {
+          if (auth?.user?.Role?.MenuId?.includes(number) && !isFlag) {
+            selectedMenu.push(item)
+            isFlag = true
+          }
+        })
+      } else if (auth?.user?.Role?.MenuId?.includes(item?.menuId)) {
+        selectedMenu.push(item)
+      }
+    })
+  }
+
   if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true') {
     return menu
   } else {
-    return deploy
+    return selectedMenu
   }
 }
 

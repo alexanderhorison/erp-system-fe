@@ -334,7 +334,9 @@ const UserList = ({ apiData }) => {
   return (
     <Grid container spacing={6.5}>
       <Grid item xs={12}>
-        <CardHeader title='Daftar Pengguna' />
+        <Typography paddingY={3} fontSize={20}>
+          Daftar Pengguna
+        </Typography>
         <Card>
           <CardHeader title='Pencarian' />
           <CardContent>

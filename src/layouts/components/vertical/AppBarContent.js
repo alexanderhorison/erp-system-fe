@@ -14,7 +14,7 @@ import NotificationDropdown from 'src/@core/layouts/components/shared-components
 import ShortcutsDropdown from 'src/@core/layouts/components/shared-components/ShortcutsDropdown'
 
 // ** Hook Import
-import { useAuth } from 'src/hooks/useAuth'
+import { UseAuth } from 'src/hooks/useAuth'
 import { Typography } from '@mui/material'
 
 const notifications = [
@@ -118,7 +118,7 @@ const AppBarContent = props => {
   const { hidden, settings, saveSettings, toggleNavVisibility } = props
 
   // ** Hook
-  const auth = useAuth()
+  const auth = UseAuth()
 
   return (
     <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

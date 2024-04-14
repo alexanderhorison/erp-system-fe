@@ -16,7 +16,7 @@ import Spinner from 'src/@core/components/spinner'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
+import { UseAuth } from 'src/hooks/useAuth'
 
 // ** Util Import
 import getHomeRoute from 'src/layouts/components/acl/getHomeRoute'
@@ -26,7 +26,7 @@ const AclGuard = props => {
   const { aclAbilities, children, guestGuard = false, authGuard = true } = props
 
   // ** Hooks
-  const auth = useAuth()
+  const auth = UseAuth()
   const router = useRouter()
 
   // ** Vars

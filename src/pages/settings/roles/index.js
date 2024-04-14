@@ -16,7 +16,6 @@ import Icon from 'src/@core/components/icon'
 import { useDispatch, useSelector } from 'react-redux'
 
 // ** Custom Components Imports
-import PageHeader from 'src/@core/components/page-header'
 import TableHeader from 'src/views/settings/roles/TableHeader'
 
 // ** Actions Imports
@@ -183,13 +182,9 @@ const PermissionsTable = () => {
     <>
       <Grid container spacing={6}>
         <Grid item xs={12}>
-          <PageHeader
-            title={
-              <Typography variant='h4' sx={{ mb: 6 }}>
-                List Otoritas
-              </Typography>
-            }
-          />
+          <Typography paddingY={3} fontSize={20}>
+            Daftar Otoritas
+          </Typography>
         </Grid>
         <Grid item xs={12}>
           <Card>

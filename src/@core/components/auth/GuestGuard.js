@@ -5,11 +5,11 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Hooks Import
-import { useAuth } from 'src/hooks/useAuth'
+import { UseAuth } from 'src/hooks/useAuth'
 
 const GuestGuard = props => {
   const { children, fallback } = props
-  const auth = useAuth()
+  const auth = UseAuth()
   const router = useRouter()
   useEffect(() => {
     if (!router.isReady) {

@@ -10,7 +10,7 @@ import NotificationDropdown from 'src/@core/layouts/components/shared-components
 import ShortcutsDropdown from 'src/@core/layouts/components/shared-components/ShortcutsDropdown'
 
 // ** Hook Import
-import { useAuth } from 'src/hooks/useAuth'
+import { UseAuth } from 'src/hooks/useAuth'
 
 const notifications = [
   {
@@ -113,7 +113,7 @@ const AppBarContent = props => {
   const { hidden, settings, saveSettings } = props
 
   // ** Hook
-  const auth = useAuth()
+  const auth = UseAuth()
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
