@@ -49,7 +49,7 @@ export const fetchListProductByWarehouse = createAsyncThunk(
       return response.data
     } catch (error) {
       swalToastError({ label, error })
-      return rejectWithValue({})
+      return rejectWithValue([])
     }
   }
 )
