@@ -290,7 +290,7 @@ const UserList = ({ apiData }) => {
         setFilteredUser(users)
       }
     },
-    [users, value]
+    [users]
   )
 
   const submitFilter = useCallback(() => {
@@ -318,7 +318,7 @@ const UserList = ({ apiData }) => {
       handleFilter('')
       dispatch(fetchDataUsers(filterInput))
     },
-    [filterInput, value, dispatch, filteredUser]
+    [filterInput, dispatch, handleFilter]
   )
 
   const handleFilterInput = useCallback(
