@@ -18,8 +18,7 @@ const navigation = () => {
         },
         {
           title: 'Kategori Produk',
-          path: '/master/categories',
-          icon: 'tabler:brand-tabler'
+          path: '/master/categories'
         },
         {
           title: 'Gudang',
@@ -30,6 +29,17 @@ const navigation = () => {
           path: '/master/transformation'
         }
       ]
+    },
+    {
+      sectionTitle: 'Manajemen Stok'
+    },
+    {
+      title: 'Daftar Produk Gudang',
+      path: '/product-warehouse/warehouse'
+    },
+    {
+      title: 'Daftar Produk',
+      path: '/product-warehouse/product'
     },
     {
       sectionTitle: 'Pengaturan'
