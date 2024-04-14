@@ -742,6 +742,13 @@ const navigation = () => {
   ]
 
   const selectedMenu = []
+  // default menu
+  selectedMenu.push({
+    title: 'Dashboard',
+    icon: 'tabler:home',
+    path: '/home'
+  })
+
   if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'false') {
     deploy?.forEach(item => {
       if (item?.children && item?.children.length > 0) {
