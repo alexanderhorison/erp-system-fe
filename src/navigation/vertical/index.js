@@ -43,24 +43,18 @@ const navigation = () => {
       ]
     },
     {
-      sectionTitle: 'Produk Gudang',
+      sectionTitle: 'Manajemen Stok',
       menuId: [8, 9]
     },
     {
-      title: 'Produk',
-      icon: 'tabler:list',
-      children: [
-        {
-          title: 'Daftar Gudang',
-          path: '/product-warehouse/warehouse',
-          menuId: 8
-        },
-        {
-          title: 'Daftar Produk',
-          path: '/product-warehouse/product',
-          menuId: 9
-        }
-      ]
+      title: 'Daftar Gudang',
+      path: '/product-warehouse/warehouse',
+      menuId: 8
+    },
+    {
+      title: 'Daftar Produk',
+      path: '/product-warehouse/product',
+      menuId: 9
     },
     {
       sectionTitle: 'Surat Jalan',
