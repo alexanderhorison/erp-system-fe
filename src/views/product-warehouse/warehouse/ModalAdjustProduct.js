@@ -1,5 +1,5 @@
 // ** React Imports
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import * as yup from 'yup'
 
 // ** MUI Imports
@@ -26,7 +26,6 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
 import { editProductWarehouse } from 'src/store/apps/product-warehouse'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
@@ -44,32 +43,45 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   }
 }))
 
-export default function ModalAddProduct({ open, setOpen, typeModal, WarehouseId }) {
+export default function ModalAdjustProduct({ open, setOpen, typeModal, WarehouseId }) {
   const dispatch = useDispatch()
 
   const { detailProductWarehouse } = useSelector(state => state.productWarehouse)
 
+  const titleMap = {
+    PLUS: 'Tambah Produk',
+    MINUS: 'Kurangi Produk',
+    MINIMUM_STOCK: 'Atur Stok Minimum'
+    // Tambahkan lebih banyak pemetaan jika diperlukan
+  }
+
+  const title = useMemo(() => {
+    return titleMap[typeModal] || 'Title Default'
+  }, [typeModal])
+
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    adjustment_type: yup.string().required('Tipe adjustment harus dipilih'),
     quantity: yup.number().required('Kuantiti harus diisi'),
-    quantityAdjustment: yup
-      .number()
-      .required('Jumlah adjustment harus diisi')
-      .test(
-        'quantity-adjustment',
-        'Jumlah Adjustment tidak boleh lebih besar dari Kuantiti ketika adjustment_type adalah MINUS',
-        function (value) {
-          if (this.parent.adjustment_type === 'MINUS' && value > this.parent.quantity) {
-            throw new yup.ValidationError(
-              'Jumlah Adjustment tidak boleh lebih besar dari Kuantiti jika tipe adjustment minus',
-              null,
-              'quantityAdjustment'
+    quantityAdjustment:
+      typeModal !== 'MINIMUM_STOCK'
+        ? yup
+            .number()
+            .required('Jumlah adjustment harus diisi')
+            .test(
+              'quantity-adjustment',
+              'Jumlah Adjustment tidak boleh lebih besar dari Kuantiti ketika adjustment_type adalah MINUS',
+              function (value) {
+                if (typeModal === 'MINUS' && value > this.parent.quantity) {
+                  throw new yup.ValidationError(
+                    'Jumlah tidak boleh lebih besar dari Kuantiti jika mengurangi produk',
+                    null,
+                    'quantityAdjustment'
+                  )
+                }
+                return true
+              }
             )
-          }
-          return true
-        }
-      ),
+        : yup.mixed(),
     minimum_stock: yup.number().required('Jumlah stok minimal harus diisi')
   })
 
@@ -88,12 +100,11 @@ export default function ModalAddProduct({ open, setOpen, typeModal, WarehouseId 
   const onSubmit = data => {
     const idProduct = data.id
     const sendData = {
-      quantityAdjustment: data.quantityAdjustment,
-      quantity: data.quantity,
-      minimum_stock: data.minimum_stock,
-      adjustment_type: data.adjustment_type
+      ...(typeModal !== 'MINIMUM_STOCK' ? { quantityAdjustment: data.quantityAdjustment } : {}),
+      ...(typeModal !== 'MINIMUM_STOCK' ? { quantity: data.quantity } : {}),
+      ...(typeModal === 'MINIMUM_STOCK' ? { minimum_stock: data.minimum_stock } : {}),
+      adjustment_type: typeModal
     }
-
     dispatch(editProductWarehouse({ id: idProduct, data: sendData, WarehouseId }))
     setOpen(false)
   }
@@ -131,7 +142,7 @@ export default function ModalAddProduct({ open, setOpen, typeModal, WarehouseId 
             </CustomCloseButton>
             <Box sx={{ mb: 4, textAlign: 'center' }}>
               <Typography variant='h3' sx={{ mb: 3 }}>
-                Sesuaikan jumlah produk
+                {title}
               </Typography>
             </Box>
             <Grid container spacing={6}>
@@ -177,110 +188,85 @@ export default function ModalAddProduct({ open, setOpen, typeModal, WarehouseId 
                       )}
                     />
                   </Grid>
-                  <Grid item xs={12}>
-                    <Controller
-                      name='quantity'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          label='Kuantiti'
-                          value={detailProductWarehouse.quantity}
-                          disabled={true}
-                          onChange={e => {
-                            const newValue = parseInt(e.target.value, 10)
-                            if (!isNaN(newValue) && newValue >= 0) {
-                              onChange(+newValue)
-                            }
-                          }}
-                          type='number'
-                          sx={{ display: 'block' }}
-                          error={Boolean(errors.quantity)}
-                          {...(errors.quantity && { helperText: errors.quantity.message })}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Controller
-                      name={`adjustment_type`}
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomAutocomplete
-                          options={[
-                            { name: 'Plus', value: 'PLUS' },
-                            { name: 'Minus', value: 'MINUS' }
-                          ]}
-                          id='autocomplete-custom'
-                          getOptionLabel={option => option.name || ''}
-                          onChange={(event, newValue) => {
-                            onChange(newValue?.value)
-                          }}
-                          renderInput={params => (
+                  {typeModal !== 'MINIMUM_STOCK' && (
+                    <>
+                      <Grid item xs={12}>
+                        <Controller
+                          name='quantity'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
                             <CustomTextField
+                              fullWidth
+                              label='Kuantiti'
                               value={detailProductWarehouse.quantity}
-                              {...params}
-                              error={Boolean(errors?.adjustment_type)}
-                              {...(errors?.adjustment_type && {
-                                helperText: errors?.adjustment_type.message
-                              })}
-                              label='Tipe Adjustment'
+                              disabled={true}
+                              onChange={e => {
+                                const newValue = parseInt(e.target.value, 10)
+                                if (!isNaN(newValue) && newValue >= 0) {
+                                  onChange(+newValue)
+                                }
+                              }}
+                              type='number'
+                              sx={{ display: 'block' }}
+                              error={Boolean(errors.quantity)}
+                              {...(errors.quantity && { helperText: errors.quantity.message })}
                             />
                           )}
                         />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Controller
-                      name='quantityAdjustment'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          label='Jumlah Adjustment'
-                          value={value}
-                          onChange={e => {
-                            const newValue = parseInt(e.target.value, 10)
-                            if (!isNaN(newValue) && newValue >= 0) {
-                              onChange(+newValue)
-                            }
-                          }}
-                          type='number'
-                          sx={{ display: 'block' }}
-                          error={Boolean(errors.quantityAdjustment)}
-                          {...(errors.quantityAdjustment && { helperText: errors.quantityAdjustment.message })}
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Controller
+                          name='quantityAdjustment'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomTextField
+                              fullWidth
+                              label='Jumlah'
+                              value={value}
+                              onChange={e => {
+                                const newValue = parseInt(e.target.value, 10)
+                                if (!isNaN(newValue) && newValue >= 0) {
+                                  onChange(+newValue)
+                                }
+                              }}
+                              type='number'
+                              sx={{ display: 'block' }}
+                              error={Boolean(errors.quantityAdjustment)}
+                              {...(errors.quantityAdjustment && { helperText: errors.quantityAdjustment.message })}
+                            />
+                          )}
                         />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Controller
-                      name='minimum_stock'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          label='Stok Minimal'
-                          value={value}
-                          onChange={e => {
-                            const newValue = parseInt(e.target.value, 10)
-                            if (!isNaN(newValue) && newValue >= 0) {
-                              onChange(+newValue)
-                            }
-                          }}
-                          type='number'
-                          sx={{ display: 'block' }}
-                          error={Boolean(errors.minimum_stock)}
-                          {...(errors.minimum_stock && { helperText: errors.minimum_stock.message })}
-                        />
-                      )}
-                    />
-                  </Grid>
+                      </Grid>
+                    </>
+                  )}
+                  {typeModal === 'MINIMUM_STOCK' && (
+                    <Grid item xs={12}>
+                      <Controller
+                        name='minimum_stock'
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                          <CustomTextField
+                            fullWidth
+                            label='Stok Minimal'
+                            value={value}
+                            onChange={e => {
+                              const newValue = parseInt(e.target.value, 10)
+                              if (!isNaN(newValue) && newValue >= 0) {
+                                onChange(+newValue)
+                              }
+                            }}
+                            type='number'
+                            sx={{ display: 'block' }}
+                            error={Boolean(errors.minimum_stock)}
+                            {...(errors.minimum_stock && { helperText: errors.minimum_stock.message })}
+                          />
+                        )}
+                      />
+                    </Grid>
+                  )}
                 </Grid>
               </Grid>
             </Grid>
@@ -294,11 +280,11 @@ export default function ModalAddProduct({ open, setOpen, typeModal, WarehouseId 
           >
             {typeModal !== 'VIEW' && (
               <>
-                <Button type='submit' variant='contained' hidden={typeModal === 'VIEW'}>
-                  Submit
+                <Button variant='tonal' color='secondary' onClick={handleClose}>
+                  Cancel
                 </Button>
-                <Button variant='tonal' color='secondary' onClick={handleClose} hidden={typeModal === 'VIEW'}>
-                  Batal
+                <Button type='submit' variant='contained'>
+                  Submit
                 </Button>
               </>
             )}

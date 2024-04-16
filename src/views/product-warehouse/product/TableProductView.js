@@ -1,56 +1,18 @@
-import { useDispatch } from 'react-redux'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
+import { useDispatch, } from 'react-redux'
+import {  useState } from 'react'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
+import { Card, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import Icon from 'src/@core/components/icon'
 
-import { deleteMasterDataProduct, fetchMasterDataProduct } from 'src/store/apps/master/product'
-import TableHeaderProduct from './TableHeaderProduct'
-import ModalAddProduct from './ModalAdjustProduct'
-import { fetchProductWarehouseDetail } from 'src/store/apps/product-warehouse'
+import TableProductViewHeader from './TableProductViewHeader'
 
-const RowOptions = ({ id, name, WarehouseId }) => {
+export default function TableProductView({data, WarehouseId}) {
   const dispatch = useDispatch()
-  const [openModalEdit, setOpenModalEdit] = useState(false)
-
-  const handleDelete = () => {
-    dispatch(deleteMasterDataProduct(id))
-  }
-
-  const handleEdit = () => {
-    dispatch(fetchProductWarehouseDetail(id))
-    setOpenModalEdit(true)
-  }
-
-  return (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton>
-        <IconButton onClick={handleDelete}>
-          <Icon icon='tabler:trash' />
-        </IconButton>
-      </Box>
-      {openModalEdit && (
-        <ModalAddProduct open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} WarehouseId={WarehouseId} />
-      )}
-    </>
-  )
-}
-
-export default function TableProduct({ data, WarehouseId }) {
-  const dispatch = useDispatch()
-  const router = useRouter()
-
-  const [openModalAdd, setOpenModalAdd] = useState(false)
 
   const [searchText, setSearchText] = useState('')
-  const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
-
+  const [filteredData, setFilteredData] = useState([])
+  
   const handleSearch = searchValue => {
     setSearchText(searchValue)
     if (searchValue.length) {
@@ -61,29 +23,18 @@ export default function TableProduct({ data, WarehouseId }) {
     }
   }
 
-  const handleAdd = () => {
-    router.push(`/product-warehouse/warehouse/${WarehouseId}/add`)
-  }
-
   const getRowId = row => {
     return row.ProductWarehouseId
   }
 
-  useEffect(() => {
-    dispatch(fetchMasterDataProduct())
-  }, [dispatch])
-
   return (
     <Card>
-      {openModalAdd && (
-        <ModalAddProduct open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} WarehouseId={WarehouseId} />
-      )}
       <DataGrid
         autoHeight
         getRowId={getRowId}
         columns={[
           {
-            flex: 0.4,
+            flex: 0.2,
             minWidth: 300,
             field: 'productName',
             headerName: 'Nama Produk',
@@ -159,21 +110,11 @@ export default function TableProduct({ data, WarehouseId }) {
                 </Typography>
               )
             }
-          },
-          {
-            flex: 0.01,
-            minWidth: 100,
-            sortable: false,
-            field: 'actions',
-            headerName: 'Actions',
-            renderCell: ({ row }) => (
-              <RowOptions id={row.ProductWarehouseId} name={row.productName} WarehouseId={WarehouseId} />
-            )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderProduct }}
+        slots={{ toolbar: TableProductViewHeader }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData.length ? filteredData : data}
         sx={{
@@ -190,8 +131,7 @@ export default function TableProduct({ data, WarehouseId }) {
             value: searchText,
             placeholder: 'Cari nama produk',
             clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            handleAdd: handleAdd,
+            onChange: event => handleSearch(event.target.value)
           }
         }}
       />
