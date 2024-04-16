@@ -5,8 +5,7 @@ import { createContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Axios
-// import axios from 'axios'
-import axios from 'src/configs/axios'
+import axios from 'axios'
 
 // ** Config
 import authConfig from 'src/configs/auth'
@@ -37,7 +36,7 @@ const AuthProvider = ({ children }) => {
         setLoading(true)
         await axios({
           method: 'POST',
-          url: '/user/auth/me',
+          url: `${process.env.NEXT_PUBLIC_BASE_URL}/user/auth/me`,
           headers: {
             Authorization: storedToken
           }
@@ -54,9 +53,7 @@ const AuthProvider = ({ children }) => {
             localStorage.removeItem('accessToken')
             setUser(null)
             setLoading(false)
-            if (authConfig.onTokenExpiration === 'logout' && !router.pathname.includes('login')) {
-              router.replace('/login')
-            }
+            router.replace('/login')
           })
       } else {
         setLoading(false)
@@ -69,7 +66,7 @@ const AuthProvider = ({ children }) => {
   const handleLogin = (params, errorCallback) => {
     axios({
       method: 'POST',
-      url: '/user/login',
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/user/login`,
       data: {
         auth: encrypt(
           JSON.stringify({
