@@ -66,7 +66,6 @@ export default function TableAddProductWarehouse({ warehouse }) {
       message: `Produk dan Satuan sama dengan item lain`
     })
     if (!duplicate) {
-      // console.log(data)
       dispatch(initiateProductWarehouse({ data: data.data, warehouse, router }))
     }
   }
@@ -222,12 +221,15 @@ export default function TableAddProductWarehouse({ warehouse }) {
           </Grid>
           <Grid container sx={{ paddingLeft: '25px', marginTop: '20px' }} display='flex' justifyContent='space-between'>
             <Grid item>
-              <Button onClick={addMore} startIcon={<Icon icon='tabler:plus' />}>
+              <Button variant='contained' onClick={addMore} startIcon={<Icon icon='tabler:plus' />}>
                 Tambahkan produk
               </Button>
             </Grid>
-            <Grid item>
-              <Button type='submit' startIcon={<Icon icon='tabler:send' />}>
+            <Grid display='flex' justifyContent='space-between' gap={4}>
+              <Button variant='tonal' color='secondary' onClick={() => router.back()} startIcon={<Icon icon='tabler:x' />}>
+                Batal
+              </Button>
+              <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
                 Kirim
               </Button>
             </Grid>

@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
 import toast from 'react-hot-toast'
-import { swalConfirmationAdd, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalConfirmationEdit, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'produk'
 // GET ALL WAREHOUSE
@@ -59,7 +59,6 @@ export const initiateProductWarehouse = createAsyncThunk(
   'appProductWarehouse/initiateProductWarehouse',
   async ({ data, warehouse, router }, { dispatch, rejectWithValue }) => {
     try {
-      console.log(data)
       await swalConfirmationAdd({
         label: 'Produk',
         name: 'Produk',
@@ -85,18 +84,39 @@ export const editProductWarehouse = createAsyncThunk(
   'appMasterProduct/editProduct',
   async ({ id, data, WarehouseId }, { dispatch, rejectWithValue }) => {
     try {
-      console.log(id, data)
-      const response = await axios({
-        method: 'PUT',
-        url: '/product-warehouse/' + id,
-        data: data
+      await swalConfirmationEdit({
+        label: 'Produk',
+        name: 'Produk',
+        axiosRequest: () => {
+          return axios({
+            method: 'PUT',
+            url: '/product-warehouse/' + id,
+            data
+          })
+        },
+        dispatchRequest: () => {
+          dispatch(fetchListProductByWarehouse(WarehouseId))
+        }
       })
-      dispatch(fetchListProductByWarehouse(WarehouseId))
     } catch (error) {
       return rejectWithValue({})
     }
   }
 )
+
+// GET PRODUCT LIST BY USER WAREHOUSE
+export const fetchProduct = createAsyncThunk('appProductWarehouse/fetchProduct', async (id, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/product-warehouse/list'
+    })
+    return response.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
 
 export const appMasterProductSlice = createSlice({
   name: 'appProductWarehouse',
@@ -105,7 +125,9 @@ export const appMasterProductSlice = createSlice({
     loadingListWarehouse: true,
     errorListWarehouse: false,
 
-    dataListProductWarehouse: {},
+    dataListProductWarehouse: {
+      data: []
+    },
     loadingListProductWarehouse: true,
     errorListProductWarehouse: false,
 
@@ -153,6 +175,19 @@ export const appMasterProductSlice = createSlice({
         state.loadingDetailProductWarehouse = false
         state.errorDetailProductWarehouse = action.error.message
         state.detailProductWarehouse = {}
+      })
+
+      .addCase(fetchProduct.pending, (state, action) => {
+        state.loadingListProductWarehouse = true
+      })
+      .addCase(fetchProduct.fulfilled, (state, action) => {
+        state.dataListProductWarehouse = action.payload.data
+        state.loadingListProductWarehouse = false
+      })
+      .addCase(fetchProduct.rejected, (state, action) => {
+        state.loadingListProductWarehouse = false
+        state.errorListProductWarehouse = action.error.message
+        state.dataListProductWarehouse = {}
       })
   }
 })

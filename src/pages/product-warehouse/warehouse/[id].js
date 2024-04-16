@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchListProductByWarehouse } from 'src/store/apps/product-warehouse'
-import TableProduct from 'src/views/product-warehouse/product/TableProduct'
+import TableProduct from 'src/views/product-warehouse/warehouse/TableProduct'
 
 export default function HomeProductWarehouseId() {
   const router = useRouter()

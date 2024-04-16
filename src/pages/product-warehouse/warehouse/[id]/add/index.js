@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchMasterDataWarehouseDetail } from 'src/store/apps/master/warehouse'
-import TableAddProductWarehouse from 'src/views/product-warehouse/product/TableAddProductWarehouse'
+import TableAddProductWarehouse from 'src/views/product-warehouse/warehouse/TableAddProductWarehouse'
 
 export default function AddProductWarehouse() {
   const dispatch = useDispatch()

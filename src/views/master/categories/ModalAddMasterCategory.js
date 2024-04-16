@@ -157,18 +157,18 @@ export default function ModalAddMasterCategory({ open, setOpen, typeModal, id })
           </DialogContent>
           <DialogActions
             sx={{
-              justifyContent: 'center',
+              justifyContent: 'end',
               px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
               pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
             }}
           >
             {typeModal !== 'VIEW' && (
               <>
+                <Button variant='tonal' color='secondary' onClick={handleClose} hidden={typeModal === 'VIEW'}>
+                  Cancel
+                </Button>
                 <Button type='submit' variant='contained' hidden={typeModal === 'VIEW'}>
                   Submit
-                </Button>
-                <Button variant='tonal' color='secondary' onClick={handleClose} hidden={typeModal === 'VIEW'}>
-                  Batal
                 </Button>
               </>
             )}
