@@ -43,18 +43,20 @@ const navigation = () => {
       ]
     },
     {
-      sectionTitle: 'Manajemen Stok',
-      menuId: [8, 9]
-    },
-    {
-      title: 'Daftar Gudang',
-      path: '/product-warehouse/warehouse',
-      menuId: 8
-    },
-    {
-      title: 'Daftar Produk',
-      path: '/product-warehouse/product',
-      menuId: 9
+      title: 'Manajemen Stok',
+      icon: 'tabler:server-cog',
+      children: [
+        {
+          title: 'Daftar Gudang',
+          path: '/product-warehouse/warehouse',
+          menuId: 8
+        },
+        {
+          title: 'Daftar Produk',
+          path: '/product-warehouse/product',
+          menuId: 9
+        }
+      ]
     },
     {
       sectionTitle: 'Surat Jalan',
@@ -740,6 +742,13 @@ const navigation = () => {
   ]
 
   const selectedMenu = []
+  // default menu
+  selectedMenu.push({
+    title: 'Dashboard',
+    icon: 'tabler:home',
+    path: '/home'
+  })
+
   if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'false') {
     deploy?.forEach(item => {
       if (item?.children && item?.children.length > 0) {
