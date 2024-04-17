@@ -61,7 +61,8 @@ export const defaultValues = {
   name: '',
   user_name: '',
   description: '',
-  RoleId: ''
+  RoleId: '',
+  WarehouseId: ''
 }
 
 const SidebarAddUser = props => {

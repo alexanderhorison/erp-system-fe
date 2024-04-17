@@ -1,6 +1,6 @@
 // Mui import
 import { Dialog, DialogContent, Box, Typography, Fade, Grid, MenuItem, Button } from '@mui/material'
-import { forwardRef } from 'react'
+import { forwardRef, useState } from 'react'
 
 // Custom Component
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -21,23 +21,39 @@ export const Transition = forwardRef(function Transition(props, ref) {
   return <Fade ref={ref} {...props} />
 })
 
-const schema = yup.object().shape({
-  name: yup
-    .string()
-    .min(3, obj => showErrors('Nama', obj.value.length, obj.min))
-    .required(),
-  user_name: yup
-    .string()
-    .min(3, obj => showErrors('Username', obj.value.length, obj.min))
-    .required(),
-  email: yup.string().email('Masukkan email yang valid').required('Email harus diisi'),
-  description: yup.string().optional(),
-  RoleId: yup.string().required('Otoritas harus diisi')
-})
-
 export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
   // store
   const roleStore = useSelector(state => state.role.dataRoles)
+  const warehouseStore = useSelector(state => state.warehouse.data)
+  const [role, setRole] = useState(data.RoleId || '')
+
+  const schema = yup.object().shape({
+    name: yup
+      .string()
+      .min(3, obj => showErrors('Nama', obj.value.length, obj.min))
+      .required(),
+    user_name: yup
+      .string()
+      .min(3, obj => showErrors('Username', obj.value.length, obj.min))
+      .required(),
+    email: yup.string().email('Masukkan email yang valid').required('Email harus diisi'),
+    description: yup.string().optional(),
+    RoleId: yup.string().required('Otoritas harus diisi'),
+    WarehouseId: yup
+      .string()
+      .nullable()
+      .test('warehouse-validation', 'Gudang harus diisi jika otoritas adalah admin gudang', (val, context) =>
+        validateWarehouseId(val, context)
+      )
+  })
+
+  const validateWarehouseId = (val, context) => {
+    if (role == 3 && !val) {
+      return false
+    } else {
+      return true
+    }
+  }
 
   // Hooks
   const dispatch = useDispatch()
@@ -179,7 +195,10 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                       {...(errors.RoleId && { helperText: errors.RoleId.message })}
                       SelectProps={{
                         value: value,
-                        onChange: e => onChange(e)
+                        onChange: e => {
+                          onChange(e)
+                          setRole(e.target.value)
+                        }
                       }}
                       disabled={isView}
                     >
@@ -194,6 +213,37 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                   )}
                 />
               </Grid>
+              {role == 3 && (
+                <Grid item xs={12}>
+                  <Controller
+                    name='WarehouseId'
+                    control={control}
+                    defaultValue={data?.WarehouseId ? data.WarehouseId : ''}
+                    render={({ field: { value, onChange } }) => (
+                      <CustomTextField
+                        select
+                        fullWidth
+                        sx={{ mb: 4 }}
+                        label='Pilih Gudang'
+                        error={Boolean(errors.WarehouseId)}
+                        {...(errors.WarehouseId && { helperText: errors.WarehouseId.message })}
+                        SelectProps={{
+                          value: value,
+                          onChange: e => onChange(e)
+                        }}
+                      >
+                        {warehouseStore?.map((data, index) => {
+                          return (
+                            <MenuItem Select key={index} value={data.id}>
+                              {data.name}
+                            </MenuItem>
+                          )
+                        })}
+                      </CustomTextField>
+                    )}
+                  />
+                </Grid>
+              )}
               <Grid item sm={12} xs={12}>
                 <Controller
                   name='description'

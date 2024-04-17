@@ -14,40 +14,57 @@ import { addUser } from 'src/store/apps/user'
 import { useDispatch, useSelector } from 'react-redux'
 import { useState } from 'react'
 
-const defaultValues = {
+export const defaultValues = {
   email: '',
   name: '',
   user_name: '',
   description: '',
-  RoleId: ''
+  RoleId: '',
+  WarehouseId: ''
 }
-
-const schema = yup.object().shape({
-  name: yup
-    .string()
-    .min(3, obj => showErrors('Nama', obj.value.length, obj.min))
-    .required(),
-  user_name: yup
-    .string()
-    .min(3, obj => showErrors('Username', obj.value.length, obj.min))
-    .required(),
-  email: yup.string().email('Masukkan email yang valid').required('Email harus diisi'),
-  description: yup.string().optional(),
-  RoleId: yup.string().required('Otoritas harus diisi')
-})
 
 const TableHeader = props => {
   // ** Props
   const { handleFilter, value, clearFilter } = props
+  const [role, setRole] = useState('')
   const dispatch = useDispatch()
 
   const roleStore = useSelector(state => state.role.dataRoles)
+  const warehouseStore = useSelector(state => state.warehouse.data)
 
   // ** State
   const [open, setOpen] = useState(false)
 
+  const schema = yup.object().shape({
+    name: yup
+      .string()
+      .min(3, obj => showErrors('Nama', obj.value.length, obj.min))
+      .required(),
+    user_name: yup
+      .string()
+      .min(3, obj => showErrors('Username', obj.value.length, obj.min))
+      .required(),
+    email: yup.string().email('Masukkan email yang valid').required('Email harus diisi'),
+    description: yup.string().optional(),
+    RoleId: yup.string().required('Otoritas harus diisi'),
+    WarehouseId: yup
+      .string()
+      .test('warehouse-validation', 'Gudang harus diisi jika otoritas adalah admin gudang', (val, context) =>
+        validateWarehouseId(val, context)
+      )
+  })
+
+  const validateWarehouseId = (val, context) => {
+    if (role == 3 && !val) {
+      return false
+    } else {
+      return true
+    }
+  }
+
   const handleDialogToggle = () => {
     setOpen(!open)
+    setRole('')
     reset()
   }
 
@@ -206,7 +223,10 @@ const TableHeader = props => {
                     {...(errors.RoleId && { helperText: errors.RoleId.message })}
                     SelectProps={{
                       value: value,
-                      onChange: e => onChange(e)
+                      onChange: e => {
+                        onChange(e)
+                        setRole(e.target.value)
+                      }
                     }}
                   >
                     {roleStore?.map((data, index) => {
@@ -219,6 +239,34 @@ const TableHeader = props => {
                   </CustomTextField>
                 )}
               />
+              {role == 3 && (
+                <Controller
+                  name='WarehouseId'
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      select
+                      fullWidth
+                      sx={{ mb: 4 }}
+                      label='Pilih Gudang'
+                      error={Boolean(errors.WarehouseId)}
+                      {...(errors.WarehouseId && { helperText: errors.WarehouseId.message })}
+                      SelectProps={{
+                        value: value,
+                        onChange: e => onChange(e)
+                      }}
+                    >
+                      {warehouseStore?.map((data, index) => {
+                        return (
+                          <MenuItem Select key={index} value={data.id}>
+                            {data.name}
+                          </MenuItem>
+                        )
+                      })}
+                    </CustomTextField>
+                  )}
+                />
+              )}
               <Controller
                 name='description'
                 control={control}

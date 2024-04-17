@@ -43,6 +43,7 @@ import TableHeader from 'src/views/settings/user/TableHeader'
 import ModalUserEdit from 'src/views/settings/user/modalUserEdit'
 import ModalConfirmation from 'src/views/common/ModalConfirmation'
 import Button from '@mui/material/Button'
+import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
 
 // ** renders client column
 const userRoleObj = {
@@ -276,6 +277,7 @@ const UserList = ({ apiData }) => {
   useEffect(() => {
     dispatch(fetchDataUsers())
     dispatch(fetchRoles())
+    dispatch(fetchMasterDataWarehouse())
   }, [dispatch])
 
   const handleFilter = useCallback(
