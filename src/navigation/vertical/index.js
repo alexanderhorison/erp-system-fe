@@ -59,10 +59,6 @@ const navigation = () => {
       ]
     },
     {
-      sectionTitle: 'Surat Jalan',
-      menuId: [10, 11]
-    },
-    {
       title: 'Surat Jalan',
       icon: 'tabler:server-cog',
       children: [
@@ -165,6 +161,20 @@ const navigation = () => {
       ]
     },
     {
+      title: 'Surat Jalan',
+      icon: 'tabler:server-cog',
+      children: [
+        {
+          title: 'Surat Jalan',
+          path: '/surat-jalan/invoice/list'
+        },
+        {
+          title: 'Penerimaan Surat Jalan',
+          path: '/surat-jalan/invoice/preview'
+        }
+      ]
+    },
+    {
       sectionTitle: 'Apps & Pages'
     },
     {
@@ -201,23 +211,6 @@ const navigation = () => {
         {
           title: 'Add',
           path: '/apps/invoice/add'
-        }
-      ]
-    },
-    {
-      sectionTitle: 'Surat Jalan'
-    },
-    {
-      title: 'Surat Jalan',
-      icon: 'tabler:server-cog',
-      children: [
-        {
-          title: 'Surat Jalan',
-          path: '/surat-jalan/invoice/list'
-        },
-        {
-          title: 'Penerimaan Surat Jalan',
-          path: '/surat-jalan/invoice/preview'
         }
       ]
     },
