@@ -44,7 +44,7 @@ const UserDropdown = props => {
 
   // ** Hooks
   const router = useRouter()
-  const { logout } = UseAuth()
+  const { logout, user } = UseAuth()
 
   // ** Vars
   const { direction } = settings
@@ -80,6 +80,42 @@ const UserDropdown = props => {
     handleDropdownClose()
   }
 
+  function stringToColor(string) {
+    let hash = 0
+    let i
+
+    /* eslint-disable no-bitwise */
+    for (i = 0; i < string.length; i += 1) {
+      hash = string.charCodeAt(i) + ((hash << 5) - hash)
+    }
+
+    let color = '#'
+
+    for (i = 0; i < 3; i += 1) {
+      const value = (hash >> (i * 8)) & 0xff
+      color += `00${value.toString(16)}`.slice(-2)
+    }
+    /* eslint-enable no-bitwise */
+
+    return color
+  }
+
+  function stringAvatar(name) {
+    let splitName = name.split(' ')
+    if (splitName.length > 1) {
+      splitName = `${splitName[0][0]}${splitName[1][0]}`
+    } else {
+      splitName = name[0]
+    }
+
+    return {
+      sx: {
+        bgcolor: stringToColor(name)
+      },
+      children: splitName.toUpperCase()
+    }
+  }
+
   return (
     <Fragment>
       <Badge
@@ -93,8 +129,8 @@ const UserDropdown = props => {
         }}
       >
         <Avatar
-          alt='John Doe'
-          src='/images/avatars/1.png'
+          alt={user?.name}
+          {...stringAvatar(user?.name)}
           onClick={handleDropdownOpen}
           sx={{ width: 38, height: 38 }}
         />
@@ -117,11 +153,12 @@ const UserDropdown = props => {
                 horizontal: 'right'
               }}
             >
-              <Avatar alt='John Doe' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
+              <Avatar alt={user?.name} {...stringAvatar(user?.name)} sx={{ width: '2.5rem', height: '2.5rem' }} />
             </Badge>
             <Box sx={{ display: 'flex', ml: 2.5, alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 500 }}>John Doe</Typography>
-              <Typography variant='body2'>Admin</Typography>
+              <Typography sx={{ fontWeight: 500 }}>{user?.name.toUpperCase()}</Typography>
+              <Typography variant='body2'>{user?.email}</Typography>
+              <Typography variant='body2'>{user?.Role?.name}</Typography>
             </Box>
           </Box>
         </Box>
