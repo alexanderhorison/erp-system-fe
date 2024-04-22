@@ -49,7 +49,7 @@ export const fetchListProductByWarehouse = createAsyncThunk(
       return response.data
     } catch (error) {
       swalToastError({ label, error })
-      return rejectWithValue([])
+      return error
     }
   }
 )
@@ -161,7 +161,7 @@ export const appMasterProductSlice = createSlice({
       .addCase(fetchListProductByWarehouse.rejected, (state, action) => {
         state.loadingListProductWarehouse = false
         state.errorListProductWarehouse = action.error.message
-        state.dataListProductWarehouse = {}
+        state.dataListProductWarehouse = { data: [] }
       })
 
       .addCase(fetchProductWarehouseDetail.pending, (state, action) => {
@@ -187,7 +187,7 @@ export const appMasterProductSlice = createSlice({
       .addCase(fetchProduct.rejected, (state, action) => {
         state.loadingListProductWarehouse = false
         state.errorListProductWarehouse = action.error.message
-        state.dataListProductWarehouse = {}
+        state.dataListProductWarehouse = { data: [] }
       })
   }
 })

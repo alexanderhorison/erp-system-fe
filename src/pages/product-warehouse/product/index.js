@@ -18,9 +18,9 @@ export default function HomeProduct() {
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Typography paddingY={3} fontSize={20}>
-          Daftar Produk di gudang "{data.warehouseName}"
+          Daftar Produk di gudang "{data?.warehouseName}"
         </Typography>
-        <TableProductView data={data.data} WarehouseId={data.WarehouseId} />
+        <TableProductView data={data?.data} WarehouseId={data?.WarehouseId} />
       </Grid>
     </Grid>
   )
