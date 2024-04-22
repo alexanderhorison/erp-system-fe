@@ -1,18 +1,18 @@
-import { useDispatch, } from 'react-redux'
-import {  useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { useState } from 'react'
 
 import { Card, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 
 import TableProductViewHeader from './TableProductViewHeader'
 
-export default function TableProductView({data, WarehouseId}) {
+export default function TableProductView({ data, WarehouseId }) {
   const dispatch = useDispatch()
 
   const [searchText, setSearchText] = useState('')
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
   const [filteredData, setFilteredData] = useState([])
-  
+
   const handleSearch = searchValue => {
     setSearchText(searchValue)
     if (searchValue.length) {

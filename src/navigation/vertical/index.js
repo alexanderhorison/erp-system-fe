@@ -47,13 +47,13 @@ const navigation = () => {
       icon: 'tabler:server-cog',
       children: [
         {
-          title: 'Daftar Gudang',
-          path: '/product-warehouse/warehouse',
+          title: 'List Produk Gudang',
+          path: '/product-warehouse/product',
           menuId: 8
         },
         {
-          title: 'Daftar Produk',
-          path: '/product-warehouse/product',
+          title: 'Penyesuaian Stok Produk Gudang',
+          path: '/product-warehouse/warehouse',
           menuId: 9
         }
       ]
@@ -64,7 +64,7 @@ const navigation = () => {
       children: [
         {
           title: 'Surat Jalan',
-          path: '/surat-jalan/invoice/list',
+          path: '/delivery-order',
           menuId: 10
         },
         {
@@ -166,11 +166,13 @@ const navigation = () => {
       children: [
         {
           title: 'Surat Jalan',
-          path: '/surat-jalan/invoice/list'
+          path: '/delivery-order',
+          menuId: 10
         },
         {
           title: 'Penerimaan Surat Jalan',
-          path: '/surat-jalan/invoice/preview'
+          path: '/delivery-order-receive',
+          menuId: 11
         }
       ]
     },
