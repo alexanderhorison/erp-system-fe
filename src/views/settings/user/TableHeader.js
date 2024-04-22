@@ -13,6 +13,7 @@ import * as yup from 'yup'
 import { addUser } from 'src/store/apps/user'
 import { useDispatch, useSelector } from 'react-redux'
 import { useState } from 'react'
+import { CustomCloseButton } from 'src/views/pages/dialog-examples/DialogEditUserInfo'
 
 export const defaultValues = {
   email: '',
@@ -136,25 +137,35 @@ const TableHeader = props => {
           </Box>
         </Box>
       </Box>
-      <Dialog fullWidth maxWidth='sm' onClose={handleDialogToggle} open={open}>
-        <DialogTitle
-          component='div'
-          sx={{
-            textAlign: 'center',
-            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-            pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-          }}
-        >
-          <Typography variant='h3' sx={{ mb: 2 }}>
-            Tambah Pengguna
-          </Typography>
-        </DialogTitle>
+      <Dialog
+        fullWidth
+        maxWidth='sm'
+        onClose={handleDialogToggle}
+        open={open}
+        scroll='body'
+        sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
+      >
         <DialogContent
           sx={{
             px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
             pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
           }}
         >
+          <CustomCloseButton onClick={handleDialogToggle}>
+            <Icon icon='tabler:x' fontSize='1.5rem' />
+          </CustomCloseButton>
+          <DialogTitle
+            component='div'
+            sx={{
+              textAlign: 'center',
+              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+              pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+            }}
+          >
+            <Typography variant='h3' sx={{ mb: 2 }}>
+              Tambah Pengguna
+            </Typography>
+          </DialogTitle>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Box sx={{ p: theme => theme.spacing(0, 6, 6) }}>
               <Controller
