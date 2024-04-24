@@ -44,17 +44,17 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   }
 }))
 
+const titleMap = {
+  PLUS: 'Tambah Produk',
+  MINUS: 'Kurangi Produk',
+  MINIMUM_STOCK: 'Atur Stok Minimum'
+  // Tambahkan lebih banyak pemetaan jika diperlukan
+}
+
 export default function ModalAdjustProduct({ open, setOpen, typeModal, WarehouseId }) {
   const dispatch = useDispatch()
 
   const { detailProductWarehouse } = useSelector(state => state.productWarehouse)
-
-  const titleMap = {
-    PLUS: 'Tambah Produk',
-    MINUS: 'Kurangi Produk',
-    MINIMUM_STOCK: 'Atur Stok Minimum'
-    // Tambahkan lebih banyak pemetaan jika diperlukan
-  }
 
   const title = useMemo(() => {
     return titleMap[typeModal] || 'Title Default'

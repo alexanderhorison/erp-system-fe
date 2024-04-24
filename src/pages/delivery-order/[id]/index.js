@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchDetailDeliveryOrder } from 'src/store/apps/delivery-order'
 
-export default function detailDeliveryOrder({}) {
+export default function DetailDeliveryOrder({}) {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id
