@@ -1,6 +1,9 @@
 // ** React Imports
 import { useEffect, useMemo } from 'react'
 import * as yup from 'yup'
+import { Controller, useForm } from 'react-hook-form'
+import { useDispatch, useSelector } from 'react-redux'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -22,11 +25,9 @@ import 'react-credit-cards/es/styles-compiled.css'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 import { IconButton } from '@mui/material'
-import { useDispatch, useSelector } from 'react-redux'
 
-import { Controller, useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
 import { editProductWarehouse } from 'src/store/apps/product-warehouse'
+import CardAdjustProduct from './CardAdjustProduct'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -146,9 +147,12 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
               </Typography>
             </Box>
             <Grid container spacing={6}>
+              <Grid item xs={12} sm={12}>
+                <CardAdjustProduct data={detailProductWarehouse} />
+              </Grid>
               <Grid item xs={12}>
                 <Grid container spacing={6}>
-                  <Grid item xs={12} sm={12}>
+                  {/* <Grid item xs={12} sm={12}>
                     <Controller
                       name='productName'
                       control={control}
@@ -167,8 +171,8 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
                         />
                       )}
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={12}>
+                  </Grid> */}
+                  {/* <Grid item xs={12} sm={12}>
                     <Controller
                       name='unitName'
                       control={control}
@@ -187,10 +191,10 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
                         />
                       )}
                     />
-                  </Grid>
+                  </Grid> */}
                   {typeModal !== 'MINIMUM_STOCK' && (
                     <>
-                      <Grid item xs={12}>
+                      {/* <Grid item xs={12}>
                         <Controller
                           name='quantity'
                           control={control}
@@ -214,7 +218,7 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
                             />
                           )}
                         />
-                      </Grid>
+                      </Grid> */}
                       <Grid item xs={12}>
                         <Controller
                           name='quantityAdjustment'

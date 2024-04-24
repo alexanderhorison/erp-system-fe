@@ -105,19 +105,19 @@ export default function TableProduct({ data, WarehouseId }) {
               )
             }
           },
-          {
-            flex: 0.1,
-            minWidth: 100,
-            field: 'categoryName',
-            headerName: 'Kategori',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.categoryName}
-                </Typography>
-              )
-            }
-          },
+          // {
+          //   flex: 0.1,
+          //   minWidth: 100,
+          //   field: 'categoryName',
+          //   headerName: 'Kategori',
+          //   renderCell: params => {
+          //     return (
+          //       <Typography variant='body2' sx={{ color: 'text.primary' }}>
+          //         {params.row.categoryName}
+          //       </Typography>
+          //     )
+          //   }
+          // },
           {
             flex: 0.1,
             minWidth: 100,
@@ -131,19 +131,19 @@ export default function TableProduct({ data, WarehouseId }) {
               )
             }
           },
-          {
-            flex: 0.1,
-            minWidth: 100,
-            field: 'typeName',
-            headerName: 'Tipe',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.typeName}
-                </Typography>
-              )
-            }
-          },
+          // {
+          //   flex: 0.1,
+          //   minWidth: 100,
+          //   field: 'typeName',
+          //   headerName: 'Tipe',
+          //   renderCell: params => {
+          //     return (
+          //       <Typography variant='body2' sx={{ color: 'text.primary' }}>
+          //         {params.row.typeName}
+          //       </Typography>
+          //     )
+          //   }
+          // },
           {
             flex: 0.1,
             minWidth: 100,
@@ -171,7 +171,7 @@ export default function TableProduct({ data, WarehouseId }) {
             }
           },
           {
-            flex: 0.2,
+            flex: 0.13,
             minWidth: 100,
             sortable: false,
             field: 'actions',
