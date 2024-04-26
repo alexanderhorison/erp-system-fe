@@ -15,7 +15,7 @@ import AddPaymentDrawer from 'src/views/apps/invoice/shared-drawer/AddPaymentDra
 import SendInvoiceDrawer from 'src/views/apps/invoice/shared-drawer/SendInvoiceDrawer'
 import DetailInvoice from 'src/views/delivery-order/DetailInvoice'
 
-export default function detailDeliveryOrder({}) {
+export default function DetailDeliveryOrder({}) {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id

@@ -16,14 +16,14 @@ import { fetchAllDeliveryOrder } from 'src/store/apps/delivery-order'
 
 const renderClient = params => {
   const { row } = params
-  console.log(row)
+  const name = getInitials(row.createdBy.name ? row.createdBy.name : '-').slice(0, 2)
   const stateNum = Math.floor(Math.random() * 6)
   const states = ['success', 'error', 'warning', 'info', 'primary', 'secondary']
   const color = states[stateNum]
 
   return (
     <CustomAvatar skin='light' color={color} sx={{ mr: 3, fontSize: '.8rem', width: '1.875rem', height: '1.875rem' }}>
-      {getInitials(row.createdBy.name ? row.createdBy.name : 'John Doe')}
+      {name}
     </CustomAvatar>
   )
 }

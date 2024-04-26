@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Grid, IconButton, Typography } from '@mui/material'
+import { Button, Card, CardContent, Divider, Grid, IconButton, Typography } from '@mui/material'
 import { useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -10,7 +10,6 @@ import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
 
 import Icon from 'src/@core/components/icon'
 import * as yup from 'yup'
-import { initiateProductWarehouse } from 'src/store/apps/product-warehouse'
 import { useRouter } from 'next/router'
 import { createDeliveryOrder, fetchInvoiceListProductByWarehouseId } from 'src/store/apps/delivery-order'
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
@@ -21,10 +20,6 @@ export default function AddInvoice({ warehouse }) {
 
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
   const { dataListProductWarehouse: listProduct } = useSelector(state => state.deliveryOrder)
-
-  // console.log(listProduct)
-  // const { data: masterDataProduct } = useSelector(state => state.masterProduct)
-  // const { data: masterDataUnit } = useSelector(state => state.unit)
 
   const schema = yup.object({
     WarehouseOrigin: yup.string().required('Gudang asal harus diisi'),
@@ -107,7 +102,7 @@ export default function AddInvoice({ warehouse }) {
       ProductWarehouseId: '',
       quantity: '',
       qty: '',
-      MasterProductId: '',
+      MasterProductId: ''
     })
     dispatch(fetchMasterDataWarehouse())
   }, [dispatch, append, listProduct])
@@ -185,109 +180,112 @@ export default function AddInvoice({ warehouse }) {
           <Grid item xs={12}>
             <Card>
               {fields.map((item, index) => (
-                <CardContent key={index}>
-                  <Grid container spacing={6}>
-                    <Grid item xs={12} md={7}>
-                      <Controller
-                        name={`data[${index}].ProductWarehouseId`}
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange } }) => (
-                          <CustomAutocomplete
-                            key={index}
-                            options={listProduct}
-                            id='autocomplete-custom'
-                            getOptionLabel={option => option.productName || ''}
-                            onChange={(event, newValue) => {
-                              onChange(+newValue?.ProductWarehouseId)
-                              const selectedProduct = listProduct.find(
-                                product => product.ProductWarehouseId === +newValue?.ProductWarehouseId
-                              )
-                              if (selectedProduct) {
-                                setValue(`data[${index}].quantity`, selectedProduct.quantity)
-                                setValue(`data[${index}].MasterProductId`, selectedProduct.MasterProductId)
-                              } else {
-                                setValue(`data[${index}].quantity`, '')
-                                setValue(`data[${index}].MasterProductId`, '')
-                              }
-                            }}
-                            renderInput={params => (
-                              <CustomTextField
-                                value={item.ProductWarehouseId}
-                                {...params}
-                                error={Boolean(errors?.data?.[index]?.ProductWarehouseId)}
-                                {...(errors?.data?.[index]?.ProductWarehouseId && {
-                                  helperText: errors?.data?.[index]?.ProductWarehouseId.message
-                                })}
-                                label='Produk'
-                              />
-                            )}
-                          />
+                <>
+                  <CardContent key={index}>
+                    <Grid container spacing={6}>
+                      <Grid item xs={12} md={7}>
+                        <Controller
+                          name={`data[${index}].ProductWarehouseId`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomAutocomplete
+                              key={index}
+                              options={listProduct}
+                              id='autocomplete-custom'
+                              getOptionLabel={option => option.productName || ''}
+                              onChange={(event, newValue) => {
+                                onChange(+newValue?.ProductWarehouseId)
+                                const selectedProduct = listProduct.find(
+                                  product => product.ProductWarehouseId === +newValue?.ProductWarehouseId
+                                )
+                                if (selectedProduct) {
+                                  setValue(`data[${index}].quantity`, selectedProduct.quantity)
+                                  setValue(`data[${index}].MasterProductId`, selectedProduct.MasterProductId)
+                                } else {
+                                  setValue(`data[${index}].quantity`, '')
+                                  setValue(`data[${index}].MasterProductId`, '')
+                                }
+                              }}
+                              renderInput={params => (
+                                <CustomTextField
+                                  value={item.ProductWarehouseId}
+                                  {...params}
+                                  error={Boolean(errors?.data?.[index]?.ProductWarehouseId)}
+                                  {...(errors?.data?.[index]?.ProductWarehouseId && {
+                                    helperText: errors?.data?.[index]?.ProductWarehouseId.message
+                                  })}
+                                  label='Produk'
+                                />
+                              )}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={5} md={2}>
+                        <Controller
+                          name={`data[${index}].quantity`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomTextField
+                              fullWidth
+                              label='Stok Tersedia'
+                              value={value}
+                              disabled
+                              onChange={e => {
+                                const newValue = parseInt(e.target.value, 10)
+                                if (!isNaN(newValue) && newValue >= 0) {
+                                  onChange(+newValue)
+                                }
+                              }}
+                              type='number'
+                              sx={{ display: 'block' }}
+                              error={Boolean(errors?.data?.[index]?.quantity)}
+                              {...(errors?.data?.[index]?.quantity && {
+                                helperText: errors?.data?.[index]?.quantity.message
+                              })}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={5} md={2}>
+                        <Controller
+                          name={`data[${index}].qty`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomTextField
+                              fullWidth
+                              label='Kuantiti'
+                              value={value}
+                              onChange={e => {
+                                const newValue = parseInt(e.target.value, 10)
+                                if (!isNaN(newValue) && newValue >= 0) {
+                                  onChange(+newValue)
+                                }
+                              }}
+                              type='number'
+                              sx={{ display: 'block' }}
+                              error={Boolean(errors?.data?.[index]?.qty)}
+                              {...(errors?.data?.[index]?.qty && {
+                                helperText: errors?.data?.[index]?.qty.message
+                              })}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={1} md={1} sx={{ marginTop: 'auto' }}>
+                        {index !== 0 && fields.length - 1 === index && (
+                          <IconButton onClick={() => deleteItem(index)} sx={{ color: 'text.primary' }}>
+                            <Icon icon='tabler:trash' />
+                          </IconButton>
                         )}
-                      />
+                      </Grid>
                     </Grid>
-                    <Grid item xs={5} md={2}>
-                      <Controller
-                        name={`data[${index}].quantity`}
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange } }) => (
-                          <CustomTextField
-                            fullWidth
-                            label='Stok Tersedia'
-                            value={value}
-                            disabled
-                            onChange={e => {
-                              const newValue = parseInt(e.target.value, 10)
-                              if (!isNaN(newValue) && newValue >= 0) {
-                                onChange(+newValue)
-                              }
-                            }}
-                            type='number'
-                            sx={{ display: 'block' }}
-                            error={Boolean(errors?.data?.[index]?.quantity)}
-                            {...(errors?.data?.[index]?.quantity && {
-                              helperText: errors?.data?.[index]?.quantity.message
-                            })}
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={5} md={2}>
-                      <Controller
-                        name={`data[${index}].qty`}
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange } }) => (
-                          <CustomTextField
-                            fullWidth
-                            label='Kuantiti'
-                            value={value}
-                            onChange={e => {
-                              const newValue = parseInt(e.target.value, 10)
-                              if (!isNaN(newValue) && newValue >= 0) {
-                                onChange(+newValue)
-                              }
-                            }}
-                            type='number'
-                            sx={{ display: 'block' }}
-                            error={Boolean(errors?.data?.[index]?.qty)}
-                            {...(errors?.data?.[index]?.qty && {
-                              helperText: errors?.data?.[index]?.qty.message
-                            })}
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={1} md={1} sx={{ marginTop: 'auto' }}>
-                      {index !== 0 && fields.length - 1 === index && (
-                        <IconButton onClick={() => deleteItem(index)} sx={{ color: 'text.primary' }}>
-                          <Icon icon='tabler:trash' />
-                        </IconButton>
-                      )}
-                    </Grid>
-                  </Grid>
-                </CardContent>
+                  </CardContent>
+                  <Divider />
+                </>
               ))}
               <CardContent>
                 <Grid item>
@@ -339,10 +337,10 @@ export default function AddInvoice({ warehouse }) {
               onClick={() => router.back()}
               startIcon={<Icon icon='tabler:x' />}
             >
-              Batal
+              Cancel
             </Button>
             <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-              Kirim
+              Submit
             </Button>
           </Grid>
         </Grid>
