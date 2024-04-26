@@ -75,7 +75,6 @@ export const fetchDetailDeliveryOrder = createAsyncThunk(
         method: 'GET',
         url: '/delivery-order/' + delivery_order_id,
       })
-      console.log(response);
       return response.data
     } catch (error) {
       swalToastError({ label, error })
