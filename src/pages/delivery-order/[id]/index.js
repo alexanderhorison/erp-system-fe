@@ -14,6 +14,7 @@ import PreviewActions from 'src/views/apps/invoice/preview/PreviewActions'
 import AddPaymentDrawer from 'src/views/apps/invoice/shared-drawer/AddPaymentDrawer'
 import SendInvoiceDrawer from 'src/views/apps/invoice/shared-drawer/SendInvoiceDrawer'
 import DetailInvoice from 'src/views/delivery-order/DetailInvoice'
+import ToolbarInvoice from 'src/views/delivery-order/ToolbarInvoice'
 
 export default function DetailDeliveryOrder({}) {
   const dispatch = useDispatch()
@@ -47,11 +48,12 @@ export default function DetailDeliveryOrder({}) {
             <DetailInvoice data={data} />
           </Grid>
           <Grid item xl={3} md={4} xs={12}>
-            <PreviewActions
+            <ToolbarInvoice id={id} />
+            {/* <PreviewActions
               id={id}
-              // toggleAddPaymentDrawer={toggleAddPaymentDrawer}
-              // toggleSendInvoiceDrawer={toggleSendInvoiceDrawer}
-            />
+              toggleAddPaymentDrawer={toggleAddPaymentDrawer}
+              toggleSendInvoiceDrawer={toggleSendInvoiceDrawer}
+            /> */}
           </Grid>
         </Grid>
         {/* <SendInvoiceDrawer open={sendInvoiceOpen} toggle={toggleSendInvoiceDrawer} /> */}
