@@ -1,7 +1,7 @@
-import { Dialog, DialogContent, Box, Typography, Button, Grid } from '@mui/material'
+import { Dialog, DialogContent, Box, Typography, Button, Grid, MenuItem } from '@mui/material'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import { Transition } from '../user/modalUserEdit'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -9,6 +9,8 @@ import { CustomCloseButton } from 'src/views/pages/dialog-examples/DialogEditUse
 import Icon from 'src/@core/components/icon'
 import { editRole } from 'src/store/apps/role'
 import { showErrors } from '../user/modalUserAdd'
+import { useEffect, useState } from 'react'
+import CustomChip from 'src/@core/components/mui/chip'
 
 const ITEM_HEIGHT = 48
 const ITEM_PADDING_TOP = 8
@@ -24,7 +26,8 @@ const MenuProps = {
 
 const defaultValue = {
   name: '',
-  description: ''
+  description: '',
+  menuId: []
 }
 
 const schema = yup.object().shape({
@@ -32,35 +35,44 @@ const schema = yup.object().shape({
     .string()
     .min(3, obj => showErrors('Nama Role', obj.value.length, obj.min))
     .required(),
-  description: yup.string().optional()
+  description: yup.string().optional(),
+  menuId: yup.array().of(yup.number().integer()).min(1, 'Pilih minimal 1 menu').required('Pilih minimal 1 menu')
 })
 
 export default function ModalRoleEdit({ data, isOpen, closePress, isView }) {
   //   const [roles, setRoles] = useState([])
   const dispatch = useDispatch()
+  const [inputMenu, setInputMenu] = useState([])
 
-  //   const menus = useSelector(state => state.menu.dataMenus)
+  const menus = useSelector(state => state.menu.dataMenus)
 
-  //   const handleChange = event => {
-  //     setRoles(event.target.value)
-  //   }
-  //   //   console.log(menus)
+  useEffect(() => {
+    if (data?.MenuId) {
+      let dataMenu = []
+      let idMenu = []
+      data?.MenuId.forEach(menuId => {
+        const menu = menus.find(menu => menu.menuId === menuId)
+        if (menu) {
+          dataMenu.push(menu)
+          idMenu.push(menu.menuId)
+        }
+      })
+      setValue('menuId', idMenu, { shouldValidate: true, shouldDirty: true })
+      setInputMenu(dataMenu)
+    }
+  }, [menus, data])
 
-  //   const handleChangeMultipleNative = event => {
-  //     const { options } = event.target
-  //     const value = []
-  //     for (let i = 0, l = options.length; i < l; i += 1) {
-  //       if (options[i].selected) {
-  //         value.push(options[i].value)
-  //       }
-  //     }
-  //     setPersonNameNative(value)
-  //   }
+  const handleChange = event => {
+    let menuId = event.target.value.map(data => data.menuId)
+    setInputMenu(event.target.value)
+    setValue('menuId', menuId, { shouldValidate: true, shouldDirty: true })
+  }
 
   const {
     reset,
     control,
     handleSubmit,
+    setValue,
     formState: { errors }
   } = useForm({
     defaultValues: defaultValue,
@@ -71,7 +83,7 @@ export default function ModalRoleEdit({ data, isOpen, closePress, isView }) {
 
   const onSubmitEdit = (data, e) => {
     e.preventDefault()
-    dispatch(editRole({ ...data, menuId: data.MenuId }))
+    dispatch(editRole(data))
     closePress()
     reset()
   }
@@ -104,7 +116,7 @@ export default function ModalRoleEdit({ data, isOpen, closePress, isView }) {
             </Typography>
           </Box>
           <form onSubmit={handleSubmit(onSubmitEdit)}>
-            <Grid container spacing={6}>
+            <Grid container spacing={3}>
               <Grid item xs={12}>
                 <Controller
                   name='name'
@@ -120,6 +132,49 @@ export default function ModalRoleEdit({ data, isOpen, closePress, isView }) {
                       error={Boolean(errors.name)}
                       {...(errors.name && { helperText: errors.name.message })}
                     />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Controller
+                  name='menuId'
+                  control={control}
+                  rules={{ required: false }}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      select
+                      fullWidth
+                      label='List Menu'
+                      id='select-multiple-chip'
+                      sx={{ mb: 2 }}
+                      error={Boolean(errors.menuId)}
+                      {...(errors.menuId && { helperText: errors.menuId.message })}
+                      SelectProps={{
+                        MenuProps,
+                        multiple: true,
+                        value: inputMenu,
+                        onChange: e => handleChange(e),
+                        renderValue: selected => (
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                            {selected.map(value => (
+                              <CustomChip
+                                key={value.id}
+                                label={value.name}
+                                sx={{ m: 0.75 }}
+                                skin='light'
+                                color='success'
+                              />
+                            ))}
+                          </Box>
+                        )
+                      }}
+                    >
+                      {menus.map(menu => (
+                        <MenuItem key={menu.id} value={menu}>
+                          {menu.name}
+                        </MenuItem>
+                      ))}
+                    </CustomTextField>
                   )}
                 />
               </Grid>

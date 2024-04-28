@@ -68,7 +68,7 @@ const TableHeader = props => {
   const menus = useSelector(state => state.menu.dataMenus)
 
   const handleChange = event => {
-    let menuId = event.target.value.map(data => data.id)
+    let menuId = event.target.value.map(data => data.menuId)
     setInputMenu(event.target.value)
     setValue('menuId', menuId, { shouldValidate: true, shouldDirty: true })
   }
