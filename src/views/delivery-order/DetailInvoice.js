@@ -15,6 +15,9 @@ import TableCell from '@mui/material/TableCell'
 
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
+import { returnFormatDate } from 'src/helpers/formatDate'
+import { transformColor } from 'src/helpers/transformColor'
+import CustomChip from 'src/@core/components/mui/chip'
 
 const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
@@ -39,10 +42,6 @@ const DetailInvoice = ({ data }) => {
   const theme = useTheme()
 
   if (data) {
-    const dateTime = new Date(data?.createdAt)
-    const options = { day: '2-digit', month: 'short', year: 'numeric' }
-    let formattedDate = dateTime.toLocaleDateString('en-US', options).split(' ')
-    formattedDate = `${formattedDate[1]} ${formattedDate[0]} ${formattedDate[2]}`
     return (
       <Card>
         <Typography
@@ -107,17 +106,16 @@ const DetailInvoice = ({ data }) => {
                     {themeConfig.templateName}
                   </Typography>
                 </Box>
-                {/* <div>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>Office 149, 450 South Brand Brooklyn</Typography>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>San Diego County, CA 91905, USA</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>+1 (123) 456 7891, +44 (876) 543 2198</Typography>
-                </div> */}
+                <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5, ml: 10 }}>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>Jl. Kav. Perkebunan Raya</Typography>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>Kota Tangerang, Banten</Typography>
+                  <Typography sx={{ color: `'text.secondary'` }}>(021) 55722282</Typography>
+                </Box>
               </Box>
             </Grid>
             <Grid item sm={6} xs={4}>
               <Box sx={{ display: 'flex', alignContent: 'flex-start' }}>
-                {/* <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}> */}
-                <Table sx={{}}>
+                <Table>
                   <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
                     <TableRow>
                       <MUITableCell>
@@ -129,30 +127,15 @@ const DetailInvoice = ({ data }) => {
                     </TableRow>
                     <TableRow>
                       <MUITableCell>
-                        <Typography variant='h6' sx={{ color: 'text.secondary' }}>
-                          Surat Jalan Dibuat
-                        </Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <Typography variant='h6' sx={{ color: 'text.secondary' }}>
-                          {formattedDate}
-                        </Typography>
-                      </MUITableCell>
-                    </TableRow>
-                    <TableRow>
-                      <MUITableCell>
-                        <Typography sx={{ color: 'text.secondary' }}>Surat Jalan Diterima</Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <Typography sx={{ color: 'text.secondary' }}>{formattedDate}</Typography>
-                      </MUITableCell>
-                    </TableRow>
-                    <TableRow>
-                      <MUITableCell>
                         <Typography sx={{ color: 'text.secondary' }}>Status</Typography>
                       </MUITableCell>
                       <MUITableCell>
-                        <Typography sx={{ color: 'text.secondary' }}>{data?.status}</Typography>
+                        <CustomChip
+                          rounded
+                          label={`${data?.status}`}
+                          skin='light'
+                          color={`${transformColor(data?.status)}`}
+                        />
                       </MUITableCell>
                     </TableRow>
                   </TableBody>
@@ -163,7 +146,7 @@ const DetailInvoice = ({ data }) => {
         </CardContent>
         <CardContent sx={{ p: [`${theme.spacing(6)} !important`, `${theme.spacing(10)} !important`] }}>
           <Grid container>
-            <Grid item xs={6} sm={5} sx={{ mb: { lg: 0, xs: 4 } }}>
+            {/* <Grid item xs={6} sm={5} sx={{ mb: { lg: 0, xs: 4 } }}>
               <Typography variant='h6' sx={{ mb: 4 }}>
                 Gudang Asal
               </Typography>
@@ -191,66 +174,8 @@ const DetailInvoice = ({ data }) => {
                     {data?.WarehouseDestination?.location}
                   </Typography>
                 </Box>
-                {/* <Typography variant='h6' sx={{ mb: 6 }}>
-                  Surat Jalan Ke
-                </Typography>
-                <Typography sx={{ mb: 1.5, color: 'text.secondary' }}>{data?.WarehouseDestination?.name}</Typography>
-                <Typography sx={{ mb: 1.5, color: 'text.secondary' }}>
-                  {data?.WarehouseDestination?.location}
-                </Typography> */}
-                {/* <Typography variant='h6' sx={{ mb: 6 }}>
-                  Bill To:
-                </Typography>
-                <TableContainer>
-                  <Table>
-                    <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(0.75)} !important` } }}>
-                      <TableRow>
-                        <MUITableCell>
-                          <Typography sx={{ color: 'text.secondary' }}>Total Due:</Typography>
-                        </MUITableCell>
-                        <MUITableCell>
-                          <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>
-                            {data.paymentDetails.totalDue}
-                          </Typography>
-                        </MUITableCell>
-                      </TableRow>
-                      <TableRow>
-                        <MUITableCell>
-                          <Typography sx={{ color: 'text.secondary' }}>Bank name:</Typography>
-                        </MUITableCell>
-                        <MUITableCell>
-                          <Typography sx={{ color: 'text.secondary' }}>{data.paymentDetails.bankName}</Typography>
-                        </MUITableCell>
-                      </TableRow>
-                      <TableRow>
-                        <MUITableCell>
-                          <Typography sx={{ color: 'text.secondary' }}>Country:</Typography>
-                        </MUITableCell>
-                        <MUITableCell>
-                          <Typography sx={{ color: 'text.secondary' }}>{data.paymentDetails.country}</Typography>
-                        </MUITableCell>
-                      </TableRow>
-                      <TableRow>
-                        <MUITableCell>
-                          <Typography sx={{ color: 'text.secondary' }}>IBAN:</Typography>
-                        </MUITableCell>
-                        <MUITableCell>
-                          <Typography sx={{ color: 'text.secondary' }}>{data.paymentDetails.iban}</Typography>
-                        </MUITableCell>
-                      </TableRow>
-                      <TableRow>
-                        <MUITableCell>
-                          <Typography sx={{ color: 'text.secondary' }}>SWIFT code:</Typography>
-                        </MUITableCell>
-                        <MUITableCell>
-                          <Typography sx={{ color: 'text.secondary' }}>{data.paymentDetails.swiftCode}</Typography>
-                        </MUITableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </TableContainer> */}
               </div>
-            </Grid>
+            </Grid> */}
           </Grid>
         </CardContent>
 
@@ -290,8 +215,12 @@ const DetailInvoice = ({ data }) => {
           <Grid container>
             <Grid item xs={12} sm={7} lg={9} sx={{ order: { sm: 1, xs: 2 } }}>
               <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, color: 'text.secondary' }}>Pembuat surat jalan:</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.User?.name}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>
+                  <Typography component='span' sx={{ mr: 1.5, fontWeight: 500, color: 'inherit' }}>
+                    Catatan:
+                  </Typography>
+                  {data?.notes}
+                </Typography>
               </Box>
             </Grid>
             {/* <Grid item xs={12} sm={5} lg={3} sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 2, xs: 1 } }}>
@@ -319,12 +248,26 @@ const DetailInvoice = ({ data }) => {
         <Divider />
 
         <CardContent sx={{ px: [6, 10] }}>
-          <Typography sx={{ color: 'text.secondary' }}>
-            <Typography component='span' sx={{ mr: 1.5, fontWeight: 500, color: 'inherit' }}>
-              Catatan:
-            </Typography>
-            {data?.notes}
-          </Typography>
+          <Grid container>
+            <Grid item xs={12} sm={12} lg={12} sx={{ mb: 20, mx: 7 }}>
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, color: 'text.secondary' }}>Dibuat Oleh</Typography>
+                <Typography sx={{ mr: 2, fontWeight: 500, color: 'text.secondary' }}>Diterima Oleh</Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={12} lg={12} sx={{ mx: 7 }}>
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center' }}>
+                  <Typography sx={{ color: 'text.secondary' }}>{data?.CreatedBy?.name}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.createdAt)}</Typography>
+                </Box>
+                <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', mr: 4 }}>
+                  <Typography sx={{ color: 'text.secondary' }}>{data?.ReceivedBy?.name}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.receivedAt)}</Typography>
+                </Box>
+              </Box>
+            </Grid>
+          </Grid>
         </CardContent>
       </Card>
     )
