@@ -60,7 +60,7 @@ export default function ModalRoleEdit({ data, isOpen, closePress, isView }) {
       setValue('menuId', idMenu, { shouldValidate: true, shouldDirty: true })
       setInputMenu(dataMenu)
     }
-  }, [menus, data])
+  }, [menus, data, setValue])
 
   const handleChange = event => {
     let menuId = event.target.value.map(data => data.menuId)
