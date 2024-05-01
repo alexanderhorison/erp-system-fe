@@ -156,10 +156,10 @@ export default function ModalAddMasterType({ open, setOpen, typeModal, id }) {
           >
             {typeModal !== 'VIEW' && (
               <>
-                <Button type='submit' variant='contained' hidden={typeModal === 'VIEW'}>
+                <Button variant='tonal' color='secondary' onClick={handleClose} hidden={typeModal === 'VIEW'}>
                   Cancel
                 </Button>
-                <Button variant='tonal' color='secondary' onClick={handleClose} hidden={typeModal === 'VIEW'}>
+                <Button type='submit' variant='contained' hidden={typeModal === 'VIEW'}>
                   Submit
                 </Button>
               </>
