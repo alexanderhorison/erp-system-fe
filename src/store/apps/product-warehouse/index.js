@@ -65,7 +65,7 @@ export const initiateProductWarehouse = createAsyncThunk(
         axiosRequest: () => {
           return axios({
             method: 'POST',
-            url: '/product-warehouse/create',
+            url: '/product-warehouse/create/' + warehouse.id,
             data
           })
         },
