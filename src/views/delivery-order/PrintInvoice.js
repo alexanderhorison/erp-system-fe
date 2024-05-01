@@ -51,7 +51,6 @@ const PrintInvoice = ({ id }) => {
   const theme = useTheme()
   const dispatch = useDispatch()
 
-  console.log(id, 'id')
   const { detailDeliveryOrder: data, errorDetailDeliveryOrder } = useSelector(state => state.deliveryOrder)
 
   useEffect(() => {
@@ -67,11 +66,6 @@ const PrintInvoice = ({ id }) => {
   }, [id, dispatch])
 
   if (data) {
-    const dateTime = new Date(data?.createdAt)
-    const options = { day: '2-digit', month: 'short', year: 'numeric' }
-    let formattedDate = dateTime.toLocaleDateString('en-US', options).split(' ')
-    formattedDate = `${formattedDate[1]} ${formattedDate[0]} ${formattedDate[2]}`
-
     return (
       <Card>
         <Typography

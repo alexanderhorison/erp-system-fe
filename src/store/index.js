@@ -16,6 +16,7 @@ import unit from './apps/master/unit'
 import warehouse from './apps/master/warehouse'
 import productWarehouse from './apps/product-warehouse/'
 import deliveryOrder from './apps/delivery-order'
+import deliveryOrderReceive from './apps/delivery-order-receive'
 //import store from './src/store'; // Use relative path //
 
 export const store = configureStore({
@@ -33,7 +34,8 @@ export const store = configureStore({
     masterProduct,
     productWarehouse,
     deliveryOrder,
-    menu
+    menu,
+    deliveryOrderReceive
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

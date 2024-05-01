@@ -69,7 +69,7 @@ const navigation = () => {
         },
         {
           title: 'Penerimaan Surat Jalan',
-          path: '/surat-jalan/invoice/preview',
+          path: '/delivery-order-receive',
           menuId: 11
         }
       ]
