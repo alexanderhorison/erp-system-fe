@@ -1,5 +1,6 @@
 // ** Next Import
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
@@ -15,10 +16,11 @@ import { updateDeliveryOrderReceive } from 'src/store/apps/delivery-order-receiv
 const ToolbarReceive = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, status }) => {
   const auth = UseAuth()
   const dispatch = useDispatch()
+  const router = useRouter()
 
   const onUpdateSuratJalan = (deliveryOrderId, e) => {
-    e.preventDefault()
-    dispatch(updateDeliveryOrderReceive({ deliveryOrderId }))
+    // e.preventDefault()
+    dispatch(updateDeliveryOrderReceive({ deliveryOrderId, router }))
   }
   return (
     <Card>

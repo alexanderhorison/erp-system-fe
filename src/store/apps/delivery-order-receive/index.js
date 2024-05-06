@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { useRouter } from 'next/router'
 import axios from 'src/configs/axios'
 import { swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
@@ -7,14 +6,13 @@ const label = 'Penerimaan Surat Jalan'
 
 export const updateDeliveryOrderReceive = createAsyncThunk(
   'deliveryOrderReceive/updateDeliveryOrderReceive',
-  async ({ deliveryOrderId }, { dispatch, rejectWithValue }) => {
+  async ({ deliveryOrderId, router }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'PUT',
         url: '/delivery-order-receive/' + deliveryOrderId
       })
       swalSuccess({ label, name: 'Penerimaan Surat Jalan', response })
-      const router = useRouter()
       router.push('/delivery-order-receive')
     } catch (error) {
       swalToastError({ label, error })
