@@ -426,6 +426,11 @@ const UserList = ({ apiData }) => {
             pageSizeOptions={[10, 25, 50]}
             paginationModel={paginationModel}
             onPaginationModelChange={setPaginationModel}
+            sx={{
+              '& .MuiSvgIcon-root': {
+                fontSize: '1.125rem'
+              }
+            }}
           />
         </Card>
       </Grid>

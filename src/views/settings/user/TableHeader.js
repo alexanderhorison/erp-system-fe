@@ -1,5 +1,5 @@
 // ** MUI Imports
-import { Box, Button, Typography, Dialog, DialogTitle, DialogContent, MenuItem } from '@mui/material'
+import { Box, Button, Typography, Dialog, DialogTitle, DialogContent, MenuItem, IconButton } from '@mui/material'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -118,16 +118,32 @@ const TableHeader = props => {
               alignItems: 'center'
             }}
           >
-            <CustomTextField value={value} placeholder='Cari Pengguna' onChange={e => handleFilter(e.target.value)} />
-            <Button
-              onClick={e => {
-                clearFilter()
+            <CustomTextField
+              value={value}
+              placeholder='Cari Pengguna'
+              onChange={e => handleFilter(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <Box sx={{ mr: 4, display: 'flex' }}>
+                    <Icon fontSize='1.25rem' icon='tabler:search' />
+                  </Box>
+                ),
+                endAdornment: (
+                  <IconButton size='small' title='Clear' aria-label='Clear' onClick={clearFilter}>
+                    <Icon fontSize='1.25rem' icon='tabler:x' />
+                  </IconButton>
+                )
               }}
-              sx={{ ml: -12, p: 0 }}
-              color='secondary'
-            >
-              X
-            </Button>
+              sx={{
+                width: {
+                  xs: 1,
+                  sm: 'auto'
+                },
+                '& .MuiInputBase-root > svg': {
+                  mr: 2
+                }
+              }}
+            />
           </Box>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
             <Button onClick={handleDialogToggle} variant='contained' sx={{ '& svg': { mr: 2 } }}>

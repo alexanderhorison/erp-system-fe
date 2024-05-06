@@ -17,7 +17,7 @@ import { Controller, useForm } from 'react-hook-form'
 
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { MenuItem } from '@mui/material'
+import { IconButton, MenuItem } from '@mui/material'
 import { addRole } from 'src/store/apps/role'
 import { Icon } from '@iconify/react'
 import { showErrors } from '../user/modalUserAdd'
@@ -109,10 +109,28 @@ const TableHeader = props => {
             // sx={{ mr: 4, mb: 2 }}
             placeholder='Cari Otoritas'
             onChange={e => handleFilter(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <Box sx={{ mr: 4, display: 'flex' }}>
+                  <Icon fontSize='1.25rem' icon='tabler:search' />
+                </Box>
+              ),
+              endAdornment: (
+                <IconButton size='small' title='Clear' aria-label='Clear' onClick={clearFilter}>
+                  <Icon fontSize='1.25rem' icon='tabler:x' />
+                </IconButton>
+              )
+            }}
+            sx={{
+              width: {
+                xs: 1,
+                sm: 'auto'
+              },
+              '& .MuiInputBase-root > svg': {
+                mr: 2
+              }
+            }}
           />
-          <Button onClick={e => clearFilter()} sx={{ ml: -12, p: 0 }} color='secondary'>
-            X
-          </Button>
         </Box>
         <Button sx={{ mb: 2, '& svg': { mr: 2 } }} variant='contained' onClick={handleDialogToggle}>
           <Icon icon='tabler:plus' fontSize='1.125rem' />
