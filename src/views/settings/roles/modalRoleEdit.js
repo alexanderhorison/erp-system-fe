@@ -46,22 +46,6 @@ export default function ModalRoleEdit({ data, isOpen, closePress, isView }) {
 
   const menus = useSelector(state => state.menu.dataMenus)
 
-  useEffect(() => {
-    if (data?.MenuId) {
-      let dataMenu = []
-      let idMenu = []
-      data?.MenuId.forEach(menuId => {
-        const menu = menus.find(menu => menu.menuId === menuId)
-        if (menu) {
-          dataMenu.push(menu)
-          idMenu.push(menu.menuId)
-        }
-      })
-      setValue('menuId', idMenu, { shouldValidate: true, shouldDirty: true })
-      setInputMenu(dataMenu)
-    }
-  }, [menus, data, setValue])
-
   const handleChange = event => {
     let menuId = event.target.value.map(data => data.menuId)
     setInputMenu(event.target.value)
@@ -87,6 +71,22 @@ export default function ModalRoleEdit({ data, isOpen, closePress, isView }) {
     closePress()
     reset()
   }
+
+  useEffect(() => {
+    if (data?.MenuId) {
+      let dataMenu = []
+      let idMenu = []
+      data?.MenuId.forEach(menuId => {
+        const menu = menus.find(menu => menu.menuId === menuId)
+        if (menu) {
+          dataMenu.push(menu)
+          idMenu.push(menu.menuId)
+        }
+      })
+      setValue('menuId', idMenu, { shouldValidate: true, shouldDirty: true })
+      setInputMenu(dataMenu)
+    }
+  }, [menus, data, setValue])
 
   return (
     <>
