@@ -1,15 +1,20 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import toast from 'react-hot-toast'
-
 import axios from 'src/configs/axios'
+import { swalConfirmationDelete, swalError, swalSuccess } from 'src/helpers/swalFunction'
+
+const label = 'otoritas'
 
 // Fetch Roles
 export const fetchRoles = createAsyncThunk('appRoles/fetchRoles', async params => {
-  const response = await axios({
-    method: 'GET',
-    url: '/role/all'
-  })
-  return response.data
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/role/all'
+    })
+    return response.data
+  } catch (error) {
+    swalError({ label, error })
+  }
 })
 
 // ** Add Role
@@ -20,11 +25,11 @@ export const addRole = createAsyncThunk('appUsers/addRole', async (data, { getSt
       url: '/role/create',
       data: data
     })
-    toast.success(response.data.message)
+    swalSuccess({ label, name: 'Otoritas', response })
     dispatch(fetchRoles())
     return
   } catch (error) {
-    toast.error(error.response.data.message || error)
+    swalError({ label, error })
   }
 })
 
@@ -36,26 +41,32 @@ export const editRole = createAsyncThunk('appUsers/editRole', async (data, { get
       url: `/role/${data.id}`,
       data: data
     })
-    toast.success(response.data.message)
+    swalSuccess({ label, name: 'Otoritas', response })
     dispatch(fetchRoles())
     return
   } catch (error) {
-    return toast.error(error.response.data.message || error)
+    swalError({ label, error })
   }
 })
 
 // ** Delete Role
-export const deleteRole = createAsyncThunk('appUsers/deleteRole', async (id, { getState, dispatch }) => {
+export const deleteRole = createAsyncThunk('appUsers/deleteRole', async ({ id, name }, { getState, dispatch }) => {
   try {
-    const response = await axios({
-      method: 'DELETE',
-      url: `/role/${id}`
+    await swalConfirmationDelete({
+      label,
+      name,
+      axiosRequest: () => {
+        return axios({
+          method: 'DELETE',
+          url: `/role/${id}`
+        })
+      },
+      dispatchRequest: () => {
+        return dispatch(fetchRoles())
+      }
     })
-    toast.success(response.data.message)
-    dispatch(fetchRoles())
-    return
   } catch (error) {
-    toast.error(error.response.data.message || error)
+    swalError({ label, error })
   }
 })
 

@@ -1,8 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import toast from 'react-hot-toast'
 
 // ** Axios Imports
 import axios from 'src/configs/axios'
+import { swalConfirmationDelete, swalError, swalSuccess } from 'src/helpers/swalFunction'
+
+const label = 'pengguna'
 
 // ** Fetch Users
 export const fetchDataUsers = createAsyncThunk('appUsers/fetchDataUsers', async filter => {
@@ -14,7 +16,7 @@ export const fetchDataUsers = createAsyncThunk('appUsers/fetchDataUsers', async 
     })
     return response.data
   } catch (error) {
-    toast.error(error.response.data.message || error)
+    swalError({ label, error })
   }
 })
 
@@ -26,11 +28,11 @@ export const addUser = createAsyncThunk('appUsers/addUser', async (data, { getSt
       url: '/user/create',
       data: data
     })
-    toast.success(response?.data?.message)
+    swalSuccess({ label, name: 'Pengguna', response })
     dispatch(fetchDataUsers())
     return
   } catch (error) {
-    toast.error(error.response.data.message || error)
+    swalError({ label, error })
   }
 })
 
@@ -42,26 +44,32 @@ export const editUser = createAsyncThunk('appUsers/editUser', async (data, { get
       url: `/user/${data.id}`,
       data: data
     })
-    toast.success(response.data.message)
+    swalSuccess({ label, name: 'Pengguna', response })
     dispatch(fetchDataUsers())
     return
   } catch (error) {
-    return toast.error(error.response.data.message || error)
+    swalError({ label, error })
   }
 })
 
 // ** Delete User
-export const deleteUser = createAsyncThunk('appUsers/deleteUser', async (id, { getState, dispatch }) => {
+export const deleteUser = createAsyncThunk('appUsers/deleteUser', async ({ id, name }, { getState, dispatch }) => {
   try {
-    const response = await axios({
-      method: 'DELETE',
-      url: `/user/${id}`
+    await swalConfirmationDelete({
+      label,
+      name,
+      axiosRequest: () => {
+        return axios({
+          method: 'DELETE',
+          url: `/user/${id}`
+        })
+      },
+      dispatchRequest: () => {
+        return dispatch(fetchDataUsers())
+      }
     })
-    toast.success(response.data.message)
-    dispatch(fetchDataUsers())
-    return
   } catch (error) {
-    toast.error(error.response.data.message || error)
+    swalError({ label, error })
   }
 })
 

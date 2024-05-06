@@ -123,7 +123,8 @@ const RowOptions = ({ id, data }) => {
   }, [])
 
   const handleDelete = () => {
-    dispatch(deleteUser(id))
+    const name = data?.name
+    dispatch(deleteUser({ id, name }))
     modalDeleteUserClosePress()
   }
 
