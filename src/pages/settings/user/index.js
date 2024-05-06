@@ -41,7 +41,6 @@ import axios from 'axios'
 // ** Custom Table Components Imports
 import TableHeader from 'src/views/settings/user/TableHeader'
 import ModalUserEdit from 'src/views/settings/user/modalUserEdit'
-import ModalConfirmation from 'src/views/common/ModalConfirmation'
 import Button from '@mui/material/Button'
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
 
@@ -88,9 +87,6 @@ const RowOptions = ({ id, data }) => {
     setIsModalEditUser(false)
   }, [])
 
-  // State Modal Delete
-  const [isModalDeleteUser, setIsModalDeleteUser] = useState(false)
-
   // state on Open modal
   const modalEditUserOpenPress = useCallback(
     (data, isView = false) =>
@@ -101,31 +97,9 @@ const RowOptions = ({ id, data }) => {
     []
   )
 
-  // state on Delete Modal
-  const modalDeleteUserOpenPress = useCallback(
-    () => () => {
-      setIsModalDeleteUser(true)
-    },
-    []
-  )
-
-  const handleRowOptionsClose = () => {
-    setAnchorEl(null)
-  }
-
-  const handleRowOptionsClick = event => {
-    setAnchorEl(event.currentTarget)
-  }
-
-  // state on Close modal delete
-  const modalDeleteUserClosePress = useCallback(() => {
-    setIsModalDeleteUser(false)
-  }, [])
-
   const handleDelete = () => {
     const name = data?.name
     dispatch(deleteUser({ id, name }))
-    modalDeleteUserClosePress()
   }
 
   return (
@@ -136,21 +110,12 @@ const RowOptions = ({ id, data }) => {
         </IconButton>
         {!data?.deletedAt && (
           <IconButton>
-            <Icon icon='tabler:trash' onClick={modalDeleteUserOpenPress()} />
+            <Icon icon='tabler:trash' onClick={handleDelete} />
           </IconButton>
         )}
       </Box>
       {isModalEditUser && (
         <ModalUserEdit data={dataUser} isOpen={isModalEditUser} closePress={modalEditUserClosePress} />
-      )}
-      {isModalDeleteUser && (
-        <ModalConfirmation
-          handleAgree={handleDelete}
-          open={isModalDeleteUser}
-          setOpen={setIsModalDeleteUser}
-          title={'Yakin menghapus user?'}
-          content={`Anda ingin menghapus user ${data?.name}`}
-        />
       )}
     </>
   )

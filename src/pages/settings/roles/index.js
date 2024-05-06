@@ -22,7 +22,6 @@ import TableHeader from 'src/views/settings/roles/TableHeader'
 import { deleteRole, fetchRoles } from 'src/store/apps/role'
 import ModalRoleEdit from 'src/views/settings/roles/modalRoleEdit'
 import { fetchMenus } from 'src/store/apps/menu'
-import ModalConfirmation from 'src/views/common/ModalConfirmation'
 
 const colors = {
   support: 'info',
@@ -48,9 +47,6 @@ const RowOptions = ({ id, data }) => {
     setIsModalEditRole(false)
   }, [])
 
-  // State Modal Delete
-  const [isModalDeleteRole, setIsModalDeleteRole] = useState(false)
-
   // Action Open Modal
   const modalOpenPress = useCallback(
     (data, isView = false) =>
@@ -65,20 +61,7 @@ const RowOptions = ({ id, data }) => {
   const handleDelete = () => {
     const name = data?.name
     dispatch(deleteRole({ id, name }))
-    modalDeleteRoleClosePress()
   }
-
-  // Action Open modal delete
-  const modalDeleteOpenPress = useCallback(
-    () => () => {
-      setIsModalDeleteRole(true)
-    },
-    []
-  )
-  // Action Close modal delete
-  const modalDeleteRoleClosePress = useCallback(() => {
-    setIsModalDeleteRole(false)
-  }, [])
 
   return (
     <>
@@ -87,18 +70,9 @@ const RowOptions = ({ id, data }) => {
           <Icon icon='tabler:edit' />
         </IconButton>
         <IconButton>
-          <Icon icon='tabler:trash' onClick={modalDeleteOpenPress()} />
+          <Icon icon='tabler:trash' onClick={handleDelete} />
         </IconButton>
       </Box>
-      {isModalDeleteRole && (
-        <ModalConfirmation
-          handleAgree={handleDelete}
-          open={isModalDeleteRole}
-          setOpen={setIsModalDeleteRole}
-          title={'Yakin menghapus otoritas?'}
-          content={`Anda ingin menghapus otoritas ${data?.name}`}
-        />
-      )}
       {isModalEditRole && (
         <ModalRoleEdit data={dataRole} isOpen={isModalEditRole} closePress={modalEditRoleClosePress} />
       )}
