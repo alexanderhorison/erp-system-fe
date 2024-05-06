@@ -1,5 +1,15 @@
 // ** MUI Imports
-import { Box, Button, Typography, Dialog, DialogTitle, DialogContent, MenuItem, IconButton } from '@mui/material'
+import {
+  Box,
+  Button,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  MenuItem,
+  IconButton,
+  InputAdornment
+} from '@mui/material'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -14,12 +24,14 @@ import { addUser } from 'src/store/apps/user'
 import { useDispatch, useSelector } from 'react-redux'
 import { useState } from 'react'
 import { CustomCloseButton } from 'src/views/pages/dialog-examples/DialogEditUserInfo'
+import encrypt from 'src/utils/encrypt'
 
 export const defaultValues = {
   email: '',
   name: '',
   user_name: '',
   description: '',
+  password: '',
   RoleId: '',
   WarehouseId: ''
 }
@@ -35,6 +47,7 @@ const TableHeader = props => {
 
   // ** State
   const [open, setOpen] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const schema = yup.object().shape({
     name: yup
@@ -44,6 +57,10 @@ const TableHeader = props => {
     user_name: yup
       .string()
       .min(3, obj => showErrors('Username', obj.value.length, obj.min))
+      .required(),
+    password: yup
+      .string()
+      .min(5, obj => showErrors('Password', obj.value.length, obj.min))
       .required(),
     email: yup.string().email('Masukkan email yang valid').required('Email harus diisi'),
     description: yup.string().optional(),
@@ -82,7 +99,10 @@ const TableHeader = props => {
 
   const onSubmit = (data, e) => {
     e.preventDefault()
-    dispatch(addUser({ ...data }))
+    let encryptPassword = encrypt(data.password)
+    delete data?.password
+    let input = { ...data, password: encryptPassword }
+    dispatch(addUser(input))
     setOpen(false)
     reset()
   }
@@ -233,6 +253,37 @@ const TableHeader = props => {
                     error={Boolean(errors.email)}
                     placeholder='cakra@email.com'
                     {...(errors.email && { helperText: errors.email.message })}
+                  />
+                )}
+              />
+              <Controller
+                name='password'
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <CustomTextField
+                    fullWidth
+                    label='Password'
+                    value={value}
+                    sx={{ mb: 4 }}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    error={Boolean(errors.password)}
+                    {...(errors.password && { helperText: errors.password.message })}
+                    type={showPassword ? 'text' : 'password'}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          <IconButton
+                            edge='end'
+                            onMouseDown={e => e.preventDefault()}
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            <Icon fontSize='1.25rem' icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
                   />
                 )}
               />
