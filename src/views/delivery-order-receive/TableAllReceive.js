@@ -53,12 +53,14 @@ export default function TableAllReceive({}) {
   const handleSearch = searchValue => {
     setSearchText(searchValue)
     if (searchValue.length) {
-      const filteredRows = data.filter(row => row.name.toLowerCase().includes(searchValue.toLowerCase()))
+      const filteredRows = data.filter(row => row.delivery_order_id.toLowerCase().includes(searchValue.toLowerCase()))
       setFilteredData(filteredRows)
     } else {
       setFilteredData([])
     }
   }
+
+  console.log(data);
 
   const handleRowClick = params => {
     const delivery_order_id = params.id
