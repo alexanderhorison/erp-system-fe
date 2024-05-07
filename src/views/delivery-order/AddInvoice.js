@@ -13,6 +13,7 @@ import * as yup from 'yup'
 import { useRouter } from 'next/router'
 import { createDeliveryOrder, fetchInvoiceListProductByWarehouseId } from 'src/store/apps/delivery-order'
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
+import OptionsGroup from 'src/helpers/groupedInput'
 
 export default function AddInvoice({ warehouse }) {
   const dispatch = useDispatch()
@@ -191,8 +192,10 @@ export default function AddInvoice({ warehouse }) {
                           render={({ field: { value, onChange } }) => (
                             <CustomAutocomplete
                               key={index}
-                              options={listProduct}
-                              id='autocomplete-custom'
+                              // options={listProduct}
+                              options={OptionsGroup(listProduct, 'categoryName')}
+                              groupBy={option => option.categoryName}
+                              id='autocomplete-grouped'
                               getOptionLabel={option => option.productName || ''}
                               onChange={(event, newValue) => {
                                 onChange(+newValue?.ProductWarehouseId)
