@@ -13,11 +13,12 @@ import { DataGrid } from '@mui/x-data-grid'
 
 import TableHeaderAllInvoice from './TableHeaderAllInvoice'
 import { fetchAllDeliveryOrder } from 'src/store/apps/delivery-order'
+import HandleSearh from 'src/helpers/handleSearch'
 
 const renderClient = params => {
   const { row } = params
   const name = getInitials(row.createdBy.name ? row.createdBy.name : '-').slice(0, 2)
-  const stateNum = Math.floor(Math.random() * 6)
+  const stateNum = 5
   const states = ['success', 'error', 'warning', 'info', 'primary', 'secondary']
   const color = states[stateNum]
 
@@ -40,7 +41,7 @@ const RowOptions = ({ handleView }) => {
   )
 }
 
-export default function TableAllInvoice({}) {
+export default function TableAllInvoice({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -52,12 +53,7 @@ export default function TableAllInvoice({}) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    if (searchValue.length) {
-      const filteredRows = data.filter(row => row.name.toLowerCase().includes(searchValue.toLowerCase()))
-      setFilteredData(filteredRows)
-    } else {
-      setFilteredData([])
-    }
+    HandleSearh({ data, keys: ["delivery_order_id", "warehouseDestination", "warehouseOrigin"], searchValue, setData: setFilteredData })
   }
 
   const handleRowClick = params => {
@@ -72,6 +68,10 @@ export default function TableAllInvoice({}) {
   useEffect(() => {
     dispatch(fetchAllDeliveryOrder())
   }, [dispatch])
+
+  useEffect(() => {
+    setFilteredData(data)
+  }, [data])
 
   return (
     <Card>
@@ -188,7 +188,7 @@ export default function TableAllInvoice({}) {
         paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderAllInvoice }}
         onPaginationModelChange={setPaginationModel}
-        rows={filteredData.length ? filteredData : data}
+        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
@@ -204,7 +204,7 @@ export default function TableAllInvoice({}) {
           },
           toolbar: {
             value: searchText,
-            placeholder: 'Cari nama tipe',
+            placeholder: 'Cari surat jalan',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
             handleAdd: handleAdd

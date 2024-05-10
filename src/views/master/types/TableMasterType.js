@@ -9,6 +9,7 @@ import { deleteMasterDataType, fetchMasterDataType, fetchMasterDataTypeDetail } 
 
 import ModalAddMasterType from './ModalAddMasterType'
 import TableHeaderMasterType from './TableHeaderMasterType'
+import HandleSearh from 'src/helpers/handleSearch'
 
 const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
@@ -40,7 +41,7 @@ const RowOptions = ({ id, name }) => {
   )
 }
 
-export default function TableMasterType({}) {
+export default function TableMasterType({ }) {
   const dispatch = useDispatch()
   const [openModalAdd, setOpenModalAdd] = useState(false)
 
@@ -52,17 +53,17 @@ export default function TableMasterType({}) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    if (searchValue.length) {
-      const filteredRows = data.filter(row => row.name.toLowerCase().includes(searchValue.toLowerCase()))
-      setFilteredData(filteredRows)
-    } else {
-      setFilteredData([])
-    }
+    HandleSearh({ data, keys: ["name"], searchValue, setData: setFilteredData })
   }
 
   useEffect(() => {
     dispatch(fetchMasterDataType())
   }, [dispatch])
+
+  useEffect(() => {
+    setFilteredData(data)
+  }, [data])
+
   return (
     <Card>
       {openModalAdd && <ModalAddMasterType open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
@@ -108,7 +109,7 @@ export default function TableMasterType({}) {
         paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderMasterType }}
         onPaginationModelChange={setPaginationModel}
-        rows={filteredData.length ? filteredData : data}
+        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
