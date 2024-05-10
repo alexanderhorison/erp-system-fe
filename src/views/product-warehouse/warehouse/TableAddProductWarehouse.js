@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Card, CardContent, Divider, Grid, IconButton } from '@mui/material'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
@@ -56,12 +56,12 @@ export default function TableAddProductWarehouse({ warehouse }) {
       const { MasterProductId, UnitId } = listItems[i]
       const key = `${MasterProductId}-${UnitId}`
       if (lastIndexMap.has(key)) {
-        lastIndex = lastIndexMap.get(key)
+        lastIndex = i
       }
       lastIndexMap.set(key, i)
     }
     // Check duplicate index
-    lastIndex !== -1 ? (lastIndex += 1) : (duplicate = false)
+    lastIndex !== -1 ? (lastIndex) : (duplicate = false)
     setError(`data[${lastIndex}].MasterProductId`, {
       type: 'duplicate',
       message: `Produk dan Satuan sama dengan item lain`
@@ -211,11 +211,11 @@ export default function TableAddProductWarehouse({ warehouse }) {
                         />
                       </Grid>
                       <Grid item xs={1} sx={{ marginTop: 'auto' }}>
-                        <IconButton onClick={() => deleteItem(index)} sx={{ color: 'text.primary' }}>
-                          <Icon icon='tabler:trash' />
-                        </IconButton>
-                        {/* {index !== 0 && fields.length - 1 === index && (
-                        )} */}
+                        {index !== 0 && fields.length - 1 === index && (
+                          <IconButton onClick={() => deleteItem(index)} sx={{ color: 'text.primary' }}>
+                            <Icon icon='tabler:trash' />
+                          </IconButton>
+                        )}
                       </Grid>
                     </Grid>
                   </CardContent>
