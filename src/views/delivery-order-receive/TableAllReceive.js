@@ -13,11 +13,12 @@ import { DataGrid } from '@mui/x-data-grid'
 
 import { fetchAllDeliveryOrder } from 'src/store/apps/delivery-order'
 import TableHeaderReceive from './TableHeaderReceive'
+import HandleSearh from 'src/helpers/handleSearch'
 
 const renderClient = params => {
   const { row } = params
   const name = getInitials(row.createdBy.name ? row.createdBy.name : '-').slice(0, 2)
-  const stateNum = Math.floor(Math.random() * 6)
+  const stateNum = 5
   const states = ['success', 'error', 'warning', 'info', 'primary', 'secondary']
   const color = states[stateNum]
 
@@ -52,12 +53,7 @@ export default function TableAllReceive({}) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    if (searchValue.length) {
-      const filteredRows = data.filter(row => row.delivery_order_id.toLowerCase().includes(searchValue.toLowerCase()))
-      setFilteredData(filteredRows)
-    } else {
-      setFilteredData([])
-    }
+    HandleSearh({ data, keys: ["delivery_order_id", "warehouseDestination", "warehouseOrigin"], searchValue, setData: setFilteredData })
   }
 
   const handleRowClick = params => {
@@ -68,6 +64,10 @@ export default function TableAllReceive({}) {
   useEffect(() => {
     dispatch(fetchAllDeliveryOrder())
   }, [dispatch])
+
+  useEffect(() => {
+    setFilteredData(data)
+  }, [data])
 
   return (
     <Card>
@@ -184,7 +184,7 @@ export default function TableAllReceive({}) {
         paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderReceive }}
         onPaginationModelChange={setPaginationModel}
-        rows={filteredData.length ? filteredData : data}
+        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'

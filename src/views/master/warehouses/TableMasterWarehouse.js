@@ -13,6 +13,7 @@ import {
 
 import TableHeaderMasterWarehouse from './TableHeaderMasterWarehouse'
 import ModalAddMasterWarehouse from './ModalAddMasterWarehouse'
+import HandleSearh from 'src/helpers/handleSearch'
 
 const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
@@ -56,17 +57,16 @@ export default function TableMasterWarehouse({}) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    if (searchValue.length) {
-      const filteredRows = data.filter(row => row.name.toLowerCase().includes(searchValue.toLowerCase()))
-      setFilteredData(filteredRows)
-    } else {
-      setFilteredData([])
-    }
+    HandleSearh({ data, keys: ["name"], searchValue, setData: setFilteredData })
   }
 
   useEffect(() => {
     dispatch(fetchMasterDataWarehouse())
   }, [dispatch])
+
+  useEffect(() => {
+    setFilteredData(data)
+  }, [data])
 
   return (
     <Card>
@@ -113,7 +113,7 @@ export default function TableMasterWarehouse({}) {
         paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderMasterWarehouse }}
         onPaginationModelChange={setPaginationModel}
-        rows={filteredData.length ? filteredData : data}
+        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'

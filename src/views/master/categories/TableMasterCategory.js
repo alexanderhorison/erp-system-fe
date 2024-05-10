@@ -13,6 +13,7 @@ import {
 
 import TableHeaderMasterCategory from './TableHeaderMasterCategory'
 import ModalAddMasterCategory from './ModalAddMasterCategory'
+import HandleSearh from 'src/helpers/handleSearch'
 
 const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
@@ -56,17 +57,16 @@ export default function TableMasterCategory({}) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    if (searchValue.length) {
-      const filteredRows = data.filter(row => row.name.toLowerCase().includes(searchValue.toLowerCase()))
-      setFilteredData(filteredRows)
-    } else {
-      setFilteredData([])
-    }
+    HandleSearh({ data, keys: ["name"], searchValue, setData: setFilteredData })
   }
 
   useEffect(() => {
     dispatch(fetchDataMasterCategory())
   }, [dispatch])
+
+  useEffect(() => {
+    setFilteredData(data)
+  }, [data])
 
   return (
     <Card>
@@ -113,7 +113,7 @@ export default function TableMasterCategory({}) {
         paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderMasterCategory }}
         onPaginationModelChange={setPaginationModel}
-        rows={filteredData.length ? filteredData : data}
+        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'

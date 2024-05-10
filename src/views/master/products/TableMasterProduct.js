@@ -10,6 +10,7 @@ import {
   fetchMasterDataProductDetail
 } from 'src/store/apps/master/product'
 import ModalAddMasterProduct from './ModalAddMasterProduct'
+import HandleSearh from 'src/helpers/handleSearch'
 
 const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
@@ -53,17 +54,16 @@ export default function TableMasterProduct({}) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    if (searchValue.length) {
-      const filteredRows = data.filter(row => row.name.toLowerCase().includes(searchValue.toLowerCase()))
-      setFilteredData(filteredRows)
-    } else {
-      setFilteredData([])
-    }
+    HandleSearh({ data, keys: ["name", "category", "type"], searchValue, setData: setFilteredData })
   }
 
   useEffect(() => {
     dispatch(fetchMasterDataProduct())
   }, [dispatch])
+
+  useEffect(() => {
+    setFilteredData(data)
+  }, [data])
 
   return (
     <Card>
@@ -136,7 +136,7 @@ export default function TableMasterProduct({}) {
         paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderMasterProduct }}
         onPaginationModelChange={setPaginationModel}
-        rows={filteredData.length ? filteredData : data}
+        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
@@ -149,7 +149,7 @@ export default function TableMasterProduct({}) {
           },
           toolbar: {
             value: searchText,
-            placeholder: 'Cari nama produk',
+            placeholder: 'Cari produk, kategori atau tipe',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
             openModalAdd: setOpenModalAdd

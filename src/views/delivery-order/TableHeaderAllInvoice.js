@@ -23,7 +23,7 @@ export default function TableHeaderAllInvoice(props) {
     >
       <CustomTextField
         value={props.value}
-        placeholder='Search…'
+        placeholder={props?.placeholder || 'Search…'}
         onChange={props.onChange}
         InputProps={{
           startAdornment: (
