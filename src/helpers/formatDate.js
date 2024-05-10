@@ -9,6 +9,17 @@ const returnFormatDate = date => {
   return formattedDate
 }
 
+const returnFormatTime = date => {
+  if (!date) {
+    return ''
+  }
+  const dateTime = new Date(date)
+  const time = dateTime.toTimeString().split(' ')[0]
+  // Will return 16:00:53
+  return time
+}
+
 module.exports = {
-  returnFormatDate
+  returnFormatDate,
+  returnFormatTime
 }
