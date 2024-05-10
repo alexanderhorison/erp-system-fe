@@ -10,6 +10,7 @@ import { fetchMasterDataProduct } from 'src/store/apps/master/product'
 import TableHeaderProduct from './TableHeaderProduct'
 import { fetchProductWarehouseDetail } from 'src/store/apps/product-warehouse'
 import ModalAdjustProduct from './ModalAdjustProduct'
+import HandleSearh from 'src/helpers/handleSearch'
 
 const RowOptions = ({ id, name, WarehouseId }) => {
   const dispatch = useDispatch()
@@ -38,9 +39,9 @@ const RowOptions = ({ id, name, WarehouseId }) => {
         <IconButton onClick={() => handleEdit('MINIMUM_STOCK')}>
           <Icon icon='tabler:edit' />
         </IconButton>
-        <IconButton onClick={handleDelete}>
+        {/* <IconButton onClick={handleDelete}>
           <Icon icon='tabler:trash' />
-        </IconButton>
+        </IconButton> */}
       </Box>
       {openModalEdit && (
         <ModalAdjustProduct
@@ -64,12 +65,7 @@ export default function TableProduct({ data, WarehouseId }) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    if (searchValue.length) {
-      const filteredRows = data.filter(row => row.productName.toLowerCase().includes(searchValue.toLowerCase()))
-      setFilteredData(filteredRows)
-    } else {
-      setFilteredData([])
-    }
+    HandleSearh({ data, keys: ["productName", "unitName"], searchValue, setData: setFilteredData })
   }
 
   const handleAdd = () => {
@@ -82,7 +78,8 @@ export default function TableProduct({ data, WarehouseId }) {
 
   useEffect(() => {
     dispatch(fetchMasterDataProduct())
-  }, [dispatch])
+    setFilteredData(data)
+  }, [dispatch, data])
 
   return (
     <Card>
@@ -171,7 +168,7 @@ export default function TableProduct({ data, WarehouseId }) {
             }
           },
           {
-            flex: 0.13,
+            flex: 0.10,
             minWidth: 100,
             sortable: false,
             field: 'actions',
@@ -186,7 +183,7 @@ export default function TableProduct({ data, WarehouseId }) {
         paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderProduct }}
         onPaginationModelChange={setPaginationModel}
-        rows={filteredData.length ? filteredData : data}
+        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
@@ -199,7 +196,7 @@ export default function TableProduct({ data, WarehouseId }) {
           },
           toolbar: {
             value: searchText,
-            placeholder: 'Cari nama produk',
+            placeholder: 'Cari nama produk atau satuan',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
             handleAdd: handleAdd

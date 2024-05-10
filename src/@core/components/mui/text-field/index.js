@@ -11,12 +11,14 @@ const TextFieldStyled = styled(TextField)(({ theme }) => ({
     transform: 'none',
     lineHeight: 1.154,
     position: 'relative',
+    width: "100%",
     marginBottom: theme.spacing(1),
     fontSize: theme.typography.body2.fontSize,
     color: `${theme.palette.text.primary} !important`
   },
   '& .MuiInputBase-root': {
     borderRadius: 8,
+    width: "100%",
     backgroundColor: 'transparent !important',
     border: `1px solid rgba(${theme.palette.customColors.main}, 0.2)`,
     transition: theme.transitions.create(['border-color', 'box-shadow'], {

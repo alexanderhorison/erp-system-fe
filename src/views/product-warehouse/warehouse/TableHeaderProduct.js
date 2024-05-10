@@ -23,7 +23,7 @@ export default function TableHeaderProduct(props) {
     >
       <CustomTextField
         value={props.value}
-        placeholder='Search…'
+        placeholder={props?.placeholder || 'Search…'}
         onChange={props.onChange}
         InputProps={{
           startAdornment: (
@@ -47,7 +47,12 @@ export default function TableHeaderProduct(props) {
           }
         }}
       />
-      <Button onClick={() => props.handleAdd()} variant='contained' sx={{ '& svg': { mr: 2 } }}>
+      <Button onClick={() => props.handleAdd()} variant='contained' sx={{
+        width: '100%',
+        '@media (min-width: 600px)': {
+          width: 'auto',
+        }, '& svg': { mr: 2 }
+      }}>
         <Icon fontSize='1.125rem' icon='tabler:plus' />
         Tambahkan Produk
       </Button>

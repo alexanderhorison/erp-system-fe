@@ -60,8 +60,6 @@ export default function TableAllReceive({}) {
     }
   }
 
-  console.log(data);
-
   const handleRowClick = params => {
     const delivery_order_id = params.id
     router.push(`/delivery-order-receive/${delivery_order_id}`)

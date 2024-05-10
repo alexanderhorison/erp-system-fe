@@ -9,6 +9,7 @@ import { DataGrid } from '@mui/x-data-grid'
 
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
 import TableHeaderProductWarehouse from './TableHeaderProductWarehouse'
+import HandleSearh from 'src/helpers/handleSearch'
 
 const RowOptions = ({ handleView }) => {
   return (
@@ -22,7 +23,7 @@ const RowOptions = ({ handleView }) => {
   )
 }
 
-export default function TableProductWarehouse({}) {
+export default function TableProductWarehouse({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -34,12 +35,7 @@ export default function TableProductWarehouse({}) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    if (searchValue.length) {
-      const filteredRows = data.filter(row => row.name.toLowerCase().includes(searchValue.toLowerCase()))
-      setFilteredData(filteredRows)
-    } else {
-      setFilteredData([])
-    }
+    HandleSearh({ data, keys: ["name", "location"], searchValue, setData: setFilteredData })
   }
 
   const handleRowClick = params => {
@@ -49,7 +45,13 @@ export default function TableProductWarehouse({}) {
 
   useEffect(() => {
     dispatch(fetchMasterDataWarehouse())
+    // eslint-disable-next-line
   }, [dispatch])
+
+  useEffect(() => {
+    setFilteredData(data)
+    // eslint-disable-next-line
+  }, [data])
 
   return (
     <Card>
@@ -99,7 +101,7 @@ export default function TableProductWarehouse({}) {
         paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderProductWarehouse }}
         onPaginationModelChange={setPaginationModel}
-        rows={filteredData.length ? filteredData : data}
+        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
@@ -115,9 +117,9 @@ export default function TableProductWarehouse({}) {
           },
           toolbar: {
             value: searchText,
-            placeholder: 'Cari nama tipe',
             clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value)
+            onChange: event => handleSearch(event.target.value),
+            placeholder: "Cari gudang atau lokasi"
           }
         }}
       />
