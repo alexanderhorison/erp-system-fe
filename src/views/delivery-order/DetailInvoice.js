@@ -15,7 +15,7 @@ import TableCell from '@mui/material/TableCell'
 
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
-import { returnFormatDate } from 'src/helpers/formatDate'
+import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
 import { transformColor } from 'src/helpers/transformColor'
 import CustomChip from 'src/@core/components/mui/chip'
 
@@ -211,16 +211,16 @@ const DetailInvoice = ({ data }) => {
           </Table>
         </TableContainer>
 
-        <CardContent sx={{ p: [`${theme.spacing(6)} !important`, `${theme.spacing(10)} !important`] }}>
+        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
           <Grid container>
-            <Grid item xs={12} sm={7} lg={9} sx={{ order: { sm: 1, xs: 2 } }}>
-              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+            <Grid item xs={12} sm={9} lg={9} sx={{ order: { sm: 1, xs: 2 }, mb: 4 }}>
+              <Box sx={{ mb: 2, display: 'flex-col', alignItems: 'center' }}>
                 <Typography sx={{ color: 'text.secondary' }}>
                   <Typography component='span' sx={{ mr: 1.5, fontWeight: 500, color: 'inherit' }}>
-                    Catatan:
+                    CATATAN :
                   </Typography>
-                  {data?.notes}
                 </Typography>
+                <Typography sx={{ color: 'text.secondary', mt: 3 }}>{data?.notes}</Typography>
               </Box>
             </Grid>
             {/* <Grid item xs={12} sm={5} lg={3} sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 2, xs: 1 } }}>
@@ -250,20 +250,30 @@ const DetailInvoice = ({ data }) => {
         <CardContent sx={{ px: [6, 10] }}>
           <Grid container>
             <Grid item xs={12} sm={12} lg={12} sx={{ mb: 20, mx: 7 }}>
-              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, color: 'text.secondary' }}>Dibuat Oleh</Typography>
-                <Typography sx={{ mr: 2, fontWeight: 500, color: 'text.secondary' }}>Diterima Oleh</Typography>
+              <Box
+                sx={{
+                  mb: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  textAlign: 'center'
+                }}
+              >
+                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Dibuat Oleh</Typography>
+                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Diterima Oleh</Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={12} lg={12} sx={{ mx: 7 }}>
+            <Grid item xs={12} sm={12} lg={12} sx={{}}>
               <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center' }}>
+                <Box sx={{ mb: 2, ml: 5, display: 'flex-column', alignItems: 'center', textAlign: 'center' }}>
                   <Typography sx={{ color: 'text.secondary' }}>{data?.CreatedBy?.name}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.createdAt)}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.createdAt)}</Typography>
                 </Box>
-                <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', mr: 4 }}>
+                <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
                   <Typography sx={{ color: 'text.secondary' }}>{data?.ReceivedBy?.name}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.receivedAt)}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.receivedAt)}</Typography>
                 </Box>
               </Box>
             </Grid>

@@ -1,5 +1,16 @@
 // Mui import
-import { Dialog, DialogContent, Box, Typography, Fade, Grid, MenuItem, Button } from '@mui/material'
+import {
+  Dialog,
+  DialogContent,
+  Box,
+  Typography,
+  Fade,
+  Grid,
+  MenuItem,
+  Button,
+  InputAdornment,
+  IconButton
+} from '@mui/material'
 import { forwardRef, useState } from 'react'
 
 // Custom Component
@@ -16,6 +27,7 @@ import { CustomCloseButton } from 'src/views/pages/dialog-examples/DialogEditUse
 import Icon from 'src/@core/components/icon'
 import { editUser } from 'src/store/apps/user'
 import { defaultValues, showErrors } from './modalUserAdd'
+import encrypt from 'src/utils/encrypt'
 
 export const Transition = forwardRef(function Transition(props, ref) {
   return <Fade ref={ref} {...props} />
@@ -26,6 +38,8 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
   const roleStore = useSelector(state => state.role.dataRoles)
   const warehouseStore = useSelector(state => state.warehouse.data)
   const [role, setRole] = useState(data.RoleId || '')
+  const [showPassword, setShowPassword] = useState(false)
+  const [changePassword, setChangePassword] = useState(false)
 
   const schema = yup.object().shape({
     name: yup
@@ -44,12 +58,32 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
       .nullable()
       .test('warehouse-validation', 'Gudang harus diisi jika otoritas adalah admin gudang', (val, context) =>
         validateWarehouseId(val, context)
+      ),
+    password: yup
+      .string()
+      .nullable()
+      .test('renew-password-validation', 'Password harus diisi jika ingin mengganti password', (val, context) =>
+        validateNewPassword(val, context, changePassword)
       )
   })
 
   const validateWarehouseId = (val, context) => {
     if (role == 3 && !val) {
       return false
+    } else {
+      return true
+    }
+  }
+
+  const validateNewPassword = (val, context, changePassword) => {
+    if (changePassword) {
+      if (!val) {
+        throw new yup.ValidationError('Password harus diisi jika ingin mengganti password', null, context.path)
+      } else if (val.length < 5) {
+        throw new yup.ValidationError('Password minimal 5 karakter', null, context.path)
+      } else {
+        return true
+      }
     } else {
       return true
     }
@@ -72,7 +106,16 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
 
   const onSubmitEdit = (data, e) => {
     e.preventDefault()
-    dispatch(editUser({ ...data }))
+    let input = {}
+    if (changePassword) {
+      let encryptPassword = encrypt(data.password)
+      delete data?.password
+      input = { ...data, password: encryptPassword }
+    } else {
+      delete data?.password
+      input = { ...data }
+    }
+    dispatch(editUser({ ...input }))
     closePress()
     reset()
   }
@@ -179,6 +222,48 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                     />
                   )}
                 />
+              </Grid>
+              <Grid item sm={12} xs={12} sx={{ display: 'flex', justifyContent: 'space-around', gap: 2 }}>
+                <Controller
+                  name='password'
+                  control={control}
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <CustomTextField
+                      fullWidth
+                      label='Password'
+                      value={value}
+                      disabled={changePassword ? false : true}
+                      sx={{ mb: 4 }}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      error={Boolean(errors.password)}
+                      {...(errors.password && { helperText: errors.password.message })}
+                      type={showPassword ? 'text' : 'password'}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position='end'>
+                            <IconButton
+                              edge='end'
+                              disabled={!changePassword}
+                              onMouseDown={e => e.preventDefault()}
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              <Icon fontSize='1.25rem' icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} />
+                            </IconButton>
+                          </InputAdornment>
+                        )
+                      }}
+                    />
+                  )}
+                />
+                <Box>
+                  <Button
+                    sx={{ fontSize: '12px', marginTop: '13px' }}
+                    onClick={() => setChangePassword(!changePassword)}
+                  >
+                    Ganti password
+                  </Button>
+                </Box>
               </Grid>
               <Grid item xs={12}>
                 <Controller
