@@ -68,14 +68,7 @@ const PrintInvoice = ({ id }) => {
   if (data) {
     return (
       <Card>
-        <Typography
-          variant='h3'
-          sx={{ fontWeight: 600, lineHeight: '20px', justifyContent: 'center', display: 'flex', mt: 5 }}
-        >
-          SURAT JALAN
-        </Typography>
         <CardContent sx={{ p: [`${theme.spacing(4)} !important`, `${theme.spacing(6)} !important`] }}>
-          <Divider />
           <Grid container sx={{ mt: 7 }}>
             <Grid item sm={6} xs={12}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -130,21 +123,20 @@ const PrintInvoice = ({ id }) => {
                     {themeConfig.templateName}
                   </Typography>
                 </Box>
-                <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5, ml: 10 }}>
+                <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
                   <Typography sx={{ mb: 2, color: 'text.secondary' }}>Jl. Kav. Perkebunan Raya</Typography>
                   <Typography sx={{ mb: 2, color: 'text.secondary' }}>Kota Tangerang, Banten</Typography>
                   <Typography sx={{ color: `'text.secondary'` }}>(021) 55722282</Typography>
                 </Box>
               </Box>
             </Grid>
-            <Grid item sm={6} xs={4}>
-              <Box sx={{ display: 'flex', alignContent: 'flex-start' }}>
-                {/* <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}> */}
-                <Table sx={{}}>
+            <Grid item sm={6} xs={12}>
+              <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
+                <Table sx={{ maxWidth: '18rem' }}>
                   <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
                     <TableRow>
                       <MUITableCell>
-                        <Typography variant='h5'>Nomor Surat Jalan</Typography>
+                        <Typography variant='h5'>Surat Jalan</Typography>
                       </MUITableCell>
                       <MUITableCell>
                         <Typography variant='h5'>{`#${data.delivery_order_id}`}</Typography>
@@ -169,8 +161,27 @@ const PrintInvoice = ({ id }) => {
             </Grid>
           </Grid>
         </CardContent>
+
+        <Divider />
         <CardContent sx={{ p: [`${theme.spacing(6)} !important`, `${theme.spacing(10)} !important`] }}>
-          <Grid container></Grid>
+          <Grid container>
+            <Grid item xs={6} sm={5} sx={{ mb: { lg: 0, xs: 4 } }}>
+              <Typography variant='h6' sx={{ mb: 2 }}>
+                Gudang Asal
+              </Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.WarehouseOrigin?.name}</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.WarehouseOrigin?.location}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
+              <div>
+                <Typography variant='h6' sx={{ mb: 2 }}>
+                  Gudang Tujuan
+                </Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{data?.WarehouseDestination?.name}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{data?.WarehouseDestination?.location}</Typography>
+              </div>
+            </Grid>
+          </Grid>
         </CardContent>
 
         <Divider />

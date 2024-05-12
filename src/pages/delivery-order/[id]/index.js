@@ -48,7 +48,7 @@ export default function DetailDeliveryOrder({}) {
             <DetailInvoice data={data} />
           </Grid>
           <Grid item xl={3} md={4} xs={12}>
-            <ToolbarInvoice id={id} />
+            <ToolbarInvoice id={id} status={data?.status} />
             {/* <PreviewActions
               id={id}
               toggleAddPaymentDrawer={toggleAddPaymentDrawer}

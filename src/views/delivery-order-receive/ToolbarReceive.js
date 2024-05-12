@@ -25,22 +25,23 @@ const ToolbarReceive = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
   return (
     <Card>
       <CardContent>
-        <Button fullWidth variant='contained' onClick={toggleSendInvoiceDrawer} sx={{ mb: 2, '& svg': { mr: 2 } }}>
+        {/* <Button fullWidth variant='contained' onClick={toggleSendInvoiceDrawer} sx={{ mb: 2, '& svg': { mr: 2 } }}>
           <Icon fontSize='1.125rem' icon='tabler:send' />
           Kirim Invoice
         </Button>
+        */}
         <Button fullWidth sx={{ mb: 2 }} color='secondary' variant='tonal'>
           Unduh
         </Button>
         <Button
           fullWidth
-          sx={{ mb: 2 }}
+          sx={{ mb: 2, '& svg': { mr: 2 } }}
           target='_blank'
-          variant='tonal'
+          variant='contained'
           component={Link}
-          color='secondary'
           href={`/delivery-order-receive/print/${id}`}
         >
+          <Icon fontSize='1.125rem' icon='tabler:printer' />
           Cetak / Print
         </Button>
         {auth?.user?.RoleId == 3 && status == 'PENDING' ? (

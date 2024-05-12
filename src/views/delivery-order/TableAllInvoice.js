@@ -14,6 +14,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import TableHeaderAllInvoice from './TableHeaderAllInvoice'
 import { fetchAllDeliveryOrder } from 'src/store/apps/delivery-order'
 import HandleSearh from 'src/helpers/handleSearch'
+import { returnFormatTime } from 'src/helpers/formatDate'
 
 const renderClient = params => {
   const { row } = params
@@ -41,7 +42,7 @@ const RowOptions = ({ handleView }) => {
   )
 }
 
-export default function TableAllInvoice({ }) {
+export default function TableAllInvoice({}) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -53,7 +54,12 @@ export default function TableAllInvoice({ }) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({ data, keys: ["delivery_order_id", "warehouseDestination", "warehouseOrigin"], searchValue, setData: setFilteredData })
+    HandleSearh({
+      data,
+      keys: ['delivery_order_id', 'warehouseDestination', 'warehouseOrigin'],
+      searchValue,
+      setData: setFilteredData
+    })
   }
 
   const handleRowClick = params => {
@@ -95,15 +101,38 @@ export default function TableAllInvoice({ }) {
             }
           },
           {
-            flex: 0.13,
+            flex: 0.15,
             minWidth: 120,
             field: 'createdAt',
             headerName: 'Tanggal Dibuat',
             renderCell: params => {
               return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.createdAt}
-                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                    {params.row.createdAt}
+                  </Typography>
+                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
+                    {returnFormatTime(params.row.dateCreated)}
+                  </Typography>
+                </Box>
+              )
+            }
+          },
+          {
+            flex: 0.15,
+            minWidth: 120,
+            field: 'receivedAt',
+            headerName: 'Tanggal Diterima',
+            renderCell: params => {
+              return (
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                    {params.row.receivedAt}
+                  </Typography>
+                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
+                    {returnFormatTime(params.row.dateReceived)}
+                  </Typography>
+                </Box>
               )
             }
           },

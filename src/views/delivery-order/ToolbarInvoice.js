@@ -8,29 +8,52 @@ import CardContent from '@mui/material/CardContent'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
+import { useRouter } from 'next/router'
+import { useDispatch } from 'react-redux'
+import { UseAuth } from 'src/hooks/useAuth'
 
-const ToolbarInvoice = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer }) => {
+const ToolbarInvoice = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, status }) => {
+  const dispatch = useDispatch()
+  const router = useRouter()
+
+  const onUpdateSuratJalan = (deliveryOrderId, e) => {
+    dispatch(updateDeliveryOrderReceive({ deliveryOrderId, router }))
+  }
+
   return (
     <Card>
       <CardContent>
-        <Button fullWidth variant='contained' onClick={toggleSendInvoiceDrawer} sx={{ mb: 2, '& svg': { mr: 2 } }}>
+        {/* <Button fullWidth variant='contained' onClick={toggleSendInvoiceDrawer} sx={{ mb: 2, '& svg': { mr: 2 } }}>
           <Icon fontSize='1.125rem' icon='tabler:send' />
           Kirim Invoice
-        </Button>
+        </Button> */}
         <Button fullWidth sx={{ mb: 2 }} color='secondary' variant='tonal'>
           Unduh
         </Button>
         <Button
           fullWidth
-          sx={{ mb: 2 }}
+          sx={{ mb: 2, '& svg': { mr: 2 } }}
           target='_blank'
-          variant='tonal'
+          variant='contained'
           component={Link}
-          color='secondary'
           href={`/delivery-order/print/${id}`}
         >
+          <Icon fontSize='1.125rem' icon='tabler:printer' />
           Cetak / Print
         </Button>
+        {status == 'PENDING' ? (
+          <>
+            <Button
+              fullWidth
+              variant='contained'
+              onClick={e => onUpdateSuratJalan(id, e)}
+              sx={{ mb: 2, '& svg': { mr: 2 } }}
+            >
+              <Icon fontSize='1.125rem' icon='tabler:check' />
+              Terima Surat Jalan
+            </Button>
+          </>
+        ) : null}
         {/* <Button
           fullWidth
           sx={{ mb: 2 }}
