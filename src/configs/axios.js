@@ -19,4 +19,22 @@ instance.interceptors.request.use(
   }
 )
 
+// interceptor response
+instance.interceptors.response.use(
+  response => {
+    return response
+  },
+  async error => {
+    let originalConfig = error.config
+    const { status, data } = error.response
+    if (originalConfig.url !== '/user/login') {
+      if (status === 401 && data.message === 'jwt expired') {
+        window.localStorage.clear()
+        window.location.href = '/login'
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
 export default instance

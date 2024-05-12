@@ -31,6 +31,7 @@ const AuthProvider = ({ children }) => {
   const router = useRouter()
   useEffect(() => {
     const initAuth = async () => {
+      console.log('masuk')
       const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)
       if (storedToken) {
         setLoading(true)
@@ -48,14 +49,12 @@ const AuthProvider = ({ children }) => {
           .catch(err => {
             console.log(err, 'error auth')
             window.localStorage.clear()
-            localStorage.removeItem('userData')
-            localStorage.removeItem('refreshToken')
-            localStorage.removeItem('accessToken')
             setUser(null)
             setLoading(false)
             router.replace('/login')
           })
       } else {
+        console.log('here')
         setLoading(false)
       }
     }
@@ -108,8 +107,8 @@ const AuthProvider = ({ children }) => {
   const handleLogout = () => {
     setUser(null)
     window.localStorage.clear()
-    window.localStorage.removeItem('userData')
-    window.localStorage.removeItem(authConfig.storageTokenKeyName)
+    // window.localStorage.removeItem('userData')
+    // window.localStorage.removeItem(authConfig.storageTokenKeyName)
     router.push('/login')
   }
 
