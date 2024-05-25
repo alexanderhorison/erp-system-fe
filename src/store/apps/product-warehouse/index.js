@@ -118,6 +118,52 @@ export const fetchProduct = createAsyncThunk('appProductWarehouse/fetchProduct',
   }
 })
 
+// ========== TRANSFORMATION ================
+// GET LIST MASTER TRANSFORMATION
+export const fetchListProductTransformation = createAsyncThunk(
+  'appProductWarehouse/fetchListProductTransformation',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/product-warehouse/transformation/' + id
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return error
+    }
+  }
+)
+
+// TRANSFORMATION PRODUCT
+export const transformProduct = createAsyncThunk(
+  'appMasterProduct/transformProduct',
+  async ({id, data, WarehouseId, setOpen}, { dispatch, rejectWithValue }) => {
+    try {
+      await swalConfirmationEdit({
+        label: 'Produk',
+        name: 'Produk',
+        title: 'Anda akan melakukan transformasi produk',
+        axiosRequest: () => {
+          return axios({
+            method: 'POST',
+            url: '/product-warehouse/transformation/' + id,
+            data: data,
+          })
+        },
+        dispatchRequest: () => {
+          dispatch(fetchListProductByWarehouse(WarehouseId))
+          setOpen(false)
+        }
+      })
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue({})
+    }
+  }
+)
+
 export const appMasterProductSlice = createSlice({
   name: 'appProductWarehouse',
   initialState: {
@@ -133,7 +179,13 @@ export const appMasterProductSlice = createSlice({
 
     detailProductWarehouse: {},
     loadingDetailProductWarehouse: true,
-    errorDetailProductWarehouse: false
+    errorDetailProductWarehouse: false,
+
+    // TRANSFORMATION
+    listTransformation: [],
+    loadingListTransformation: true,
+    errorListTransformation: false,
+
   },
   reducers: {},
   extraReducers: builder => {
@@ -188,6 +240,20 @@ export const appMasterProductSlice = createSlice({
         state.loadingListProductWarehouse = false
         state.errorListProductWarehouse = action.error.message
         state.dataListProductWarehouse = { data: [] }
+      })
+
+      // TRANSFORMATION
+      .addCase(fetchListProductTransformation.pending, (state, action) => {
+        state.loadingListTransformation = true
+      })
+      .addCase(fetchListProductTransformation.fulfilled, (state, action) => {
+        state.listTransformation = action.payload.data
+        state.loadingListTransformation = false
+      })
+      .addCase(fetchListProductTransformation.rejected, (state, action) => {
+        state.loadingListTransformation = false
+        state.errorListTransformation = action.error.message
+        state.listTransformation = []
       })
   }
 })
