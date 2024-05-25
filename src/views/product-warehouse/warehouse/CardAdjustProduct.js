@@ -23,10 +23,10 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 const CardAdjustProduct = ({data}) => {
   return (
     <Card>
-      <Grid container spacing={6}>
+      <Grid container spacing={6} sx={{ height: '220px' }}>
         <StyledGrid item md={5} xs={12}>
           <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img width={137} height={176} alt='Product' src='https://img.freepik.com/premium-vector/cigarettes-pack-illustration-design-element-flat-icon_645658-280.jpg' />
+            <img width={137} height={137} alt='Product' src='https://img.freepik.com/premium-vector/cigarettes-pack-illustration-design-element-flat-icon_645658-280.jpg' />
           </CardContent>
         </StyledGrid>
         <Grid

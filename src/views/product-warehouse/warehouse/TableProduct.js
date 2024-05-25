@@ -8,17 +8,21 @@ import Icon from 'src/@core/components/icon'
 
 import { fetchMasterDataProduct } from 'src/store/apps/master/product'
 import TableHeaderProduct from './TableHeaderProduct'
-import { fetchProductWarehouseDetail } from 'src/store/apps/product-warehouse'
+import { fetchListProductTransformation, fetchProductWarehouseDetail } from 'src/store/apps/product-warehouse'
 import ModalAdjustProduct from './ModalAdjustProduct'
 import HandleSearh from 'src/helpers/handleSearch'
+import ModalTransformationProduct from './ModalTransformationProduct'
 
 const RowOptions = ({ id, name, WarehouseId }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
+  const [openModalTransformation, setOpenModalTransformation] = useState(false)
   const [typeModal, setTypeModal] = useState('')
 
-  const handleDelete = () => {
-    // dispatch(deleteMasterDataProduct(id))
+  const handleTransform = () => {
+    dispatch(fetchProductWarehouseDetail(id))
+    dispatch(fetchListProductTransformation(id))
+    setOpenModalTransformation(true)    
   }
 
   const handleEdit = type => {
@@ -39,9 +43,9 @@ const RowOptions = ({ id, name, WarehouseId }) => {
         <IconButton onClick={() => handleEdit('MINIMUM_STOCK')}>
           <Icon icon='tabler:edit' />
         </IconButton>
-        {/* <IconButton onClick={handleDelete}>
-          <Icon icon='tabler:trash' />
-        </IconButton> */}
+        <IconButton onClick={handleTransform}>
+          <Icon icon='tabler:transfer' />
+        </IconButton>
       </Box>
       {openModalEdit && (
         <ModalAdjustProduct
@@ -51,6 +55,16 @@ const RowOptions = ({ id, name, WarehouseId }) => {
           WarehouseId={WarehouseId}
         />
       )}
+
+      {openModalTransformation && (
+        <ModalTransformationProduct
+          open={openModalTransformation}
+          setOpen={setOpenModalTransformation}
+          typeModal={typeModal}
+          WarehouseId={WarehouseId}
+        />
+      )}
+
     </>
   )
 }
@@ -169,7 +183,7 @@ export default function TableProduct({ data, WarehouseId }) {
           },
           {
             flex: 0.10,
-            minWidth: 100,
+            minWidth: 180,
             sortable: false,
             field: 'actions',
             headerAlign: 'center',
