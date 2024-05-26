@@ -1,17 +1,18 @@
 import { Box, Card, IconButton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
-import TableHeaderMasterProduct from './TableHeaderMasterProduct'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'src/@core/components/icon'
-import {
-  deleteMasterDataProduct,
-  fetchMasterDataProduct,
-  fetchMasterDataProductDetail
-} from 'src/store/apps/master/product'
-import ModalAddMasterProduct from './ModalAddMasterProduct'
+import { deleteMasterDataProduct, fetchMasterDataProductDetail } from 'src/store/apps/master/product'
 import HandleSearh from 'src/helpers/handleSearch'
 import { useRouter } from 'next/router'
+import TableHeaderMasterTransformation from './TableHeaderMasterTransformation'
+import ModalAddMasterTransformation from './ModalAddMasterTransformation'
+import {
+  fetchMasterDataTransformation,
+  fetchMasterDataTransformationDetail
+} from 'src/store/apps/master/transformation'
+import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
 
 const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
@@ -19,27 +20,23 @@ const RowOptions = ({ id, name }) => {
   const [openModalEdit, setOpenModalEdit] = useState(false)
 
   const handleDelete = () => {
-    dispatch(deleteMasterDataProduct({id, name}))
+    dispatch(deleteMasterDataProduct({ id, name }))
   }
 
   const handleEdit = () => {
-    dispatch(fetchMasterDataProductDetail(id))
+    dispatch(fetchMasterDataTransformationDetail(id))
     setOpenModalEdit(true)
-  }
-
-  const handlePageTransformation = () => {
-    router.push(`/master/products/${id}/transformation`)
   }
 
   return (
     <>
       {openModalEdit && (
-        <ModalAddMasterProduct open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
+        <ModalAddMasterTransformation open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
       )}
       <Box sx={{ display: 'flex', alignItems: 'center', ml: -3 }}>
-        <IconButton onClick={handlePageTransformation}>
+        {/* <IconButton onClick={handlePageTransformation}>
           <Icon icon='tabler:eye' />
-        </IconButton>
+        </IconButton> */}
         <IconButton onClick={handleEdit}>
           <Icon icon='tabler:edit' />
         </IconButton>
@@ -51,7 +48,7 @@ const RowOptions = ({ id, name }) => {
   )
 }
 
-export default function TableMasterProduct({}) {
+export default function TableMasterTransformation({ product }) {
   const dispatch = useDispatch()
   const [openModalAdd, setOpenModalAdd] = useState(false)
 
@@ -59,16 +56,21 @@ export default function TableMasterProduct({}) {
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
-  const { data } = useSelector(state => state.masterProduct)
+  const { data } = useSelector(state => state.masterTransformation)
+
+  const router = useRouter()
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({ data, keys: ["name", "category", "type"], searchValue, setData: setFilteredData })
+    HandleSearh({ data, keys: ['name', 'category', 'type'], searchValue, setData: setFilteredData })
   }
 
   useEffect(() => {
-    dispatch(fetchMasterDataProduct())
-  }, [dispatch])
+    if (router.query.id) {
+      dispatch(fetchMasterDataTransformation(router.query.id))
+    }
+    dispatch(fetchMasterDataUnit())
+  }, [dispatch, router.query.id])
 
   useEffect(() => {
     setFilteredData(data)
@@ -76,19 +78,26 @@ export default function TableMasterProduct({}) {
 
   return (
     <Card>
-      {openModalAdd && <ModalAddMasterProduct open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
+      {openModalAdd && (
+        <ModalAddMasterTransformation
+          open={openModalAdd}
+          product={product}
+          setOpen={setOpenModalAdd}
+          typeModal={'ADD'}
+        />
+      )}
       <DataGrid
         autoHeight
         columns={[
           {
-            flex: 0.2,
-            minWidth: 200,
-            field: 'name',
-            headerName: 'Nama Produk',
+            flex: 0.1,
+            minWidth: 120,
+            field: 'product_transformation_id',
+            headerName: 'Kode Transformasi',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.name}
+                  {params.row.product_transformation_id}
                 </Typography>
               )
             }
@@ -96,38 +105,12 @@ export default function TableMasterProduct({}) {
           {
             flex: 0.1,
             minWidth: 120,
-            field: 'category',
-            headerName: 'Kategori',
+            field: 'info',
+            headerName: 'Perubahan Transformasi',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.category}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.1,
-            minWidth: 120,
-            field: 'type',
-            headerName: 'Tipe',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.type}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.1,
-            minWidth: 110,
-            field: 'description',
-            headerName: 'Dekripsi Produk',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.description || '-'}
+                  {params.row.info}
                 </Typography>
               )
             }
@@ -143,7 +126,7 @@ export default function TableMasterProduct({}) {
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderMasterProduct }}
+        slots={{ toolbar: TableHeaderMasterTransformation }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
         sx={{
@@ -158,7 +141,7 @@ export default function TableMasterProduct({}) {
           },
           toolbar: {
             value: searchText,
-            placeholder: 'Cari produk, kategori atau tipe',
+            placeholder: 'Cari transformasi produk',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
             openModalAdd: setOpenModalAdd

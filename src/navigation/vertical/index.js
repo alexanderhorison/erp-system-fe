@@ -35,11 +35,11 @@ const navigation = () => {
           path: '/master/warehouses',
           menuId: 6
         },
-        {
-          title: 'Rumus Transformasi',
-          path: '/master/transformation',
-          menuId: 7
-        }
+        // {
+        //   title: 'Rumus Transformasi',
+        //   path: '/master/transformation',
+        //   menuId: 7
+        // }
       ]
     },
     {
@@ -137,10 +137,10 @@ const navigation = () => {
           title: 'Gudang',
           path: '/master/warehouses'
         },
-        {
-          title: 'Rumus Transformasi',
-          path: '/master/transformation'
-        }
+        // {
+        //   title: 'Rumus Transformasi',
+        //   path: '/master/transformation'
+        // }
       ]
     },
     {
