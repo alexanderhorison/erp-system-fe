@@ -4,7 +4,6 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchMasterDataProductDetail } from 'src/store/apps/master/product'
 import TableMasterTransformation from 'src/views/master/transformation/TableMasterTransformation'
-// import TableMasterProduct from 'src/views/master/products/TableMasterProduct'
 
 export default function MasterProductTransformation() {
   const router = useRouter()
