@@ -3,24 +3,24 @@ import { DataGrid } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'src/@core/components/icon'
-import { deleteMasterDataProduct, fetchMasterDataProductDetail } from 'src/store/apps/master/product'
 import HandleSearh from 'src/helpers/handleSearch'
 import { useRouter } from 'next/router'
 import TableHeaderMasterTransformation from './TableHeaderMasterTransformation'
 import ModalAddMasterTransformation from './ModalAddMasterTransformation'
 import {
+  deleteMasterDataTransformation,
   fetchMasterDataTransformation,
   fetchMasterDataTransformationDetail
 } from 'src/store/apps/master/transformation'
 import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
 
-const RowOptions = ({ id, name }) => {
+const RowOptions = ({ id, name, productId }) => {
   const dispatch = useDispatch()
   const router = useRouter()
   const [openModalEdit, setOpenModalEdit] = useState(false)
 
   const handleDelete = () => {
-    dispatch(deleteMasterDataProduct({ id, name }))
+    dispatch(deleteMasterDataTransformation({ id, name, productId }))
   }
 
   const handleEdit = () => {
@@ -62,7 +62,7 @@ export default function TableMasterTransformation({ product }) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({ data, keys: ['name', 'category', 'type'], searchValue, setData: setFilteredData })
+    HandleSearh({ data, keys: ['info'], searchValue, setData: setFilteredData })
   }
 
   useEffect(() => {
@@ -121,7 +121,7 @@ export default function TableMasterTransformation({ product }) {
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
+            renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} productId={row.MasterProductId} />
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}

@@ -77,29 +77,29 @@ export const editMasterDataTransformation = createAsyncThunk(
   }
 )
 
-// // DELETE PRODUCT
-// export const deleteMasterDataProduct = createAsyncThunk(
-//   'appProduct/deleteProduct',
-//   async ({ id, name }, { dispatch, rejectWithValue }) => {
-//     try {
-//       await swalConfirmationDelete({
-//         label,
-//         name,
-//         axiosRequest: () => {
-//           return axios({
-//             method: 'DELETE',
-//             url: '/master/product/' + id
-//           })
-//         },
-//         dispatchRequest: () => {
-//           return dispatch(fetchMasterDataProduct())
-//         }
-//       })
-//     } catch (error) {
-//       return rejectWithValue({})
-//     }
-//   }
-// )
+// DELETE PRODUCT
+export const deleteMasterDataTransformation = createAsyncThunk(
+  'appMasterTransformation/deleteTransformation',
+  async ({ id, name, productId }, { dispatch, rejectWithValue }) => {
+    try {
+      await swalConfirmationDelete({
+        label,
+        name,
+        axiosRequest: () => {
+          return axios({
+            method: 'DELETE',
+            url: '/master/product/transformation/' + id
+          })
+        },
+        dispatchRequest: () => {
+          return dispatch(fetchMasterDataTransformation(productId))
+        }
+      })
+    } catch (error) {
+      return rejectWithValue({})
+    }
+  }
+)
 
 // REDUCER MASTER TRANSFORMATION
 export const appMasterTransformationSlice = createSlice({
