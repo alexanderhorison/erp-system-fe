@@ -1,7 +1,7 @@
 import { Grid, Typography } from '@mui/material'
-import TableAllReceive from 'src/views/delivery-order-receive/TableAllReceive'
+import TableAllReceive from 'src/views/receive-order/TableAllReceive'
 
-export default function DeliveryOrderReceive() {
+export default function ReceiveOrder() {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>

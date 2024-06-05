@@ -69,7 +69,7 @@ const navigation = () => {
         },
         {
           title: 'Penerimaan Surat Jalan',
-          path: '/delivery-order-receive',
+          path: '/receive-order',
           menuId: 11
         }
       ]
@@ -171,7 +171,7 @@ const navigation = () => {
         },
         {
           title: 'Penerimaan Surat Jalan',
-          path: '/delivery-order-receive',
+          path: '/receive-order',
           menuId: 11
         }
       ]

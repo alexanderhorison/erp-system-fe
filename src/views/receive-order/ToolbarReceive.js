@@ -11,7 +11,7 @@ import CardContent from '@mui/material/CardContent'
 import Icon from 'src/@core/components/icon'
 import { UseAuth } from 'src/hooks/useAuth'
 import { useDispatch } from 'react-redux'
-import { updateDeliveryOrderReceive } from 'src/store/apps/delivery-order-receive'
+import { updateReceiveOrder } from 'src/store/apps/receive-order'
 
 const ToolbarReceive = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, status }) => {
   const auth = UseAuth()
@@ -20,7 +20,7 @@ const ToolbarReceive = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
 
   const onUpdateSuratJalan = (deliveryOrderId, e) => {
     // e.preventDefault()
-    dispatch(updateDeliveryOrderReceive({ deliveryOrderId, router }))
+    dispatch(updateReceiveOrder({ deliveryOrderId, router }))
   }
   return (
     <Card>
@@ -39,7 +39,7 @@ const ToolbarReceive = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
           target='_blank'
           variant='contained'
           component={Link}
-          href={`/delivery-order-receive/print/${id}`}
+          href={`/receive-order/print/${id}`}
         >
           <Icon fontSize='1.125rem' icon='tabler:printer' />
           Cetak / Print

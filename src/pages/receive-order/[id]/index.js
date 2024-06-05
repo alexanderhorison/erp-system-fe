@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchDetailDeliveryOrder } from 'src/store/apps/delivery-order'
 
 import Link from 'next/link'
 
@@ -14,22 +13,23 @@ import PreviewActions from 'src/views/apps/invoice/preview/PreviewActions'
 import AddPaymentDrawer from 'src/views/apps/invoice/shared-drawer/AddPaymentDrawer'
 import SendInvoiceDrawer from 'src/views/apps/invoice/shared-drawer/SendInvoiceDrawer'
 import DetailInvoice from 'src/views/delivery-order/DetailInvoice'
-import ToolbarReceive from 'src/views/delivery-order-receive/ToolbarReceive'
+import ToolbarReceive from 'src/views/receive-order/ToolbarReceive'
+import { fetchDetailReceiveOrder } from 'src/store/apps/receive-order'
 
-export default function DetailDeliveryOrder({}) {
+export default function ReceiveOrder({}) {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id
 
-  const { detailDeliveryOrder: data, errorDetailDeliveryOrder } = useSelector(state => state.deliveryOrder)
+  const { detailReceiveOrder: data, errorDetailReceiveOrder } = useSelector(state => state.receiveOrder)
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchDetailDeliveryOrder(id))
+      dispatch(fetchDetailReceiveOrder(id))
     }
   }, [id, dispatch])
 
-  if (errorDetailDeliveryOrder) {
+  if (errorDetailReceiveOrder) {
     return (
       <Grid container spacing={6}>
         <Grid item xs={12}>
