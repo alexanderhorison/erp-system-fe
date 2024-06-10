@@ -25,7 +25,6 @@ import { useDispatch, useSelector } from 'react-redux'
 // ** Custom Components Imports
 import CustomChip from 'src/@core/components/mui/chip'
 import CustomAvatar from 'src/@core/components/mui/avatar'
-import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Utils Import
 import { getInitials } from 'src/@core/utils/get-initials'
@@ -41,8 +40,8 @@ import axios from 'axios'
 // ** Custom Table Components Imports
 import TableHeader from 'src/views/settings/user/TableHeader'
 import ModalUserEdit from 'src/views/settings/user/modalUserEdit'
-import Button from '@mui/material/Button'
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
+import FilterUser from 'src/pages/components/filter/FilterUser'
 
 // ** renders client column
 const userRoleObj = {
@@ -307,75 +306,13 @@ const UserList = ({ apiData }) => {
         </Typography>
         <Card>
           <CardHeader title='Pencarian' />
-          <CardContent>
-            <Grid container spacing={6}>
-              <Grid item sm={4} xs={12}>
-                <CustomTextField
-                  select
-                  fullWidth
-                  defaultValue='Pilih Otoritas'
-                  SelectProps={{
-                    value: filterInput.RoleId,
-                    displayEmpty: true,
-                    onChange: e => handleFilterInput(e)
-                  }}
-                  name='RoleId'
-                >
-                  <MenuItem Select value=''>
-                    Select Role
-                  </MenuItem>
-                  {roles?.map((data, index) => {
-                    return (
-                      <MenuItem Select key={index} value={data.id}>
-                        {data.name}
-                      </MenuItem>
-                    )
-                  })}
-                </CustomTextField>
-              </Grid>
-              <Grid item sm={4} xs={12}>
-                <CustomTextField
-                  select
-                  fullWidth
-                  defaultValue='Status Pengguna'
-                  name='status'
-                  SelectProps={{
-                    value: filterInput.status,
-                    displayEmpty: true,
-                    onChange: e => handleFilterInput(e)
-                  }}
-                >
-                  <MenuItem value=''>Status Pengguna</MenuItem>
-                  <MenuItem value='active'>Aktif</MenuItem>
-                  <MenuItem value='notActive'>Tidak Aktif</MenuItem>
-                </CustomTextField>
-              </Grid>
-              <Grid item>
-                <Button
-                  color='primary'
-                  variant='contained'
-                  sx={{ '& svg': { p: 0 } }}
-                  onClick={() => {
-                    clearAllFilter()
-                  }}
-                >
-                  Clear Filter
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button
-                  color='primary'
-                  variant='contained'
-                  sx={{ '& svg': { p: 0 } }}
-                  onClick={() => {
-                    submitFilter()
-                  }}
-                >
-                  Apply Filter
-                </Button>
-              </Grid>
-            </Grid>
-          </CardContent>
+          <FilterUser
+            filterInput={filterInput}
+            handleFilterInput={handleFilterInput}
+            clearAllFilter={clearAllFilter}
+            submitFilter={submitFilter}
+            roles={roles}
+          />
           <Divider sx={{ m: '0 !important' }} />
           <TableHeader
             value={value}
