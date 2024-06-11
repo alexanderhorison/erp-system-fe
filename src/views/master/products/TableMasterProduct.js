@@ -63,6 +63,7 @@ const defaultFilter = {
 
 export default function TableMasterProduct({}) {
   const dispatch = useDispatch()
+  const router = useRouter()
   const [openModalAdd, setOpenModalAdd] = useState(false)
 
   const [searchText, setSearchText] = useState('')
@@ -81,12 +82,31 @@ export default function TableMasterProduct({}) {
     HandleSearh({ data, keys: ['name', 'category', 'type'], searchValue, setData: setFilteredData })
   }
 
+  const updatedUrl = useCallback((params) => {
+    const { CategoryId, TypeId, CompanyId } = params
+    router.push({
+      pathname: router.pathname,
+      query: {
+        CategoryId: CategoryId || '',
+        TypeId: TypeId || '',
+        CompanyId: CompanyId || '',
+      }
+    }, undefined, { shallow: true });
+  } , [router])
+
   useEffect(() => {
-    dispatch(fetchMasterDataProduct())
+    const query = router.query
+    const initialFilter = {
+      CategoryId: query.CategoryId || '',
+      TypeId: query.TypeId || '',
+      CompanyId: query.CompanyId || '',
+    }
+    setFilterInput(initialFilter)
+    dispatch(fetchMasterDataProduct(initialFilter))
     dispatch(fetchMasterDataType())
     dispatch(fetchDataMasterCategory())
     dispatch(fetchMasterDataCompany())
-  }, [dispatch])
+  }, [dispatch, router.query])
 
   useEffect(() => {
     setFilteredData(data)
@@ -98,17 +118,27 @@ export default function TableMasterProduct({}) {
       setFilteredData([])
       dispatch(fetchMasterDataProduct())
       setFilterInput(defaultFilter)
+      updatedUrl({
+        CategoryId: '',
+        TypeId: '',
+        CompanyId: '',
+      })
     },
-    [dispatch]
+    [dispatch, updatedUrl]
   )
 
   const submitFilter = useCallback(() => {
     if (filterInput.CategoryId || filterInput.TypeId || filterInput.CompanyId) {
+      updatedUrl({
+        CategoryId: filterInput.CategoryId,
+        TypeId: filterInput.TypeId,
+        CompanyId: filterInput.CompanyId,
+      })
       dispatch(fetchMasterDataProduct(filterInput))
     } else {
       dispatch(fetchMasterDataProduct())
     }
-  }, [dispatch, filterInput])
+  }, [dispatch, filterInput, updatedUrl])
 
   const handleFilterInput = useCallback(
     e => {
