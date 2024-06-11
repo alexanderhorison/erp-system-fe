@@ -1,6 +1,6 @@
-import { Box, Card, IconButton, Typography } from '@mui/material'
+import { Box, Card, CardHeader, IconButton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import TableHeaderMasterProduct from './TableHeaderMasterProduct'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'src/@core/components/icon'
@@ -12,6 +12,10 @@ import {
 import ModalAddMasterProduct from './ModalAddMasterProduct'
 import HandleSearh from 'src/helpers/handleSearch'
 import { useRouter } from 'next/router'
+import { fetchMasterDataType } from 'src/store/apps/master/type'
+import { fetchDataMasterCategory } from 'src/store/apps/master/category'
+import FilterProduct from 'src/pages/components/filter/FilterProduct'
+import { fetchMasterDataCompany } from 'src/store/apps/master/company'
 
 const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
@@ -19,7 +23,7 @@ const RowOptions = ({ id, name }) => {
   const [openModalEdit, setOpenModalEdit] = useState(false)
 
   const handleDelete = () => {
-    dispatch(deleteMasterDataProduct({id, name}))
+    dispatch(deleteMasterDataProduct({ id, name }))
   }
 
   const handleEdit = () => {
@@ -51,6 +55,12 @@ const RowOptions = ({ id, name }) => {
   )
 }
 
+const defaultFilter = {
+  CategoryId: '',
+  TypeId: '',
+  CompanyId: ''
+}
+
 export default function TableMasterProduct({}) {
   const dispatch = useDispatch()
   const [openModalAdd, setOpenModalAdd] = useState(false)
@@ -60,23 +70,67 @@ export default function TableMasterProduct({}) {
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
   const { data } = useSelector(state => state.masterProduct)
+  const { data: categoryData } = useSelector(state => state.category)
+  const { data: typeData } = useSelector(state => state.type)
+  const { data: companyData } = useSelector(state => state.company)
+
+  const [filterInput, setFilterInput] = useState(defaultFilter)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({ data, keys: ["name", "category", "type"], searchValue, setData: setFilteredData })
+    HandleSearh({ data, keys: ['name', 'category', 'type'], searchValue, setData: setFilteredData })
   }
 
   useEffect(() => {
     dispatch(fetchMasterDataProduct())
+    dispatch(fetchMasterDataType())
+    dispatch(fetchDataMasterCategory())
+    dispatch(fetchMasterDataCompany())
   }, [dispatch])
 
   useEffect(() => {
     setFilteredData(data)
   }, [data])
 
+  const clearAllFilter = useCallback(
+    val => {
+      setSearchText('')
+      setFilteredData([])
+      dispatch(fetchMasterDataProduct())
+      setFilterInput(defaultFilter)
+    },
+    [dispatch]
+  )
+
+  const submitFilter = useCallback(() => {
+    if (filterInput.CategoryId || filterInput.TypeId || filterInput.CompanyId) {
+      dispatch(fetchMasterDataProduct(filterInput))
+    } else {
+      dispatch(fetchMasterDataProduct())
+    }
+  }, [dispatch, filterInput])
+
+  const handleFilterInput = useCallback(
+    e => {
+      const { value, name } = e.target
+      setFilterInput({ ...filterInput, [name]: value })
+    },
+    [filterInput]
+  )
+
   return (
     <Card>
       {openModalAdd && <ModalAddMasterProduct open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
+      <CardHeader title='Pencarian' />
+      <FilterProduct
+        filterInput={filterInput}
+        handleFilterInput={handleFilterInput}
+        clearAllFilter={clearAllFilter}
+        submitFilter={submitFilter}
+        category={categoryData}
+        type={typeData}
+        company={companyData}
+      />
       <DataGrid
         autoHeight
         columns={[
@@ -115,6 +169,19 @@ export default function TableMasterProduct({}) {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
                   {params.row.type}
+                </Typography>
+              )
+            }
+          },
+          {
+            flex: 0.1,
+            minWidth: 120,
+            field: 'company',
+            headerName: 'Perusahaan',
+            renderCell: params => {
+              return (
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  {params.row.company}
                 </Typography>
               )
             }

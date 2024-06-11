@@ -1,4 +1,6 @@
-import { Grid, Typography } from '@mui/material'
+import { Grid, IconButton, Typography } from '@mui/material'
+import Icon from 'src/@core/components/icon'
+import { Box } from '@mui/system'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,13 +22,22 @@ export default function MasterProductTransformation() {
     }
   }, [id, dispatch])
 
+  const goBack = () => {
+    router.back()
+  }
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
+        <Box>
+          <IconButton onClick={goBack}>
+            <Icon icon='tabler:arrow-left' />
+          </IconButton>
+        </Box>
         <Typography paddingY={3} fontSize={20}>
           Master Transformasi {detail.name}
         </Typography>
-        <TableMasterTransformation product={detail}/>
+        <TableMasterTransformation product={detail} />
       </Grid>
     </Grid>
   )

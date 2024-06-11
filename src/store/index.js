@@ -10,6 +10,7 @@ import calendar from 'src/store/apps/calendar'
 import role from 'src/store/apps/role'
 import category from './apps/master/category'
 import type from './apps/master/type'
+import company from './apps/master/company'
 import masterProduct from './apps/master/product'
 import menu from 'src/store/apps/menu'
 import unit from './apps/master/unit'
@@ -29,6 +30,7 @@ export const store = configureStore({
     calendar,
     role,
     category,
+    company,
     type,
     unit,
     warehouse,

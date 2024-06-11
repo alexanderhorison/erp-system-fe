@@ -11,7 +11,8 @@ export const fetchMasterDataProduct = createAsyncThunk(
     try {
       const response = await axios({
         method: 'GET',
-        url: '/master/product/all'
+        url: '/master/product/all',
+        params
       })
       return response.data
     } catch (error) {
