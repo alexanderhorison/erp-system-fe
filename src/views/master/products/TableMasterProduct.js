@@ -1,4 +1,4 @@
-import { Box, Card, CardHeader, IconButton, Typography } from '@mui/material'
+import { Box, Card, CardHeader, Divider, IconButton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { useCallback, useEffect, useState } from 'react'
 import TableHeaderMasterProduct from './TableHeaderMasterProduct'
@@ -161,6 +161,7 @@ export default function TableMasterProduct({}) {
         type={typeData}
         company={companyData}
       />
+      <Divider sx={{ marginBottom: '1rem' }} />
       <DataGrid
         autoHeight
         columns={[
