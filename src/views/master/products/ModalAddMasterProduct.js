@@ -28,6 +28,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { addMasterDataPorduct, editMasterDataPorduct } from 'src/store/apps/master/product'
+import { fetchMasterDataCompany } from 'src/store/apps/master/company'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -47,6 +48,7 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
 export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
   const { data: masterDataCategory } = useSelector(state => state.category)
+  const { data: masterDataCompany } = useSelector(state => state.company)
   const { data: masterDataType } = useSelector(state => state.type)
   const { defaultValue, detail: detailProduct } = useSelector(state => state.masterProduct)
 
@@ -54,6 +56,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
   const schema = yup.object().shape({
     name: yup.string().required('Nama tidak boleh kosong'),
     CategoryId: yup.string().required('Kategori harus dipilih'),
+    CompanyId: yup.string().required('Perusahaan harus dipilih'),
     TypeId: yup.string().required('Tipe harus dipilih')
   })
 
@@ -81,6 +84,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
   useEffect(() => {
     dispatch(fetchDataMasterCategory())
     dispatch(fetchMasterDataType())
+    dispatch(fetchMasterDataCompany())
     // disable warn for select if select not have a child item
     console.warn = () => {}
   }, [dispatch])
@@ -139,7 +143,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                       )}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={12}>
+                  <Grid item xs={6} sm={6}>
                     <Controller
                       name='CategoryId'
                       control={control}
@@ -167,7 +171,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                       )}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={12}>
+                  <Grid item xs={6} sm={6}>
                     <Controller
                       name='TypeId'
                       control={control}
@@ -187,6 +191,36 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                           <MenuItem />
                           {masterDataType.length > 0 &&
                             masterDataType.map(item => {
+                              return (
+                                <MenuItem key={item.id} value={item.id}>
+                                  {item.name}
+                                </MenuItem>
+                              )
+                            })}
+                        </CustomTextField>
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={12}>
+                    <Controller
+                      name='CompanyId'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomTextField
+                          select
+                          fullWidth
+                          label='Perusahaan'
+                          value={value || ''}
+                          onChange={onChange}
+                          disabled={typeModal === 'VIEW'}
+                          error={Boolean(errors.CompanyId)}
+                          aria-describedby='validation-schema-CompanyId'
+                          {...(errors.CompanyId && { helperText: errors.CompanyId.message })}
+                        >
+                          <MenuItem />
+                          {masterDataCompany.length > 0 &&
+                            masterDataCompany.map(item => {
                               return (
                                 <MenuItem key={item.id} value={item.id}>
                                   {item.name}
