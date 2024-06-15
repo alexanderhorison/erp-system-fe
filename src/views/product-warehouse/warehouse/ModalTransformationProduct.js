@@ -61,7 +61,24 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, W
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
     transformation: yup.string().required('Rumus harus dipilih'),
-    qtyTransformation: yup.number().required('Kuantiti harus diisi').moreThan(0, 'Kuantiti harus lebih dari 0'),
+    qtyTransformation: yup.string()
+      .required('Kuantiti harus diisi')
+      .test(
+        'is-valid-number',
+        'Kuantiti harus berupa angka',
+        function (value) {
+          const num = Number(value);
+          return !isNaN(num);
+        }
+      )
+      .test(
+        'is-greater-than-zero',
+        'Kuantiti harus lebih dari 0',
+        function (value) {
+          const num = Number(value);
+          return num > 0;
+        }
+      ),
   })
 
   // REACT FORM
@@ -198,11 +215,8 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, W
                           label='Jumlah'
                           value={value}
                           onChange={e => {
-                            const newValue = parseInt(e.target.value, 10)
-                            if (!isNaN(newValue) && newValue >= 0) {
-                              onChange(+newValue)
-                              setQty(+newValue)
-                            }
+                            onChange(e.target.value)
+                            setQty(e.target.value)
                           }}
                           type='number'
                           sx={{ display: 'block' }}

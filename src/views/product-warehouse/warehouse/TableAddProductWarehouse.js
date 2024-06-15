@@ -26,8 +26,44 @@ export default function TableAddProductWarehouse({ warehouse }) {
       yup.object().shape({
         MasterProductId: yup.number().typeError('Produk harus dipilih'),
         UnitId: yup.number().typeError('Satuan harus dipilih'),
-        quantity: yup.number().typeError('Kuantiti harus diisi'),
-        minimum_stock: yup.number().typeError('Jumlah stok minimal harus diisi')
+        quantity: yup
+          .string()
+          .required('Kuantiti harus diisi')
+          .test(
+            'is-valid-number',
+            'Kuantiti harus berupa angka',
+            function (value) {
+              const num = Number(value);
+              return !isNaN(num);
+            }
+          )
+          .test(
+            'is-greater-than-zero',
+            'Kuantiti harus lebih dari 0',
+            function (value) {
+              const num = Number(value);
+              return num > 0;
+            }
+          ),
+        minimum_stock: yup
+          .string()
+          .required('Jumlah stok minimal harus diisi')
+          .test(
+            'is-valid-number',
+            'Jumlah stok minimal harus berupa angka',
+            function (value) {
+              const num = Number(value);
+              return !isNaN(num);
+            }
+          )
+          .test(
+            'is-greater-than-zero',
+            'Jumlah stok minimal harus lebih dari 0',
+            function (value) {
+              const num = Number(value);
+              return num >= 0;
+            }
+          )
       })
     )
   })
@@ -169,10 +205,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                               label='Kuantiti'
                               value={value}
                               onChange={e => {
-                                const newValue = parseInt(e.target.value, 10)
-                                if (!isNaN(newValue) && newValue >= 0) {
-                                  onChange(+newValue)
-                                }
+                                onChange(e.target.value)
                               }}
                               type='number'
                               sx={{ display: 'block' }}
@@ -195,10 +228,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                               label='Minimum Stock'
                               value={value}
                               onChange={e => {
-                                const newValue = parseInt(e.target.value, 10)
-                                if (!isNaN(newValue) && newValue >= 0) {
-                                  onChange(+newValue)
-                                }
+                                onChange(e.target.value)
                               }}
                               type='number'
                               sx={{ display: 'block' }}
