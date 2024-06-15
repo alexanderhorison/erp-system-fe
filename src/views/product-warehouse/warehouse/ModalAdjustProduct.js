@@ -62,28 +62,66 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    quantity: yup.number().required('Kuantiti harus diisi'),
+    quantity: yup
+      .string()
+      .required('Jumlah stok minimal harus diisi')
+      .test(
+        'is-non-negative',
+        'Jumlah stok minimal tidak boleh minus',
+        value => {
+          // Check if the value is a number and is non-negative
+          const num = Number(value);
+          return !isNaN(num) && num >= 0;
+        }
+      ),
     quantityAdjustment:
       typeModal !== 'MINIMUM_STOCK'
         ? yup
-            .number()
-            .required('Jumlah adjustment harus diisi')
-            .test(
-              'quantity-adjustment',
-              'Jumlah Adjustment tidak boleh lebih besar dari Kuantiti ketika adjustment_type adalah MINUS',
-              function (value) {
-                if (typeModal === 'MINUS' && value > this.parent.quantity) {
-                  throw new yup.ValidationError(
-                    'Jumlah tidak boleh lebih besar dari Kuantiti jika mengurangi produk',
-                    null,
-                    'quantityAdjustment'
-                  )
-                }
-                return true
+          .string()
+          .required('Jumlah adjustment harus diisi')
+          .test(
+            'is-valid-number',
+            'Jumlah adjustment harus berupa angka',
+            function (value) {
+              const num = Number(value);
+              return !isNaN(num);
+            }
+          )
+          .test(
+            'is-non-negative',
+            'Jumlah adjustment tidak boleh minus',
+            function (value) {
+              const num = Number(value);
+              return num >= 0;
+            }
+          )
+          .test(
+            'quantity-adjustment',
+            'Jumlah Adjustment tidak boleh lebih besar dari Kuantiti ketika adjustment_type adalah MINUS',
+            function (value) {
+              const num = Number(value);
+              if (typeModal === 'MINUS' && num > this.parent.quantity) {
+                throw new yup.ValidationError(
+                  'Jumlah tidak boleh lebih besar dari Kuantiti jika mengurangi produk',
+                  null,
+                  'quantityAdjustment'
+                );
               }
-            )
-        : yup.mixed(),
-    minimum_stock: yup.number().required('Jumlah stok minimal harus diisi')
+              return true;
+            }
+          ) : yup.mixed(),
+    minimum_stock: yup
+      .string()
+      .required('Jumlah stok minimal harus diisi')
+      .test(
+        'is-non-negative',
+        'Jumlah stok minimal tidak boleh minus',
+        value => {
+          // Check if the value is a number and is non-negative
+          const num = Number(value);
+          return !isNaN(num) && num >= 0;
+        }
+      )
   })
 
   // REACT FORM
@@ -112,7 +150,7 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
 
   useEffect(() => {
     // disable warn for select if select not have a child item
-    console.warn = () => {}
+    console.warn = () => { }
   }, [dispatch])
 
   // CLOSE MODAL AND RESET FORM
@@ -120,6 +158,7 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
     setOpen(false)
   }
 
+  console.log(errors);
   return (
     <Card>
       <Dialog
@@ -152,73 +191,8 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
               </Grid>
               <Grid item xs={12}>
                 <Grid container spacing={6}>
-                  {/* <Grid item xs={12} sm={12}>
-                    <Controller
-                      name='productName'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          value={detailProductWarehouse.productName}
-                          label='Nama Produk'
-                          placeholder=''
-                          onChange={onChange}
-                          disabled={true}
-                          error={Boolean(errors.name)}
-                          aria-describedby='validation-schema-name'
-                          {...(errors.name && { helperText: errors.name.message })}
-                        />
-                      )}
-                    />
-                  </Grid> */}
-                  {/* <Grid item xs={12} sm={12}>
-                    <Controller
-                      name='unitName'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          value={detailProductWarehouse.unitName}
-                          label='Nama Satuan'
-                          placeholder=''
-                          onChange={onChange}
-                          disabled={true}
-                          error={Boolean(errors.name)}
-                          aria-describedby='validation-schema-name'
-                          {...(errors.name && { helperText: errors.name.message })}
-                        />
-                      )}
-                    />
-                  </Grid> */}
                   {typeModal !== 'MINIMUM_STOCK' && (
                     <>
-                      {/* <Grid item xs={12}>
-                        <Controller
-                          name='quantity'
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Kuantiti'
-                              value={detailProductWarehouse.quantity}
-                              disabled={true}
-                              onChange={e => {
-                                const newValue = parseInt(e.target.value, 10)
-                                if (!isNaN(newValue) && newValue >= 0) {
-                                  onChange(+newValue)
-                                }
-                              }}
-                              type='number'
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors.quantity)}
-                              {...(errors.quantity && { helperText: errors.quantity.message })}
-                            />
-                          )}
-                        />
-                      </Grid> */}
                       <Grid item xs={12}>
                         <Controller
                           name='quantityAdjustment'
@@ -230,10 +204,10 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
                               label='Jumlah'
                               value={value}
                               onChange={e => {
-                                const newValue = parseInt(e.target.value, 10)
-                                if (!isNaN(newValue) && newValue >= 0) {
-                                  onChange(+newValue)
-                                }
+                                // const newValue = parseInt(e.target.value, 10)
+                                // if (!isNaN(newValue) && newValue >= 0) {
+                                // }
+                                onChange(e.target.value)
                               }}
                               type='number'
                               sx={{ display: 'block' }}
@@ -257,10 +231,7 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
                             label='Stok Minimal'
                             value={value}
                             onChange={e => {
-                              const newValue = parseInt(e.target.value, 10)
-                              if (!isNaN(newValue) && newValue >= 0) {
-                                onChange(+newValue)
-                              }
+                              onChange(e.target.value)
                             }}
                             type='number'
                             sx={{ display: 'block' }}
