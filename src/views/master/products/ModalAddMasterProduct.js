@@ -86,7 +86,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
     dispatch(fetchMasterDataType())
     dispatch(fetchMasterDataCompany())
     // disable warn for select if select not have a child item
-    console.warn = () => {}
+    console.warn = () => { }
   }, [dispatch])
 
   // CLOSE MODAL AND RESET FORM
@@ -189,14 +189,42 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                           {...(errors.TypeId && { helperText: errors.TypeId.message })}
                         >
                           <MenuItem />
-                          {masterDataType.length > 0 &&
-                            masterDataType.map(item => {
-                              return (
-                                <MenuItem key={item.id} value={item.id}>
-                                  {item.name}
-                                </MenuItem>
-                              )
-                            })}
+                          {masterDataType.map(item => {
+                            return (
+                              <MenuItem key={item.id} value={item.id}>
+                                {item.name}
+                              </MenuItem>
+                            )
+                          })}
+                        </CustomTextField>
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={12}>
+                    <Controller
+                      name='CompanyId'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomTextField
+                          select
+                          fullWidth
+                          label='Perusahaan'
+                          value={value || ''}
+                          onChange={onChange}
+                          disabled={typeModal === 'VIEW'}
+                          error={Boolean(errors.CompanyId)}
+                          aria-describedby='validation-schema-CompanyId'
+                          {...(errors.CompanyId && { helperText: errors.CompanyId.message })}
+                        >
+                          <MenuItem />
+                          {masterDataCompany.map(item => {
+                            return (
+                              <MenuItem key={item.id} value={item.id}>
+                                {item.name}
+                              </MenuItem>
+                            )
+                          })}
                         </CustomTextField>
                       )}
                     />
