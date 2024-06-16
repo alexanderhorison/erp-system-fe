@@ -86,7 +86,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
     dispatch(fetchMasterDataType())
     dispatch(fetchMasterDataCompany())
     // disable warn for select if select not have a child item
-    console.warn = () => {}
+    console.warn = () => { }
   }, [dispatch])
 
   // CLOSE MODAL AND RESET FORM
@@ -189,14 +189,13 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                           {...(errors.TypeId && { helperText: errors.TypeId.message })}
                         >
                           <MenuItem />
-                          {masterDataType.length > 0 &&
-                            masterDataType.map(item => {
-                              return (
-                                <MenuItem key={item.id} value={item.id}>
-                                  {item.name}
-                                </MenuItem>
-                              )
-                            })}
+                          {masterDataType.map(item => {
+                            return (
+                              <MenuItem key={item.id} value={item.id}>
+                                {item.name}
+                              </MenuItem>
+                            )
+                          })}
                         </CustomTextField>
                       )}
                     />
@@ -219,14 +218,13 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                           {...(errors.CompanyId && { helperText: errors.CompanyId.message })}
                         >
                           <MenuItem />
-                          {masterDataCompany.length > 0 &&
-                            masterDataCompany.map(item => {
-                              return (
-                                <MenuItem key={item.id} value={item.id}>
-                                  {item.name}
-                                </MenuItem>
-                              )
-                            })}
+                          {masterDataCompany.map(item => {
+                            return (
+                              <MenuItem key={item.id} value={item.id}>
+                                {item.name}
+                              </MenuItem>
+                            )
+                          })}
                         </CustomTextField>
                       )}
                     />
