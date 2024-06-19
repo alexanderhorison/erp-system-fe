@@ -26,3 +26,11 @@ code[class*='language-'] {
 .my-swal-container {
   z-index: 99999;
 }
+
+.low-quantity {
+  background-color: #fffad5; /* Light red background for low quantity */
+}
+
+.zero-quantity {
+  background-color: #f4cccc;
+}
