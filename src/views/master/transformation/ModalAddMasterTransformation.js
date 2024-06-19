@@ -20,7 +20,7 @@ import 'react-credit-cards/es/styles-compiled.css'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { CardContent, IconButton, MenuItem } from '@mui/material'
+import { CardContent, CircularProgress, IconButton, MenuItem } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -62,7 +62,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 export default function ModalAddMasterTransformation({ open, setOpen, typeModal, product, id }) {
   const dispatch = useDispatch()
   const { data: masterDataUnit } = useSelector(state => state.unit)
-  const { defaultValue, detail: detailTransformation } = useSelector(data => data.masterTransformation)
+  const { defaultValue, detail: detailTransformation, loadingDetail } = useSelector(data => data.masterTransformation)
 
   const [valueTransform, setValueTransform] = useState({
     UnitFromId: '',
@@ -121,7 +121,7 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
   }
 
   useEffect(() => {
-    if (detailTransformation && masterDataUnit.length > 0) {
+    if (detailTransformation && masterDataUnit.length > 0 && typeModal === 'EDIT') {
       const unitFromPcs = masterDataUnit?.find(unit => unit.id == detailTransformation.UnitFromId)
       const unitToPcs = masterDataUnit?.find(unit => unit.id == detailTransformation.UnitToId)
       setValueTransform({
@@ -130,7 +130,7 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
         amount_to: detailTransformation.amount_to
       })
     }
-  }, [detailTransformation, masterDataUnit])
+  }, [detailTransformation, masterDataUnit, typeModal])
 
   // CLOSE MODAL AND RESET FORM
   const handleClose = () => {
@@ -155,6 +155,16 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
     [masterDataUnit, getValues, valueTransform]
   )
 
+  if (typeModal == 'EDIT' && loadingDetail){
+    return <CircularProgress
+    sx={{
+      color: 'common.white',
+      width: '20px !important',
+      height: '20px !important',
+      mr: theme => theme.spacing(2)
+    }}
+  />
+  }
   return (
     <Card>
       <Dialog

@@ -137,10 +137,10 @@ const navigation = () => {
           title: 'Gudang',
           path: '/master/warehouses'
         },
-        // {
-        //   title: 'Rumus Transformasi',
-        //   path: '/master/transformation'
-        // }
+        {
+          title: 'Company',
+          path: '/master/company',
+        }
       ]
     },
     {
