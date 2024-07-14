@@ -114,6 +114,7 @@ const App = props => {
             />
             <meta name='keywords' content='' />
             <meta name='viewport' content='initial-scale=1, width=device-width' />
+            <meta name="robots" content="noindex, nofollow" />
           </Head>
 
           <AuthProvider>
