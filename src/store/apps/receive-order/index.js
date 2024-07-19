@@ -31,11 +31,11 @@ export const updateReceiveOrder = createAsyncThunk(
 
 export const fetchDetailReceiveOrder = createAsyncThunk(
   'deliveryOrderReceive/fetchDetailDeliveryOrderReceive',
-  async (delivery_order_id, { rejectWithValue }) => {
+  async (deliveryOrderId, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
-        url: '/delivery-order/' + delivery_order_id,
+        url: '/delivery-order/' + deliveryOrderId,
       })
       return response.data
     } catch (error) {

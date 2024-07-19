@@ -82,7 +82,7 @@ export const initiateProductWarehouse = createAsyncThunk(
 // ADJUST PRODUCT
 export const editProductWarehouse = createAsyncThunk(
   'appMasterProduct/editProduct',
-  async ({ id, data, WarehouseId }, { dispatch, rejectWithValue }) => {
+  async ({ id, data, warehouseId }, { dispatch, rejectWithValue }) => {
     try {
       await swalConfirmationEdit({
         label: 'Produk',
@@ -95,7 +95,7 @@ export const editProductWarehouse = createAsyncThunk(
           })
         },
         dispatchRequest: () => {
-          dispatch(fetchListProductByWarehouse(WarehouseId))
+          dispatch(fetchListProductByWarehouse(warehouseId))
         }
       })
     } catch (error) {
@@ -139,7 +139,7 @@ export const fetchListProductTransformation = createAsyncThunk(
 // TRANSFORMATION PRODUCT
 export const transformProduct = createAsyncThunk(
   'appMasterProduct/transformProduct',
-  async ({id, data, WarehouseId, setOpen}, { dispatch, rejectWithValue }) => {
+  async ({id, data, warehouseId, setOpen}, { dispatch, rejectWithValue }) => {
     try {
       await swalConfirmationEdit({
         label: 'Produk',
@@ -153,7 +153,7 @@ export const transformProduct = createAsyncThunk(
           })
         },
         dispatchRequest: () => {
-          dispatch(fetchListProductByWarehouse(WarehouseId))
+          dispatch(fetchListProductByWarehouse(warehouseId))
           setOpen(false)
         }
       })

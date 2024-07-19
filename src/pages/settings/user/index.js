@@ -156,7 +156,7 @@ const columns = [
   },
   {
     flex: 0.15,
-    field: 'Role',
+    field: 'Master_Role',
     minWidth: 170,
     headerName: 'Otoritas',
     renderCell: ({ row }) => {
@@ -167,10 +167,10 @@ const columns = [
           </CustomAvatar>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
             <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
-              {row?.Role?.name}
+              {row?.Master_Role?.name}
             </Typography>
             <Typography noWrap variant='body2' sx={{ color: 'text.disabled' }}>
-              {row?.Role?.description}
+              {row?.Master_Role?.description}
             </Typography>
           </Box>
         </Box>
@@ -180,12 +180,12 @@ const columns = [
   {
     flex: 0.15,
     minWidth: 190,
-    field: 'user_name',
+    field: 'userName',
     headerName: 'Username',
     renderCell: ({ row }) => {
       return (
         <Typography noWrap sx={{ color: 'text.secondary' }}>
-          {row.user_name}
+          {row.userName}
         </Typography>
       )
     }
@@ -219,7 +219,7 @@ const columns = [
 ]
 
 const defaultFilter = {
-  RoleId: '',
+  roleId: '',
   status: ''
 }
 
@@ -261,7 +261,7 @@ const UserList = ({ apiData }) => {
   )
 
   const submitFilter = useCallback(() => {
-    if (filterInput.RoleId || filterInput.status) {
+    if (filterInput.roleId || filterInput.status) {
       dispatch(fetchDataUsers(filterInput))
     } else {
       dispatch(fetchDataUsers())

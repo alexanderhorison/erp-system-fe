@@ -6,13 +6,13 @@ const label = 'Surat Jalan'
 // GET ALL WAREHOUSE
 export const fetchInvoiceListProductByWarehouseId = createAsyncThunk(
   'deliveryOrder/fetchInvoiceListProductByWarehouseId',
-  async (WarehouseId, { rejectWithValue }) => {
+  async (warehouseId, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'POST',
         url: '/delivery-order/list-product',
         data: {
-          WarehouseId: WarehouseId
+          warehouseId: warehouseId
         }
       })
       return response.data
@@ -26,7 +26,7 @@ export const fetchInvoiceListProductByWarehouseId = createAsyncThunk(
 // GET ALL DELIVERY ORDER
 export const fetchAllDeliveryOrder = createAsyncThunk(
   'deliveryOrder/fetchAllDeliveryOrder',
-  async (WarehouseId, { rejectWithValue }) => {
+  async (warehouseId, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
@@ -69,11 +69,11 @@ export const createDeliveryOrder = createAsyncThunk(
 // GET DETAIL DELIVERY ORDER
 export const fetchDetailDeliveryOrder = createAsyncThunk(
   'deliveryOrder/fetchDetailDeliveryOrder',
-  async (delivery_order_id, { rejectWithValue }) => {
+  async (deliveryOrderId, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
-        url: '/delivery-order/' + delivery_order_id,
+        url: '/delivery-order/' + deliveryOrderId,
       })
       return response.data
     } catch (error) {

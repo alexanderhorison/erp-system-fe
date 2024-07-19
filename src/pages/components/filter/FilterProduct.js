@@ -20,11 +20,11 @@ export default function FilterProduct({
               fullWidth
               defaultValue='Pilih Kategori'
               SelectProps={{
-                value: filterInput?.CategoryId,
+                value: filterInput?.categoryId,
                 displayEmpty: true,
                 onChange: e => handleFilterInput(e)
               }}
-              name='CategoryId'
+              name='categoryId'
             >
               <MenuItem Select value=''>
                 Select Category
@@ -44,11 +44,11 @@ export default function FilterProduct({
               fullWidth
               defaultValue='Pilih Type'
               SelectProps={{
-                value: filterInput?.TypeId,
+                value: filterInput?.typeId,
                 displayEmpty: true,
                 onChange: e => handleFilterInput(e)
               }}
-              name='TypeId'
+              name='typeId'
             >
               <MenuItem Select value=''>
                 Select Type
@@ -68,11 +68,11 @@ export default function FilterProduct({
               fullWidth
               defaultValue='Pilih Company'
               SelectProps={{
-                value: filterInput?.CompanyId,
+                value: filterInput?.companyId,
                 displayEmpty: true,
                 onChange: e => handleFilterInput(e)
               }}
-              name='CompanyId'
+              name='companyId'
             >
               <MenuItem Select value=''>
                 Select Company

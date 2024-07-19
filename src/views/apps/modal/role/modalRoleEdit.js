@@ -71,7 +71,7 @@ export default function ModalRoleEdit({ data, isOpen, closePress, isView }) {
 
   const onSubmitEdit = (data, e) => {
     e.preventDefault()
-    dispatch(editRole({ ...data, menuId: data.MenuId }))
+    dispatch(editRole({ ...data, menuId: data.menuId }))
     closePress()
     reset()
   }

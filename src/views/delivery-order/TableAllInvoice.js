@@ -56,15 +56,17 @@ export default function TableAllInvoice({}) {
     setSearchText(searchValue)
     HandleSearh({
       data,
-      keys: ['delivery_order_id', 'warehouseDestination', 'warehouseOrigin'],
+      keys: ['deliveryOrderId', 'warehouseDestination', 'warehouseOrigin'],
       searchValue,
       setData: setFilteredData
     })
   }
 
+  console.log(data);
+
   const handleRowClick = params => {
-    const delivery_order_id = params.id
-    router.push(`/delivery-order/${delivery_order_id}`)
+    const deliveryOrderId = params.id
+    router.push(`/delivery-order/${deliveryOrderId}`)
   }
 
   const handleAdd = () => {
@@ -87,7 +89,7 @@ export default function TableAllInvoice({}) {
           {
             flex: 0.1,
             minWidth: 100,
-            field: 'delivery_order_id',
+            field: 'deliveryOrderId',
             headerName: 'Order Id',
             cellClassName: {
               cursor: 'pointer'
@@ -95,7 +97,7 @@ export default function TableAllInvoice({}) {
             renderCell: params => {
               return (
                 <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.delivery_order_id}
+                  {params.row.deliveryOrderId}
                 </Typography>
               )
             }

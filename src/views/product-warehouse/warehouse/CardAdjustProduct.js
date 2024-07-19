@@ -58,7 +58,7 @@ const CardAdjustProduct = ({data}) => {
             <Typography sx={{ fontWeight: 500, mb: 3 }}>
               Stok Minimal:{' '}
               <Box component='span' sx={{ fontWeight: 'bold' }}>
-                {data?.minimum_stock}
+                {data?.minimumStock}
               </Box>
             </Typography>
           </CardContent>

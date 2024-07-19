@@ -109,14 +109,14 @@ export const appMasterProductSlice = createSlice({
     error: false,
     defaultValue: {
       name: '',
-      CategoryId: '',
-      TypeId: '',
+      categoryId: '',
+      typeId: '',
       description: ''
     },
     detail: {
       name: '',
-      CategoryId: '',
-      TypeId: '',
+      categoryId: '',
+      typeId: '',
       description: ''
     },
     loadingDetail: false,
@@ -152,8 +152,8 @@ export const appMasterProductSlice = createSlice({
         state.error = action.error.message
         state.defaultValue = {
           name: '',
-          CategoryId: '',
-          TypeId: '',
+          categoryId: '',
+          typeId: '',
           description: ''
         }
       })

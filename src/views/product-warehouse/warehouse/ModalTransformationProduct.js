@@ -45,7 +45,7 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   }
 }))
 
-export default function ModalTransformationProduct({ open, setOpen, typeModal, WarehouseId }) {
+export default function ModalTransformationProduct({ open, setOpen, typeModal, warehouseId }) {
   const dispatch = useDispatch()
   const [selectedUnit, setSelectedUnit] = useState({})
   const [qty, setQty] = useState(0)
@@ -94,10 +94,10 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, W
   })
   // ON SUBMIT
   const onSubmit = data => {
-    if (qty % selectedUnit.amount_from !== 0) {
+    if (qty % selectedUnit.amountFrom !== 0) {
       setError(`qtyTransformation`, {
         type: 'duplicate',
-        message: `Jumlah harus kelipatan ${selectedUnit.amount_from}`
+        message: `Jumlah harus kelipatan ${selectedUnit.amountFrom}`
       })
     } else if (qty > detailProductWarehouse.quantity) {
       setError(`qtyTransformation`, {
@@ -106,11 +106,11 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, W
       })
     } else {
       const sendData = {
-        MasterTransformationId: selectedUnit.id,
-        ProductWarehouseId: detailProductWarehouse.id,
+        masterTransformationId: selectedUnit.id,
+        productWarehouseId: detailProductWarehouse.id,
         qtyTransformation: qty,
       }
-      dispatch(transformProduct({ id: detailProductWarehouse.id, data: sendData, WarehouseId, setOpen: setOpen }))
+      dispatch(transformProduct({ id: detailProductWarehouse.id, data: sendData, warehouseId, setOpen: setOpen }))
     }
   }
 
@@ -132,12 +132,12 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, W
       })
       return 'Jumlah melebihi stok tersedia'
     }
-    if (qty && selectedUnit?.UnitTo?.name) {
-      if (qty % selectedUnit.amount_from !== 0) {
-        return `Jumlah harus kelipatan ${selectedUnit.amount_from}`;
+    if (qty && selectedUnit?.unitTo?.name) {
+      if (qty % selectedUnit.amountFrom !== 0) {
+        return `Jumlah harus kelipatan ${selectedUnit.amountFrom}`;
       }
-      const total = (qty / selectedUnit.amount_from) * selectedUnit.amount_to
-      return `${total} ${selectedUnit?.UnitTo?.name}`
+      const total = (qty / selectedUnit.amountFrom) * selectedUnit.amountTo
+      return `${total} ${selectedUnit?.unitTo?.name}`
     }
     return "-"
   }, [selectedUnit, qty, detailProductWarehouse, setError])

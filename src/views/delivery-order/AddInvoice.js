@@ -23,16 +23,15 @@ export default function AddInvoice({ warehouse }) {
   const { dataListProductWarehouse: listProduct } = useSelector(state => state.deliveryOrder)
 
   const schema = yup.object({
-    WarehouseOrigin: yup.string().required('Gudang asal harus diisi'),
-    WarehouseDestination: yup
+    warehouseOrigin: yup.string().required('Gudang asal harus diisi'),
+    warehouseDestination: yup
       .string()
-      .notOneOf([yup.ref('WarehouseOrigin')], 'Gudang tujuan tidak boleh sama dengan gudang asal')
+      .notOneOf([yup.ref('warehouseOrigin')], 'Gudang tujuan tidak boleh sama dengan gudang asal')
       .required('Gudang tujuan harus diisi'),
     data: yup.array().of(
       yup.object().shape({
-        ProductWarehouseId: yup.number().typeError('Produk harus dipilih'),
+        productWarehouseId: yup.number().typeError('Produk harus dipilih'),
         quantity: yup.number().typeError('Produk harus dipilih'),
-        // qty: yup.number().typeError('Kuantiti harus diisi')
         qty: yup
           .number()
           .typeError('Kuantiti harus diisi')
@@ -66,8 +65,8 @@ export default function AddInvoice({ warehouse }) {
     let duplicate = true
     let lastIndex = -1
     for (let i = 0; i < listItems.length; i++) {
-      const { ProductWarehouseId } = listItems[i]
-      const key = `${ProductWarehouseId}`
+      const { productWarehouseId } = listItems[i]
+      const key = `${productWarehouseId}`
       if (lastIndexMap.has(key)) {
         lastIndex = lastIndexMap.get(key)
       }
@@ -75,14 +74,14 @@ export default function AddInvoice({ warehouse }) {
     }
     // Check duplicate index
     lastIndex !== -1 ? (lastIndex += 1) : (duplicate = false)
-    setError(`data[${lastIndex}].ProductWarehouseId`, {
+    setError(`data[${lastIndex}].productWarehouseId`, {
       type: 'duplicate',
       message: `Produk dan Satuan sudah dipilih`
     })
     if (!duplicate) {
       let sendData = {
-        WarehouseOriginId: data.WarehouseOrigin,
-        WarehouseDestinationId: data.WarehouseDestination,
+        warehouseOriginId: data.warehouseOrigin,
+        warehouseDestinationId: data.warehouseDestination,
         data: listItems,
         notes: data.notes
       }
@@ -91,7 +90,7 @@ export default function AddInvoice({ warehouse }) {
   }
 
   const addMore = () => {
-    append({ ProductWarehouseId: '', qty: '' })
+    append({ productWarehouseId: '', qty: '' })
   }
 
   const deleteItem = itemIndex => {
@@ -100,10 +99,10 @@ export default function AddInvoice({ warehouse }) {
 
   useEffect(() => {
     append({
-      ProductWarehouseId: '',
+      productWarehouseId: '',
       quantity: '',
       qty: '',
-      MasterProductId: ''
+      masterProductId: ''
     })
     dispatch(fetchMasterDataWarehouse())
   }, [dispatch, append, listProduct])
@@ -118,7 +117,7 @@ export default function AddInvoice({ warehouse }) {
                 <Grid container display='flex' gap={4} justifyContent='space-between'>
                   <Grid item xs={12} md={4}>
                     <Controller
-                      name={`WarehouseOrigin`}
+                      name={`warehouseOrigin`}
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
@@ -135,9 +134,9 @@ export default function AddInvoice({ warehouse }) {
                             <CustomTextField
                               value={value}
                               {...params}
-                              error={Boolean(errors?.WarehouseOrigin)}
-                              {...(errors?.WarehouseOrigin && {
-                                helperText: errors?.WarehouseOrigin.message
+                              error={Boolean(errors?.warehouseOrigin)}
+                              {...(errors?.warehouseOrigin && {
+                                helperText: errors?.warehouseOrigin.message
                               })}
                               label='Gudang Sumber'
                             />
@@ -148,7 +147,7 @@ export default function AddInvoice({ warehouse }) {
                   </Grid>
                   <Grid item xs={12} md={4}>
                     <Controller
-                      name={`WarehouseDestination`}
+                      name={`warehouseDestination`}
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
@@ -163,9 +162,9 @@ export default function AddInvoice({ warehouse }) {
                             <CustomTextField
                               value={value}
                               {...params}
-                              error={Boolean(errors?.WarehouseDestination)}
-                              {...(errors?.WarehouseDestination && {
-                                helperText: errors?.WarehouseDestination.message
+                              error={Boolean(errors?.warehouseDestination)}
+                              {...(errors?.warehouseDestination && {
+                                helperText: errors?.warehouseDestination.message
                               })}
                               label='Gudang Tujuan'
                             />
@@ -186,7 +185,7 @@ export default function AddInvoice({ warehouse }) {
                     <Grid container spacing={6}>
                       <Grid item xs={12} md={7}>
                         <Controller
-                          name={`data[${index}].ProductWarehouseId`}
+                          name={`data[${index}].productWarehouseId`}
                           control={control}
                           rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
@@ -198,25 +197,25 @@ export default function AddInvoice({ warehouse }) {
                               id='autocomplete-grouped'
                               getOptionLabel={option => option.productName || ''}
                               onChange={(event, newValue) => {
-                                onChange(+newValue?.ProductWarehouseId)
+                                onChange(+newValue?.productWarehouseId)
                                 const selectedProduct = listProduct.find(
-                                  product => product.ProductWarehouseId === +newValue?.ProductWarehouseId
+                                  product => product.productWarehouseId === +newValue?.productWarehouseId
                                 )
                                 if (selectedProduct) {
                                   setValue(`data[${index}].quantity`, selectedProduct.quantity)
-                                  setValue(`data[${index}].MasterProductId`, selectedProduct.MasterProductId)
+                                  setValue(`data[${index}].masterProductId`, selectedProduct.masterProductId)
                                 } else {
                                   setValue(`data[${index}].quantity`, '')
-                                  setValue(`data[${index}].MasterProductId`, '')
+                                  setValue(`data[${index}].masterProductId`, '')
                                 }
                               }}
                               renderInput={params => (
                                 <CustomTextField
-                                  value={item.ProductWarehouseId}
+                                  value={item.productWarehouseId}
                                   {...params}
-                                  error={Boolean(errors?.data?.[index]?.ProductWarehouseId)}
-                                  {...(errors?.data?.[index]?.ProductWarehouseId && {
-                                    helperText: errors?.data?.[index]?.ProductWarehouseId.message
+                                  error={Boolean(errors?.data?.[index]?.productWarehouseId)}
+                                  {...(errors?.data?.[index]?.productWarehouseId && {
+                                    helperText: errors?.data?.[index]?.productWarehouseId.message
                                   })}
                                   label='Produk'
                                 />

@@ -24,8 +24,8 @@ export default function TableAddProductWarehouse({ warehouse }) {
   const schemaNew = yup.object({
     data: yup.array().of(
       yup.object().shape({
-        MasterProductId: yup.number().typeError('Produk harus dipilih'),
-        UnitId: yup.number().typeError('Satuan harus dipilih'),
+        masterProductId: yup.number().typeError('Produk harus dipilih'),
+        unitId: yup.number().typeError('Satuan harus dipilih'),
         quantity: yup
           .string()
           .required('Kuantiti harus diisi')
@@ -45,7 +45,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
               return num > 0;
             }
           ),
-        minimum_stock: yup
+        minimumStock: yup
           .string()
           .required('Jumlah stok minimal harus diisi')
           .test(
@@ -89,8 +89,8 @@ export default function TableAddProductWarehouse({ warehouse }) {
     let duplicate = true
     let lastIndex = -1
     for (let i = 0; i < listItems.length; i++) {
-      const { MasterProductId, UnitId } = listItems[i]
-      const key = `${MasterProductId}-${UnitId}`
+      const { masterProductId, unitId } = listItems[i]
+      const key = `${masterProductId}-${unitId}`
       if (lastIndexMap.has(key)) {
         lastIndex = i
       }
@@ -98,7 +98,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
     }
     // Check duplicate index
     lastIndex !== -1 ? (lastIndex) : (duplicate = false)
-    setError(`data[${lastIndex}].MasterProductId`, {
+    setError(`data[${lastIndex}].masterProductId`, {
       type: 'duplicate',
       message: `Produk dan Satuan sama dengan item lain`
     })
@@ -108,7 +108,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
   }
 
   const addMore = () => {
-    append({ MasterProductId: '', UnitId: '', quantity: '', minimum_stock: '' })
+    append({ masterProductId: '', unitId: '', quantity: '', minimumStock: '' })
   }
 
   const deleteItem = itemIndex => {
@@ -117,10 +117,10 @@ export default function TableAddProductWarehouse({ warehouse }) {
 
   useEffect(() => {
     append({
-      MasterProductId: '',
-      UnitId: '',
+      masterProductId: '',
+      unitId: '',
       quantity: '',
-      minimum_stock: ''
+      minimumStock: ''
     })
     dispatch(fetchMasterDataProduct())
     dispatch(fetchMasterDataUnit())
@@ -138,7 +138,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                     <Grid container spacing={6}>
                       <Grid item xs={4}>
                         <Controller
-                          name={`data[${index}].MasterProductId`}
+                          name={`data[${index}].masterProductId`}
                           control={control}
                           rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
@@ -153,11 +153,11 @@ export default function TableAddProductWarehouse({ warehouse }) {
                               }}
                               renderInput={params => (
                                 <CustomTextField
-                                  value={item.MasterProductId}
+                                  value={item.masterProductId}
                                   {...params}
-                                  error={Boolean(errors?.data?.[index]?.MasterProductId)}
-                                  {...(errors?.data?.[index]?.MasterProductId && {
-                                    helperText: errors?.data?.[index]?.MasterProductId.message
+                                  error={Boolean(errors?.data?.[index]?.masterProductId)}
+                                  {...(errors?.data?.[index]?.masterProductId && {
+                                    helperText: errors?.data?.[index]?.masterProductId.message
                                   })}
                                   label='Pilih produk'
                                 />
@@ -168,7 +168,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                       </Grid>
                       <Grid item xs={3}>
                         <Controller
-                          name={`data[${index}].UnitId`}
+                          name={`data[${index}].unitId`}
                           control={control}
                           rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
@@ -184,9 +184,9 @@ export default function TableAddProductWarehouse({ warehouse }) {
                                   value={isNaN(value) ? '' : value}
                                   {...params}
                                   label='Pilih satuan'
-                                  error={Boolean(errors?.data?.[index]?.UnitId)}
-                                  {...(errors?.data?.[index]?.UnitId && {
-                                    helperText: errors?.data?.[index]?.UnitId.message
+                                  error={Boolean(errors?.data?.[index]?.unitId)}
+                                  {...(errors?.data?.[index]?.unitId && {
+                                    helperText: errors?.data?.[index]?.unitId.message
                                   })}
                                 />
                               )}
@@ -219,7 +219,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                       </Grid>
                       <Grid item xs={2}>
                         <Controller
-                          name={`data[${index}].minimum_stock`}
+                          name={`data[${index}].minimumStock`}
                           control={control}
                           rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
@@ -232,9 +232,9 @@ export default function TableAddProductWarehouse({ warehouse }) {
                               }}
                               type='number'
                               sx={{ display: 'block' }}
-                              error={Boolean(errors?.data?.[index]?.minimum_stock)}
-                              {...(errors?.data?.[index]?.minimum_stock && {
-                                helperText: errors?.data?.[index]?.minimum_stock.message
+                              error={Boolean(errors?.data?.[index]?.minimumStock)}
+                              {...(errors?.data?.[index]?.minimumStock && {
+                                helperText: errors?.data?.[index]?.minimumStock.message
                               })}
                             />
                           )}

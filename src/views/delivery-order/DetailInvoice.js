@@ -115,7 +115,7 @@ const DetailInvoice = ({ data }) => {
                         <Typography variant='h5'>Surat Jalan</Typography>
                       </MUITableCell>
                       <MUITableCell>
-                        <Typography variant='h5'>{`#${data.delivery_order_id}`}</Typography>
+                        <Typography variant='h5'>{`#${data.deliveryOrderId}`}</Typography>
                       </MUITableCell>
                     </TableRow>
                     <TableRow>
@@ -145,13 +145,13 @@ const DetailInvoice = ({ data }) => {
                 Gudang Asal
               </Typography>
               {/* <Box sx={{ display: 'flex', alignContent: 'flex-start' }}> */}
-              <Typography sx={{ color: 'text.secondary' }}>{data?.WarehouseOrigin?.name}</Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.WarehouseOrigin?.location}</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseOrigin?.name}</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseOrigin?.location}</Typography>
 
               {/* </Box> */}
               {/* <Box sx={{ display: 'flex', alignContent: 'flex-start' }}>
                 <Typography sx={{ mb: 1.5, color: 'text.secondary' }}>Alamat Gudang:</Typography>
-                <Typography sx={{ color: 'text.secondary', ml: 2 }}>{data?.WarehouseOrigin?.location}</Typography>
+                <Typography sx={{ color: 'text.secondary', ml: 2 }}>{data?.warehouseOrigin?.location}</Typography>
               </Box> */}
             </Grid>
             <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
@@ -159,15 +159,15 @@ const DetailInvoice = ({ data }) => {
                 <Typography variant='h6' sx={{ mb: 2 }}>
                   Gudang Tujuan
                 </Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.WarehouseDestination?.name}</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.WarehouseDestination?.location}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseDestination?.name}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseDestination?.location}</Typography>
                 {/* <Box sx={{ display: 'flex', alignContent: 'flex-start' }}>
                   <Typography sx={{ color: 'text.secondary' }}>Nama Gudang:</Typography> */}
                 {/* </Box> */}
                 {/* <Box sx={{ display: 'flex', alignContent: 'flex-start' }}>
                   <Typography sx={{ mb: 1.5, color: 'text.secondary' }}>Alamat Gudang:</Typography>
                   <Typography sx={{ color: 'text.secondary', ml: 2 }}>
-                    {data?.WarehouseDestination?.location}
+                    {data?.warehouseDestination?.location}
                   </Typography>
                 </Box> */}
               </div>
@@ -194,11 +194,11 @@ const DetailInvoice = ({ data }) => {
                 }
               }}
             >
-              {data?.Product_Delivery_Orders?.map((data, index) => {
+              {data?.Delivery_Order_Products?.map((data, index) => {
                 return (
                   <TableRow key={index}>
-                    <TableCell>{data?.Product_Warehouse?.Master_Product?.name}</TableCell>
-                    <TableCell>{data?.Product_Warehouse?.Unit?.name || ''}</TableCell>
+                    <TableCell>{data?.Warehouse_Product?.Master_Product?.name}</TableCell>
+                    <TableCell>{data?.Warehouse_Product?.Master_Unit?.name || ''}</TableCell>
                     <TableCell>{data?.quantity || ''}</TableCell>
                   </TableRow>
                 )
@@ -262,12 +262,12 @@ const DetailInvoice = ({ data }) => {
             <Grid item xs={12} sm={12} lg={12} sx={{}}>
               <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box sx={{ mb: 2, ml: 5, display: 'flex-column', alignItems: 'center', textAlign: 'center' }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.CreatedBy?.name}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{data?.creatorBy?.name}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.createdAt)}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.createdAt)}</Typography>
                 </Box>
                 <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.ReceivedBy?.name}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{data?.receiverBy?.name}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.receivedAt)}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.receivedAt)}</Typography>
                 </Box>

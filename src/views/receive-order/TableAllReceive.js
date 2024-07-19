@@ -56,15 +56,15 @@ export default function TableAllReceive({}) {
     setSearchText(searchValue)
     HandleSearh({
       data,
-      keys: ['delivery_order_id', 'warehouseDestination', 'warehouseOrigin'],
+      keys: ['deliveryOrderId', 'warehouseDestination', 'warehouseOrigin'],
       searchValue,
       setData: setFilteredData
     })
   }
 
   const handleRowClick = params => {
-    const delivery_order_id = params.id
-    router.push(`/receive-order/${delivery_order_id}`)
+    const deliveryOrderId = params.id
+    router.push(`/receive-order/${deliveryOrderId}`)
   }
 
   useEffect(() => {
@@ -83,7 +83,7 @@ export default function TableAllReceive({}) {
           {
             flex: 0.1,
             minWidth: 100,
-            field: 'delivery_order_id',
+            field: 'deliveryOrderId',
             headerName: 'Order Id',
             cellClassName: {
               cursor: 'pointer'
@@ -91,7 +91,7 @@ export default function TableAllReceive({}) {
             renderCell: params => {
               return (
                 <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.delivery_order_id}
+                  {params.row.deliveryOrderId}
                 </Typography>
               )
             }

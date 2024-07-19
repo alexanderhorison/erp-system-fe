@@ -12,11 +12,11 @@ export default function FilterUser({ filterInput, handleFilterInput, clearAllFil
               fullWidth
               defaultValue='Pilih Otoritas'
               SelectProps={{
-                value: filterInput?.RoleId,
+                value: filterInput?.roleId,
                 displayEmpty: true,
                 onChange: e => handleFilterInput(e)
               }}
-              name='RoleId'
+              name='roleId'
             >
               <MenuItem Select value=''>
                 Select Role

@@ -6,7 +6,7 @@ import { DataGrid } from '@mui/x-data-grid'
 
 import TableProductViewHeader from './TableProductViewHeader'
 
-export default function TableProductView({ data, WarehouseId }) {
+export default function TableProductView({ data, warehouseId }) {
   const dispatch = useDispatch()
 
   const [searchText, setSearchText] = useState('')
@@ -24,7 +24,7 @@ export default function TableProductView({ data, WarehouseId }) {
   }
 
   const getRowId = row => {
-    return row.ProductWarehouseId
+    return row.productWarehouseId
   }
 
   return (
@@ -101,12 +101,12 @@ export default function TableProductView({ data, WarehouseId }) {
           {
             flex: 0.1,
             minWidth: 100,
-            field: 'minimum_stock',
+            field: 'minimumStock',
             headerName: 'Stok Minimum',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.minimum_stock}
+                  {params.row.minimumStock}
                 </Typography>
               )
             }

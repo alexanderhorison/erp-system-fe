@@ -92,12 +92,12 @@ export default function TableMasterTransformation({ product }) {
           {
             flex: 0.1,
             minWidth: 120,
-            field: 'product_transformation_id',
+            field: 'productTransformationId',
             headerName: 'Kode Transformasi',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.product_transformation_id}
+                  {params.row.productTransformationId}
                 </Typography>
               )
             }
@@ -121,7 +121,7 @@ export default function TableMasterTransformation({ product }) {
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} productId={row.MasterProductId} />
+            renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} productId={row.masterProductId} />
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}

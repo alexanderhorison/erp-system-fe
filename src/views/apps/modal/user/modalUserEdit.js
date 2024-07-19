@@ -26,13 +26,13 @@ const schema = yup.object().shape({
     .string()
     .min(3, obj => showErrors('Nama', obj.value.length, obj.min))
     .required(),
-  user_name: yup
+  userName: yup
     .string()
     .min(3, obj => showErrors('Username', obj.value.length, obj.min))
     .required(),
   email: yup.string().email('Masukkan email yang valid').required('Email harus diisi'),
   description: yup.string().optional(),
-  RoleId: yup.string().required('Otoritas harus diisi')
+  roleId: yup.string().required('Otoritas harus diisi')
 })
 
 export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
@@ -125,7 +125,7 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
               </Grid>
               <Grid item sm={12} xs={8}>
                 <Controller
-                  name='user_name'
+                  name='userName'
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { value, onChange } }) => (
@@ -137,8 +137,8 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                       onChange={onChange}
                       disabled={isView}
                       placeholder='cakra'
-                      error={Boolean(errors.user_name)}
-                      {...(errors.user_name && { helperText: errors.user_name.message })}
+                      error={Boolean(errors.userName)}
+                      {...(errors.userName && { helperText: errors.userName.message })}
                     />
                   )}
                 />
@@ -166,7 +166,7 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
               </Grid>
               <Grid item xs={12}>
                 <Controller
-                  name='RoleId'
+                  name='roleId'
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { value, onChange } }) => (
@@ -175,8 +175,8 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                       fullWidth
                       sx={{ mb: 4 }}
                       label='Pilih Otoritas'
-                      error={Boolean(errors.RoleId)}
-                      {...(errors.RoleId && { helperText: errors.RoleId.message })}
+                      error={Boolean(errors.roleId)}
+                      {...(errors.roleId && { helperText: errors.roleId.message })}
                       SelectProps={{
                         value: value,
                         onChange: e => onChange(e)

@@ -37,7 +37,7 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
   // store
   const roleStore = useSelector(state => state.role.dataRoles)
   const warehouseStore = useSelector(state => state.warehouse.data)
-  const [role, setRole] = useState(data.RoleId || '')
+  const [role, setRole] = useState(data.roleId || '')
   const [showPassword, setShowPassword] = useState(false)
   const [changePassword, setChangePassword] = useState(false)
 
@@ -46,14 +46,14 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
       .string()
       .min(3, obj => showErrors('Nama', obj.value.length, obj.min))
       .required(),
-    user_name: yup
+    userName: yup
       .string()
       .min(3, obj => showErrors('Username', obj.value.length, obj.min))
       .required(),
     email: yup.string().email('Masukkan email yang valid').required('Email harus diisi'),
     description: yup.string().optional(),
-    RoleId: yup.string().required('Otoritas harus diisi'),
-    WarehouseId: yup
+    roleId: yup.string().required('Otoritas harus diisi'),
+    warehouseId: yup
       .string()
       .nullable()
       .test('warehouse-validation', 'Gudang harus diisi jika otoritas adalah admin gudang', (val, context) =>
@@ -184,7 +184,7 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
               </Grid>
               <Grid item sm={12} xs={8}>
                 <Controller
-                  name='user_name'
+                  name='userName'
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { value, onChange } }) => (
@@ -196,8 +196,8 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                       onChange={onChange}
                       disabled={isView}
                       placeholder='cakra'
-                      error={Boolean(errors.user_name)}
-                      {...(errors.user_name && { helperText: errors.user_name.message })}
+                      error={Boolean(errors.userName)}
+                      {...(errors.userName && { helperText: errors.userName.message })}
                     />
                   )}
                 />
@@ -267,7 +267,7 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
               </Grid>
               <Grid item xs={12}>
                 <Controller
-                  name='RoleId'
+                  name='roleId'
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { value, onChange } }) => (
@@ -276,8 +276,8 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                       fullWidth
                       sx={{ mb: 4 }}
                       label='Pilih Otoritas'
-                      error={Boolean(errors.RoleId)}
-                      {...(errors.RoleId && { helperText: errors.RoleId.message })}
+                      error={Boolean(errors.roleId)}
+                      {...(errors.roleId && { helperText: errors.roleId.message })}
                       SelectProps={{
                         value: value,
                         onChange: e => {
@@ -301,17 +301,17 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
               {role == 3 && (
                 <Grid item xs={12}>
                   <Controller
-                    name='WarehouseId'
+                    name='warehouseId'
                     control={control}
-                    defaultValue={data?.WarehouseId ? data.WarehouseId : ''}
+                    defaultValue={data?.warehouseId ? data.warehouseId : ''}
                     render={({ field: { value, onChange } }) => (
                       <CustomTextField
                         select
                         fullWidth
                         sx={{ mb: 4 }}
                         label='Pilih Gudang'
-                        error={Boolean(errors.WarehouseId)}
-                        {...(errors.WarehouseId && { helperText: errors.WarehouseId.message })}
+                        error={Boolean(errors.warehouseId)}
+                        {...(errors.warehouseId && { helperText: errors.warehouseId.message })}
                         SelectProps={{
                           value: value,
                           onChange: e => onChange(e)

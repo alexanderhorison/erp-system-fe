@@ -51,7 +51,7 @@ const titleMap = {
   // Tambahkan lebih banyak pemetaan jika diperlukan
 }
 
-export default function ModalAdjustProduct({ open, setOpen, typeModal, WarehouseId }) {
+export default function ModalAdjustProduct({ open, setOpen, typeModal, warehouseId }) {
   const dispatch = useDispatch()
 
   const { detailProductWarehouse } = useSelector(state => state.productWarehouse)
@@ -110,7 +110,7 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
               return true;
             }
           ) : yup.mixed(),
-    minimum_stock: yup
+    minimumStock: yup
       .string()
       .required('Jumlah stok minimal harus diisi')
       .test(
@@ -141,10 +141,10 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
     const sendData = {
       ...(typeModal !== 'MINIMUM_STOCK' ? { quantityAdjustment: data.quantityAdjustment } : {}),
       ...(typeModal !== 'MINIMUM_STOCK' ? { quantity: data.quantity } : {}),
-      ...(typeModal === 'MINIMUM_STOCK' ? { minimum_stock: data.minimum_stock } : {}),
-      adjustment_type: typeModal
+      ...(typeModal === 'MINIMUM_STOCK' ? { minimumStock: data.minimumStock } : {}),
+      adjustmentType: typeModal
     }
-    dispatch(editProductWarehouse({ id: idProduct, data: sendData, WarehouseId }))
+    dispatch(editProductWarehouse({ id: idProduct, data: sendData, warehouseId }))
     setOpen(false)
   }
 
@@ -222,7 +222,7 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
                   {typeModal === 'MINIMUM_STOCK' && (
                     <Grid item xs={12}>
                       <Controller
-                        name='minimum_stock'
+                        name='minimumStock'
                         control={control}
                         rules={{ required: true }}
                         render={({ field: { value, onChange } }) => (
@@ -235,8 +235,8 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, Warehouse
                             }}
                             type='number'
                             sx={{ display: 'block' }}
-                            error={Boolean(errors.minimum_stock)}
-                            {...(errors.minimum_stock && { helperText: errors.minimum_stock.message })}
+                            error={Boolean(errors.minimumStock)}
+                            {...(errors.minimumStock && { helperText: errors.minimumStock.message })}
                           />
                         )}
                       />

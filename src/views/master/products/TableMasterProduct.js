@@ -56,9 +56,9 @@ const RowOptions = ({ id, name }) => {
 }
 
 const defaultFilter = {
-  CategoryId: '',
-  TypeId: '',
-  CompanyId: ''
+  categoryId: '',
+  typeId: '',
+  companyId: ''
 }
 
 export default function TableMasterProduct({}) {
@@ -83,13 +83,13 @@ export default function TableMasterProduct({}) {
   }
 
   const updatedUrl = useCallback((params) => {
-    const { CategoryId, TypeId, CompanyId } = params
+    const { categoryId, typeId, companyId } = params
     router.push({
       pathname: router.pathname,
       query: {
-        CategoryId: CategoryId || '',
-        TypeId: TypeId || '',
-        CompanyId: CompanyId || '',
+        categoryId: categoryId || '',
+        typeId: typeId || '',
+        companyId: companyId || '',
       }
     }, undefined, { shallow: true });
   } , [router])
@@ -97,9 +97,9 @@ export default function TableMasterProduct({}) {
   useEffect(() => {
     const query = router.query
     const initialFilter = {
-      CategoryId: query.CategoryId || '',
-      TypeId: query.TypeId || '',
-      CompanyId: query.CompanyId || '',
+      categoryId: query.categoryId || '',
+      typeId: query.typeId || '',
+      companyId: query.companyId || '',
     }
     setFilterInput(initialFilter)
     dispatch(fetchMasterDataProduct(initialFilter))
@@ -119,20 +119,20 @@ export default function TableMasterProduct({}) {
       dispatch(fetchMasterDataProduct())
       setFilterInput(defaultFilter)
       updatedUrl({
-        CategoryId: '',
-        TypeId: '',
-        CompanyId: '',
+        categoryId: '',
+        typeId: '',
+        companyId: '',
       })
     },
     [dispatch, updatedUrl]
   )
 
   const submitFilter = useCallback(() => {
-    if (filterInput.CategoryId || filterInput.TypeId || filterInput.CompanyId) {
+    if (filterInput.categoryId || filterInput.typeId || filterInput.companyId) {
       updatedUrl({
-        CategoryId: filterInput.CategoryId,
-        TypeId: filterInput.TypeId,
-        CompanyId: filterInput.CompanyId,
+        categoryId: filterInput.categoryId,
+        typeId: filterInput.typeId,
+        companyId: filterInput.companyId,
       })
       dispatch(fetchMasterDataProduct(filterInput))
     } else {

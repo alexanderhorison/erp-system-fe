@@ -139,7 +139,7 @@ const PrintInvoice = ({ id }) => {
                         <Typography variant='h5'>Surat Jalan</Typography>
                       </MUITableCell>
                       <MUITableCell>
-                        <Typography variant='h5'>{`#${data.delivery_order_id}`}</Typography>
+                        <Typography variant='h5'>{`#${data.deliveryOrderId}`}</Typography>
                       </MUITableCell>
                     </TableRow>
                     <TableRow>
@@ -169,16 +169,16 @@ const PrintInvoice = ({ id }) => {
               <Typography variant='h6' sx={{ mb: 2 }}>
                 Gudang Asal
               </Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.WarehouseOrigin?.name}</Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.WarehouseOrigin?.location}</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseOrigin?.name}</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseOrigin?.location}</Typography>
             </Grid>
             <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
               <div>
                 <Typography variant='h6' sx={{ mb: 2 }}>
                   Gudang Tujuan
                 </Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.WarehouseDestination?.name}</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.WarehouseDestination?.location}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseDestination?.name}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseDestination?.location}</Typography>
               </div>
             </Grid>
           </Grid>
@@ -203,11 +203,11 @@ const PrintInvoice = ({ id }) => {
                 }
               }}
             >
-              {data?.Product_Delivery_Orders?.map((data, index) => {
+              {data?.Delivery_Order_Products?.map((data, index) => {
                 return (
                   <TableRow key={index}>
-                    <TableCell>{data?.Product_Warehouse?.Master_Product?.name}</TableCell>
-                    <TableCell>{data?.Product_Warehouse?.Unit?.name || ''}</TableCell>
+                    <TableCell>{data?.Warehouse_Product?.Master_Product?.name}</TableCell>
+                    <TableCell>{data?.Warehouse_Product?.Master_Unit?.name || ''}</TableCell>
                     <TableCell>{data?.quantity || ''}</TableCell>
                   </TableRow>
                 )
@@ -252,12 +252,12 @@ const PrintInvoice = ({ id }) => {
             <Grid item xs={12} sm={12} lg={12} sx={{}}>
               <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box sx={{ mb: 2, ml: 5, display: 'flex-column', alignItems: 'center', textAlign: 'center' }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.CreatedBy?.name}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{data?.creatorBy?.name}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.createdAt)}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.createdAt)}</Typography>
                 </Box>
                 <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 10 }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.ReceivedBy?.name}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{data?.receiverBy?.name}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.receivedAt)}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.receivedAt)}</Typography>
                 </Box>

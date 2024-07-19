@@ -51,7 +51,7 @@ export const addMasterDataTransformation = createAsyncThunk(
         data
       })
       swalSuccess({ label, name: 'Transformasi', response })
-      dispatch(fetchMasterDataTransformation(data.MasterProductId))
+      dispatch(fetchMasterDataTransformation(data.masterProductId))
     } catch (error) {
       swalError({ error, label })
       return rejectWithValue({})
@@ -69,7 +69,7 @@ export const editMasterDataTransformation = createAsyncThunk(
         data: data
       })
       swalSuccess({ label, name: 'Transformasi', response })
-      dispatch(fetchMasterDataTransformation(data.MasterProductId))
+      dispatch(fetchMasterDataTransformation(data.masterProductId))
     } catch (error) {
       swalError({ label, error })
       return rejectWithValue({})
@@ -109,14 +109,14 @@ export const appMasterTransformationSlice = createSlice({
     loading: false,
     error: false,
     defaultValue: {
-      UnitFromId: '',
-      UnitToId: '',
-      amount_to: ''
+      unitFromId: '',
+      unitToId: '',
+      amountTo: ''
     },
     detail: {
-      UnitFromId: '',
-      UnitToId: '',
-      amount_to: ''
+      unitFromId: '',
+      unitToId: '',
+      amountTo: ''
     },
     loadingDetail: false,
     total: 1,
@@ -150,9 +150,9 @@ export const appMasterTransformationSlice = createSlice({
         state.loadingDetail = false
         state.error = action.error.message
         state.defaultValue = {
-          UnitFromId: '',
-          UnitToId: '',
-          amount_to: ''
+          unitFromId: '',
+          unitToId: '',
+          amountTo: ''
         }
       })
   }

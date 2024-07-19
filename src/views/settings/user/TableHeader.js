@@ -29,11 +29,11 @@ import encrypt from 'src/utils/encrypt'
 export const defaultValues = {
   email: '',
   name: '',
-  user_name: '',
+  userName: '',
   description: '',
   password: '',
-  RoleId: '',
-  WarehouseId: ''
+  roleId: '',
+  warehouseId: ''
 }
 
 const TableHeader = props => {
@@ -54,7 +54,7 @@ const TableHeader = props => {
       .string()
       .min(3, obj => showErrors('Nama', obj.value.length, obj.min))
       .required(),
-    user_name: yup
+    userName: yup
       .string()
       .min(3, obj => showErrors('Username', obj.value.length, obj.min))
       .required(),
@@ -64,8 +64,8 @@ const TableHeader = props => {
       .required(),
     email: yup.string().email('Masukkan email yang valid').required('Email harus diisi'),
     description: yup.string().optional(),
-    RoleId: yup.string().required('Otoritas harus diisi'),
-    WarehouseId: yup
+    roleId: yup.string().required('Otoritas harus diisi'),
+    warehouseId: yup
       .string()
       .test('warehouse-validation', 'Gudang harus diisi jika otoritas adalah admin gudang', (val, context) =>
         validateWarehouseId(val, context)
@@ -222,7 +222,7 @@ const TableHeader = props => {
                 )}
               />
               <Controller
-                name='user_name'
+                name='userName'
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { value, onChange } }) => (
@@ -233,8 +233,8 @@ const TableHeader = props => {
                     label='Username'
                     onChange={onChange}
                     placeholder='cakra'
-                    error={Boolean(errors.user_name)}
-                    {...(errors.user_name && { helperText: errors.user_name.message })}
+                    error={Boolean(errors.userName)}
+                    {...(errors.userName && { helperText: errors.userName.message })}
                   />
                 )}
               />
@@ -288,7 +288,7 @@ const TableHeader = props => {
                 )}
               />
               <Controller
-                name='RoleId'
+                name='roleId'
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { value, onChange } }) => (
@@ -297,8 +297,8 @@ const TableHeader = props => {
                     fullWidth
                     sx={{ mb: 4 }}
                     label='Pilih Otoritas'
-                    error={Boolean(errors.RoleId)}
-                    {...(errors.RoleId && { helperText: errors.RoleId.message })}
+                    error={Boolean(errors.roleId)}
+                    {...(errors.roleId && { helperText: errors.roleId.message })}
                     SelectProps={{
                       value: value,
                       onChange: e => {
@@ -319,7 +319,7 @@ const TableHeader = props => {
               />
               {role == 3 && (
                 <Controller
-                  name='WarehouseId'
+                  name='warehouseId'
                   control={control}
                   render={({ field: { value, onChange } }) => (
                     <CustomTextField
@@ -327,8 +327,8 @@ const TableHeader = props => {
                       fullWidth
                       sx={{ mb: 4 }}
                       label='Pilih Gudang'
-                      error={Boolean(errors.WarehouseId)}
-                      {...(errors.WarehouseId && { helperText: errors.WarehouseId.message })}
+                      error={Boolean(errors.warehouseId)}
+                      {...(errors.warehouseId && { helperText: errors.warehouseId.message })}
                       SelectProps={{
                         value: value,
                         onChange: e => onChange(e)

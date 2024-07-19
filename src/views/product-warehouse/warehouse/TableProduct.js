@@ -13,7 +13,7 @@ import ModalAdjustProduct from './ModalAdjustProduct'
 import HandleSearh from 'src/helpers/handleSearch'
 import ModalTransformationProduct from './ModalTransformationProduct'
 
-const RowOptions = ({ id, name, WarehouseId }) => {
+const RowOptions = ({ id, name, warehouseId }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
   const [openModalTransformation, setOpenModalTransformation] = useState(false)
@@ -52,7 +52,7 @@ const RowOptions = ({ id, name, WarehouseId }) => {
           open={openModalEdit}
           setOpen={setOpenModalEdit}
           typeModal={typeModal}
-          WarehouseId={WarehouseId}
+          warehouseId={warehouseId}
         />
       )}
 
@@ -61,7 +61,7 @@ const RowOptions = ({ id, name, WarehouseId }) => {
           open={openModalTransformation}
           setOpen={setOpenModalTransformation}
           typeModal={typeModal}
-          WarehouseId={WarehouseId}
+          warehouseId={warehouseId}
         />
       )}
 
@@ -69,7 +69,7 @@ const RowOptions = ({ id, name, WarehouseId }) => {
   )
 }
 
-export default function TableProduct({ data, WarehouseId }) {
+export default function TableProduct({ data, warehouseId }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -83,11 +83,11 @@ export default function TableProduct({ data, WarehouseId }) {
   }
 
   const handleAdd = () => {
-    router.push(`/product-warehouse/warehouse/${WarehouseId}/add`)
+    router.push(`/product-warehouse/warehouse/${warehouseId}/add`)
   }
 
   const getRowId = row => {
-    return row.ProductWarehouseId
+    return row.productWarehouseId
   }
 
   useEffect(() => {
@@ -145,12 +145,12 @@ export default function TableProduct({ data, WarehouseId }) {
           {
             flex: 0.1,
             minWidth: 100,
-            field: 'minimum_stock',
+            field: 'minimumStock',
             headerName: 'Stok Minimum',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.minimum_stock}
+                  {params.row.minimumStock}
                 </Typography>
               )
             }
@@ -163,7 +163,7 @@ export default function TableProduct({ data, WarehouseId }) {
             headerAlign: 'center',
             headerName: 'Actions',
             renderCell: ({ row }) => (
-              <RowOptions id={row.ProductWarehouseId} name={row.productName} WarehouseId={WarehouseId} />
+              <RowOptions id={row.productWarehouseId} name={row.productName} warehouseId={warehouseId} />
             )
           }
         ]}
@@ -197,7 +197,7 @@ export default function TableProduct({ data, WarehouseId }) {
 }
 
 const getRowClassName = params => {
-  if (params.row.quantity < params.row.minimum_stock) {
+  if (params.row.quantity < params.row.minimumStock) {
     return 'low-quantity'
   }
   if (params.row.quantity === 0) {

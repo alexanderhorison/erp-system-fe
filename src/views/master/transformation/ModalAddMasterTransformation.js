@@ -65,16 +65,16 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
   const { defaultValue, detail: detailTransformation, loadingDetail } = useSelector(data => data.masterTransformation)
 
   const [valueTransform, setValueTransform] = useState({
-    UnitFromId: '',
-    UnitToId: '',
-    amount_to: ''
+    unitFromId: '',
+    unitToId: '',
+    amountTo: ''
   })
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    UnitFromId: yup.string().required('Asal satuan produk harus ada'),
-    UnitToId: yup.string().required('Tujuan satuan produk harus ada'),
-    amount_to: yup.string().required('Jumlah tujuan konversi produk harus ada')
+    unitFromId: yup.string().required('Asal satuan produk harus ada'),
+    unitToId: yup.string().required('Tujuan satuan produk harus ada'),
+    amountTo: yup.string().required('Jumlah tujuan konversi produk harus ada')
   })
 
   // REACT FORM
@@ -94,26 +94,26 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
     let input
     if (typeModal === 'ADD') {
       input = {
-        UnitFromId: +data.UnitFromId,
-        UnitToId: +data.UnitToId,
-        MasterProductId: product.id,
-        amount_from: 1,
-        amount_to: +data.amount_to,
-        info1: `1 ${valueTransform.UnitFromId} = ${valueTransform.amount_to} ${valueTransform.UnitToId}`,
-        info2: `${valueTransform.amount_to} ${valueTransform.UnitToId} = 1 ${valueTransform.UnitFromId}`
+        unitFromId: +data.unitFromId,
+        unitToId: +data.unitToId,
+        masterProductId: product.id,
+        amountFrom: 1,
+        amountTo: +data.amountTo,
+        info1: `1 ${valueTransform.unitFromId} = ${valueTransform.amountTo} ${valueTransform.unitToId}`,
+        info2: `${valueTransform.amountTo} ${valueTransform.unitToId} = 1 ${valueTransform.unitFromId}`
       }
       dispatch(addMasterDataTransformation(input))
     } else {
       input = {
-        MasterProductId: data.MasterProductId,
-        UnitFromId: +data.UnitFromId,
-        UnitToId: +data.UnitToId,
-        product_transformation_id: '',
-        amount_from: 1,
-        amount_to: +data.amount_to,
-        product_transformation_id: data.product_transformation_id,
-        info1: `1 ${valueTransform.UnitFromId} = ${valueTransform.amount_to} ${valueTransform.UnitToId}`,
-        info2: `${valueTransform.amount_to} ${valueTransform.UnitToId} = 1 ${valueTransform.UnitFromId}`
+        masterProductId: data.masterProductId,
+        unitFromId: +data.unitFromId,
+        unitToId: +data.unitToId,
+        productTransformationId: '',
+        amountFrom: 1,
+        amountTo: +data.amountTo,
+        productTransformationId: data.productTransformationId,
+        info1: `1 ${valueTransform.unitFromId} = ${valueTransform.amountTo} ${valueTransform.unitToId}`,
+        info2: `${valueTransform.amountTo} ${valueTransform.unitToId} = 1 ${valueTransform.unitFromId}`
       }
       dispatch(editMasterDataTransformation({ id, data: input }))
     }
@@ -122,12 +122,12 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
 
   useEffect(() => {
     if (detailTransformation && masterDataUnit.length > 0 && typeModal === 'EDIT') {
-      const unitFromPcs = masterDataUnit?.find(unit => unit.id == detailTransformation.UnitFromId)
-      const unitToPcs = masterDataUnit?.find(unit => unit.id == detailTransformation.UnitToId)
+      const unitFromPcs = masterDataUnit?.find(unit => unit.id == detailTransformation.unitFromId)
+      const unitToPcs = masterDataUnit?.find(unit => unit.id == detailTransformation.unitToId)
       setValueTransform({
-        UnitFromId: unitFromPcs?.name,
-        UnitToId: unitToPcs?.name,
-        amount_to: detailTransformation.amount_to
+        unitFromId: unitFromPcs?.name,
+        unitToId: unitToPcs?.name,
+        amountTo: detailTransformation.amountTo
       })
     }
   }, [detailTransformation, masterDataUnit, typeModal])
@@ -145,7 +145,7 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
         setValueTransform({ ...valueTransform, [key]: '' })
       }
 
-      if (key != 'amount_to') {
+      if (key != 'amountTo') {
         const namePcs = masterDataUnit.find(unit => unit.id === value)
         setValueTransform({ ...valueTransform, [key]: namePcs.name })
       } else {
@@ -211,7 +211,7 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
                 <Grid container spacing={6}>
                   <Grid item xs={12} sm={12}>
                     <Controller
-                      name='UnitFromId'
+                      name='unitFromId'
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
@@ -222,12 +222,12 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
                           value={value || ''}
                           onChange={e => {
                             onChange(e)
-                            handleValueTransform('UnitFromId')
+                            handleValueTransform('unitFromId')
                           }}
                           disabled={typeModal === 'VIEW'}
-                          error={Boolean(errors.UnitFromId)}
-                          aria-describedby='validation-schema-UnitFromId'
-                          {...(errors.UnitFromId && { helperText: errors.UnitFromId.message })}
+                          error={Boolean(errors.unitFromId)}
+                          aria-describedby='validation-schema-unitFromId'
+                          {...(errors.unitFromId && { helperText: errors.unitFromId.message })}
                         >
                           {masterDataUnit.map(item => {
                             return (
@@ -242,7 +242,7 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
                   </Grid>
                   <Grid item xs={12} sm={12}>
                     <Controller
-                      name='UnitToId'
+                      name='unitToId'
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
@@ -253,12 +253,12 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
                           value={value || ''}
                           onChange={e => {
                             onChange(e)
-                            handleValueTransform('UnitToId')
+                            handleValueTransform('unitToId')
                           }}
                           disabled={typeModal === 'VIEW'}
-                          error={Boolean(errors.UnitToId)}
-                          aria-describedby='validation-schema-UnitToId'
-                          {...(errors.UnitToId && { helperText: errors.UnitToId.message })}
+                          error={Boolean(errors.unitToId)}
+                          aria-describedby='validation-schema-unitToId'
+                          {...(errors.unitToId && { helperText: errors.unitToId.message })}
                         >
                           <MenuItem />
                           {masterDataUnit.map(item => {
@@ -274,7 +274,7 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
                   </Grid>
                   <Grid item xs={12}>
                     <Controller
-                      name='amount_to'
+                      name='amountTo'
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
@@ -286,12 +286,12 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
                           type='number'
                           onChange={e => {
                             onChange(e)
-                            handleValueTransform('amount_to')
+                            handleValueTransform('amountTo')
                           }}
                           disabled={typeModal === 'VIEW'}
-                          error={Boolean(errors.amount_to)}
-                          aria-describedby='validation-schema-amount_to'
-                          {...(errors.amount_to && { helperText: errors.amount_to.message })}
+                          error={Boolean(errors.amountTo)}
+                          aria-describedby='validation-schema-amountTo'
+                          {...(errors.amountTo && { helperText: errors.amountTo.message })}
                         />
                       )}
                     />
@@ -299,13 +299,13 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
                   <Grid item xs={12}>
                     <Typography variant=''>{'Hasil'}</Typography>
                   </Grid>
-                  {valueTransform.UnitFromId && valueTransform.amount_to && valueTransform.UnitToId && (
+                  {valueTransform.unitFromId && valueTransform.amountTo && valueTransform.unitToId && (
                     <>
                       <Grid item xs={12} sx={{ marginTop: -4 }}>
-                        <Typography variant=''>{`1 ${valueTransform.UnitFromId} = ${valueTransform.amount_to} ${valueTransform.UnitToId}`}</Typography>
+                        <Typography variant=''>{`1 ${valueTransform.unitFromId} = ${valueTransform.amountTo} ${valueTransform.unitToId}`}</Typography>
                       </Grid>
                       <Grid item xs={12} sx={{ marginTop: -4 }}>
-                        <Typography variant=''>{`${valueTransform.amount_to} ${valueTransform.UnitToId} = 1 ${valueTransform.UnitFromId}`}</Typography>
+                        <Typography variant=''>{`${valueTransform.amountTo} ${valueTransform.unitToId} = 1 ${valueTransform.unitFromId}`}</Typography>
                       </Grid>
                     </>
                   )}

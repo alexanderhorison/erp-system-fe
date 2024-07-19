@@ -73,10 +73,10 @@ export default function ModalRoleEdit({ data, isOpen, closePress, isView }) {
   }
 
   useEffect(() => {
-    if (data?.MenuId) {
+    if (data?.menuId) {
       let dataMenu = []
       let idMenu = []
-      data?.MenuId.forEach(menuId => {
+      data?.menuId.forEach(menuId => {
         const menu = menus.find(menu => menu.menuId === menuId)
         if (menu) {
           dataMenu.push(menu)

@@ -20,7 +20,7 @@ export default function HomeProduct() {
         <Typography paddingY={3} fontSize={20}>
           Daftar Produk di gudang "{data?.warehouseName}"
         </Typography>
-        <TableProductView data={data?.data} WarehouseId={data?.WarehouseId} />
+        <TableProductView data={data?.data} warehouseId={data?.warehouseId} />
       </Grid>
     </Grid>
   )

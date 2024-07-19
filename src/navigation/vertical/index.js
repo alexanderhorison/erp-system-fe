@@ -753,7 +753,7 @@ const navigation = () => {
           children: []
         }
         item?.children.forEach(child => {
-          if (auth?.user?.Role?.MenuId?.includes(child?.menuId)) {
+          if (auth?.user?.menuId?.includes(child?.menuId)) {
             section.children.push(child)
           }
         })
@@ -763,12 +763,12 @@ const navigation = () => {
       } else if (item?.hasOwnProperty('sectionTitle')) {
         let isFlag = false
         item?.menuId.forEach(number => {
-          if (auth?.user?.Role?.MenuId?.includes(number) && !isFlag) {
+          if (auth?.user?.menuId?.includes(number) && !isFlag) {
             selectedMenu.push(item)
             isFlag = true
           }
         })
-      } else if (auth?.user?.Role?.MenuId?.includes(item?.menuId)) {
+      } else if (auth?.user?.menuId?.includes(item?.menuId)) {
         selectedMenu.push(item)
       }
     })

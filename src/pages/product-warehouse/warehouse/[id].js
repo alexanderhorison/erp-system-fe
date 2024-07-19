@@ -35,7 +35,7 @@ export default function HomeProductWarehouseId() {
         <Typography paddingY={3} fontSize={20}>
           {`Daftar Produk di ${data?.warehouseName}`}
         </Typography>
-        <TableProduct data={data.data} WarehouseId={id} />
+        <TableProduct data={data.data} warehouseId={id} />
       </Grid>
     </Grid>
   )
