@@ -20,6 +20,7 @@ import deliveryOrder from './apps/delivery-order'
 import receiveOrder from './apps/receive-order'
 import masterTransformation from './apps/master/transformation'
 //import store from './src/store'; // Use relative path //
+import masterWarehouseRack from './apps/master/warehouse-rack'
 
 export const store = configureStore({
   reducer: {
@@ -40,6 +41,7 @@ export const store = configureStore({
     menu,
     receiveOrder,
     masterTransformation,
+    masterWarehouseRack,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
