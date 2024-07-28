@@ -5,6 +5,8 @@ import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
+import { Chip } from '@mui/material'
+import CustomAvatar from 'src/@core/components/mui/avatar'
 
 
 // Styled Grid component
@@ -20,10 +22,10 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   }
 }))
 
-const CardAdjustProduct = ({data}) => {
+const CardAdjustProduct = ({ data }) => {
   return (
     <Card>
-      <Grid container spacing={6} sx={{ height: '220px' }}>
+      <Grid container spacing={6} sx={{ height: '240px' }}>
         <StyledGrid item md={5} xs={12}>
           <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <img width={137} height={137} alt='Product' src='https://img.freepik.com/premium-vector/cigarettes-pack-illustration-design-element-flat-icon_645658-280.jpg' />
@@ -39,28 +41,51 @@ const CardAdjustProduct = ({data}) => {
           }}
         >
           <CardContent>
-            <Typography variant='h5' sx={{ mb: 2 }}>
+            <Typography variant='h5'>
               {data?.productName}
             </Typography>
-            <br></br>
-            <Typography sx={{ fontWeight: 500, mb: 3 }}>
-              Satuan:{' '}
-              <Box component='span' sx={{ fontWeight: 'bold' }}>
-                {data?.unitName}
-              </Box>
-            </Typography>
-            <Typography sx={{ fontWeight: 500, mb: 3 }}>
-              Stok tersedia:{' '}
-              <Box component='span' sx={{ fontWeight: 'bold' }}>
-                {data?.quantity}
-              </Box>
-            </Typography>
-            <Typography sx={{ fontWeight: 500, mb: 3 }}>
-              Stok Minimal:{' '}
-              <Box component='span' sx={{ fontWeight: 'bold' }}>
-                {data?.minimumStock}
-              </Box>
-            </Typography>
+            <Grid container spacing={1} sx={{mt: 1}}>
+              <Grid item xs={12}>
+                <Chip sx={{ borderRadius: 1 }} label={data?.unitName} size='small' />
+              </Grid>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CustomAvatar
+                    skin='light'
+                    variant='rounded'
+                    sx={{ mr: 4, width: 34, height: 34 }}
+                  >
+                    <i class="fa-solid fa-cubes-stacked"></i>
+                  </CustomAvatar>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <Typography variant='h6'>{"Stok Tersedia"}</Typography>
+                    <Typography variant='body2' sx={{ color: 'text.disabled' }}>
+                      {data?.quantity}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CustomAvatar
+                    skin='light'
+                    variant='rounded'
+                    // color={"gray"}
+                    sx={{ mr: 4, width: 34, height: 34 }}
+                  >
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                  </CustomAvatar>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <Typography variant='h6'>{"Stok Minimal"}</Typography>
+                    <Typography variant='body2' sx={{ color: 'text.disabled' }}>
+                      {data?.minimumStock}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+
+
+            </Grid>
           </CardContent>
         </Grid>
       </Grid>
