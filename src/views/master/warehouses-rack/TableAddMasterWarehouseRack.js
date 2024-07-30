@@ -179,11 +179,11 @@ export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
                         />
                       </Grid>
                       <Grid item xs={1} sx={{ marginTop: 'auto' }}>
-                        {index !== 0 && fields.length - 1 === index && (
+                        {fields.length !== 1 ? (
                           <IconButton onClick={() => deleteItem(index)} sx={{ color: 'text.primary' }}>
                             <Icon icon='tabler:trash' />
                           </IconButton>
-                        )}
+                        ) : null}
                       </Grid>
                     </Grid>
                   </CardContent>
