@@ -13,6 +13,7 @@ import * as yup from 'yup'
 import { initiateProductWarehouse } from 'src/store/apps/product-warehouse'
 import { useRouter } from 'next/router'
 import OptionsGroup from 'src/helpers/groupedInput'
+import { fetchMasterDataWarehouseRack } from 'src/store/apps/master/warehouse-rack'
 
 export default function TableAddProductWarehouse({ warehouse }) {
   const dispatch = useDispatch()
@@ -20,12 +21,15 @@ export default function TableAddProductWarehouse({ warehouse }) {
 
   const { data: masterDataProduct } = useSelector(state => state.masterProduct)
   const { data: masterDataUnit } = useSelector(state => state.unit)
+  const { data: masterWarehouseRack } = useSelector(state => state.masterWarehouseRack)
+
 
   const schemaNew = yup.object({
     data: yup.array().of(
       yup.object().shape({
         masterProductId: yup.number().typeError('Produk harus dipilih'),
         unitId: yup.number().typeError('Satuan harus dipilih'),
+        warehouseRackId: yup.number().typeError("Rak harus dipilih"),
         quantity: yup
           .string()
           .required('Kuantiti harus diisi')
@@ -108,7 +112,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
   }
 
   const addMore = () => {
-    append({ masterProductId: '', unitId: '', quantity: '', minimumStock: '' })
+    append({ masterProductId: '', warehouseRackId: '', unitId: '', quantity: '', minimumStock: '' })
   }
 
   const deleteItem = itemIndex => {
@@ -118,14 +122,17 @@ export default function TableAddProductWarehouse({ warehouse }) {
   useEffect(() => {
     append({
       masterProductId: '',
+      warehouseRackId: '',
       unitId: '',
       quantity: '',
       minimumStock: ''
     })
     dispatch(fetchMasterDataProduct())
     dispatch(fetchMasterDataUnit())
-  }, [dispatch, append])
-
+    if (warehouse.id){
+      dispatch(fetchMasterDataWarehouseRack(+warehouse.id))
+    }
+  }, [dispatch, append, warehouse.id])
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -166,7 +173,35 @@ export default function TableAddProductWarehouse({ warehouse }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={3}>
+                      <Grid item xs={2}>
+                        <Controller
+                          name={`data[${index}].warehouseRackId`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomAutocomplete
+                              options={masterWarehouseRack}
+                              id='autocomplete-custom'
+                              getOptionLabel={option => option.name || ''}
+                              onChange={(event, newValue) => {
+                                onChange(+newValue?.id)
+                              }}
+                              renderInput={params => (
+                                <CustomTextField
+                                  value={item.warehouseRackId}
+                                  {...params}
+                                  label='Pilih rak'
+                                  error={Boolean(errors?.data?.[index]?.warehouseRackId)}
+                                  {...(errors?.data?.[index]?.warehouseRackId && {
+                                    helperText: errors?.data?.[index]?.warehouseRackId.message
+                                  })}
+                                />
+                              )}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={2}>
                         <Controller
                           name={`data[${index}].unitId`}
                           control={control}
