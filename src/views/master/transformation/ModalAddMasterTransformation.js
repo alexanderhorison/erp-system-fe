@@ -260,7 +260,6 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
                           aria-describedby='validation-schema-UnitToId'
                           {...(errors.UnitToId && { helperText: errors.UnitToId.message })}
                         >
-                          <MenuItem />
                           {masterDataUnit.map(item => {
                             return (
                               <MenuItem key={item.id} value={item.id}>

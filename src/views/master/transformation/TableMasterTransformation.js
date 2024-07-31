@@ -54,7 +54,7 @@ export default function TableMasterTransformation({ product }) {
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
 
   const { data } = useSelector(state => state.masterTransformation)
 

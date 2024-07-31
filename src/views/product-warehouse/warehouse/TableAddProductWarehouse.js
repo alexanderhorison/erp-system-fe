@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Card, CardContent, Divider, Grid, IconButton } from '@mui/material'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
@@ -13,11 +13,13 @@ import * as yup from 'yup'
 import { initiateProductWarehouse } from 'src/store/apps/product-warehouse'
 import { useRouter } from 'next/router'
 import OptionsGroup from 'src/helpers/groupedInput'
+import useDisableNumberInputScroll from 'src/hooks/disableScroll'
 
 export default function TableAddProductWarehouse({ warehouse }) {
   const dispatch = useDispatch()
   const router = useRouter()
-
+  const inputRefs = useRef([]);
+  
   const { data: masterDataProduct } = useSelector(state => state.masterProduct)
   const { data: masterDataUnit } = useSelector(state => state.unit)
 
@@ -108,8 +110,11 @@ export default function TableAddProductWarehouse({ warehouse }) {
   }
 
   const addMore = () => {
-    append({ MasterProductId: '', UnitId: '', quantity: '', minimum_stock: '' })
+    append({ MasterProductId: '', UnitId: '', quantity: '', minimum_stock: 1 })
   }
+  useEffect(() => {
+    inputRefs.current[fields.length - 1]?.focus()
+  }, [fields])
 
   const deleteItem = itemIndex => {
     remove(itemIndex)
@@ -120,7 +125,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
       MasterProductId: '',
       UnitId: '',
       quantity: '',
-      minimum_stock: ''
+      minimum_stock: 1,
     })
     dispatch(fetchMasterDataProduct())
     dispatch(fetchMasterDataUnit())
@@ -160,6 +165,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                                     helperText: errors?.data?.[index]?.MasterProductId.message
                                   })}
                                   label='Pilih produk'
+                                  inputRef={el => (inputRefs.current[index] = el)}
                                 />
                               )}
                             />
@@ -208,7 +214,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                                 onChange(e.target.value)
                               }}
                               type='number'
-                              sx={{ display: 'block' }}
+                              sx={{ display: 'block',  }}
                               error={Boolean(errors?.data?.[index]?.quantity)}
                               {...(errors?.data?.[index]?.quantity && {
                                 helperText: errors?.data?.[index]?.quantity.message
@@ -226,7 +232,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                             <CustomTextField
                               fullWidth
                               label='Minimum Stock'
-                              value={value}
+                              value={value || 1}
                               onChange={e => {
                                 onChange(e.target.value)
                               }}

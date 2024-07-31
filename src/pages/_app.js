@@ -59,6 +59,7 @@ import '../../styles/globals.css'
 
 // ** Sweet Alert 2
 import Swal from './sweetalert'
+import useDisableNumberInputScroll from 'src/hooks/disableScroll'
 
 export const useSweetAlert = () => useContext(SweetAlertContext)
 
@@ -94,6 +95,8 @@ const App = props => {
 
   // Variables
   const contentHeightFixed = Component.contentHeightFixed ?? false
+  // GLOBAL DISABLE SCROLL INPUT ON NUMBER
+  useDisableNumberInputScroll()
 
   const getLayout =
     Component.getLayout ?? (page => <UserLayout contentHeightFixed={contentHeightFixed}>{page}</UserLayout>)

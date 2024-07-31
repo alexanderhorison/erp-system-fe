@@ -48,7 +48,7 @@ export default function TableAllInvoice({}) {
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
 
   const { dataListDeliveryOrder: data } = useSelector(state => state.deliveryOrder)
 
