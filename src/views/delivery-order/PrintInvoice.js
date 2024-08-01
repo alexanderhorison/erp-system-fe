@@ -24,7 +24,7 @@ import axios from 'axios'
 import themeConfig from 'src/configs/themeConfig'
 import { fetchDetailDeliveryOrder } from 'src/store/apps/delivery-order'
 import { useDispatch, useSelector } from 'react-redux'
-import { Card, CardContent, Box } from '@mui/material'
+import { Card, CardContent, Box, CircularProgress } from '@mui/material'
 import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
 import { transformColor } from 'src/helpers/transformColor'
 import CustomChip from 'src/@core/components/mui/chip'
@@ -51,7 +51,11 @@ const PrintInvoice = ({ id }) => {
   const theme = useTheme()
   const dispatch = useDispatch()
 
-  const { detailDeliveryOrder: data, errorDetailDeliveryOrder } = useSelector(state => state.deliveryOrder)
+  const {
+    detailDeliveryOrder: data,
+    errorDetailDeliveryOrder,
+    loadingDetailDeliveryOrder
+  } = useSelector(state => state.deliveryOrder)
 
   useEffect(() => {
     setTimeout(() => {
@@ -280,8 +284,13 @@ const PrintInvoice = ({ id }) => {
         </Grid>
       </Box>
     )
-  } else {
-    return null
+  } else if (loadingDetailDeliveryOrder) {
+    return (
+      <Box sx={{ mt: 11, width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+        <CircularProgress sx={{ mb: 4 }} />
+        <Typography>Loading...</Typography>
+      </Box>
+    )
   }
 }
 

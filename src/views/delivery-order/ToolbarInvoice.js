@@ -11,13 +11,15 @@ import Icon from 'src/@core/components/icon'
 import { useRouter } from 'next/router'
 import { useDispatch } from 'react-redux'
 import { UseAuth } from 'src/hooks/useAuth'
+import { updateReceiveOrder } from 'src/store/apps/receive-order'
 
 const ToolbarInvoice = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, status }) => {
+  const auth = UseAuth()
   const dispatch = useDispatch()
   const router = useRouter()
 
   const onUpdateSuratJalan = (deliveryOrderId, e) => {
-    dispatch(updateDeliveryOrderReceive({ deliveryOrderId, router }))
+    dispatch(updateReceiveOrder({ deliveryOrderId, router }))
   }
 
   return (
@@ -41,7 +43,7 @@ const ToolbarInvoice = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
           <Icon fontSize='1.125rem' icon='tabler:printer' />
           Cetak / Print
         </Button>
-        {status == 'PENDING' ? (
+        {[1, 3].includes(auth?.user?.RoleId) && status == 'PENDING' ? (
           <>
             <Button
               fullWidth

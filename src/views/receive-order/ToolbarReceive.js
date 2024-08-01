@@ -44,7 +44,7 @@ const ToolbarReceive = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
           <Icon fontSize='1.125rem' icon='tabler:printer' />
           Cetak / Print
         </Button>
-        {auth?.user?.RoleId == 3 && status == 'PENDING' ? (
+        {[1, 3].includes(auth?.user?.RoleId) && status == 'PENDING' ? (
           <>
             <Button
               fullWidth
