@@ -109,6 +109,7 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
         masterTransformationId: selectedUnit.id,
         productWarehouseId: detailProductWarehouse.id,
         qtyTransformation: qty,
+        warehouseRackId: detailProductWarehouse.warehouseRackId
       }
       dispatch(transformProduct({ id: detailProductWarehouse.id, data: sendData, warehouseId, setOpen: setOpen }))
     }

@@ -92,12 +92,12 @@ export default function TableMasterTransformation({ product }) {
           {
             flex: 0.1,
             minWidth: 120,
-            field: 'productTransformationId',
+            field: 'code',
             headerName: 'Kode Transformasi',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.productTransformationId}
+                  {params.row.code}
                 </Typography>
               )
             }

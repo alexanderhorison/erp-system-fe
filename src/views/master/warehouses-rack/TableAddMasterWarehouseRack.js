@@ -65,7 +65,7 @@ export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
 
   // Filter out selected keys from the options
   const getAvailableKeys = currentKey => {
-    return keyAttributes.filter(attr => !selectedKeys.includes(attr.key) || attr.key === currentKey)
+    return keyAttributes?.filter(attr => !selectedKeys?.includes(attr.key) || attr.key === currentKey)
   }
 
   return (

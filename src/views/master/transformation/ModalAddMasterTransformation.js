@@ -108,10 +108,9 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
         masterProductId: data.masterProductId,
         unitFromId: +data.unitFromId,
         unitToId: +data.unitToId,
-        productTransformationId: '',
         amountFrom: 1,
         amountTo: +data.amountTo,
-        productTransformationId: data.productTransformationId,
+        code: data.code,
         info1: `1 ${valueTransform.unitFromId} = ${valueTransform.amountTo} ${valueTransform.unitToId}`,
         info2: `${valueTransform.amountTo} ${valueTransform.unitToId} = 1 ${valueTransform.unitFromId}`
       }
