@@ -72,6 +72,18 @@ export default function DetailStockOpname({ stockOpnameId }) {
                 <Typography variant="body2" sx={{ color: 'text.primary' }}>
                   Status: {detailStockOpname?.status || "-"}
                 </Typography>
+                {
+                  detailStockOpname?.status === 'APPROVED' &&
+                  <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                    Di Approve oleh: {detailStockOpname?.updaterName || "-"}
+                  </Typography>
+                }
+                {
+                  detailStockOpname?.status === 'REJECTED' &&
+                  <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                    Di Reject oleh: {detailStockOpname?.updaterName || "-"}
+                  </Typography>
+                }
               </Grid>
             </Grid>
           </CardContent>
