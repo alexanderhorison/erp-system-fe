@@ -158,7 +158,6 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, warehouse
     setOpen(false)
   }
 
-  console.log(errors);
   return (
     <Card>
       <Dialog

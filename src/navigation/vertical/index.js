@@ -55,8 +55,14 @@ const navigation = () => {
           title: 'Penyesuaian Stok Produk Gudang',
           path: '/product-warehouse/warehouse',
           menuId: 9
-        }
+        },
       ]
+    },
+    {
+      title: 'Stock Opname',
+      path: '/stock-opname/',
+      icon: 'tabler:server-cog',
+      menuId: 15
     },
     {
       title: 'Surat Jalan',
