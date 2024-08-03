@@ -1,6 +1,6 @@
 import { Card, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import {  useState } from 'react'
+import { useState } from 'react'
 
 export default function TableDetailStockOpname({ data }) {
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
@@ -40,7 +40,7 @@ export default function TableDetailStockOpname({ data }) {
             headerName: 'Rak',
             renderCell: (params) => (
               <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                {params.row.rackName}
+                {params.row.rackName || "-"}
               </Typography>
             ),
           },

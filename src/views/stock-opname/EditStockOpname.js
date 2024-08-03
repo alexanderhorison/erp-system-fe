@@ -53,16 +53,14 @@ export default function EditStockOpname({ }) {
 
   const onSubmit = e => {
     e.preventDefault()
-    const tempDate = new Date(date)
-    const formattedDate = tempDate.toISOString().split('T')[0]
     const mapData = fields.map(item => {
-      let different = item.quantity - item.actualStock
+      let different = item.systemStock - item.actualStock
       if (isNaN(different)) {
         different = null
       }
       return {
+        id: item.id,
         warehouseProductId: item.productWarehouseId,
-        systemStock: item.quantity,
         actualStock: item?.actualStock || null,
         diff: item?.actualStock ? Math.abs(different) : null
       }
