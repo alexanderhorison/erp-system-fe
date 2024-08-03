@@ -61,7 +61,7 @@ export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
   }
 
   // Watch all the selected keys
-  const selectedKeys = watch('data').map(item => item.key)
+  const selectedKeys = watch('data')?.map(item => item.key)
 
   // Filter out selected keys from the options
   const getAvailableKeys = currentKey => {
