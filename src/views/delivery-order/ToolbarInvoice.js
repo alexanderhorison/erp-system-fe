@@ -43,7 +43,7 @@ const ToolbarInvoice = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
           <Icon fontSize='1.125rem' icon='tabler:printer' />
           Cetak / Print
         </Button>
-        {[1, 3].includes(auth?.user?.RoleId) && status == 'PENDING' ? (
+        {[1, 3].includes(auth?.user?.roleId) && status == 'PENDING' ? (
           <>
             <Button
               fullWidth
