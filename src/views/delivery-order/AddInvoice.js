@@ -39,6 +39,14 @@ export default function AddInvoice({ warehouse }) {
             const { quantity } = this.parent
             return value <= quantity
           })
+          .test(
+            'is-greater-than-zero',
+            'Jumlah stok minimal harus lebih dari 0',
+            function (value) {
+              const num = Number(value);
+              return num >= 0;
+            }
+          )
       })
     )
   })
@@ -262,10 +270,7 @@ export default function AddInvoice({ warehouse }) {
                               label='Kuantiti'
                               value={value}
                               onChange={e => {
-                                const newValue = parseInt(e.target.value, 10)
-                                if (!isNaN(newValue) && newValue >= 0) {
-                                  onChange(+newValue)
-                                }
+                                onChange(e.target.value)
                               }}
                               type='number'
                               sx={{ display: 'block' }}

@@ -10,7 +10,7 @@ export default function TableProductView({ data, warehouseId }) {
   const dispatch = useDispatch()
 
   const [searchText, setSearchText] = useState('')
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
   const [filteredData, setFilteredData] = useState([])
 
   const handleSearch = searchValue => {

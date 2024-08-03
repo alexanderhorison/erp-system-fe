@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Card, CardContent, Divider, Grid, IconButton } from '@mui/material'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
@@ -18,7 +18,8 @@ import { fetchMasterDataWarehouseRack } from 'src/store/apps/master/warehouse-ra
 export default function TableAddProductWarehouse({ warehouse }) {
   const dispatch = useDispatch()
   const router = useRouter()
-
+  const inputRefs = useRef([]);
+  
   const { data: masterDataProduct } = useSelector(state => state.masterProduct)
   const { data: masterDataUnit } = useSelector(state => state.unit)
   const { data: masterWarehouseRack } = useSelector(state => state.masterWarehouseRack)
@@ -112,8 +113,11 @@ export default function TableAddProductWarehouse({ warehouse }) {
   }
 
   const addMore = () => {
-    append({ masterProductId: '', warehouseRackId: '', unitId: '', quantity: '', minimumStock: '' })
+    append({ masterProductId: '', warehouseRackId: '', unitId: '', quantity: '', minimumStock: 1 })
   }
+  useEffect(() => {
+    inputRefs.current[fields.length - 1]?.focus()
+  }, [fields])
 
   const deleteItem = itemIndex => {
     remove(itemIndex)
@@ -125,7 +129,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
       warehouseRackId: '',
       unitId: '',
       quantity: '',
-      minimumStock: ''
+      minimumStock: 1
     })
     dispatch(fetchMasterDataProduct())
     dispatch(fetchMasterDataUnit())
@@ -167,6 +171,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                                     helperText: errors?.data?.[index]?.masterProductId.message
                                   })}
                                   label='Pilih produk'
+                                  inputRef={el => (inputRefs.current[index] = el)}
                                 />
                               )}
                             />
@@ -243,7 +248,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                                 onChange(e.target.value)
                               }}
                               type='number'
-                              sx={{ display: 'block' }}
+                              sx={{ display: 'block',  }}
                               error={Boolean(errors?.data?.[index]?.quantity)}
                               {...(errors?.data?.[index]?.quantity && {
                                 helperText: errors?.data?.[index]?.quantity.message
@@ -261,7 +266,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                             <CustomTextField
                               fullWidth
                               label='Minimum Stock'
-                              value={value}
+                              value={value || 1}
                               onChange={e => {
                                 onChange(e.target.value)
                               }}

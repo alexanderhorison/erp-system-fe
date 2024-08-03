@@ -73,10 +73,17 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
 
   // ON SUBMIT
   const onSubmit = data => {
+    const transformedData = {
+      ...data,
+      TypeId: Number(data.TypeId),
+      CompanyId: Number(data.CompanyId),
+      CategoryId: Number(data.CategoryId)
+    }
+
     if (typeModal === 'ADD') {
-      dispatch(addMasterDataPorduct(data))
+      dispatch(addMasterDataPorduct(transformedData))
     } else {
-      dispatch(editMasterDataPorduct({ id, data }))
+      dispatch(editMasterDataPorduct({ id, data: transformedData }))
     }
     setOpen(false)
   }
@@ -86,7 +93,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
     dispatch(fetchMasterDataType())
     dispatch(fetchMasterDataCompany())
     // disable warn for select if select not have a child item
-    console.warn = () => { }
+    console.warn = () => {}
   }, [dispatch])
 
   // CLOSE MODAL AND RESET FORM
@@ -188,7 +195,6 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                           aria-describedby='validation-schema-typeId'
                           {...(errors.typeId && { helperText: errors.typeId.message })}
                         >
-                          <MenuItem />
                           {masterDataType.map(item => {
                             return (
                               <MenuItem key={item.id} value={item.id}>
@@ -217,7 +223,6 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                           aria-describedby='validation-schema-companyId'
                           {...(errors.companyId && { helperText: errors.companyId.message })}
                         >
-                          <MenuItem />
                           {masterDataCompany.map(item => {
                             return (
                               <MenuItem key={item.id} value={item.id}>
