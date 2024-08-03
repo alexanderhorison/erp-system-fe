@@ -15,6 +15,7 @@ import TableHeaderAllInvoice from './TableHeaderAllInvoice'
 import { fetchAllDeliveryOrder } from 'src/store/apps/delivery-order'
 import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
+import { Status } from 'src/@core/components/common'
 
 const renderClient = params => {
   const { row } = params
@@ -42,7 +43,7 @@ const RowOptions = ({ handleView }) => {
   )
 }
 
-export default function TableAllInvoice({}) {
+export default function TableAllInvoice({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -194,14 +195,7 @@ export default function TableAllInvoice({}) {
             renderCell: params => {
               const { row } = params
               return (
-                <CustomChip
-                  rounded
-                  size='small'
-                  skin='light'
-                  color={row.status === 'PENDING' ? 'info' : 'success'}
-                  label={row.status}
-                  sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
-                />
+                <Status status={row.status} />
               )
             }
           },

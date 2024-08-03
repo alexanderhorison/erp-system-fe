@@ -1,30 +1,14 @@
 import { Card, Typography } from '@mui/material'
-import { DataGrid, useGridApiRef } from '@mui/x-data-grid'
-import { useEffect, useState } from 'react'
-
-import { useDispatch, useSelector } from 'react-redux'
-import { useRouter } from 'next/router'
+import { DataGrid } from '@mui/x-data-grid'
+import { useState } from 'react'
 import CustomTextField from 'src/@core/components/mui/text-field'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
 
-const RowOptions = ({productWarehouseId, handleChange}) => (
-  
-      <CustomTextField
-        fullWidth
-        onChange={(e) => {
-          handleChange(e.target.value, productWarehouseId)
-        }}
-        type="number"
-        sx={{ display: 'block' }}
-      />
-);
-
-export default function TableAddStockOpname({ data, handleChange }) {
+export default function TableAddStockOpname({ data, handleChange, type = "add" }) {
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
-  
+
   return (
     <form >
-      <Card>
+      <Card >
         <DataGrid
           autoHeight
           getRowId={(row) => row.productWarehouseId}
@@ -54,11 +38,11 @@ export default function TableAddStockOpname({ data, handleChange }) {
             {
               flex: 0.2,
               minWidth: 120,
-              field: 'warehouseName',
+              field: 'rackName',
               headerName: 'Rak',
               renderCell: (params) => (
                 <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                  {params.row.warehouseName}
+                  {params.row.rackName || "-"}
                 </Typography>
               ),
             },
@@ -69,7 +53,7 @@ export default function TableAddStockOpname({ data, handleChange }) {
               headerName: 'Stock',
               renderCell: (params) => (
                 <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                  {params.row.quantity}
+                  {type === "add" ? params.row.quantity : params.row.systemStock}
                 </Typography>
               ),
             },
@@ -80,9 +64,14 @@ export default function TableAddStockOpname({ data, handleChange }) {
               field: 'actualStock',
               headerName: 'Actual Stock',
               renderCell: (params) => (
-                <RowOptions
-                  handleChange={handleChange}
-                  productWarehouseId={params.row.productWarehouseId}
+                <CustomTextField
+                  fullWidth
+                  value={params.row.actualStock}
+                  onChange={(e) => {
+                    handleChange(e?.target?.value, params.row.productWarehouseId)
+                  }}
+                  type="number"
+                  sx={{ display: 'block' }}
                 />
               ),
             },
@@ -93,9 +82,12 @@ export default function TableAddStockOpname({ data, handleChange }) {
               field: 'actions',
               headerName: 'Selisih',
               renderCell: (params) => {
-                const stock = params.row.quantity;
+                const stock = type === "add" ? params.row.quantity : params.row.systemStock;
                 const actualStock = params.row.actualStock;
-                const selisih = stock - actualStock;
+                let selisih = stock - actualStock;
+                if (!params.row.actualStock) {
+                  selisih = '-'
+                }
                 return (
                   <Typography variant="body2" sx={{ color: 'text.primary' }}>
                     {Math.abs(selisih) || "-"}

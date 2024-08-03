@@ -1,32 +1,30 @@
 import { Box, Card, IconButton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import {  useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'src/@core/components/icon'
 // import ModalAddMasterProduct from './ModalAddMasterProduct'
 import HandleSearh from 'src/helpers/handleSearch'
 import { useRouter } from 'next/router'
-import { fetchListStockOpname } from 'src/store/apps/stock-opname'
+import { deleteStockOpname, fetchListStockOpname } from 'src/store/apps/stock-opname'
 import TableHeaderStockOpname from './TableHeaderStockOpname'
 import { returnFormatDate } from 'src/helpers/formatDate'
+import { Status } from 'src/@core/components/common'
 
-const RowOptions = ({ id, name, router }) => {
+const RowOptions = (props) => {
   const dispatch = useDispatch()
-  
-  const [openModalEdit, setOpenModalEdit] = useState(false)
 
-  const handleDelete = () => {
-    // dispatch(deleteMasterDataProduct({ id, name }))
-  }
+  // const handleDelete = () => {
+  //   dispatch(deleteStockOpname({ id, name: `${code} - ${date} - ${warehouseName}` }))
+  // }
 
   const handleEdit = () => {
-    // dispatch(fetchMasterDataProductDetail(id))
-    setOpenModalEdit(true)
+    props.router.push(`/stock-opname/${props.id}/edit`)
   }
 
   const handlePageTransformation = () => {
-    router.push(`/stock-opname/${id}`)
+    props.router.push(`/stock-opname/${props.id}`)
   }
 
   return (
@@ -35,10 +33,13 @@ const RowOptions = ({ id, name, router }) => {
         <IconButton onClick={handlePageTransformation}>
           <Icon icon='tabler:eye' />
         </IconButton>
-        {/* <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton>
-        <IconButton onClick={handleDelete}>
+        {
+          props.status === 'DRAFT' &&
+          <IconButton onClick={handleEdit} >
+            <Icon icon='tabler:edit' />
+          </IconButton>
+        }
+        {/* <IconButton onClick={handleDelete}>
           <Icon icon='tabler:trash' />
         </IconButton> */}
       </Box>
@@ -46,13 +47,13 @@ const RowOptions = ({ id, name, router }) => {
   )
 }
 
-export default function TableListStockOpname({}) {
+export default function TableListStockOpname({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
 
   const { listData: data } = useSelector(state => state.stockOpname)
 
@@ -124,9 +125,7 @@ export default function TableListStockOpname({}) {
             headerName: 'Status',
             renderCell: params => {
               return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.status}
-                </Typography>
+                <Status status={params.row.status} />
               )
             }
           },
@@ -136,7 +135,7 @@ export default function TableListStockOpname({}) {
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} router={router}/>
+            renderCell: ({ row }) => <RowOptions id={row.id} date={returnFormatDate(row.createdAt)} warehouseName={row.warehouseName} code={row.code} router={router} status={row.status} />
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}

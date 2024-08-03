@@ -1,15 +1,14 @@
 import { Grid, Typography } from '@mui/material'
-import AddStockOpname from 'src/views/stock-opname/AddStockOpname'
+import EditStockOpname from 'src/views/stock-opname/EditStockOpname'
 
 export default function HomeEditStockOpname() {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Typography paddingY={3} fontSize={20}>
-          Detail stok opname
+          Edit stok opname
         </Typography>
-        
-        <AddStockOpname />
+        <EditStockOpname/>
       </Grid>
     </Grid>
   )

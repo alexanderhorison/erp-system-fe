@@ -76,15 +76,24 @@ export const createStockOpname = createAsyncThunk(
 // UPDATE STOCK OPNAME
 export const updateStockOpname = createAsyncThunk(
   'appStockOpname/updateStockOpname',
-  async ({ id, data }, { dispatch, rejectWithValue }) => {
+  async ({ id, sendData, router }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await axios({
-        method: 'PUT',
-        url: '/stock-opname/' + id,
-        data
+      const response = await swalConfirmationAdd({
+        label,
+        name: 'Stock Opname',
+        title: 'Anda akan merubah Stock Opname?',
+        axiosRequest: () => {
+          return axios({
+            method: 'PUT',
+            url: '/stock-opname/' + id,
+            data: sendData
+          })
+        },
+        dispatchRequest: () => {
+          router.push('/stock-opname')
+          dispatch(fetchListStockOpname())
+        }
       })
-      swalSuccess({ label, name: 'Stock Opname', response })
-      dispatch(fetchListStockOpname())
     } catch (error) {
       swalError({ error, label })
       return rejectWithValue({})
@@ -99,14 +108,44 @@ export const deleteStockOpname = createAsyncThunk(
     try {
       await swalConfirmationDelete({
         label,
-        name
+        name,
+        axiosRequest: () => {
+          return axios({
+            method: 'DELETE',
+            url: '/stock-opname/' + id
+          })
+        },
+        dispatchRequest: () => {
+          return dispatch(fetchListStockOpname())
+        }
       })
-      const response = await axios({
-        method: 'DELETE',
-        url: '/stock-opname/' + id
+    } catch (error) {
+      swalError({ error, label })
+      return rejectWithValue({})
+    }
+  }
+)
+
+export const updateStatusStockOpname = createAsyncThunk(
+  'appStockOpname/updateStatusStockOpname',
+  async ({ stockOpnameId, status, router }, { dispatch, rejectWithValue }) => {
+    try {
+
+      const response = await swalConfirmationAdd({
+        label,
+        name: 'Stock Opname',
+        title: `Anda akan ${status} Stock Opname?`,
+        axiosRequest: () => {
+          return axios({
+            method: 'PUT',
+            url: `/stock-opname/${status}/` + stockOpnameId,
+          })
+        },
+        dispatchRequest: () => {
+          router.push('/stock-opname')
+          dispatch(fetchListStockOpname())
+        }
       })
-      swalSuccess({ label, name: 'Stock Opname', response })
-      dispatch(fetchListStockOpname())
     } catch (error) {
       swalError({ error, label })
       return rejectWithValue({})

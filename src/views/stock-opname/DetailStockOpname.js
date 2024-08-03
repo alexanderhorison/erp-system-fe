@@ -1,13 +1,13 @@
 
 import { Button, Card, CardContent, Grid, Typography } from '@mui/material'
-import {  useEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import 'react-datepicker/dist/react-datepicker.css'
 import Icon from 'src/@core/components/icon'
 import { useRouter } from 'next/router'
 
-import {  fetchDetailStockOpname } from 'src/store/apps/stock-opname'
+import { fetchDetailStockOpname, updateStatusStockOpname } from 'src/store/apps/stock-opname'
 import TableDetailStockOpname from './TableDetailStockOpname'
 
 export default function DetailStockOpname({ stockOpnameId }) {
@@ -24,6 +24,14 @@ export default function DetailStockOpname({ stockOpnameId }) {
     }
     return []
   }, [detailStockOpname])
+
+  const handleApprove = () => {
+    dispatch(updateStatusStockOpname({ stockOpnameId, status: 'approve', router }))
+  }
+
+  const handleReject = () => {
+    dispatch(updateStatusStockOpname({ stockOpnameId, status: 'reject', router }))
+  }
 
   return (
     // <form onSubmit={e => onSubmit(e)}>
@@ -102,6 +110,18 @@ export default function DetailStockOpname({ stockOpnameId }) {
         <Button variant='tonal' color='primary' onClick={() => router.back()} startIcon={<Icon icon='tabler:back' />}>
           Back
         </Button>
+        {
+          detailStockOpname?.status === 'DRAFT' &&
+          <Button variant='tonal' color='error' onClick={() => handleReject()} startIcon={<Icon icon='tabler:back' />}>
+            Reject
+          </Button>
+        }
+        {
+          detailStockOpname?.status === 'DRAFT' &&
+          <Button variant='tonal' color='success' onClick={() => handleApprove()} startIcon={<Icon icon='tabler:back' />}>
+            Approve
+          </Button>
+        }
       </Grid>
     </Grid>
     // </form>

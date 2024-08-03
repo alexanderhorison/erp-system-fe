@@ -124,19 +124,22 @@ export default function TableAddProductWarehouse({ warehouse }) {
   }
 
   useEffect(() => {
-    append({
-      masterProductId: '',
-      warehouseRackId: '',
-      unitId: '',
-      quantity: '',
-      minimumStock: 1
-    })
+    if (!fields.length) {
+      append({
+        masterProductId: '',
+        warehouseRackId: '',
+        unitId: '',
+        quantity: '',
+        minimumStock: 1
+      })
+    }
     dispatch(fetchMasterDataProduct())
     dispatch(fetchMasterDataUnit())
     if (warehouse.id){
       dispatch(fetchMasterDataWarehouseRack(+warehouse.id))
     }
   }, [dispatch, append, warehouse.id])
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -234,7 +237,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={2}>
+                      <Grid item xs={1}>
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}

@@ -40,7 +40,7 @@ export default function TableDetailStockOpname({ data }) {
             headerName: 'Rak',
             renderCell: (params) => (
               <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                {params.row.rack}
+                {params.row.rackName}
               </Typography>
             ),
           },

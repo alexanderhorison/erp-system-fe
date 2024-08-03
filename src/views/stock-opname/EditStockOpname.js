@@ -1,18 +1,13 @@
-import { Button, Card, CardContent, Grid, useTheme } from '@mui/material'
+import { Button, Card, CardContent, Grid, Typography, useTheme } from '@mui/material'
 import { forwardRef, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
-import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
 import CustomTextField from 'src/@core/components/mui/text-field'
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
 import Icon from 'src/@core/components/icon'
 import { useRouter } from 'next/router'
 
-import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
-import { fetchListProductByWarehouse } from 'src/store/apps/product-warehouse'
 import TableAddStockOpname from './TableAddStockOpname'
-import { createStockOpname } from 'src/store/apps/stock-opname'
+import { fetchDetailStockOpname, updateStockOpname } from 'src/store/apps/stock-opname'
 
 const PickersComponent = forwardRef(({ ...props }, ref) => {
   // ** Props
@@ -20,16 +15,16 @@ const PickersComponent = forwardRef(({ ...props }, ref) => {
 
   return (
     <CustomTextField
-      sx={{ textAlign: 'center', zIndex: 1325 }}
       fullWidth
       {...props}
       inputRef={ref}
       label={label || ''}
+      {...(readOnly && { inputProps: { readOnly: true } })}
     />
   )
 })
 
-export default function AddStockOpname({ warehouse }) {
+export default function EditStockOpname({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
   const [date, setDate] = useState(new Date())
@@ -37,9 +32,11 @@ export default function AddStockOpname({ warehouse }) {
   const { direction } = theme
   const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
+  const { id } = router.query
+
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
-  const { dataListProductWarehouse: dataProduct, loadingListProductWarehouse: loading } = useSelector(
-    state => state.productWarehouse
+  const { detailStockOpname, loading } = useSelector(
+    state => state.stockOpname
   )
 
   const [fields, setFields] = useState([])
@@ -48,7 +45,8 @@ export default function AddStockOpname({ warehouse }) {
     control,
     handleSubmit,
     formState: { errors },
-    getValues
+    getValues,
+    setValue
   } = useForm({
     mode: 'onChange'
   })
@@ -70,35 +68,27 @@ export default function AddStockOpname({ warehouse }) {
       }
     })
     let sendData = {
-      warehouseId: getValues('warehouseOrigin'),
-      opnameDate: formattedDate,
       data: mapData,
       status: 'DRAFT',
       notes: getValues('notes')
     }
-    dispatch(createStockOpname({ sendData, router }))
+    dispatch(updateStockOpname({ id, sendData, router }))
   }
 
   useEffect(() => {
-    fields.length !== 0 && setFields([])
-    if (dataProduct?.data && fields.length === 0) {
-      setFields(dataProduct?.data)
+    if (detailStockOpname?.listProduct && fields.length === 0) {
+      setFields(detailStockOpname?.listProduct)
     }
-  }, [dataProduct])
+    setValue("notes", detailStockOpname?.notes || "")
+  }, [detailStockOpname])
 
   useEffect(() => {
-
-    setFields([])
-  }, [])
-
-  useEffect(() => {
-    dispatch(fetchMasterDataWarehouse())
-  }, [dispatch])
+    dispatch(fetchDetailStockOpname(id))
+  }, [id, dispatch])
 
   const handleChange = (actualStock, productWarehouseId) => {
     let data = fields
     const index = data.findIndex(item => item.productWarehouseId === productWarehouseId)
-    // create new key actualStock
     if (index !== -1) {
       const updatedFields = [...data]
       updatedFields[index] = {
@@ -115,51 +105,45 @@ export default function AddStockOpname({ warehouse }) {
         <Grid item xs={12}>
           <Card>
             <CardContent>
-              <Grid container display='flex' gap={4} justifyContent={'space-between'}>
-                <Grid item xs={12} md={5}>
-                  <Controller
-                    name={`warehouseOrigin`}
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange } }) => (
-                      <CustomAutocomplete
-                        options={masterDataWarehouse}
-                        id='autocomplete-custom'
-                        getOptionLabel={option => option.name || ''}
-                        onChange={(event, newValue) => {
-                          onChange(+newValue?.id)
-                          dispatch(fetchListProductByWarehouse(+newValue?.id))
-                        }}
-                        renderInput={params => (
-                          <CustomTextField
-                            value={value}
-                            {...params}
-                            error={Boolean(errors?.warehouseOrigin)}
-                            {...(errors?.warehouseOrigin && {
-                              helperText: errors?.warehouseOrigin.message
-                            })}
-                            label='Gudang Sumber'
-                          />
-                        )}
-                      />
-                    )}
-                  />
+              <Grid container gap={4}>
+                <Grid container display='flex' gap={4} justifyContent={'space-between'}>
+                  <Grid item xs={12} md={5}>
+                    <CustomTextField
+                      fullWidth
+                      value={detailStockOpname?.warehouseName || "-"}
+                      label='Nama Gudang'
+                      disabled
+                      aria-describedby='validation-schema-name'
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={5}>
+                    <CustomTextField
+                      fullWidth
+                      value={detailStockOpname?.createdAt || "-"}
+                      label='Tanggal Stock Opname'
+                      placeholder=''
+                      disabled
+                      aria-describedby='validation-schema-name'
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} md={5}>
-                  <DatePicker
-                    selected={date}
-                    id='basic'
-                    popperPlacement={popperPlacement}
-                    onChange={date => setDate(date)}
-                    customInput={<PickersComponent label='Pilih Tanggal' />}
-                  />
+                <Grid container gap={2} flexDirection={'column'}>
+                  <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                    Code: {detailStockOpname?.code || "-"}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                    Dibuat Oleh: {detailStockOpname?.creatorName || "-"}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                    Status: {detailStockOpname?.status || "-"}
+                  </Typography>
                 </Grid>
               </Grid>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12}>
-          <TableAddStockOpname data={fields} handleChange={handleChange} />
+          <TableAddStockOpname type="edit" data={fields} handleChange={handleChange} />
         </Grid>
         <Grid item xs={12}>
           <Card>

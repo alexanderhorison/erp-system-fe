@@ -158,7 +158,6 @@ export const transformProduct = createAsyncThunk(
         }
       })
     } catch (error) {
-      console.log(error);
       return rejectWithValue({})
     }
   }
