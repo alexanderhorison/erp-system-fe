@@ -123,13 +123,13 @@ export default function DetailStockOpname({ stockOpnameId }) {
           Back
         </Button>
         {
-          detailStockOpname?.status === 'DRAFT' &&
+          (detailStockOpname?.status === 'DRAFT' || detailStockOpname?.status === 'PENDING') &&
           <Button variant='tonal' color='error' onClick={() => handleReject()} startIcon={<Icon icon='tabler:back' />}>
             Reject
           </Button>
         }
         {
-          detailStockOpname?.status === 'DRAFT' &&
+          (detailStockOpname?.status === 'DRAFT' || detailStockOpname?.status === 'PENDING') &&
           <Button variant='tonal' color='success' onClick={() => handleApprove()} startIcon={<Icon icon='tabler:back' />}>
             Approve
           </Button>

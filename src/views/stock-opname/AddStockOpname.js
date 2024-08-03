@@ -12,7 +12,7 @@ import { useRouter } from 'next/router'
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
 import { fetchListProductByWarehouse } from 'src/store/apps/product-warehouse'
 import TableAddStockOpname from './TableAddStockOpname'
-import { createStockOpname } from 'src/store/apps/stock-opname'
+import { createStockOpname, updateStatusStockOpname } from 'src/store/apps/stock-opname'
 
 const PickersComponent = forwardRef(({ ...props }, ref) => {
   // ** Props
@@ -87,7 +87,6 @@ export default function AddStockOpname({ warehouse }) {
   }, [dataProduct])
 
   useEffect(() => {
-
     setFields([])
   }, [])
 
@@ -107,6 +106,31 @@ export default function AddStockOpname({ warehouse }) {
       }
       setFields(updatedFields)
     }
+  }
+
+  const handlePending = () => {
+    const tempDate = new Date(date)
+    const formattedDate = tempDate.toISOString().split('T')[0]
+    const mapData = fields.map(item => {
+      let different = item.quantity - item.actualStock
+      if (isNaN(different)) {
+        different = null
+      }
+      return {
+        warehouseProductId: item.productWarehouseId,
+        systemStock: item.quantity,
+        actualStock: item?.actualStock || null,
+        diff: item?.actualStock ? Math.abs(different) : null
+      }
+    })
+    let sendData = {
+      warehouseId: getValues('warehouseOrigin'),
+      opnameDate: formattedDate,
+      data: mapData,
+      status: 'PENDING',
+      notes: getValues('notes')
+    }
+    dispatch(createStockOpname({ sendData, router }))
   }
 
   return (
@@ -202,6 +226,9 @@ export default function AddStockOpname({ warehouse }) {
           <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
             Submit
           </Button>
+          {/* <Button variant='contained' onClick={handlePending} startIcon={<Icon icon='tabler:square-rounded-check' />}>
+            Selesaikan Stok Opname
+          </Button> */}
         </Grid>
       </Grid>
     </form>

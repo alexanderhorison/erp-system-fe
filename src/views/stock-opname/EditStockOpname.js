@@ -9,32 +9,13 @@ import { useRouter } from 'next/router'
 import TableAddStockOpname from './TableAddStockOpname'
 import { fetchDetailStockOpname, updateStockOpname } from 'src/store/apps/stock-opname'
 
-const PickersComponent = forwardRef(({ ...props }, ref) => {
-  // ** Props
-  const { label, readOnly } = props
-
-  return (
-    <CustomTextField
-      fullWidth
-      {...props}
-      inputRef={ref}
-      label={label || ''}
-      {...(readOnly && { inputProps: { readOnly: true } })}
-    />
-  )
-})
 
 export default function EditStockOpname({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
-  const [date, setDate] = useState(new Date())
-  const theme = useTheme()
-  const { direction } = theme
-  const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
   const { id } = router.query
 
-  const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
   const { detailStockOpname, loading } = useSelector(
     state => state.stockOpname
   )
@@ -43,7 +24,6 @@ export default function EditStockOpname({ }) {
 
   const {
     control,
-    handleSubmit,
     formState: { errors },
     getValues,
     setValue
@@ -73,12 +53,32 @@ export default function EditStockOpname({ }) {
     dispatch(updateStockOpname({ id, sendData, router }))
   }
 
-  useEffect(() => {
-    if (detailStockOpname?.listProduct && fields.length === 0) {
-      setFields(detailStockOpname?.listProduct)
+  const handlePending = () => {
+    const mapData = fields.map(item => {
+      let different = item.systemStock - item.actualStock
+      if (isNaN(different)) {
+        different = null
+      }
+      return {
+        id: item.id,
+        warehouseProductId: item.productWarehouseId,
+        actualStock: item?.actualStock || null,
+        diff: item?.actualStock ? Math.abs(different) : null
+      }
+    })
+    let sendData = {
+      data: mapData,
+      status: 'PENDING',
+      notes: getValues('notes')
     }
+    dispatch(updateStockOpname({ id, sendData, router }))
+  }
+
+
+  useEffect(() => {
+    setFields(detailStockOpname?.listProduct)
     setValue("notes", detailStockOpname?.notes || "")
-  }, [detailStockOpname])
+  }, [detailStockOpname, setValue])
 
   useEffect(() => {
     dispatch(fetchDetailStockOpname(id))
@@ -184,6 +184,9 @@ export default function EditStockOpname({ }) {
           <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
             Submit
           </Button>
+          {/* <Button variant='contained' onClick={handlePending} startIcon={<Icon icon='tabler:square-rounded-check' />}>
+            Selesaikan Stok Opname
+          </Button> */}
         </Grid>
       </Grid>
     </form>

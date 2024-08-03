@@ -126,6 +126,7 @@ export const deleteStockOpname = createAsyncThunk(
   }
 )
 
+// UPDATE STATUS STOCK OPNAME
 export const updateStatusStockOpname = createAsyncThunk(
   'appStockOpname/updateStatusStockOpname',
   async ({ stockOpnameId, status, router }, { dispatch, rejectWithValue }) => {
@@ -158,7 +159,9 @@ export const appStockOpnameSlice = createSlice({
   name: 'appStockOpname',
   initialState: {
     listData: [],
-    detailStockOpname: {},
+    detailStockOpname: {
+      listProduct: [],
+    },
     loading: false,
     error: false,
     total: 1,
