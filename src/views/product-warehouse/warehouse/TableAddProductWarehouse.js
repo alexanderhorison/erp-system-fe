@@ -19,7 +19,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
   const dispatch = useDispatch()
   const router = useRouter()
   const inputRefs = useRef([]);
-  
+
   const { data: masterDataProduct } = useSelector(state => state.masterProduct)
   const { data: masterDataUnit } = useSelector(state => state.unit)
   const { data: masterWarehouseRack } = useSelector(state => state.masterWarehouseRack)
@@ -135,7 +135,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
     }
     dispatch(fetchMasterDataProduct())
     dispatch(fetchMasterDataUnit())
-    if (warehouse.id){
+    if (warehouse.id) {
       dispatch(fetchMasterDataWarehouseRack(+warehouse.id))
     }
   }, [dispatch, append, warehouse.id])
@@ -150,7 +150,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                 <>
                   <CardContent key={index}>
                     <Grid container spacing={6}>
-                      <Grid item xs={4}>
+                      <Grid item xs={6} md={4}>
                         <Controller
                           name={`data[${index}].masterProductId`}
                           control={control}
@@ -181,7 +181,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={2}>
+                      <Grid item xs={3} md={2}>
                         <Controller
                           name={`data[${index}].warehouseRackId`}
                           control={control}
@@ -209,7 +209,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={2}>
+                      <Grid item xs={3} md={2}>
                         <Controller
                           name={`data[${index}].unitId`}
                           control={control}
@@ -237,7 +237,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={1}>
+                      <Grid item xs={6} md={1.9}>
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}
@@ -251,7 +251,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                                 onChange(e.target.value)
                               }}
                               type='number'
-                              sx={{ display: 'block',  }}
+                              sx={{ display: 'block', }}
                               error={Boolean(errors?.data?.[index]?.quantity)}
                               {...(errors?.data?.[index]?.quantity && {
                                 helperText: errors?.data?.[index]?.quantity.message
@@ -260,7 +260,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={2}>
+                      <Grid item xs={3} md={1.1}>
                         <Controller
                           name={`data[${index}].minimumStock`}
                           control={control}
