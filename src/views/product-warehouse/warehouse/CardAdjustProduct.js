@@ -25,7 +25,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 const CardAdjustProduct = ({ data }) => {
   return (
     <Card>
-      <Grid container spacing={6} sx={{ height: '240px' }}>
+      <Grid container spacing={6} sx={{ height: { md: '240px' } }}>
         <StyledGrid item md={5} xs={12}>
           <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <img width={137} height={137} alt='Product' src='https://img.freepik.com/premium-vector/cigarettes-pack-illustration-design-element-flat-icon_645658-280.jpg' />
@@ -44,7 +44,7 @@ const CardAdjustProduct = ({ data }) => {
             <Typography variant='h5'>
               {data?.productName}
             </Typography>
-            <Grid container spacing={1} sx={{mt: 1}}>
+            <Grid container spacing={1} sx={{ mt: 1 }}>
               <Grid item xs={12}>
                 <Chip sx={{ borderRadius: 1 }} label={data?.unitName} size='small' />
               </Grid>
