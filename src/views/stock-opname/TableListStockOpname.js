@@ -100,7 +100,7 @@ export default function TableListStockOpname({ }) {
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {returnFormatDate(params.row.createdAt)}
+                  {params.row.opnameDate}
                 </Typography>
               )
             }

@@ -101,6 +101,9 @@ export default function TableAddStockOpname({ data, handleChange, type = "add" }
           onPaginationModelChange={setPaginationModel}
           rows={data}
           sx={{
+            '& .MuiDataGrid-overlayWrapper ': {
+              zIndex: 0
+            },
             '& .MuiSvgIcon-root': {
               fontSize: '1.125rem',
             },

@@ -9,6 +9,7 @@ import { useRouter } from 'next/router'
 
 import { fetchDetailStockOpname, updateStatusStockOpname } from 'src/store/apps/stock-opname'
 import TableDetailStockOpname from './TableDetailStockOpname'
+import HeaderDetailStockOpname from './HeaderDetailStockOpname'
 
 export default function DetailStockOpname({ stockOpnameId }) {
   const dispatch = useDispatch()
@@ -36,59 +37,15 @@ export default function DetailStockOpname({ stockOpnameId }) {
   return (
     // <form onSubmit={e => onSubmit(e)}>
     <Grid container spacing={6}>
-      <Grid item xs={12}>
-        <Card>
-          <CardContent>
-            <Grid container gap={4}>
-
-              <Grid container display='flex' gap={4} justifyContent={'space-between'}>
-                <Grid item xs={12} md={5}>
-                  <CustomTextField
-                    fullWidth
-                    value={detailStockOpname?.warehouseName || "-"}
-                    label='Nama Gudang'
-                    disabled
-                    aria-describedby='validation-schema-name'
-                  />
-                </Grid>
-                <Grid item xs={12} md={5}>
-                  <CustomTextField
-                    fullWidth
-                    value={detailStockOpname?.createdAt || "-"}
-                    label='Tanggal Stock Opname'
-                    placeholder=''
-                    disabled
-                    aria-describedby='validation-schema-name'
-                  />
-                </Grid>
-              </Grid>
-              <Grid container gap={2} flexDirection={'column'}>
-                <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                  Code: {detailStockOpname?.code || "-"}
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                  Dibuat Oleh: {detailStockOpname?.creatorName || "-"}
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                  Status: {detailStockOpname?.status || "-"}
-                </Typography>
-                {
-                  detailStockOpname?.status === 'APPROVED' &&
-                  <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                    Di Approve oleh: {detailStockOpname?.updaterName || "-"}
-                  </Typography>
-                }
-                {
-                  detailStockOpname?.status === 'REJECTED' &&
-                  <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                    Di Reject oleh: {detailStockOpname?.updaterName || "-"}
-                  </Typography>
-                }
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-      </Grid>
+      <HeaderDetailStockOpname
+        warehouseName={detailStockOpname?.warehouseName}
+        createdAt={detailStockOpname?.createdAt}
+        code={detailStockOpname?.code}
+        status={detailStockOpname?.status}
+        creatorName={detailStockOpname?.creatorName}
+        id={detailStockOpname?.id}
+        type={"DETAIL"}
+      />
       <Grid item xs={12}>
         <TableDetailStockOpname data={listProduct} />
       </Grid>
@@ -119,18 +76,18 @@ export default function DetailStockOpname({ stockOpnameId }) {
         justifyContent='flex-end'
         gap={6}
       >
-        <Button variant='tonal' color='primary' onClick={() => router.back()} startIcon={<Icon icon='tabler:back' />}>
+        <Button variant='tonal' color='primary' onClick={() => router.push('/stock-opname')} startIcon={<Icon icon='tabler:arrow-left' />}>
           Back
         </Button>
         {
           (detailStockOpname?.status === 'DRAFT' || detailStockOpname?.status === 'PENDING') &&
-          <Button variant='tonal' color='error' onClick={() => handleReject()} startIcon={<Icon icon='tabler:back' />}>
+          <Button variant='tonal' color='error' onClick={() => handleReject()} startIcon={<Icon icon='tabler:ban' />}>
             Reject
           </Button>
         }
         {
           (detailStockOpname?.status === 'DRAFT' || detailStockOpname?.status === 'PENDING') &&
-          <Button variant='tonal' color='success' onClick={() => handleApprove()} startIcon={<Icon icon='tabler:back' />}>
+          <Button variant='tonal' color='success' onClick={() => handleApprove()} startIcon={<Icon icon='tabler:send' />}>
             Approve
           </Button>
         }

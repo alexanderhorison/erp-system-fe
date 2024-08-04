@@ -8,6 +8,7 @@ import { useRouter } from 'next/router'
 
 import TableAddStockOpname from './TableAddStockOpname'
 import { fetchDetailStockOpname, updateStockOpname } from 'src/store/apps/stock-opname'
+import HeaderDetailStockOpname from './HeaderDetailStockOpname'
 
 
 export default function EditStockOpname({ }) {
@@ -100,46 +101,14 @@ export default function EditStockOpname({ }) {
   return (
     <form onSubmit={e => onSubmit(e)}>
       <Grid container spacing={6}>
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Grid container gap={4}>
-                <Grid container display='flex' gap={4} justifyContent={'space-between'}>
-                  <Grid item xs={12} md={5}>
-                    <CustomTextField
-                      fullWidth
-                      value={detailStockOpname?.warehouseName || "-"}
-                      label='Nama Gudang'
-                      disabled
-                      aria-describedby='validation-schema-name'
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={5}>
-                    <CustomTextField
-                      fullWidth
-                      value={detailStockOpname?.createdAt || "-"}
-                      label='Tanggal Stock Opname'
-                      placeholder=''
-                      disabled
-                      aria-describedby='validation-schema-name'
-                    />
-                  </Grid>
-                </Grid>
-                <Grid container gap={2} flexDirection={'column'}>
-                  <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                    Code: {detailStockOpname?.code || "-"}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                    Dibuat Oleh: {detailStockOpname?.creatorName || "-"}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                    Status: {detailStockOpname?.status || "-"}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
+        <HeaderDetailStockOpname
+          warehouseName={detailStockOpname?.warehouseName}
+          createdAt={detailStockOpname?.createdAt}
+          code={detailStockOpname?.code}
+          status={detailStockOpname?.status}
+          creatorName={detailStockOpname?.creatorName}
+          id={detailStockOpname?.id}
+        />
         <Grid item xs={12}>
           <TableAddStockOpname type="edit" data={fields} handleChange={handleChange} />
         </Grid>
@@ -178,7 +147,7 @@ export default function EditStockOpname({ }) {
           justifyContent='flex-end'
           gap={6}
         >
-          <Button variant='tonal' color='secondary' onClick={() => router.back()} startIcon={<Icon icon='tabler:x' />}>
+          <Button variant='tonal' color='secondary' onClick={() => router.push('/stock-opname')} startIcon={<Icon icon='tabler:x' />}>
             Cancel
           </Button>
           <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>

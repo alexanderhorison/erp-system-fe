@@ -20,7 +20,6 @@ const PickersComponent = forwardRef(({ ...props }, ref) => {
 
   return (
     <CustomTextField
-      sx={{ textAlign: 'center', zIndex: 1325 }}
       fullWidth
       {...props}
       inputRef={ref}
@@ -55,8 +54,6 @@ export default function AddStockOpname({ warehouse }) {
 
   const onSubmit = e => {
     e.preventDefault()
-    const tempDate = new Date(date)
-    const formattedDate = tempDate.toISOString().split('T')[0]
     const mapData = fields.map(item => {
       let different = item.quantity - item.actualStock
       if (isNaN(different)) {
@@ -71,7 +68,7 @@ export default function AddStockOpname({ warehouse }) {
     })
     let sendData = {
       warehouseId: getValues('warehouseOrigin'),
-      opnameDate: formattedDate,
+      opnameDate: date,
       data: mapData,
       status: 'DRAFT',
       notes: getValues('notes')
@@ -140,7 +137,7 @@ export default function AddStockOpname({ warehouse }) {
           <Card>
             <CardContent>
               <Grid container display='flex' gap={4} justifyContent={'space-between'}>
-                <Grid item xs={12} md={5}>
+                <Grid item xs={12} md={5.9}>
                   <Controller
                     name={`warehouseOrigin`}
                     control={control}
@@ -169,7 +166,7 @@ export default function AddStockOpname({ warehouse }) {
                     )}
                   />
                 </Grid>
-                <Grid item xs={12} md={5}>
+                <Grid item xs={12} md={5.9}>
                   <DatePicker
                     selected={date}
                     id='basic'
