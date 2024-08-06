@@ -3,30 +3,11 @@ import axios from 'src/configs/axios'
 import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Barang Keluar'
-// GET ALL WAREHOUSE
-// export const fetchInvoiceListProductByWarehouseId = createAsyncThunk(
-//   'deliveryOrder/fetchInvoiceListProductByWarehouseId',
-//   async (warehouseId, { rejectWithValue }) => {
-//     try {
-//       const response = await axios({
-//         method: 'POST',
-//         url: '/delivery-order/list-product',
-//         data: {
-//           warehouseId: warehouseId
-//         }
-//       })
-//       return response.data
-//     } catch (error) {
-//       swalToastError({ label, error })
-//       return rejectWithValue([])
-//     }
-//   }
-// )
 
 // GET ALL ADJUSTMENT GOODS OUT
 export const fetchAllAdjustmentGoodsOut = createAsyncThunk(
   'adjustmentGoodsOut/fetchAllAdjustmentGoodsOut',
-  async (warehouseId, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
@@ -52,7 +33,7 @@ export const createAdjustmentGoodsOut = createAsyncThunk(
         axiosRequest: () => {
           return axios({
             method: 'POST',
-            url: '/adjustment-goods/out/',
+            url: '/adjustment-goods/out/create',
             data
           })
         },
@@ -83,108 +64,51 @@ export const fetchDetailAdjustmentGoodsOut = createAsyncThunk(
   }
 )
 
+// TERIMA / TOLAK BARANG MASUK
+export const updateAdjustmentGoodsOut = createAsyncThunk(
+  'adjustmentGoodsOut/updateAdjustmentGoodsOut',
+  async ({ code, type, router }, { dispatch, rejectWithValue }) => {
+    try {
+      await swalConfirmationAdd({
+        label,
+        name: 'Surat',
+        title: 'Anda akan menerima surat barang keluar?',
+        axiosRequest: () => {
+          return axios({
+            method: 'POST',
+            // TYPE (approve/reject)
+            // CODE (adjustment code)
+            url: `/adjustment-goods/out/${type}/${code}`
+          })
+        },
+        dispatchRequest: () => {
+          router.push('/adjustment/goods-out')
+        }
+      })
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue({})
+    }
+  }
+)
+
 export const appMasterProductSlice = createSlice({
   name: 'adjustmentGoodsOut',
   initialState: {
-    // dataListProductWarehouse: [],
-    // loadingDataListProductWarehouse: true,
-    // errorDataListProductWarehouse: false,
-
-    dataAdjustmentGoodsOut: [
-      {
-        id: 1,
-        code: 'TBA-12345678',
-        createdAt: 'Senin, 5 Agustus 2024',
-        receivedAt: 'Senin, 5 Agustus 2024',
-        createdBy: {
-          name: 'Superadmin',
-          roleName: 'Admin'
-        },
-        warehouseOrigin: 'GUDANG LANTAI 1 KANTOR',
-        status: 'APPROVED',
-        dateCreated: '2024-08-05T01:01:58.182Z',
-        dateReceived: '2024-08-05T01:02:05.767Z'
-      },
-      {
-        id: 2,
-        code: 'TBA-94381729',
-        createdAt: 'Senin, 5 Agustus 2024',
-        receivedAt: 'Senin, 5 Agustus 2024',
-        createdBy: {
-          name: 'Superadmin',
-          roleName: 'Admin'
-        },
-        warehouseOrigin: 'GUDANG LANTAI 1 KANTOR',
-        status: 'APPROVED',
-        dateCreated: '2024-08-05T01:01:58.182Z',
-        dateReceived: '2024-08-05T01:02:05.767Z'
-      },
-      {
-        id: 3,
-        code: 'TBA-87654321',
-        createdAt: 'Senin, 5 Agustus 2024',
-        receivedAt: 'Senin, 5 Agustus 2024',
-        createdBy: {
-          name: 'Superadmin',
-          roleName: 'Admin'
-        },
-        warehouseOrigin: 'GUDANG LANTAI 2 KANTOR',
-        status: 'PENDING',
-        dateCreated: '2024-08-05T02:01:58.182Z',
-        dateReceived: '2024-08-05T02:02:05.767Z'
-      },
-      {
-        id: 4,
-        code: 'TBA-11223344',
-        createdAt: 'Senin, 5 Agustus 2024',
-        receivedAt: 'Senin, 5 Agustus 2024',
-        createdBy: {
-          name: 'Superadmin',
-          roleName: 'Admin'
-        },
-        warehouseOrigin: 'GUDANG LANTAI 3 KANTOR',
-        status: 'REJECTED',
-        dateCreated: '2024-08-05T03:01:58.182Z',
-        dateReceived: '2024-08-05T03:02:05.767Z'
-      },
-      {
-        id: 5,
-        code: 'TBA-55667788',
-        createdAt: 'Senin, 5 Agustus 2024',
-        receivedAt: 'Senin, 5 Agustus 2024',
-        createdBy: {
-          name: 'Superadmin',
-          roleName: 'Admin'
-        },
-        warehouseOrigin: 'GUDANG LANTAI 4 KANTOR',
-        status: 'APPROVED',
-        dateCreated: '2024-08-05T04:01:58.182Z',
-        dateReceived: '2024-08-05T04:02:05.767Z'
-      }
-    ],
+    dataAdjustmentGoodsOut: [],
     loadingDataAdjustmentGoodsOut: true,
     errorDataAdjustmentGoodsOut: false,
 
     detailAdjustmentGoodsOut: {},
-    loadingDetailAdjustmentGoodsOut: true,
-    errorDetailAdjustmentGoodsOut: false
+    loadingDetailAdjustmentGoodsOut: false,
+    errorDetailAdjustmentGoodsOut: false,
+
+    loadingUpdateAdjustmentGoodsOut: false,
+    errorUpdateAdjustmentGoodsOut: false
   },
   reducers: {},
   extraReducers: builder => {
     builder
-      //   .addCase(fetchInvoiceListProductByWarehouseId.pending, (state, action) => {
-      //     state.loadingDataListProductWarehouse = true
-      //   })
-      //   .addCase(fetchInvoiceListProductByWarehouseId.fulfilled, (state, action) => {
-      //     state.dataListProductWarehouse = action.payload.data
-      //     state.loadingDataListProductWarehouse = false
-      //   })
-      //   .addCase(fetchInvoiceListProductByWarehouseId.rejected, (state, action) => {
-      //     state.dataListProductWarehouse = []
-      //     state.loadingDataListProductWarehouse = false
-      //     state.errorDataListProductWarehouse = action.error.message
-      //   })
-
       .addCase(fetchAllAdjustmentGoodsOut.pending, (state, action) => {
         state.loadingDataAdjustmentGoodsOut = true
       })
@@ -209,6 +133,17 @@ export const appMasterProductSlice = createSlice({
         state.detailAdjustmentGoodsOut = {}
         state.loadingDetailAdjustmentGoodsOut = false
         state.errorDetailAdjustmentGoodsOut = action.error.message
+      })
+
+      .addCase(updateAdjustmentGoodsOut.pending, (state, action) => {
+        state.loadingUpdateAdjustmentGoodsOut = true
+      })
+      .addCase(updateAdjustmentGoodsOut.fulfilled, (state, action) => {
+        state.loadingUpdateAdjustmentGoodsOut = false
+      })
+      .addCase(updateAdjustmentGoodsOut.rejected, (state, action) => {
+        state.loadingUpdateAdjustmentGoodsOut = false
+        state.errorUpdateAdjustmentGoodsOut = action.error.message
       })
   }
 })

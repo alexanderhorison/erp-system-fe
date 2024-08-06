@@ -50,21 +50,21 @@ export default function TableAllGoodsOut({}) {
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  const { dataAdjustmentGoodsOut: data } = useSelector(state => state.adjustmentGoodOut)
+  const { dataAdjustmentGoodsOut: data } = useSelector(state => state.adjustmentGoodsOut)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
     HandleSearh({
       data,
-      keys: ['code', 'warehouseOrigin'],
+      keys: ['code', 'warehouseOriginName'],
       searchValue,
       setData: setFilteredData
     })
   }
 
   const handleRowClick = params => {
-    const code = params.id
-    router.push(`/adjusment/goods-out/${code}`)
+    const id = params?.code || params?.row?.code
+    router.push(`/adjustment/goods-out/${id}`)
   }
 
   const handleAdd = () => {
@@ -72,15 +72,12 @@ export default function TableAllGoodsOut({}) {
   }
 
   useEffect(() => {
-    // dispatch(fetchAllAdjustmentGoodOut())
+    dispatch(fetchAllAdjustmentGoodsOut())
   }, [dispatch])
 
   useEffect(() => {
     setFilteredData(data)
   }, [data])
-
-  console.log(data);
-  
 
   return (
     <Card>
@@ -124,16 +121,16 @@ export default function TableAllGoodsOut({}) {
           {
             flex: 0.15,
             minWidth: 120,
-            field: 'receivedAt',
+            field: 'approvedAt',
             headerName: 'Tanggal Diterima',
             renderCell: params => {
               return (
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.receivedAt}
+                    {params.row.approvedAt}
                   </Typography>
                   <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.dateReceived)}
+                    {returnFormatTime(params.row.dateApproved)}
                   </Typography>
                 </Box>
               )
@@ -154,7 +151,7 @@ export default function TableAllGoodsOut({}) {
                       {row.createdBy.name}
                     </Typography>
                     <Typography noWrap variant='caption'>
-                      {row.createdBy.role_name}
+                      {row.createdBy.roleName}
                     </Typography>
                   </Box>
                 </Box>
@@ -164,12 +161,12 @@ export default function TableAllGoodsOut({}) {
           {
             flex: 0.16,
             minWidth: 120,
-            field: 'warehouseOrigin',
+            field: 'warehouseOriginName',
             headerName: 'Gudang Sumber',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.warehouseOrigin}
+                  {params.row.warehouseOriginName}
                 </Typography>
               )
             }

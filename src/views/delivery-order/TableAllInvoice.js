@@ -43,7 +43,7 @@ const RowOptions = ({ handleView }) => {
   )
 }
 
-export default function TableAllInvoice({ }) {
+export default function TableAllInvoice({}) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -62,8 +62,6 @@ export default function TableAllInvoice({ }) {
       setData: setFilteredData
     })
   }
-
-  console.log(data);
 
   const handleRowClick = params => {
     const deliveryOrderId = params.id
@@ -154,7 +152,7 @@ export default function TableAllInvoice({ }) {
                       {row.createdBy.name}
                     </Typography>
                     <Typography noWrap variant='caption'>
-                      {row.createdBy.role_name}
+                      {row.createdBy.roleName}
                     </Typography>
                   </Box>
                 </Box>
@@ -194,9 +192,7 @@ export default function TableAllInvoice({ }) {
             headerName: 'Status',
             renderCell: params => {
               const { row } = params
-              return (
-                <Status status={row.status} />
-              )
+              return <Status status={row.status} />
             }
           },
           {

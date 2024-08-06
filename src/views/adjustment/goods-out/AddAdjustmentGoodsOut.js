@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid, IconButton, Typography } from '@mui/material'
+import { Button, Card, CardContent, Divider, Grid, IconButton } from '@mui/material'
 import { useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,11 +9,12 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 import Icon from 'src/@core/components/icon'
 import * as yup from 'yup'
 import { useRouter } from 'next/router'
-import { createDeliveryOrder, fetchInvoiceListProductByWarehouseId } from 'src/store/apps/delivery-order'
+import { fetchInvoiceListProductByWarehouseId } from 'src/store/apps/delivery-order'
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
 import OptionsGroup from 'src/helpers/groupedInput'
+import { createAdjustmentGoodsOut } from 'src/store/apps/adjustment/goods-out'
 
-export default function AddAdjustmentGoodsOut({ warehouse }) {
+export default function AddAdjustmentGoodsOut() {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -33,16 +34,13 @@ export default function AddAdjustmentGoodsOut({ warehouse }) {
             const { quantity } = this.parent
             return value <= quantity
           })
-          .test(
-            'is-greater-than-zero',
-            'Jumlah stok minimal harus lebih dari 0',
-            function (value) {
-              const num = Number(value);
-              return num >= 0;
-            }
-          )
+          .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
+            const num = Number(value)
+            return num >= 0
+          })
       })
-    )
+    ),
+    notes: yup.string().optional()
   })
 
   const {
@@ -82,17 +80,16 @@ export default function AddAdjustmentGoodsOut({ warehouse }) {
     })
     if (!duplicate) {
       let sendData = {
-        warehouseOriginId: data.warehouseOrigin,
-        warehouseDestinationId: data.warehouseDestination,
-        data: listItems,
+        warehouseOrigin: Number(data.warehouseOrigin),
+        listProduct: listItems,
         notes: data.notes
       }
-      dispatch(createDeliveryOrder({ data: sendData, router }))
+      dispatch(createAdjustmentGoodsOut({ data: sendData, router }))
     }
   }
 
   const addMore = () => {
-    append({ warehouseProductId: '', qty: '' })
+    append({ warehouseProductId: '', qty: '', quantity: '' })
   }
 
   const deleteItem = itemIndex => {
@@ -100,14 +97,16 @@ export default function AddAdjustmentGoodsOut({ warehouse }) {
   }
 
   useEffect(() => {
-    append({
-      warehouseProductId: '',
-      quantity: '',
-      qty: '',
-      masterProductId: ''
-    })
+    if (fields.length == 0) {
+      append({
+        warehouseProductId: '',
+        quantity: '',
+        qty: '',
+        masterProductId: ''
+      })
+    }
     dispatch(fetchMasterDataWarehouse())
-  }, [dispatch, append, listProduct])
+  }, [dispatch, append, listProduct, fields])
 
   return (
     <>
@@ -170,9 +169,11 @@ export default function AddAdjustmentGoodsOut({ warehouse }) {
                               id='autocomplete-grouped'
                               getOptionLabel={option => option.productName || ''}
                               onChange={(event, newValue) => {
-                                onChange(+newValue?.warehouseProductId)
+                                console.log(newValue)
+                                // Ini menggunakan productWarehouseId data mapping dari delivery order
+                                onChange(+newValue?.productWarehouseId)
                                 const selectedProduct = listProduct.find(
-                                  product => product.warehouseProductId === +newValue?.warehouseProductId
+                                  product => product.productWarehouseId === +newValue?.productWarehouseId
                                 )
                                 if (selectedProduct) {
                                   setValue(`data[${index}].quantity`, selectedProduct.quantity)

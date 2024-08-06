@@ -147,7 +147,7 @@ export default function TableAllReceive({}) {
                       {row.createdBy.name}
                     </Typography>
                     <Typography noWrap variant='caption'>
-                      {row.createdBy.role_name}
+                      {row.createdBy.roleName}
                     </Typography>
                   </Box>
                 </Box>
