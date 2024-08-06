@@ -56,6 +56,16 @@ const navigation = () => {
           path: '/product-warehouse/warehouse',
           menuId: 9
         },
+        {
+          title: 'Barang Masuk',
+          path: '/adjustment/goods-in',
+          menuId: 16
+        },
+        {
+          title: 'Barang Keluar',
+          path: '/adjustment/goods-out',
+          menuId: 17
+        },
       ]
     },
     {
@@ -150,21 +160,36 @@ const navigation = () => {
       ]
     },
     {
-      sectionTitle: 'Produk Gudang'
-    },
-    {
-      title: 'Produk',
-      icon: 'tabler:list',
+      title: 'Manajemen Stok',
+      icon: 'tabler:server-cog',
       children: [
         {
-          title: 'Daftar Gudang',
-          path: '/product-warehouse/warehouse'
+          title: 'List Produk Gudang',
+          path: '/product-warehouse/product',
+          menuId: 8
         },
         {
-          title: 'Daftar Produk',
-          path: '/product-warehouse/product'
-        }
+          title: 'Penyesuaian Stok Produk Gudang',
+          path: '/product-warehouse/warehouse',
+          menuId: 9
+        },
+        {
+          title: 'Barang Masuk',
+          path: '/adjustment/goods-in',
+          menuId: 16
+        },
+        {
+          title: 'Barang Keluar',
+          path: '/adjustment/goods-out',
+          menuId: 17
+        },
       ]
+    },
+    {
+      title: 'Stock Opname',
+      path: '/stock-opname/',
+      icon: 'tabler:server-cog',
+      menuId: 15
     },
     {
       title: 'Surat Jalan',

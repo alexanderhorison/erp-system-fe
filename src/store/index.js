@@ -22,6 +22,7 @@ import masterTransformation from './apps/master/transformation'
 import stockOpname from './apps/stock-opname'
 //import store from './src/store'; // Use relative path //
 import masterWarehouseRack from './apps/master/warehouse-rack'
+import adjustmentGoodsOut from './apps/adjustment/goods-out'
 
 export const store = configureStore({
   reducer: {
@@ -44,6 +45,7 @@ export const store = configureStore({
     masterTransformation,
     masterWarehouseRack,
     stockOpname,
+    adjustmentGoodsOut
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
