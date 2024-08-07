@@ -109,10 +109,10 @@ export default function TableAllGoodsOut({}) {
               return (
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.createdAt}
+                    {params.row.dateCreated}
                   </Typography>
                   <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.dateCreated)}
+                    {returnFormatTime(params.row.createdAt)}
                   </Typography>
                 </Box>
               )
@@ -127,10 +127,10 @@ export default function TableAllGoodsOut({}) {
               return (
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.approvedAt}
+                    {params.row.dateApproved}
                   </Typography>
                   <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.dateApproved)}
+                    {returnFormatTime(params.row.approvedAt)}
                   </Typography>
                 </Box>
               )

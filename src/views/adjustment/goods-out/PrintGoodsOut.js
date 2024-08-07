@@ -235,14 +235,14 @@ const PrintGoodsOut = ({ id }) => {
             <Grid item xs={12} sm={12} lg={12} sx={{}}>
               <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box sx={{ mb: 2, ml: 5, display: 'flex-column', alignItems: 'center', textAlign: 'center' }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.creatorBy}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{data?.createdBy}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.createdAt)}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.createdAt)}</Typography>
                 </Box>
                 <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.receiverBy}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.receivedAt)}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.receivedAt)}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{data?.approvedBy}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.approvedAt)}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.approvedAt)}</Typography>
                 </Box>
               </Box>
             </Grid>

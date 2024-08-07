@@ -79,9 +79,11 @@ export default function AddAdjustmentGoodsOut() {
       message: `Produk dan Satuan sudah dipilih`
     })
     if (!duplicate) {
+      // remove qty and masterProductId from the items
+      const result = listItems.map(({ quantity, masterProductId, ...rest }) => rest);
       let sendData = {
         warehouseOrigin: Number(data.warehouseOrigin),
-        listProduct: listItems,
+        listProduct: result,
         notes: data.notes
       }
       dispatch(createAdjustmentGoodsOut({ data: sendData, router }))
