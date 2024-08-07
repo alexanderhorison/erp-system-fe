@@ -21,7 +21,7 @@ export const fetchAllAdjustmentGoodsOut = createAsyncThunk(
   }
 )
 
-// CREATE DELIVERY ORDER
+// CREATE ADJUSTMENT GOODS OUT
 export const createAdjustmentGoodsOut = createAsyncThunk(
   'adjustmentGoodsOut/createAdjustmentGoodsOut',
   async ({ data, router }, { dispatch, rejectWithValue }) => {
@@ -50,11 +50,11 @@ export const createAdjustmentGoodsOut = createAsyncThunk(
 // GET DETAIL ADJUSTMENT GOODS OUT
 export const fetchDetailAdjustmentGoodsOut = createAsyncThunk(
   'adjustmentGoodsOut/fetchDetailAdjustmentGoodsOut',
-  async (deliveryOrderId, { rejectWithValue }) => {
+  async (code, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
-        url: '/adjustment-goods/out/' + deliveryOrderId
+        url: '/adjustment-goods/out/' + code
       })
       return response.data
     } catch (error) {
@@ -64,7 +64,7 @@ export const fetchDetailAdjustmentGoodsOut = createAsyncThunk(
   }
 )
 
-// TERIMA / TOLAK BARANG MASUK
+// TERIMA / TOLAK BARANG KELUAR
 export const updateAdjustmentGoodsOut = createAsyncThunk(
   'adjustmentGoodsOut/updateAdjustmentGoodsOut',
   async ({ code, type, router }, { dispatch, rejectWithValue }) => {
