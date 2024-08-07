@@ -162,7 +162,7 @@ export default function TableAllGoodsIn({}) {
             flex: 0.16,
             minWidth: 120,
             field: 'warehouseDestinationName',
-            headerName: 'Gudang Sumber',
+            headerName: 'Gudang Tujuan',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
