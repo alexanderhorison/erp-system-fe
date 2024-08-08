@@ -161,7 +161,7 @@ const PrintGoodsOut = ({ id }) => {
               <Typography variant='h6' sx={{ mb: 2 }}>
                 Gudang Asal
               </Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseName}</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseOriginName}</Typography>
               <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseLocation}</Typography>
             </Grid>
           </Grid>

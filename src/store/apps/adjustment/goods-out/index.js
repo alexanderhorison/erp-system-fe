@@ -72,7 +72,7 @@ export const updateAdjustmentGoodsOut = createAsyncThunk(
       await swalConfirmationAdd({
         label,
         name: 'Surat',
-        title: 'Anda akan menerima surat barang keluar?',
+        title: type == 'approve' ? 'Anda akan menerima surat barang keluar?' : 'Anda akan tolak surat barang keluar?',
         axiosRequest: () => {
           return axios({
             method: 'POST',
