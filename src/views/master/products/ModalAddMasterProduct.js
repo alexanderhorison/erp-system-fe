@@ -93,7 +93,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
     dispatch(fetchMasterDataType())
     dispatch(fetchMasterDataCompany())
     // disable warn for select if select not have a child item
-    console.warn = () => {}
+    console.warn = () => { }
   }, [dispatch])
 
   // CLOSE MODAL AND RESET FORM
@@ -261,7 +261,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
           </DialogContent>
           <DialogActions
             sx={{
-              justifyContent: 'center',
+              // justifyContent: 'center',
               px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
               pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
             }}

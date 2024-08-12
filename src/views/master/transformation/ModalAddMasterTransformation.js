@@ -47,7 +47,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   textAlign: 'center',
-  justifyContent: 'center'
+  // justifyContent: 'center'
   // border: '1px solid'
   // [theme.breakpoints.down('md')]: {
   //   borderBottom: `1px solid ${theme.palette.divider}`
@@ -154,15 +154,15 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
     [masterDataUnit, getValues, valueTransform]
   )
 
-  if (typeModal == 'EDIT' && loadingDetail){
+  if (typeModal == 'EDIT' && loadingDetail) {
     return <CircularProgress
-    sx={{
-      color: 'common.white',
-      width: '20px !important',
-      height: '20px !important',
-      mr: theme => theme.spacing(2)
-    }}
-  />
+      sx={{
+        color: 'common.white',
+        width: '20px !important',
+        height: '20px !important',
+        mr: theme => theme.spacing(2)
+      }}
+    />
   }
   return (
     <Card>
@@ -190,8 +190,8 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
                 {typeModal === 'ADD'
                   ? `${product.name}`
                   : typeModal === 'VIEW'
-                  ? 'Detail Transformasi'
-                  : 'Ubah Transformasi'}
+                    ? 'Detail Transformasi'
+                    : 'Ubah Transformasi'}
               </Typography>
             </Box>
 
@@ -313,7 +313,7 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
           </DialogContent>
           <DialogActions
             sx={{
-              justifyContent: 'center',
+              // justifyContent: 'center',
               px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
               pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
             }}

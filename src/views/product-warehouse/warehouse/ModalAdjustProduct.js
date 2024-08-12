@@ -247,7 +247,7 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, warehouse
           </DialogContent>
           <DialogActions
             sx={{
-              justifyContent: 'center',
+              // justifyContent: 'center',
               px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
               pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
             }}
