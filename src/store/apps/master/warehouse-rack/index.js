@@ -112,7 +112,7 @@ export const appMasterWarehouseRackSlice = createSlice({
     defaultValue: {
       name: '',
       description: '',
-      data: [{ key: '', value: '' }],
+      // data: [{ key: '', value: '' }],
       warehouseId: ''
     },
     loadingDetail: false,

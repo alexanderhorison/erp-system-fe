@@ -118,17 +118,9 @@ export function swalError({ error, label }) {
 // DEFAULT SWAL TOAST ERROR
 export function swalToastError({ error, label }) {
   return swal.fire({
-    toast: true,
     icon: 'error',
-    title: error?.response?.data?.message || `Gagal database ${label}`,
-    animation: false,
-    position: 'top-right',
-    showConfirmButton: false,
-    timer: 5000,
-    timerProgressBar: true,
-    didOpen: toast => {
-      toast.addEventListener('mouseenter', swal.stopTimer)
-      toast.addEventListener('mouseleave', swal.resumeTimer)
-    }
+    title: error?.response?.data?.message || `Gagal melakukan aksi pada ${label}`,
+    timer: 2000,
+    confirmButtonColor: '#6F4E37'
   })
 }

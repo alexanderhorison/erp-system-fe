@@ -89,19 +89,12 @@ const defaultColumns = [
     renderCell: ({ row }) => <Typography sx={{ color: 'text.secondary' }}>{row.name}</Typography>
   },
   {
-    flex: 0.25,
+    flex: 0.5,
     field: 'description',
     minWidth: 240,
     headerName: 'Deskripsi Otoritas',
     renderCell: ({ row }) => <Typography sx={{ color: 'text.secondary' }}>{row.description}</Typography>
   },
-  {
-    flex: 0.25,
-    minWidth: 210,
-    field: 'createdAt',
-    headerName: 'Tanggal Pembuatan Otoritas',
-    renderCell: ({ row }) => <Typography sx={{ color: 'text.secondary' }}>{row.createdAt.split('T')[0]}</Typography>
-  }
 ]
 
 const PermissionsTable = () => {

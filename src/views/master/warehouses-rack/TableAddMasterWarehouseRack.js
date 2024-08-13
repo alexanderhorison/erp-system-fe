@@ -9,6 +9,9 @@ import Icon from 'src/@core/components/icon'
 import * as yup from 'yup'
 import { useRouter } from 'next/router'
 import { addMasterDataWarehouseRack, editMasterDataWarehouseRack } from 'src/store/apps/master/warehouse-rack'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import PickersComponent from 'src/views/forms/form-elements/pickers/PickersCustomInput'
 
 export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
   const dispatch = useDispatch()
@@ -20,11 +23,20 @@ export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
     name: yup.string().required('Nama Rak tidak boleh kosong'),
     description: yup.string().optional(),
     data: yup.array().of(
-      yup.object().shape({
-        key: yup.string().required('Key attribut harus dipilih'),
-        value: yup.string().required('Value attribut harus diisi')
-      })
-    )
+        yup.object().shape({
+          key: yup.string().optional(),
+          value: yup
+            .string()
+            .test('value-required-if-key', 'Value attribut tidak boleh kosong', function (value) {
+              const { key } = this.parent
+              if (key) {
+                return !!value // value must be present if key is provided
+              }
+              return true // if key is not provided, value can be anything
+            })
+        })
+      )
+      .optional()
   })
 
   const {
@@ -78,44 +90,48 @@ export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
                 Informasi Rak
               </Typography>
               <CardContent>
-                <Grid container spacing={6}>
-                  <Grid item xs={4}>
-                    <Controller
-                      name='name'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          value={value}
-                          label='Nama Rak'
-                          placeholder=''
-                          onChange={onChange}
-                          error={Boolean(errors.name)}
-                          aria-describedby='validation-schema-name'
-                          {...(errors.name && { helperText: errors.name.message })}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Controller
-                      name='description'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          value={value}
-                          label='Deskripsi Rak'
-                          placeholder=''
-                          onChange={onChange}
-                          error={Boolean(errors.description)}
-                          aria-describedby='validation-schema-description'
-                          {...(errors.description && { helperText: errors.description.message })}
-                        />
-                      )}
-                    />
+                <Grid item xs={12}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={12}>
+                      <Controller
+                        name='name'
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                          <CustomTextField
+                            fullWidth
+                            value={value}
+                            label='Nama Rak'
+                            placeholder=''
+                            onChange={onChange}
+                            error={Boolean(errors.name)}
+                            aria-describedby='validation-schema-name'
+                            {...(errors.name && { helperText: errors.name.message })}
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={12}>
+                      <Controller
+                        name='description'
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                          <CustomTextField
+                            fullWidth
+                            multiline
+                            rows={3}
+                            value={value}
+                            label='Deskripsi Rak'
+                            placeholder=''
+                            onChange={onChange}
+                            error={Boolean(errors.description)}
+                            aria-describedby='validation-schema-description'
+                            {...(errors.description && { helperText: errors.description.message })}
+                          />
+                        )}
+                      />
+                    </Grid>
                   </Grid>
                 </Grid>
               </CardContent>
@@ -126,7 +142,7 @@ export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
                 <React.Fragment key={item.id}>
                   <CardContent>
                     <Grid container spacing={6}>
-                      <Grid item xs={4}>
+                      <Grid item xs={5.5}>
                         <Controller
                           name={`data[${index}].key`}
                           control={control}
@@ -156,34 +172,62 @@ export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={3}>
+                      <Grid item xs={5.5}>
                         <Controller
                           name={`data[${index}].value`}
                           control={control}
                           rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Value'
-                              value={value}
-                              onChange={e => {
-                                onChange(e.target.value)
-                              }}
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors?.data?.[index]?.value)}
-                              {...(errors?.data?.[index]?.value && {
-                                helperText: errors?.data?.[index]?.value.message
-                              })}
-                            />
-                          )}
+                          render={({ field: { value, onChange } }) => {
+                            const selectKey = watch(`data[${index}].key`)
+                            console.log(selectKey)
+                            return selectKey === 'PRODUCTION DATE' || selectKey === 'EXPIRED DATE' ? (
+                              <DatePicker
+                                fullWidth
+                                label='Value'
+                                value={value}
+                                onChange={e => {
+                                  const formattedDate = new Date(e).toLocaleDateString('en-GB') // 'en-GB' formats the date as dd/mm/yy
+                                  onChange(formattedDate)
+                                }}
+                                customInput={
+                                  <PickersComponent
+                                    fullWidth
+                                    label='Value'
+                                    error={Boolean(errors?.data?.[index]?.value)}
+                                    {...(errors?.data?.[index]?.value && {
+                                      helperText: errors?.data?.[index]?.value.message
+                                    })}
+                                  />
+                                }
+                                sx={{ display: 'block' }}
+                              />
+                            ) : (
+                              <CustomTextField
+                                fullWidth
+                                label='Value'
+                                value={value}
+                                onChange={e => {
+                                  onChange(e.target.value)
+                                }}
+                                sx={{ display: 'block' }}
+                                error={Boolean(errors?.data?.[index]?.value)}
+                                {...(errors?.data?.[index]?.value && {
+                                  helperText: errors?.data?.[index]?.value.message
+                                })}
+                              />
+                            )
+                          }}
                         />
                       </Grid>
-                      <Grid item xs={1} sx={{ marginTop: 'auto' }}>
-                        {fields.length !== 1 ? (
+                      <Grid item xs={1} sx={{ marginTop: '18px' }}>
+                        <IconButton onClick={() => deleteItem(index)} sx={{ color: 'text.primary' }}>
+                          <Icon icon='tabler:trash' />
+                        </IconButton>
+                        {/* {fields.length !== 1 ? (
                           <IconButton onClick={() => deleteItem(index)} sx={{ color: 'text.primary' }}>
                             <Icon icon='tabler:trash' />
                           </IconButton>
-                        ) : null}
+                        ) : null} */}
                       </Grid>
                     </Grid>
                   </CardContent>
