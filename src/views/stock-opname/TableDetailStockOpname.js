@@ -34,7 +34,18 @@ export default function TableDetailStockOpname({ data }) {
             ),
           },
           {
-            flex: 0.2,
+            flex: 0.1,
+            minWidth: 120,
+            field: 'companyName',
+            headerName: 'Company',
+            renderCell: (params) => (
+              <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                {params.row.companyName}
+              </Typography>
+            ),
+          },
+          {
+            flex: 0.1,
             minWidth: 120,
             field: 'rack',
             headerName: 'Rak',

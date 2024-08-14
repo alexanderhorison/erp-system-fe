@@ -149,7 +149,7 @@ export default function AddStockOpname({ warehouse }) {
                         getOptionLabel={option => option.name || ''}
                         onChange={(event, newValue) => {
                           onChange(+newValue?.id)
-                          dispatch(fetchListProductByWarehouse(+newValue?.id))
+                          dispatch(fetchListProductByWarehouse({ warehouseId: +newValue?.id }))
                         }}
                         renderInput={params => (
                           <CustomTextField
@@ -221,7 +221,7 @@ export default function AddStockOpname({ warehouse }) {
             Cancel
           </Button>
           <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-            Submit
+            Simpan Draft
           </Button>
           {/* <Button variant='contained' onClick={handlePending} startIcon={<Icon icon='tabler:square-rounded-check' />}>
             Selesaikan Stok Opname

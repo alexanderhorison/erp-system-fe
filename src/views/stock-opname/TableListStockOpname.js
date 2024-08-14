@@ -15,9 +15,9 @@ import { Status } from 'src/@core/components/common'
 const RowOptions = (props) => {
   const dispatch = useDispatch()
 
-  // const handleDelete = () => {
-  //   dispatch(deleteStockOpname({ id, name: `${code} - ${date} - ${warehouseName}` }))
-  // }
+  const handleDelete = () => {
+    dispatch(deleteStockOpname({ id: props.id, name: `${props.code} - ${props.date} - ${props.warehouseName}` }))
+  }
 
   const handleEdit = () => {
     props.router.push(`/stock-opname/${props.id}/edit`)
@@ -39,9 +39,13 @@ const RowOptions = (props) => {
             <Icon icon='tabler:edit' />
           </IconButton>
         }
-        {/* <IconButton onClick={handleDelete}>
-          <Icon icon='tabler:trash' />
-        </IconButton> */}
+        {
+          process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
+            <IconButton onClick={handleDelete}>
+              <Icon icon='tabler:trash' />
+            </IconButton>
+          )
+        }
       </Box>
     </>
   )

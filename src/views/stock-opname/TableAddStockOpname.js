@@ -36,7 +36,18 @@ export default function TableAddStockOpname({ data, handleChange, type = "add" }
               ),
             },
             {
-              flex: 0.2,
+              flex: 0.1,
+              minWidth: 120,
+              field: 'companyName',
+              headerName: 'Company',
+              renderCell: (params) => (
+                <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                  {params.row.companyName}
+                </Typography>
+              ),
+            },
+            {
+              flex: 0.1,
               minWidth: 120,
               field: 'rackName',
               headerName: 'Rak',

@@ -43,32 +43,46 @@ export default function DetailStockOpname({ stockOpnameId }) {
         code={detailStockOpname?.code}
         status={detailStockOpname?.status}
         creatorName={detailStockOpname?.creatorName}
+        updaterName={detailStockOpname?.updaterName}
         id={detailStockOpname?.id}
         type={"DETAIL"}
       />
+      {
+        (detailStockOpname?.status !== 'DRAFT') && (
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>Notes</CardContent>
+              <CardContent>{detailStockOpname?.notes || '-'}</CardContent>
+            </Card>
+          </Grid>
+        )
+      }
       <Grid item xs={12}>
         <TableDetailStockOpname data={listProduct} />
       </Grid>
-      <Grid item xs={12}>
-        <Card>
-          <CardContent>
-            <Grid item xs={12}>
-
-              <CustomTextField
-                multiline
-                rows={3}
-                fullWidth
-                label='Catatan'
-                placeholder={'Catatan...'}
-                value={detailStockOpname?.notes || ''}
-                type='text'
-                sx={{ display: 'block' }}
-                disabled
-              />
-            </Grid>
-          </CardContent>
-        </Card>
-      </Grid>
+      {
+        (detailStockOpname?.status === 'DRAFT') && (
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <Grid item xs={12}>
+                  <CustomTextField
+                    multiline
+                    rows={3}
+                    fullWidth
+                    label='Catatan'
+                    placeholder={'Catatan...'}
+                    value={detailStockOpname?.notes || ''}
+                    type='text'
+                    sx={{ display: 'block' }}
+                    disabled
+                  />
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+        )
+      }
       <Grid
         container
         sx={{ paddingLeft: '25px', marginTop: '20px' }}
