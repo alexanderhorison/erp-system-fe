@@ -112,6 +112,21 @@ export default function TableProduct({ data, warehouseId }) {
         getRowId={getRowId}
         columns={[
           {
+            flex: 0.05,
+            minWidth: 70,
+            field: 'productWarehouseId',
+            headerName: 'Id',
+            renderCell: params => {
+              return (
+                <>
+                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                    {params.row.productWarehouseId}
+                  </Typography>
+                </>
+              )
+            }
+          },
+          {
             flex: 0.1,
             minWidth: 300,
             field: 'productName',
