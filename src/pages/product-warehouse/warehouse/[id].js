@@ -15,19 +15,19 @@ export default function HomeProductWarehouseId() {
   )
   useEffect(() => {
     if (id) {
-      dispatch(fetchListProductByWarehouse(id))
+      dispatch(fetchListProductByWarehouse({ warehouseId: id }))
     }
   }, [id, dispatch])
 
-  if (loading) {
-    return (
-      <Grid container marginTop={-25}>
-        <Grid item xs={12}>
-          <Skeleton height={500} width={'full'}></Skeleton>
-        </Grid>
-      </Grid>
-    )
-  }
+  // if (loading) {
+  //   return (
+  //     <Grid container marginTop={-25}>
+  //       <Grid item xs={12}>
+  //         <Skeleton height={500} width={'full'}></Skeleton>
+  //       </Grid>
+  //     </Grid>
+  //   )
+  // }
 
   return (
     <Grid container spacing={6}>
@@ -35,7 +35,7 @@ export default function HomeProductWarehouseId() {
         <Typography paddingY={3} fontSize={20}>
           {`Daftar Produk di ${data?.warehouseName}`}
         </Typography>
-        <TableProduct data={data.data} warehouseId={id} />
+        <TableProduct loading={loading} data={data.data} warehouseId={id} />
       </Grid>
     </Grid>
   )

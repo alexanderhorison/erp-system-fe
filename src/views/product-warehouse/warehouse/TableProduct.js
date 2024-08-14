@@ -2,16 +2,16 @@ import { useDispatch } from 'react-redux'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
+import { Box, Card, Divider, IconButton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 
-import { fetchMasterDataProduct } from 'src/store/apps/master/product'
 import TableHeaderProduct from './TableHeaderProduct'
-import { fetchListProductTransformation, fetchProductWarehouseDetail } from 'src/store/apps/product-warehouse'
+import { fetchListProductByWarehouse, fetchListProductTransformation, fetchProductWarehouseDetail } from 'src/store/apps/product-warehouse'
 import ModalAdjustProduct from './ModalAdjustProduct'
 import HandleSearh from 'src/helpers/handleSearch'
 import ModalTransformationProduct from './ModalTransformationProduct'
+import FilterGlobal from 'src/pages/components/filter/FilterGlobal'
 
 const RowOptions = ({ id, name, warehouseId }) => {
   const dispatch = useDispatch()
@@ -34,6 +34,9 @@ const RowOptions = ({ id, name, warehouseId }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <IconButton onClick={handleTransform}>
+          <Icon icon='tabler:transfer' />
+        </IconButton>
         <IconButton onClick={() => handleEdit('PLUS')}>
           <Icon icon='tabler:plus' />
         </IconButton>
@@ -42,9 +45,6 @@ const RowOptions = ({ id, name, warehouseId }) => {
         </IconButton>
         <IconButton onClick={() => handleEdit('MINIMUM_STOCK')}>
           <Icon icon='tabler:edit' />
-        </IconButton>
-        <IconButton onClick={handleTransform}>
-          <Icon icon='tabler:transfer' />
         </IconButton>
       </Box>
       {openModalEdit && (
@@ -91,12 +91,22 @@ export default function TableProduct({ data, warehouseId }) {
   }
 
   useEffect(() => {
-    dispatch(fetchMasterDataProduct())
     setFilteredData(data)
   }, [dispatch, data])
 
+  const submitFilter = (query) => {
+    dispatch(fetchListProductByWarehouse({ warehouseId, query }))
+  }
+
   return (
     <Card>
+      <FilterGlobal
+        listFilter={["company", "type", "unit", "category", "rack"]}
+        submitFilter={submitFilter}
+        handleClear={() => dispatch(fetchListProductByWarehouse({ warehouseId }))}
+        warehouseId={warehouseId}
+      />
+      <Divider />
       <DataGrid
         autoHeight
         getRowId={getRowId}
@@ -118,7 +128,20 @@ export default function TableProduct({ data, warehouseId }) {
           },
           {
             flex: 0.1,
-            minWidth: 300,
+            minWidth: 150,
+            field: 'companyName',
+            headerName: 'Perusahaan',
+            renderCell: params => {
+              return (
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  {params.row.companyName}
+                </Typography>
+              )
+            }
+          },
+          {
+            flex: 0.1,
+            minWidth: 100,
             field: 'rackName',
             headerName: 'Rak',
             renderCell: params => {
@@ -189,6 +212,16 @@ export default function TableProduct({ data, warehouseId }) {
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
+          },
+          "& .MuiDataGrid-columnHeaderTitle": {
+            whiteSpace: "normal",
+            lineHeight: "normal"
+          },
+          "& .MuiDataGrid-columnHeader": {
+            height: "unset !important"
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            maxHeight: "168px !important"
           }
         }}
         slotProps={{
@@ -210,11 +243,11 @@ export default function TableProduct({ data, warehouseId }) {
 }
 
 const getRowClassName = params => {
-  if (params.row.quantity < params.row.minimumStock) {
-    return 'low-quantity'
-  }
   if (params.row.quantity === 0) {
     return 'zero-quantity'
+  }
+  if (params.row.quantity < params.row.minimumStock) {
+    return 'low-quantity'
   }
   return ''
 }

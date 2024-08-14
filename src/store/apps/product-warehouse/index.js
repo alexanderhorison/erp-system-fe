@@ -40,11 +40,12 @@ export const fetchProductWarehouseDetail = createAsyncThunk(
 // GET ALL LIST PRODUCT AT 1 WAREHOUSE
 export const fetchListProductByWarehouse = createAsyncThunk(
   'appProductWarehouse/fetchListProductByWarehouse',
-  async (id, { rejectWithValue }) => {
+  async ({ warehouseId, query }, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
-        url: '/product-warehouse/warehouse/' + id
+        url: '/product-warehouse/warehouse/' + warehouseId,
+        params: query
       })
       return response.data
     } catch (error) {
@@ -95,7 +96,7 @@ export const editProductWarehouse = createAsyncThunk(
           })
         },
         dispatchRequest: () => {
-          dispatch(fetchListProductByWarehouse(warehouseId))
+          dispatch(fetchListProductByWarehouse({ warehouseId }))
         }
       })
     } catch (error) {
@@ -139,7 +140,7 @@ export const fetchListProductTransformation = createAsyncThunk(
 // TRANSFORMATION PRODUCT
 export const transformProduct = createAsyncThunk(
   'appMasterProduct/transformProduct',
-  async ({id, data, warehouseId, setOpen}, { dispatch, rejectWithValue }) => {
+  async ({ id, data, warehouseId, setOpen }, { dispatch, rejectWithValue }) => {
     try {
       await swalConfirmationEdit({
         label: 'Produk',
@@ -153,7 +154,7 @@ export const transformProduct = createAsyncThunk(
           })
         },
         dispatchRequest: () => {
-          dispatch(fetchListProductByWarehouse(warehouseId))
+          dispatch(fetchListProductByWarehouse({ warehouseId }))
           setOpen(false)
         }
       })
