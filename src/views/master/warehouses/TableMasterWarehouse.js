@@ -36,7 +36,7 @@ const RowOptions = ({ id, name }) => {
 
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center',  ml: -3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', ml: -3 }}>
         <IconButton onClick={handlePageWarehouseRack}>
           <Icon icon='tabler:eye' />
         </IconButton>
@@ -54,7 +54,7 @@ const RowOptions = ({ id, name }) => {
   )
 }
 
-export default function TableMasterWarehouse({}) {
+export default function TableMasterWarehouse({ }) {
   const dispatch = useDispatch()
   const [openModalAdd, setOpenModalAdd] = useState(false)
 
@@ -70,7 +70,7 @@ export default function TableMasterWarehouse({}) {
   }
 
   useEffect(() => {
-    dispatch(fetchMasterDataWarehouse())
+    dispatch(fetchMasterDataWarehouse({ status: "all" }))
   }, [dispatch])
 
   useEffect(() => {
@@ -105,6 +105,19 @@ export default function TableMasterWarehouse({}) {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
                   {params.row.location}
+                </Typography>
+              )
+            }
+          },
+          {
+            flex: 0.1,
+            minWidth: 120,
+            field: 'status',
+            headerName: 'Status',
+            renderCell: params => {
+              return (
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  {params.row.status}
                 </Typography>
               )
             }

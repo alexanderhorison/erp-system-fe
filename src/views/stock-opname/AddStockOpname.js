@@ -149,7 +149,7 @@ export default function AddStockOpname({ warehouse }) {
                         getOptionLabel={option => option.name || ''}
                         onChange={(event, newValue) => {
                           onChange(+newValue?.id)
-                          dispatch(fetchListProductByWarehouse({ warehouseId: +newValue?.id }))
+                          dispatch(fetchListProductByWarehouse(+newValue?.id))
                         }}
                         renderInput={params => (
                           <CustomTextField

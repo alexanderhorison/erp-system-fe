@@ -7,11 +7,12 @@ const label = 'gudang'
 // GET ALL WAREHOUSE
 export const fetchMasterDataWarehouse = createAsyncThunk(
   'appMasterWarehouse/fetchData',
-  async (params, { rejectWithValue }) => {
+  async (query, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
-        url: '/master/warehouse/all'
+        url: '/master/warehouse/all',
+        params: query ? query : {}
       })
       return response.data
     } catch (error) {
