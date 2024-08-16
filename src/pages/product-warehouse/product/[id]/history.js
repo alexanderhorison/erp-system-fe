@@ -1,4 +1,4 @@
-import { Grid } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -18,6 +18,9 @@ export default function HomeProduct() {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
+        <Typography paddingY={3} fontSize={20}>
+          {data?.product?.productName} - {data?.product?.unitName}
+        </Typography>
         <TableHistoryProduct history={data.history} product={data.product} />
       </Grid>
     </Grid>
