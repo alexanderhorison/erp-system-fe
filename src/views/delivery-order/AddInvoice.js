@@ -81,7 +81,7 @@ export default function AddInvoice({ warehouse }) {
       lastIndexMap.set(key, i)
     }
     // Check duplicate index
-    lastIndex !== -1 ? (lastIndex += 1) : (duplicate = false)
+    lastIndex !== -1 ? (lastIndex) : (duplicate = false)
     setError(`data[${lastIndex}].productWarehouseId`, {
       type: 'duplicate',
       message: `Produk dan Satuan sudah dipilih`
