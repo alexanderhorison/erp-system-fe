@@ -1,14 +1,15 @@
-import { useDispatch } from 'react-redux'
 import { useState } from 'react'
 
 import { Card, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
+import Tooltip from '@mui/material/Tooltip'
+
 
 import TableProductViewHeader from './TableProductViewHeader'
+import { useRouter } from 'next/router'
 
 export default function TableProductView({ data, warehouseId }) {
-  const dispatch = useDispatch()
-
+  const router = useRouter()
   const [searchText, setSearchText] = useState('')
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
   const [filteredData, setFilteredData] = useState([])
@@ -27,6 +28,10 @@ export default function TableProductView({ data, warehouseId }) {
     return row.productWarehouseId
   }
 
+  const clickHistory = (id) => {
+    router.push(`/product-warehouse/product/${id}/history`)
+  }
+
   return (
     <Card>
       <DataGrid
@@ -37,12 +42,20 @@ export default function TableProductView({ data, warehouseId }) {
             flex: 0.2,
             minWidth: 300,
             field: 'productName',
-            headerName: 'Nama Produk',
+            headerName: 'Nama Produks',
             renderCell: params => {
               return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.productName}
-                </Typography>
+                <Tooltip title="Check History" placement="top">
+                  <span onClick={() => clickHistory(params?.row?.productWarehouseId)}>
+                    <Typography variant="body2" sx={{
+                      color: 'text.primary',
+                      cursor: 'pointer',
+                      '&:hover': { color: 'info.main' },
+                    }}>
+                      {params.row.productName}
+                    </Typography>
+                  </span>
+                </Tooltip>
               )
             }
           },

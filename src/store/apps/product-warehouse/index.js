@@ -164,6 +164,22 @@ export const transformProduct = createAsyncThunk(
   }
 )
 
+export const fetchHistoryProduct = createAsyncThunk(
+  'appMasterProduct/historyProduct',
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/product-warehouse/history/' + id
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
 export const appMasterProductSlice = createSlice({
   name: 'appProductWarehouse',
   initialState: {
@@ -185,6 +201,14 @@ export const appMasterProductSlice = createSlice({
     listTransformation: [],
     loadingListTransformation: true,
     errorListTransformation: false,
+
+    // HISTORY
+    listHistory: {
+      history: [],
+      product: {},
+    },
+    loadingListHistory: true,
+    errorListHistory: false,
 
   },
   reducers: {},
@@ -254,6 +278,23 @@ export const appMasterProductSlice = createSlice({
         state.loadingListTransformation = false
         state.errorListTransformation = action.error.message
         state.listTransformation = []
+      })
+
+      // HISTORY
+      .addCase(fetchHistoryProduct.pending, (state, action) => {
+        state.loadingListHistory = true
+      })
+      .addCase(fetchHistoryProduct.fulfilled, (state, action) => {
+        state.listHistory = action.payload.data
+        state.loadingListHistory = false
+      })
+      .addCase(fetchHistoryProduct.rejected, (state, action) => {
+        state.loadingListHistory = false
+        state.errorListHistory = action.error.message
+        state.listHistory = {
+          history: [],
+          product: {},
+        }
       })
   }
 })

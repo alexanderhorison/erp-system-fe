@@ -2,7 +2,7 @@ import { useDispatch } from 'react-redux'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
-import { Box, Card, Divider, IconButton, Typography } from '@mui/material'
+import { Box, Card, Divider, IconButton, Tooltip, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 
@@ -98,6 +98,10 @@ export default function TableProduct({ data, warehouseId }) {
     dispatch(fetchListProductByWarehouse({ warehouseId, query }))
   }
 
+  const clickHistory = (id) => {
+    router.push(`/product-warehouse/product/${id}/history`)
+  }
+
   return (
     <Card>
       <FilterGlobal
@@ -133,11 +137,17 @@ export default function TableProduct({ data, warehouseId }) {
             headerName: 'Nama Produk',
             renderCell: params => {
               return (
-                <>
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.productName}
-                  </Typography>
-                </>
+                <Tooltip title="Check History" placement="top">
+                  <span onClick={() => clickHistory(params?.row?.productWarehouseId)}>
+                    <Typography variant="body2" sx={{
+                      color: 'text.primary',
+                      cursor: 'pointer',
+                      '&:hover': { color: 'info.main' },
+                    }}>
+                      {params.row.productName}
+                    </Typography>
+                  </span>
+                </Tooltip>
               )
             }
           },
