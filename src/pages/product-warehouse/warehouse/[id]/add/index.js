@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchMasterDataWarehouseDetail } from 'src/store/apps/master/warehouse'
 import TableAddProductWarehouse from 'src/views/product-warehouse/warehouse/TableAddProductWarehouse'
+import TableAddProductWarehouseV2 from 'src/views/product-warehouse/warehouse/TableAddProductWarehouseV2'
 
 export default function AddProductWarehouse() {
   const dispatch = useDispatch()
@@ -24,7 +25,8 @@ export default function AddProductWarehouse() {
         <Typography paddingY={3} fontSize={20}>
           Tambahkan barang pada gudang "{masterDataWarehouseDetail?.name}"
         </Typography>
-        <TableAddProductWarehouse warehouse={masterDataWarehouseDetail} />
+        {/* <TableAddProductWarehouse warehouse={masterDataWarehouseDetail} /> */}
+        <TableAddProductWarehouseV2 warehouse={masterDataWarehouseDetail} />
       </Grid>
     </Grid>
   )

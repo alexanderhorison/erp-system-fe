@@ -110,7 +110,7 @@ export function swalError({ error, label }) {
   return swal.fire({
     icon: 'error',
     title: error?.response?.data?.message || `Gagal melakukan aksi pada ${label}`,
-    timer: 2000,
+    // timer: 2000,
     confirmButtonColor: '#6F4E37'
   })
 }
