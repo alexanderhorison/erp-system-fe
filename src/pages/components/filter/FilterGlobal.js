@@ -1,4 +1,4 @@
-import { Button, CardContent, Grid } from '@mui/material'
+import { Button, CardContent, CardHeader, Grid } from '@mui/material'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
@@ -56,6 +56,7 @@ export default function FilterGlobal({
 
   return (
     <>
+      <CardHeader title='Pencarian' />
       <CardContent>
         <Grid container spacing={6}>
           {
@@ -73,9 +74,6 @@ export default function FilterGlobal({
                   <CustomTextField
                     {...params}
                     placeholder='Pilih category'
-                    sx={{
-                      width: '300px',
-                    }}
                   />
                 )}
               />
@@ -96,9 +94,6 @@ export default function FilterGlobal({
                   <CustomTextField
                     {...params}
                     placeholder='Pilih type'
-                    sx={{
-                      width: '300px',
-                    }}
                   />
                 )}
               />
@@ -119,9 +114,6 @@ export default function FilterGlobal({
                   <CustomTextField
                     {...params}
                     placeholder='Pilih company'
-                    sx={{
-                      width: '300px',
-                    }}
                   />
                 )}
               />
@@ -142,9 +134,6 @@ export default function FilterGlobal({
                   <CustomTextField
                     {...params}
                     placeholder='Pilih Unit'
-                    sx={{
-                      width: '300px',
-                    }}
                   />
                 )}
               />
@@ -165,9 +154,6 @@ export default function FilterGlobal({
                   <CustomTextField
                     {...params}
                     placeholder='Pilih rack'
-                    sx={{
-                      width: '300px',
-                    }}
                   />
                 )}
               />
