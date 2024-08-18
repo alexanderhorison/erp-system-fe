@@ -35,7 +35,7 @@ const RowOptions = ({ handleView }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleView}>
+        <IconButton onClick={() => handleView()}>
           <Icon icon='tabler:eye' />
         </IconButton>
       </Box>
@@ -43,7 +43,7 @@ const RowOptions = ({ handleView }) => {
   )
 }
 
-export default function TableAllInvoice({}) {
+export default function TableAllInvoice({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -57,15 +57,15 @@ export default function TableAllInvoice({}) {
     setSearchText(searchValue)
     HandleSearh({
       data,
-      keys: ['deliveryOrderId', 'warehouseDestination', 'warehouseOrigin'],
+      keys: ['code', 'warehouseDestination', 'warehouseOrigin'],
       searchValue,
       setData: setFilteredData
     })
   }
 
   const handleRowClick = params => {
-    const deliveryOrderId = params.id
-    router.push(`/delivery-order/${deliveryOrderId}`)
+    const code = params.code
+    router.push(`/delivery-order/${code}`)
   }
 
   const handleAdd = () => {
@@ -88,7 +88,7 @@ export default function TableAllInvoice({}) {
           {
             flex: 0.1,
             minWidth: 100,
-            field: 'deliveryOrderId',
+            field: 'code',
             headerName: 'Order Id',
             cellClassName: {
               cursor: 'pointer'
@@ -96,7 +96,7 @@ export default function TableAllInvoice({}) {
             renderCell: params => {
               return (
                 <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.deliveryOrderId}
+                  {params.row.code}
                 </Typography>
               )
             }
@@ -205,7 +205,6 @@ export default function TableAllInvoice({}) {
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
-        onCellClick={handleRowClick}
         paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderAllInvoice }}
         onPaginationModelChange={setPaginationModel}
