@@ -1,8 +1,7 @@
 import { useState } from 'react'
 
-import { Card, Typography } from '@mui/material'
+import { Card, Grid, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import Tooltip from '@mui/material/Tooltip'
 
 
 import TableProductViewHeader from './TableProductViewHeader'
@@ -28,8 +27,8 @@ export default function TableProductView({ data, warehouseId }) {
     return row.productWarehouseId
   }
 
-  const clickHistory = (id) => {
-    router.push(`/product-warehouse/product/${id}/history`)
+  const clickDetail = (id) => {
+    router.push(`/product-warehouse/product/${id}`)
   }
 
   return (
@@ -45,17 +44,16 @@ export default function TableProductView({ data, warehouseId }) {
             headerName: 'Nama Produks',
             renderCell: params => {
               return (
-                <Tooltip title="Check History" placement="top">
-                  <span onClick={() => clickHistory(params?.row?.productWarehouseId)}>
-                    <Typography variant="body2" sx={{
-                      color: 'text.primary',
-                      cursor: 'pointer',
-                      '&:hover': { color: 'info.main' },
-                    }}>
-                      {params.row.productName}
-                    </Typography>
-                  </span>
-                </Tooltip>
+                <Grid container flex={0.1} >
+                  <Typography variant="body2" sx={{
+                    color: 'text.primary',
+                  }}>
+                    {params.row.productName}
+                  </Typography>
+                  <Typography fontSize={12} sx={{ cursor: 'pointer', ":hover": { color: 'info.main' } }} onClick={() => clickDetail(params?.row?.productWarehouseId)}>
+                    Details
+                  </Typography>
+                </Grid>
               )
             }
           },
