@@ -24,6 +24,7 @@ export default function TableHistoryProduct({ history, product }) {
                 key={index}
                 length={history.length}
                 router={router}
+                product={product}
                 {...item}
               />
             ))
