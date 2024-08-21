@@ -17,7 +17,7 @@ import { Controller, useForm } from 'react-hook-form'
 
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { IconButton, MenuItem } from '@mui/material'
+import { DialogActions, IconButton, MenuItem } from '@mui/material'
 import { addRole } from 'src/store/apps/role'
 import { Icon } from '@iconify/react'
 import { showErrors } from '../user/modalUserAdd'
@@ -244,14 +244,20 @@ const TableHeader = props => {
                   />
                 )}
               />
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-evenly' }}>
+              <DialogActions
+                sx={{
+                  justifyContent: 'end',
+                  px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(0)} !important`],
+                  pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`],
+                }}
+              >
                 <Button variant='tonal' color='secondary' onClick={handleDialogToggle}>
                   Cancel
                 </Button>
-                <Button type='submit' variant='contained' sx={{ mr: 3 }}>
+                <Button type='submit' variant='contained'>
                   Submit
                 </Button>
-              </Box>
+              </DialogActions>
             </Box>
           </form>
         </DialogContent>

@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, Box, Typography, Button, Grid, MenuItem } from '@mui/material'
+import { Dialog, DialogContent, Box, Typography, Button, Grid, MenuItem, DialogActions } from '@mui/material'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import { Transition } from '../user/modalUserEdit'
 import { useDispatch, useSelector } from 'react-redux'
@@ -197,16 +197,23 @@ export default function ModalRoleEdit({ data, isOpen, closePress, isView }) {
                 />
               </Grid>
             </Grid>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-evenly', mt: 3 }}>
+            <DialogActions
+              sx={{
+                justifyContent: 'end',
+                px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(0)} !important`],
+                pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`],
+                mt: theme => [`${theme.spacing(6)} !important`, `${theme.spacing(6)} !important`],
+              }}
+            >
               <Button variant='tonal' color='secondary' onClick={closePress}>
                 Cancel
               </Button>
               {!isView && (
-                <Button type='submit' variant='contained' sx={{ mr: 3 }}>
+                <Button type='submit' variant='contained'>
                   Submit
                 </Button>
               )}
-            </Box>
+            </DialogActions>
           </form>
         </DialogContent>
       </Dialog>
