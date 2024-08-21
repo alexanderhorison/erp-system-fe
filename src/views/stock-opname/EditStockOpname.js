@@ -1,5 +1,5 @@
-import { Button, Card, CardContent, Grid, Typography, useTheme } from '@mui/material'
-import { forwardRef, useEffect, useState } from 'react'
+import { Button, Card, CardContent, Grid } from '@mui/material'
+import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -32,49 +32,31 @@ export default function EditStockOpname({ }) {
     mode: 'onChange'
   })
 
-  const onSubmit = e => {
-    e.preventDefault()
+  const onSubmit = (status) => {
     const mapData = fields.map(item => {
       let different = item.systemStock - item.actualStock
+      let actualStock = item.actualStock
       if (isNaN(different)) {
+        different = null
+      }
+      if (item.actualStock === "") {
+        actualStock = null
         different = null
       }
       return {
         id: item.id,
         warehouseProductId: item.productWarehouseId,
-        actualStock: item.actualStock,
-        diff: item?.actualStock ? Math.abs(different) : null
+        actualStock: actualStock,
+        diff: actualStock ? Math.abs(different) : different
       }
     })
     let sendData = {
       data: mapData,
-      status: 'DRAFT',
+      status: status,
       notes: getValues('notes')
     }
     dispatch(updateStockOpname({ id, sendData, router }))
   }
-
-  const handlePending = () => {
-    const mapData = fields.map(item => {
-      let different = item.systemStock - item.actualStock
-      if (isNaN(different)) {
-        different = null
-      }
-      return {
-        id: item.id,
-        warehouseProductId: item.productWarehouseId,
-        actualStock: item?.actualStock || null,
-        diff: item?.actualStock ? Math.abs(different) : null
-      }
-    })
-    let sendData = {
-      data: mapData,
-      status: 'PENDING',
-      notes: getValues('notes')
-    }
-    dispatch(updateStockOpname({ id, sendData, router }))
-  }
-
 
   useEffect(() => {
     setFields(detailStockOpname?.listProduct)
@@ -99,7 +81,7 @@ export default function EditStockOpname({ }) {
   }
 
   return (
-    <form onSubmit={e => onSubmit(e)}>
+    <form >
       <Grid container spacing={6}>
         <HeaderDetailStockOpname
           warehouseName={detailStockOpname?.warehouseName}
@@ -150,10 +132,10 @@ export default function EditStockOpname({ }) {
           <Button variant='tonal' color='secondary' onClick={() => router.push('/stock-opname')} startIcon={<Icon icon='tabler:x' />}>
             Cancel
           </Button>
-          <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
+          <Button variant='contained' onClick={() => onSubmit("DRAFT")} startIcon={<Icon icon='tabler:send' />}>
             Submit
           </Button>
-          {/* <Button variant='contained' onClick={handlePending} startIcon={<Icon icon='tabler:square-rounded-check' />}>
+          {/* <Button variant='contained' onClick={() => onSubmit("PENDING")} startIcon={<Icon icon='tabler:square-rounded-check' />}>
             Selesaikan Stok Opname
           </Button> */}
         </Grid>

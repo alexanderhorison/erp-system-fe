@@ -96,7 +96,7 @@ export default function TableAddStockOpname({ data, handleChange, type = "add" }
                 const stock = type === "add" ? params.row.quantity : params.row.systemStock;
                 const actualStock = params.row.actualStock;
                 let selisih = stock - actualStock;
-                if (!params.row.actualStock) {
+                if (actualStock === null || actualStock === "") {
                   selisih = '-'
                 }
                 return (

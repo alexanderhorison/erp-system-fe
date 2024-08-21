@@ -1,23 +1,19 @@
 
-import { Button, Card, CardContent, Grid, Typography } from '@mui/material'
-import { useEffect, useMemo } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { Button, Card, CardContent, Grid } from '@mui/material'
+import { useMemo } from 'react'
+import { useDispatch } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import 'react-datepicker/dist/react-datepicker.css'
 import Icon from 'src/@core/components/icon'
 import { useRouter } from 'next/router'
 
-import { fetchDetailStockOpname, updateStatusStockOpname } from 'src/store/apps/stock-opname'
+import { updateStatusStockOpname } from 'src/store/apps/stock-opname'
 import TableDetailStockOpname from './TableDetailStockOpname'
 import HeaderDetailStockOpname from './HeaderDetailStockOpname'
 
-export default function DetailStockOpname({ stockOpnameId }) {
+export default function DetailStockOpname({ stockOpnameId, detailStockOpname }) {
   const dispatch = useDispatch()
   const router = useRouter()
-  const { detailStockOpname } = useSelector(state => state.stockOpname)
-  useEffect(() => {
-    dispatch(fetchDetailStockOpname(stockOpnameId))
-  }, [stockOpnameId, dispatch])
 
   const listProduct = useMemo(() => {
     if (detailStockOpname && detailStockOpname.listProduct) {
@@ -35,7 +31,6 @@ export default function DetailStockOpname({ stockOpnameId }) {
   }
 
   return (
-    // <form onSubmit={e => onSubmit(e)}>
     <Grid container spacing={6}>
       <HeaderDetailStockOpname
         warehouseName={detailStockOpname?.warehouseName}
@@ -107,6 +102,5 @@ export default function DetailStockOpname({ stockOpnameId }) {
         }
       </Grid>
     </Grid>
-    // </form>
   )
 }

@@ -91,7 +91,6 @@ export const updateStockOpname = createAsyncThunk(
         },
         dispatchRequest: () => {
           router.push('/stock-opname')
-          dispatch(fetchListStockOpname())
         }
       })
     } catch (error) {
