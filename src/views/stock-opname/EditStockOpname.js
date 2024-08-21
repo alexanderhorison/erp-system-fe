@@ -42,7 +42,7 @@ export default function EditStockOpname({ }) {
       return {
         id: item.id,
         warehouseProductId: item.productWarehouseId,
-        actualStock: item?.actualStock || null,
+        actualStock: item.actualStock,
         diff: item?.actualStock ? Math.abs(different) : null
       }
     })
@@ -92,7 +92,7 @@ export default function EditStockOpname({ }) {
       const updatedFields = [...data]
       updatedFields[index] = {
         ...updatedFields[index],
-        actualStock: +actualStock || null
+        actualStock: actualStock
       }
       setFields(updatedFields)
     }

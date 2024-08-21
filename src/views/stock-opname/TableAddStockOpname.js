@@ -79,7 +79,7 @@ export default function TableAddStockOpname({ data, handleChange, type = "add" }
                   fullWidth
                   value={params.row.actualStock}
                   onChange={(e) => {
-                    handleChange(e?.target?.value, params.row.productWarehouseId)
+                    handleChange(`${e?.target?.value}`, params.row.productWarehouseId)
                   }}
                   type="number"
                   sx={{ display: 'block' }}
