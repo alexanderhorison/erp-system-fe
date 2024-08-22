@@ -5,7 +5,6 @@ import { getInitials } from 'src/@core/utils/get-initials'
 
 import { Box, Card, IconButton, Typography } from '@mui/material'
 import CustomAvatar from 'src/@core/components/mui/avatar'
-import CustomChip from 'src/@core/components/mui/chip'
 
 import Icon from 'src/@core/components/icon'
 
@@ -206,6 +205,7 @@ export default function TableAllInvoice({ }) {
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
+        onCellClick={params => handleRowClick(params.row)}
         slots={{ toolbar: TableHeaderAllInvoice }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
