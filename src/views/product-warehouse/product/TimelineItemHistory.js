@@ -74,7 +74,7 @@ export default function TimelineItemHistory(props) {
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'success.main' } }}>
             <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
-              Stock Akhir : {props?.lastQuantity}
+              Stock Akhir : {props?.lastQuantity} {props?.product?.unitName.toLowerCase()}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'success.main' } }}>
