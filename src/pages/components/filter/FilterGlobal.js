@@ -47,11 +47,16 @@ export default function FilterGlobal({
 
   // FETCH NEEDED DATA
   useEffect(() => {
+    if (warehouseId){
+      listFilter.includes('rack') && dispatch(fetchMasterDataWarehouseRack(warehouseId))
+    }
+  }, [warehouseId])
+
+  useEffect(() => {
     listFilter.includes('category') && dispatch(fetchDataMasterCategory())
     listFilter.includes('type') && dispatch(fetchMasterDataType())
     listFilter.includes('company') && dispatch(fetchMasterDataCompany())
     listFilter.includes('unit') && dispatch(fetchMasterDataUnit())
-    listFilter.includes('rack') && dispatch(fetchMasterDataWarehouseRack(warehouseId))
   }, [])
 
   return (

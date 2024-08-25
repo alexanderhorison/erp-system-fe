@@ -66,6 +66,11 @@ const navigation = () => {
           path: '/adjustment/goods-out',
           menuId: 17
         },
+        {
+          title: 'Internal Transfer',
+          path: '/internal-transfer',
+          menuId: 18
+        },
       ]
     },
     {
@@ -182,6 +187,11 @@ const navigation = () => {
           title: 'Barang Keluar',
           path: '/adjustment/goods-out',
           menuId: 17
+        },
+        {
+          title: 'Internal Transfer',
+          path: '/internal-transfer',
+          menuId: 18
         },
       ]
     },

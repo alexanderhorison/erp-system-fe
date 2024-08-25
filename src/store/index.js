@@ -24,6 +24,7 @@ import stockOpname from './apps/stock-opname'
 import masterWarehouseRack from './apps/master/warehouse-rack'
 import adjustmentGoodsOut from './apps/adjustment/goods-out'
 import adjustmentGoodsIn from './apps/adjustment/goods-in'
+import internalTransfer from './apps/internal-transfer'
 
 export const store = configureStore({
   reducer: {
@@ -47,7 +48,8 @@ export const store = configureStore({
     masterWarehouseRack,
     stockOpname,
     adjustmentGoodsOut,
-    adjustmentGoodsIn
+    adjustmentGoodsIn,
+    internalTransfer
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

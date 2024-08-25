@@ -11,36 +11,27 @@ import * as yup from 'yup'
 import { useRouter } from 'next/router'
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
 import OptionsGroup from 'src/helpers/groupedInput'
-import { createAdjustmentGoodsIn } from 'src/store/apps/adjustment/goods-in'
-import { fetchMasterDataProduct } from 'src/store/apps/master/product'
-import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
+// import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
+import { createInternalTransfer, fetchListProductInternalTransfer } from 'src/store/apps/internal-transfer'
+import { fetchMasterDataWarehouseRack } from 'src/store/apps/master/warehouse-rack'
 
-export default function AddAdjustmentGoodsIn() {
+export default function AddInternalTransfer() {
   const dispatch = useDispatch()
   const router = useRouter()
   const inputRefs = useRef([])
 
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
-  const { data: masterDataProduct } = useSelector(state => state.masterProduct)
-  const { data: masterDataUnit } = useSelector(state => state.unit)
+  // const { data: masterDataUnit } = useSelector(state => state.unit)
+  const { data: masterDataRack } = useSelector(state => state.masterWarehouseRack)
+  const { listProductInternalTransfer: masterDataListProduct } = useSelector(state => state.internalTransfer)
 
   const schema = yup.object({
-    warehouseDestination: yup.string().required('Gudang tujuan harus diisi'),
+    warehouseId: yup.string().required('Gudang harus diisi'),
     data: yup.array().of(
       yup.object().shape({
-        masterProductId: yup.number().typeError('Produk harus dipilih'),
-        unitId: yup.number().typeError('Satuan harus dipilih'),
-        quantity: yup
-          .string()
-          .required('Kuantiti harus diisi')
-          .test('is-valid-number', 'Kuantiti harus berupa angka', function (value) {
-            const num = Number(value)
-            return !isNaN(num)
-          })
-          .test('is-greater-than-zero', 'Kuantiti harus lebih dari 0', function (value) {
-            const num = Number(value)
-            return num > 0
-          })
+        warehouseProductId: yup.number().typeError('Produk warehouse harus dipilih'),
+        warehouseRackFromId: yup.number().typeError('Rak asal harus dipilih'),
+        warehouseRackToId: yup.number().typeError('Rak tujuan harus dipilih')
       })
     ),
     notes: yup.string().optional()
@@ -64,35 +55,36 @@ export default function AddAdjustmentGoodsIn() {
 
   const onSubmit = data => {
     const listItems = data.data
+
     const lastIndexMap = new Map()
     let duplicate = true
     let lastIndex = -1
     for (let i = 0; i < listItems.length; i++) {
-      const { masterProductId, unitId } = listItems[i]
-      const key = `${masterProductId}-${unitId}`
+      const { warehouseProductId } = listItems[i]
+      const key = `${warehouseProductId}`
       if (lastIndexMap.has(key)) {
         lastIndex = i
       }
       lastIndexMap.set(key, i)
     }
     // Check duplicate index
-    lastIndex !== -1 ? (lastIndex) : (duplicate = false)
-    setError(`data[${lastIndex}].masterProductId`, {
+    lastIndex !== -1 ? lastIndex : (duplicate = false)
+    setError(`data[${lastIndex}].warehouseProductId`, {
       type: 'duplicate',
-      message: `Produk dan Satuan sama dengan item lain`
+      message: `Produk sudah dipilih`
     })
     if (!duplicate) {
       let sendData = {
-        warehouseDestination: Number(data.warehouseDestination),
+        warehouseId: Number(data.warehouseId),
         listProduct: listItems,
         notes: data.notes
       }
-      dispatch(createAdjustmentGoodsIn({ data: sendData, router }))
+      dispatch(createInternalTransfer({ data: sendData, router }))
     }
   }
 
   const addMore = () => {
-    append({ masterProductId: '', unitId: '', quantity: '' })
+    append({ warehouseProductId: '', warehouseRackToId: '', warehouseRackFromId: '' })
   }
 
   const deleteItem = itemIndex => {
@@ -102,14 +94,12 @@ export default function AddAdjustmentGoodsIn() {
   useEffect(() => {
     if (fields.length == 0) {
       append({
-        masterProductId: '',
-        unitId: '',
-        quantity: ''
+        warehouseProductId: '',
+        warehouseRackToId: '',
+        warehouseRackFromId: ''
       })
     }
     dispatch(fetchMasterDataWarehouse())
-    dispatch(fetchMasterDataProduct())
-    dispatch(fetchMasterDataUnit())
   }, [dispatch, append, fields])
 
   return (
@@ -122,7 +112,7 @@ export default function AddAdjustmentGoodsIn() {
                 <Grid container display='flex' gap={4} justifyContent='space-between'>
                   <Grid item xs={12} md={4}>
                     <Controller
-                      name={`warehouseDestination`}
+                      name={`warehouseId`}
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
@@ -132,16 +122,19 @@ export default function AddAdjustmentGoodsIn() {
                           getOptionLabel={option => option.name || ''}
                           onChange={(event, newValue) => {
                             onChange(+newValue?.id)
+                            dispatch(fetchListProductInternalTransfer(+newValue?.id))
+                            dispatch(fetchMasterDataWarehouseRack(+newValue?.id))
+                            remove()
                           }}
                           renderInput={params => (
                             <CustomTextField
                               value={value}
                               {...params}
-                              error={Boolean(errors?.warehouseDestination)}
-                              {...(errors?.warehouseDestination && {
-                                helperText: errors?.warehouseDestination.message
+                              error={Boolean(errors?.warehouseId)}
+                              {...(errors?.warehouseId && {
+                                helperText: errors?.warehouseId.message
                               })}
-                              label='Gudang Tujuan'
+                              label='Gudang'
                             />
                           )}
                         />
@@ -158,28 +151,42 @@ export default function AddAdjustmentGoodsIn() {
                 <>
                   <CardContent key={index}>
                     <Grid container spacing={6}>
-                      <Grid item xs={12} md={7}>
+                      <Grid item xs={12} md={5}>
                         <Controller
-                          name={`data[${index}].masterProductId`}
+                          name={`data[${index}].warehouseProductId`}
                           control={control}
                           rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
                             <CustomAutocomplete
                               key={index}
-                              options={OptionsGroup(masterDataProduct, 'category')}
+                              options={OptionsGroup(masterDataListProduct, 'categoryName')}
                               id='autocomplete-grouped'
-                              groupBy={option => option.category}
-                              getOptionLabel={option => option.name || ''}
+                              groupBy={option => option.categoryName}
+                              getOptionLabel={option => option.productName || ''}
                               onChange={(event, newValue) => {
-                                onChange(+newValue?.id)
+                                onChange(+newValue?.warehouseProductId)
+                                const selectedProduct = masterDataListProduct.find(
+                                  product => product.warehouseProductId === +newValue?.warehouseProductId
+                                )
+                                if (selectedProduct) {
+                                  // setValue(`data[${index}].unitName`, selectedProduct.unitName)
+                                  setValue(`data[${index}].rackName`, selectedProduct.rackName)
+                                  setValue(`data[${index}].warehouseRackFromId`, selectedProduct.warehouseRackFromId)
+                                  setValue(`data[${index}].companyName`, selectedProduct.companyName)
+                                } else {
+                                  // setValue(`data[${index}].unitName`, '')
+                                  setValue(`data[${index}].rackName`, '')
+                                  setValue(`data[${index}].warehouseRackFromId`, selectedProduct.warehouseRackFromId)
+                                  setValue(`data[${index}].companyName`, '')
+                                }
                               }}
                               renderInput={params => (
                                 <CustomTextField
-                                  value={item.masterProductId}
+                                  value={item.warehouseProductId}
                                   {...params}
-                                  error={Boolean(errors?.data?.[index]?.masterProductId)}
-                                  {...(errors?.data?.[index]?.masterProductId && {
-                                    helperText: errors?.data?.[index]?.masterProductId.message
+                                  error={Boolean(errors?.data?.[index]?.warehouseProductId)}
+                                  {...(errors?.data?.[index]?.warehouseProductId && {
+                                    helperText: errors?.data?.[index]?.warehouseProductId.message
                                   })}
                                   label='Pilih produk'
                                   inputRef={el => (inputRefs.current[index] = el)}
@@ -189,53 +196,84 @@ export default function AddAdjustmentGoodsIn() {
                           )}
                         />
                       </Grid>
+                      {/* <Grid item xs={5} md={2}>
+                        <Controller
+                          name={`data[${index}].unitName`}
+                          control={control}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomTextField
+                              fullWidth
+                              label='Unit'
+                              disabled
+                              value={value}
+                              onChange={e => {
+                                onChange(e.target.value)
+                              }}
+                              sx={{ display: 'block' }}
+                            />
+                          )}
+                        />
+                      </Grid> */}
                       <Grid item xs={5} md={2}>
                         <Controller
-                          name={`data[${index}].unitId`}
+                          name={`data[${index}].companyName`}
                           control={control}
-                          rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
-                            <CustomAutocomplete
-                              options={masterDataUnit}
-                              id='autocomplete-custom'
-                              getOptionLabel={option => option.name || ''}
-                              onChange={(event, newValue) => {
-                                onChange(+newValue?.id)
+                            <CustomTextField
+                              fullWidth
+                              label='Perusahaan'
+                              disabled
+                              value={value}
+                              onChange={e => {
+                                onChange(e.target.value)
                               }}
-                              renderInput={params => (
-                                <CustomTextField
-                                  value={isNaN(value) ? '' : value}
-                                  {...params}
-                                  label='Pilih satuan'
-                                  error={Boolean(errors?.data?.[index]?.unitId)}
-                                  {...(errors?.data?.[index]?.unitId && {
-                                    helperText: errors?.data?.[index]?.unitId.message
-                                  })}
-                                />
-                              )}
+                              sx={{ display: 'block' }}
                             />
                           )}
                         />
                       </Grid>
                       <Grid item xs={5} md={2}>
                         <Controller
-                          name={`data[${index}].quantity`}
+                          name={`data[${index}].rackName`}
                           control={control}
-                          rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
                             <CustomTextField
                               fullWidth
-                              label='Kuantiti'
+                              label='Rak Asal'
+                              disabled
                               value={value}
                               onChange={e => {
                                 onChange(e.target.value)
                               }}
-                              type='number'
                               sx={{ display: 'block' }}
-                              error={Boolean(errors?.data?.[index]?.quantity)}
-                              {...(errors?.data?.[index]?.quantity && {
-                                helperText: errors?.data?.[index]?.quantity.message
-                              })}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={5} md={2}>
+                        <Controller
+                          name={`data[${index}].warehouseRackToId`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomAutocomplete
+                              options={masterDataRack}
+                              getOptionLabel={option => option.name || ''}
+                              id='autocomplete-custom'
+                              onChange={(event, newValue) => {
+                                onChange(+newValue?.id)
+                              }}
+                              renderInput={params => (
+                                <CustomTextField
+                                  value={item.warehouseRackToId}
+                                  {...params}
+                                  label='Rak Tujuan'
+                                  error={Boolean(errors?.data?.[index]?.warehouseRackToId)}
+                                  {...(errors?.data?.[index]?.warehouseRackToId && {
+                                    helperText: errors?.data?.[index]?.warehouseRackToId.message
+                                  })}
+                                />
+                              )}
                             />
                           )}
                         />
