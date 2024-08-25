@@ -42,7 +42,7 @@ const RowOptions = ({ handleView }) => {
   )
 }
 
-export default function TableAllReceive({}) {
+export default function TableAllReceive({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -56,15 +56,15 @@ export default function TableAllReceive({}) {
     setSearchText(searchValue)
     HandleSearh({
       data,
-      keys: ['deliveryOrderId', 'warehouseDestination', 'warehouseOrigin'],
+      keys: ['code', 'warehouseDestination', 'warehouseOrigin'],
       searchValue,
       setData: setFilteredData
     })
   }
 
   const handleRowClick = params => {
-    const deliveryOrderId = params.id
-    router.push(`/receive-order/${deliveryOrderId}`)
+    const code = params.code
+    router.push(`/receive-order/${code}`)
   }
 
   useEffect(() => {
@@ -83,7 +83,7 @@ export default function TableAllReceive({}) {
           {
             flex: 0.1,
             minWidth: 100,
-            field: 'deliveryOrderId',
+            field: 'code',
             headerName: 'Order Id',
             cellClassName: {
               cursor: 'pointer'
@@ -91,7 +91,7 @@ export default function TableAllReceive({}) {
             renderCell: params => {
               return (
                 <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.deliveryOrderId}
+                  {params.row.code}
                 </Typography>
               )
             }
@@ -209,7 +209,7 @@ export default function TableAllReceive({}) {
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
-        onCellClick={handleRowClick}
+        // onCellClick={handleRowClick}
         paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderReceive }}
         onPaginationModelChange={setPaginationModel}

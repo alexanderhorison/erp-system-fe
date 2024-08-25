@@ -1,6 +1,7 @@
 import { Card, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { useState } from 'react'
+import isNumberCustom from 'src/helpers/isNumberCustom';
 
 export default function TableDetailStockOpname({ data }) {
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
@@ -74,7 +75,7 @@ export default function TableDetailStockOpname({ data }) {
             headerName: 'Actual Stock',
             renderCell: (params) => (
               <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                {params.row.actualStock || "-"}
+                {isNumberCustom(params.row.actualStock)}
               </Typography>
             ),
           },

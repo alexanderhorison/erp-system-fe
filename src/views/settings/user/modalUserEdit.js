@@ -9,7 +9,8 @@ import {
   MenuItem,
   Button,
   InputAdornment,
-  IconButton
+  IconButton,
+  DialogActions
 } from '@mui/material'
 import { forwardRef, useState } from 'react'
 
@@ -350,16 +351,22 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                 />
               </Grid>
             </Grid>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-evenly' }}>
+            <DialogActions
+              sx={{
+                justifyContent: 'end',
+                px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(0)} !important`],
+                pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+              }}
+            >
               <Button variant='tonal' color='secondary' onClick={closePress}>
                 Cancel
               </Button>
               {!isView && (
-                <Button type='submit' variant='contained' sx={{ mr: 3 }}>
+                <Button type='submit' variant='contained'>
                   Submit
                 </Button>
               )}
-            </Box>
+            </DialogActions>
           </form>
         </DialogContent>
       </Dialog>

@@ -69,12 +69,12 @@ export default function TimelineItemHistory(props) {
         <Box sx={{ display: 'flex-column', flexWrap: 'wrap', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'warning.main' } }}>
             <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
-              {props?.infoType || "-"} Sebanyak {props?.quantity} {props?.titleInfo ? "dari" : ""} {props?.titleInfo}
+              {props?.infoType || "-"} Sebanyak {props?.quantity} {`${props?.product?.unitName.toLowerCase()}`} {props?.titleInfo ? "dari" : ""} {props?.titleInfo}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'success.main' } }}>
             <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
-              Stock Akhir : {props?.lastQuantity}
+              Stock Akhir : {props?.lastQuantity} {props?.product?.unitName.toLowerCase()}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'success.main' } }}>

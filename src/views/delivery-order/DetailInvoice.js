@@ -115,7 +115,7 @@ const DetailInvoice = ({ data }) => {
                         <Typography variant='h5'>Surat Jalan</Typography>
                       </MUITableCell>
                       <MUITableCell>
-                        <Typography variant='h5'>{`#${data.deliveryOrderId}`}</Typography>
+                        <Typography variant='h5'>{`#${data.code}`}</Typography>
                       </MUITableCell>
                     </TableRow>
                     <TableRow>

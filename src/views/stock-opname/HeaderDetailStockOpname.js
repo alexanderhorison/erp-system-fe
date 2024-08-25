@@ -29,31 +29,6 @@ export default function HeaderDetailStockOpname(props) {
       <Card>
         <CardContent>
           <Grid container>
-            {/* {
-              props?.status === 'DRAFT' && (
-                <Grid container display='flex' gap={4} justifyContent={'space-between'}>
-                  <Grid item xs={12} md={5.9}>
-                    <CustomTextField
-                      fullWidth
-                      value={props?.warehouseName || "-"}
-                      label='Nama Gudang'
-                      disabled
-                      aria-describedby='validation-schema-name'
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={5.9}>
-                    <CustomTextField
-                      fullWidth
-                      value={props?.createdAt || "-"}
-                      label='Tanggal Stock Opname'
-                      placeholder=''
-                      disabled
-                      aria-describedby='validation-schema-name'
-                    />
-                  </Grid>
-                </Grid>
-              )
-            } */}
             <Grid container flexDirection={'row'} gap={4}>
               <BoxData
                 title={'Nama Gudang'}
@@ -105,15 +80,6 @@ export default function HeaderDetailStockOpname(props) {
                         'warning'}
               />
             </Grid>
-            {props.type === 'DETAIL' && props?.status === 'DRAFT' && <Grid container flexDirection={"row"} justifyContent={"flex-end"} >
-              <Button
-                sx={{ flexDirection: 'row' }}
-                variant='tonal'
-                color='primary' onClick={() => router.push(`/stock-opname/${props?.id}/edit`)}
-                startIcon={<Icon icon='tabler:edit' />}>
-                Edit
-              </Button>
-            </Grid>}
           </Grid>
         </CardContent>
       </Card>
