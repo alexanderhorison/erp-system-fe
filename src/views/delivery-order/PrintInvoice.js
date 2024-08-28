@@ -146,7 +146,7 @@ const PrintInvoice = ({ id }) => {
                         <Typography variant='h5'>{`#${data.code}`}</Typography>
                       </MUITableCell>
                     </TableRow>
-                    <TableRow>
+                    {/* <TableRow>
                       <MUITableCell>
                         <Typography sx={{ color: 'text.secondary' }}>Status</Typography>
                       </MUITableCell>
@@ -158,7 +158,7 @@ const PrintInvoice = ({ id }) => {
                           color={`${transformColor(data?.status)}`}
                         />
                       </MUITableCell>
-                    </TableRow>
+                    </TableRow> */}
                   </TableBody>
                 </Table>
               </Box>
@@ -195,6 +195,7 @@ const PrintInvoice = ({ id }) => {
             <TableHead>
               <TableRow>
                 <TableCell align='left'>Produk</TableCell>
+                <TableCell align='left'>Rak</TableCell>
                 <TableCell align='left'>Unit</TableCell>
                 <TableCell align='left'>Total</TableCell>
               </TableRow>
@@ -207,11 +208,12 @@ const PrintInvoice = ({ id }) => {
                 }
               }}
             >
-              {data?.Delivery_Order_Products?.map((data, index) => {
+              {data?.listProducts?.map((data, index) => {
                 return (
                   <TableRow key={index}>
-                    <TableCell>{data?.Warehouse_Product?.Master_Product?.name}</TableCell>
-                    <TableCell>{data?.Warehouse_Product?.Master_Unit?.name || ''}</TableCell>
+                    <TableCell>{data?.productName}</TableCell>
+                    <TableCell>{data?.rackName}</TableCell>
+                    <TableCell>{data?.unitName || ''}</TableCell>
                     <TableCell>{data?.quantity || ''}</TableCell>
                   </TableRow>
                 )
@@ -250,7 +252,7 @@ const PrintInvoice = ({ id }) => {
                 }}
               >
                 <Typography sx={{ mr: 2, fontWeight: 500, color: 'text.secondary' }}>Dibuat Oleh</Typography>
-                <Typography sx={{ mr: 2, fontWeight: 500, color: 'text.secondary' }}>Diterima Oleh</Typography>
+                {/* <Typography sx={{ mr: 2, fontWeight: 500, color: 'text.secondary' }}>Diterima Oleh</Typography> */}
               </Box>
             </Grid>
             <Grid item xs={12} sm={12} lg={12} sx={{}}>
@@ -260,11 +262,11 @@ const PrintInvoice = ({ id }) => {
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.createdAt)}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.createdAt)}</Typography>
                 </Box>
-                <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 10 }}>
+                {/* <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 10 }}>
                   <Typography sx={{ color: 'text.secondary' }}>{data?.receiverBy?.name}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.receivedAt)}</Typography>
                   <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.receivedAt)}</Typography>
-                </Box>
+                </Box> */}
               </Box>
             </Grid>
           </Grid>

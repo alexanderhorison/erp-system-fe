@@ -43,7 +43,7 @@ const ToolbarInvoice = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
           <Icon fontSize='1.125rem' icon='tabler:printer' />
           Cetak / Print
         </Button>
-        {[1, 3].includes(auth?.user?.roleId) && status == 'PENDING' ? (
+        {/* {[1, 3].includes(auth?.user?.roleId) && status == 'PENDING' ? (
           <>
             <Button
               fullWidth
@@ -55,7 +55,7 @@ const ToolbarInvoice = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
               Terima Surat Jalan
             </Button>
           </>
-        ) : null}
+        ) : null} */}
         {/* <Button
           fullWidth
           sx={{ mb: 2 }}

@@ -88,7 +88,7 @@ export default function TableAllInvoice({ }) {
             flex: 0.1,
             minWidth: 100,
             field: 'code',
-            headerName: 'Order Id',
+            headerName: 'Code',
             cellClassName: {
               cursor: 'pointer'
             },
@@ -118,24 +118,24 @@ export default function TableAllInvoice({ }) {
               )
             }
           },
-          {
-            flex: 0.15,
-            minWidth: 120,
-            field: 'receivedAt',
-            headerName: 'Tanggal Diterima',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.receivedAt}
-                  </Typography>
-                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.dateReceived)}
-                  </Typography>
-                </Box>
-              )
-            }
-          },
+          // {
+          //   flex: 0.15,
+          //   minWidth: 120,
+          //   field: 'receivedAt',
+          //   headerName: 'Tanggal Diterima',
+          //   renderCell: params => {
+          //     return (
+          //       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          //         <Typography variant='body2' sx={{ color: 'text.primary' }}>
+          //           {params.row.receivedAt}
+          //         </Typography>
+          //         <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
+          //           {returnFormatTime(params.row.dateReceived)}
+          //         </Typography>
+          //       </Box>
+          //     )
+          //   }
+          // },
           {
             flex: 0.16,
             minWidth: 120,
@@ -184,18 +184,18 @@ export default function TableAllInvoice({ }) {
               )
             }
           },
+          // {
+          //   flex: 0.07,
+          //   minWidth: 120,
+          //   field: 'status',
+          //   headerName: 'Status',
+          //   renderCell: params => {
+          //     const { row } = params
+          //     return <Status status={row.status} />
+          //   }
+          // },
           {
-            flex: 0.07,
-            minWidth: 120,
-            field: 'status',
-            headerName: 'Status',
-            renderCell: params => {
-              const { row } = params
-              return <Status status={row.status} />
-            }
-          },
-          {
-            flex: 0.01,
+            flex: 0.1,
             minWidth: 100,
             sortable: false,
             field: 'actions',

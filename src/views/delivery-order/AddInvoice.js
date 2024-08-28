@@ -191,7 +191,7 @@ export default function AddInvoice({ warehouse }) {
                 <>
                   <CardContent key={index}>
                     <Grid container spacing={6}>
-                      <Grid item xs={12} md={7}>
+                      <Grid item xs={12} md={5}>
                         <Controller
                           name={`data[${index}].productWarehouseId`}
                           control={control}
@@ -212,9 +212,11 @@ export default function AddInvoice({ warehouse }) {
                                 if (selectedProduct) {
                                   setValue(`data[${index}].quantity`, selectedProduct.quantity)
                                   setValue(`data[${index}].masterProductId`, selectedProduct.masterProductId)
+                                  setValue(`data[${index}].rackName`, selectedProduct.rackName)
                                 } else {
                                   setValue(`data[${index}].quantity`, '')
                                   setValue(`data[${index}].masterProductId`, '')
+                                  setValue(`data[${index}].rackName`, '')
                                 }
                               }}
                               renderInput={params => (
@@ -228,6 +230,24 @@ export default function AddInvoice({ warehouse }) {
                                   label='Produk'
                                 />
                               )}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={5} md={2}>
+                        <Controller
+                          name={`data[${index}].rackName`}
+                          control={control}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomTextField
+                              fullWidth
+                              label='Rak'
+                              disabled
+                              value={value}
+                              onChange={e => {
+                                onChange(e.target.value)
+                              }}
+                              sx={{ display: 'block' }}
                             />
                           )}
                         />
