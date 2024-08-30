@@ -1,19 +1,20 @@
 
 import { Button, Card, CardContent, Grid } from '@mui/material'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import 'react-datepicker/dist/react-datepicker.css'
 import Icon from 'src/@core/components/icon'
 import { useRouter } from 'next/router'
 
-import { updateStatusStockOpname } from 'src/store/apps/stock-opname'
+import { confirmStockOpname, updateStatusStockOpname } from 'src/store/apps/stock-opname'
 import TableDetailStockOpname from './TableDetailStockOpname'
 import HeaderDetailStockOpname from './HeaderDetailStockOpname'
 
 export default function DetailStockOpname({ stockOpnameId, detailStockOpname }) {
   const dispatch = useDispatch()
   const router = useRouter()
+  const [selectedRows, setSelectedRows] = useState([])
 
   const listProduct = useMemo(() => {
     if (detailStockOpname && detailStockOpname.listProduct) {
@@ -28,6 +29,10 @@ export default function DetailStockOpname({ stockOpnameId, detailStockOpname }) 
 
   const handleReject = () => {
     dispatch(updateStatusStockOpname({ stockOpnameId, status: 'reject', router }))
+  }
+
+  const handleConfirm = () => {
+    dispatch(confirmStockOpname({ stockOpnameId, listProduct: selectedRows, router }))
   }
 
   return (
@@ -53,7 +58,7 @@ export default function DetailStockOpname({ stockOpnameId, detailStockOpname }) 
         )
       }
       <Grid item xs={12}>
-        <TableDetailStockOpname data={listProduct} />
+        <TableDetailStockOpname data={listProduct} status={detailStockOpname?.status} setSelectedRows={setSelectedRows} />
       </Grid>
       {
         (detailStockOpname?.status === 'DRAFT') && (
@@ -98,6 +103,12 @@ export default function DetailStockOpname({ stockOpnameId, detailStockOpname }) 
           (detailStockOpname?.status === 'DRAFT' || detailStockOpname?.status === 'PENDING') &&
           <Button variant='tonal' color='success' onClick={() => handleApprove()} startIcon={<Icon icon='tabler:send' />}>
             Approve
+          </Button>
+        }
+        {
+          detailStockOpname?.status === 'APPROVED' &&
+          <Button variant='tonal' color='success' onClick={() => handleConfirm()} startIcon={<Icon icon='tabler:circle-dashed-check' />}>
+            Confirm
           </Button>
         }
       </Grid>

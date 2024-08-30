@@ -34,3 +34,7 @@ code[class*='language-'] {
 .zero-quantity {
   background-color: #f4cccc;
 }
+
+.stock-opname-quantity {
+  background-color: #ddffdb;
+}
