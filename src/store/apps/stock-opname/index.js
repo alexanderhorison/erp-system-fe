@@ -130,7 +130,6 @@ export const updateStatusStockOpname = createAsyncThunk(
   'appStockOpname/updateStatusStockOpname',
   async ({ stockOpnameId, status, router }, { dispatch, rejectWithValue }) => {
     try {
-
       const response = await swalConfirmationAdd({
         label,
         name: 'Stock Opname',
@@ -139,6 +138,33 @@ export const updateStatusStockOpname = createAsyncThunk(
           return axios({
             method: 'PUT',
             url: `/stock-opname/${status}/` + stockOpnameId,
+          })
+        },
+        dispatchRequest: () => {
+          router.push('/stock-opname')
+          dispatch(fetchListStockOpname())
+        }
+      })
+    } catch (error) {
+      swalError({ error, label })
+      return rejectWithValue({})
+    }
+  }
+)
+
+export const confirmStockOpname = createAsyncThunk(
+  'appStockOpname/confirmStockOpname',
+  async ({ stockOpnameId, listProduct, router }, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await swalConfirmationAdd({
+        label,
+        name: 'Konfirmasi Stock Opname',
+        title: `Anda akan mengubah produk yang sudah dipilih?`,
+        axiosRequest: () => {
+          return axios({
+            method: 'POST',
+            url: `/stock-opname/confirm/` + stockOpnameId,
+            data: listProduct
           })
         },
         dispatchRequest: () => {

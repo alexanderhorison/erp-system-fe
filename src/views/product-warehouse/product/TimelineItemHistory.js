@@ -86,7 +86,16 @@ export default function TimelineItemHistory(props) {
             <Typography
               variant='body2'
               sx={{ fontWeight: 500, color: 'text.primary', ":hover": { cursor: "pointer", color: "blue" } }}
-              // onClick={() => props.router.push(`/adjustment/goods-out/${props?.goodsOutCode}`)}
+              onClick={() => {
+                const url = `/stock-opname/${props?.stockOpnameCode}`;
+                window.open(url, '_blank');
+              }}
+            >
+              {props?.stockOpname}
+            </Typography>
+            <Typography
+              variant='body2'
+              sx={{ fontWeight: 500, color: 'text.primary', ":hover": { cursor: "pointer", color: "blue" } }}
               onClick={() => {
                 const url = `/adjustment/goods-out/${props?.goodsOutCode}`;
                 window.open(url, '_blank');
