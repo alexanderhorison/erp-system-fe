@@ -7,6 +7,7 @@ import {
   swalSuccess,
   swalToastError
 } from 'src/helpers/swalFunction'
+import { fetchListProductByWarehouse } from '../product-warehouse'
 
 const label = 'stock opname'
 
@@ -159,7 +160,7 @@ export const confirmStockOpname = createAsyncThunk(
       const response = await swalConfirmationAdd({
         label,
         name: 'Konfirmasi Stock Opname',
-        title: `Anda akan mengubah produk yang sudah dipilih?`,
+        title: `Apakah anda yakin ingin menyelesaikan / adjust stock untuk produk yang sudah dipilih?`,
         axiosRequest: () => {
           return axios({
             method: 'POST',
@@ -179,13 +180,44 @@ export const confirmStockOpname = createAsyncThunk(
   }
 )
 
+export const checkStockOpnameWarehouse = createAsyncThunk(
+  'appStockOpname/checkStockOpnameWarehouse',
+  async ({ warehouseId }, { dispatch, rejectWithValue }) => {
+    try {
+      if (warehouseId === 0)
+        return {
+          isHaveStockOpname: false,
+          message: ''
+        }
+      const response = await axios({
+        method: 'GET',
+        url: `/stock-opname/check-warehouse/${warehouseId}`
+      })
+      if (response.data.data.isHaveStockOpname) {
+        return response.data.data
+      } else {
+        dispatch(fetchListProductByWarehouse({ warehouseId }))
+      }
+      return response.data.data
+    } catch (error) {
+      swalError({ error, label })
+      return rejectWithValue({})
+    }
+  }
+)
+
 // REDUCER STOCK OPNAME
 export const appStockOpnameSlice = createSlice({
   name: 'appStockOpname',
   initialState: {
     listData: [],
     detailStockOpname: {
-      listProduct: [],
+      listProduct: []
+    },
+    loadingCheckStockOpname: false,
+    checkStockOpname: {
+      message: '',
+      isHaveStockOpname: false
     },
     loading: false,
     error: false,
@@ -216,6 +248,17 @@ export const appStockOpnameSlice = createSlice({
       })
       .addCase(fetchDetailStockOpname.rejected, (state, action) => {
         state.loading = false
+        state.error = action.error.message
+      })
+      .addCase(checkStockOpnameWarehouse.pending, (state, action) => {
+        state.loadingCheckStockOpname = true
+      })
+      .addCase(checkStockOpnameWarehouse.fulfilled, (state, action) => {
+        state.checkStockOpname = action.payload
+        state.loadingCheckStockOpname = false
+      })
+      .addCase(checkStockOpnameWarehouse.rejected, (state, action) => {
+        state.loadingCheckStockOpname = false
         state.error = action.error.message
       })
   }
