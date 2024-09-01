@@ -3,7 +3,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import { useState } from 'react'
 import isNumberCustom from 'src/helpers/isNumberCustom';
 
-export default function TableDetailStockOpname({ data }) {
+export default function TableDetailStockOpname({ data, status, setSelectedRows }) {
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
 
   return (
@@ -11,6 +11,9 @@ export default function TableDetailStockOpname({ data }) {
       <DataGrid
         autoHeight
         getRowId={(row) => row.id}
+        checkboxSelection={status === 'APPROVED'}
+        getRowClassName={params => getRowClassName(params)}
+        {...(status === 'APPROVED' && { onRowSelectionModelChange: (rowSelection) => setSelectedRows(rowSelection) })}
         columns={[
           {
             flex: 0.2,
@@ -19,7 +22,7 @@ export default function TableDetailStockOpname({ data }) {
             headerName: 'Produk',
             renderCell: (params) => (
               <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                {params.row.productName}
+                {params.row.productName} {params.row.isAdjustment ? '(Adjustment)' : ''}
               </Typography>
             ),
           },
@@ -86,8 +89,6 @@ export default function TableDetailStockOpname({ data }) {
             field: 'diff',
             headerName: 'Selisih',
             renderCell: (params) => {
-              const stock = params.row.quantity;
-              const actualStock = params.row.actualStock;
               const selisih = params.row.diff
               return (
                 <Typography variant="body2" sx={{ color: 'text.primary' }}>
@@ -96,6 +97,7 @@ export default function TableDetailStockOpname({ data }) {
               );
             },
           },
+
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
@@ -115,4 +117,11 @@ export default function TableDetailStockOpname({ data }) {
       />
     </Card>
   );
+}
+
+const getRowClassName = params => {
+  if (params.row.isAdjustment) {
+    return 'stock-opname-quantity'
+  }
+  return ''
 }

@@ -1,7 +1,5 @@
-import { Button, Card, CardContent, Grid, Typography } from "@mui/material";
-import CustomTextField from "src/@core/components/mui/text-field";
+import { Card, CardContent, Grid, Typography } from "@mui/material";
 import Icon from 'src/@core/components/icon'
-import { useRouter } from "next/router";
 import { Box } from "@mui/system";
 import CustomAvatar from 'src/@core/components/mui/avatar'
 
@@ -22,7 +20,29 @@ const BoxData = (props) => {
 }
 
 export default function HeaderDetailStockOpname(props) {
-  const router = useRouter()
+
+  const icon = {
+    APPROVED: 'tabler:check',
+    REJECTED: 'tabler:alert-circle',
+    PENDING: 'tabler:clock',
+    CLOSED: 'tabler:archive',
+    DRAFT: 'tabler:edit',
+  }
+
+  const color = {
+    APPROVED: 'success',
+    REJECTED: 'error',
+    DRAFT: 'warning',
+    PENDING: 'secondary'
+  }
+
+  const title = {
+    APPROVED: 'Diterima Oleh',
+    REJECTED: 'Ditolak Oleh',
+    PENDING: 'Stock Opname Pending',
+    CLOSED: 'Stock Opname Closed',
+    DRAFT: 'Stock Opname Draft'
+  }
 
   return (
     <Grid item xs={12} >
@@ -57,8 +77,7 @@ export default function HeaderDetailStockOpname(props) {
               {
                 props?.status !== 'DRAFT' && (
                   <BoxData
-                    title={`${props?.status === 'APPROVED' ? 'Diterima Oleh' :
-                      props?.status === 'REJECTED' ? 'Ditolak Oleh' : 'Stock Opname Pending'}`}
+                    title={title[props?.status]}
                     value={props?.updaterName || "-"}
                     icon={'tabler:eye-check'}
                     color={'primary'}
@@ -68,16 +87,8 @@ export default function HeaderDetailStockOpname(props) {
               <BoxData
                 title={'Status'}
                 value={props?.status || "-"}
-                icon={
-                  props?.status === 'APPROVED' ? 'tabler:check' :
-                    props?.status === 'REJECTED' ? 'tabler:x' :
-                      props?.status === 'PENDING' ? 'tabler:clock'
-                        : 'tabler:notes'}
-                color={
-                  props?.status === 'APPROVED' ? 'success' :
-                    props?.status === 'REJECTED' ? 'error' :
-                      props?.status === 'PENDING' ? 'info' :
-                        'warning'}
+                icon={icon[props?.status]}
+                color={color[props?.status]}
               />
             </Grid>
           </Grid>

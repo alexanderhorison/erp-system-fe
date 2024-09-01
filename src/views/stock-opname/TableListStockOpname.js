@@ -23,14 +23,14 @@ const RowOptions = (props) => {
     props.router.push(`/stock-opname/${props.id}/edit`)
   }
 
-  const handlePageTransformation = () => {
-    props.router.push(`/stock-opname/${props.id}`)
+  const handleClickDetail = () => {
+    props.router.push(`/stock-opname/${props.code}`)
   }
 
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', }}>
-        <IconButton onClick={handlePageTransformation}>
+        <IconButton onClick={handleClickDetail}>
           <Icon icon='tabler:eye' />
         </IconButton>
         {
@@ -82,6 +82,7 @@ export default function TableListStockOpname({ }) {
     <Card>
       <DataGrid
         autoHeight
+        getRowId={(row) => row.code}
         columns={[
           {
             flex: 0.1,
@@ -144,7 +145,7 @@ export default function TableListStockOpname({ }) {
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
-
+        onRowClick={row => router.push(`/stock-opname/${row.id}`)}
         slots={{ toolbar: TableHeaderStockOpname }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
