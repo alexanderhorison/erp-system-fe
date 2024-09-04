@@ -10,11 +10,10 @@ import Icon from 'src/@core/components/icon'
 
 import { DataGrid } from '@mui/x-data-grid'
 
-import TableHeaderAllInvoice from './TableHeaderAllInvoice'
+import TableHeaderChooseReceiveOrder from './TableHeaderChooseReceiveOrder'
 import { fetchAllDeliveryOrder } from 'src/store/apps/delivery-order'
 import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
-import { Status } from 'src/@core/components/common'
 
 const renderClient = params => {
   const { row } = params
@@ -42,7 +41,7 @@ const RowOptions = ({ handleView }) => {
   )
 }
 
-export default function TableAllInvoice({ }) {
+export default function TableAllChooseReceiveOrder({}) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -64,15 +63,15 @@ export default function TableAllInvoice({ }) {
 
   const handleRowClick = params => {
     const code = params.code
-    router.push(`/delivery-order/${code}`)
-  }
-
-  const handleAdd = () => {
-    router.push(`/delivery-order/add`)
+    router.push(`/receive-order/add/${code}`)
   }
 
   useEffect(() => {
-    dispatch(fetchAllDeliveryOrder())
+    dispatch(
+      fetchAllDeliveryOrder({
+        receiveOrder: true
+      })
+    )
   }, [dispatch])
 
   useEffect(() => {
@@ -83,7 +82,6 @@ export default function TableAllInvoice({ }) {
     <Card>
       <DataGrid
         autoHeight
-        loading={loadingDataListDeliveryOrder}
         columns={[
           {
             flex: 0.1,
@@ -119,24 +117,6 @@ export default function TableAllInvoice({ }) {
               )
             }
           },
-          // {
-          //   flex: 0.15,
-          //   minWidth: 120,
-          //   field: 'receivedAt',
-          //   headerName: 'Tanggal Diterima',
-          //   renderCell: params => {
-          //     return (
-          //       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          //         <Typography variant='body2' sx={{ color: 'text.primary' }}>
-          //           {params.row.receivedAt}
-          //         </Typography>
-          //         <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-          //           {returnFormatTime(params.row.dateReceived)}
-          //         </Typography>
-          //       </Box>
-          //     )
-          //   }
-          // },
           {
             flex: 0.16,
             minWidth: 120,
@@ -185,16 +165,6 @@ export default function TableAllInvoice({ }) {
               )
             }
           },
-          // {
-          //   flex: 0.07,
-          //   minWidth: 120,
-          //   field: 'status',
-          //   headerName: 'Status',
-          //   renderCell: params => {
-          //     const { row } = params
-          //     return <Status status={row.status} />
-          //   }
-          // },
           {
             flex: 0.1,
             minWidth: 100,
@@ -204,10 +174,11 @@ export default function TableAllInvoice({ }) {
             renderCell: ({ row }) => <RowOptions handleView={() => handleRowClick(row)} />
           }
         ]}
+        loading={loadingDataListDeliveryOrder}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
         onCellClick={params => handleRowClick(params.row)}
-        slots={{ toolbar: TableHeaderAllInvoice }}
+        slots={{ toolbar: TableHeaderChooseReceiveOrder }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
         sx={{
@@ -227,8 +198,7 @@ export default function TableAllInvoice({ }) {
             value: searchText,
             placeholder: 'Cari surat jalan',
             clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            handleAdd: handleAdd
+            onChange: event => handleSearch(event.target.value)
           }
         }}
       />

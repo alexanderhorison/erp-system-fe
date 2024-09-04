@@ -11,10 +11,10 @@ import Icon from 'src/@core/components/icon'
 
 import { DataGrid } from '@mui/x-data-grid'
 
-import { fetchAllDeliveryOrder } from 'src/store/apps/delivery-order'
 import TableHeaderReceive from './TableHeaderReceive'
 import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
+import { fetchAllReceiveOrder } from 'src/store/apps/receive-order'
 
 const renderClient = params => {
   const { row } = params
@@ -50,13 +50,13 @@ export default function TableAllReceive({ }) {
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
-  const { dataListDeliveryOrder: data } = useSelector(state => state.deliveryOrder)
+  const { dataListOrderReceive: data, loadingDataListOrderReceive } = useSelector(state => state.receiveOrder)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
     HandleSearh({
       data,
-      keys: ['code', 'warehouseDestination', 'warehouseOrigin'],
+      keys: ['code'],
       searchValue,
       setData: setFilteredData
     })
@@ -67,8 +67,12 @@ export default function TableAllReceive({ }) {
     router.push(`/receive-order/${code}`)
   }
 
+  const handleAdd = () => {
+    router.push(`/receive-order/add`)
+  }
+
   useEffect(() => {
-    dispatch(fetchAllDeliveryOrder())
+    dispatch(fetchAllReceiveOrder())
   }, [dispatch])
 
   useEffect(() => {
@@ -79,12 +83,13 @@ export default function TableAllReceive({ }) {
     <Card>
       <DataGrid
         autoHeight
+        loading={loadingDataListOrderReceive}
         columns={[
           {
-            flex: 0.1,
+            flex: 0.2,
             minWidth: 100,
             field: 'code',
-            headerName: 'Order Id',
+            headerName: 'Code',
             cellClassName: {
               cursor: 'pointer'
             },
@@ -97,7 +102,7 @@ export default function TableAllReceive({ }) {
             }
           },
           {
-            flex: 0.15,
+            flex: 0.2,
             minWidth: 120,
             field: 'createdAt',
             headerName: 'Tanggal Dibuat',
@@ -114,26 +119,26 @@ export default function TableAllReceive({ }) {
               )
             }
           },
+          // {
+          //   flex: 0.15,
+          //   minWidth: 120,
+          //   field: 'receivedAt',
+          //   headerName: 'Tanggal Diterima',
+          //   renderCell: params => {
+          //     return (
+          //       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          //         <Typography variant='body2' sx={{ color: 'text.primary' }}>
+          //           {params.row.receivedAt}
+          //         </Typography>
+          //         <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
+          //           {returnFormatTime(params.row.dateReceived)}
+          //         </Typography>
+          //       </Box>
+          //     )
+          //   }
+          // },
           {
-            flex: 0.15,
-            minWidth: 120,
-            field: 'receivedAt',
-            headerName: 'Tanggal Diterima',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.receivedAt}
-                  </Typography>
-                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.dateReceived)}
-                  </Typography>
-                </Box>
-              )
-            }
-          },
-          {
-            flex: 0.16,
+            flex: 0.2,
             minWidth: 120,
             field: 'createdBy',
             headerName: 'Dibuat Oleh',
@@ -154,53 +159,53 @@ export default function TableAllReceive({ }) {
               )
             }
           },
+          // {
+          //   flex: 0.16,
+          //   minWidth: 120,
+          //   field: 'warehouseOrigin',
+          //   headerName: 'Gudang Sumber',
+          //   renderCell: params => {
+          //     return (
+          //       <Typography variant='body2' sx={{ color: 'text.primary' }}>
+          //         {params.row.warehouseOrigin}
+          //       </Typography>
+          //     )
+          //   }
+          // },
+          // {
+          //   flex: 0.16,
+          //   minWidth: 120,
+          //   field: 'warehouseDestination',
+          //   headerName: 'Gudang Tujuan',
+          //   renderCell: params => {
+          //     return (
+          //       <Typography variant='body2' sx={{ color: 'text.primary' }}>
+          //         {params.row.warehouseDestination}
+          //       </Typography>
+          //     )
+          //   }
+          // },
+          // {
+          //   flex: 0.07,
+          //   minWidth: 120,
+          //   field: 'status',
+          //   headerName: 'Status',
+          //   renderCell: params => {
+          //     const { row } = params
+          //     return (
+          //       <CustomChip
+          //         rounded
+          //         size='small'
+          //         skin='light'
+          //         color={row.status === 'PENDING' ? 'info' : 'success'}
+          //         label={row.status}
+          //         sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
+          //       />
+          //     )
+          //   }
+          // },
           {
-            flex: 0.16,
-            minWidth: 120,
-            field: 'warehouseOrigin',
-            headerName: 'Gudang Sumber',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.warehouseOrigin}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.16,
-            minWidth: 120,
-            field: 'warehouseDestination',
-            headerName: 'Gudang Tujuan',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.warehouseDestination}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.07,
-            minWidth: 120,
-            field: 'status',
-            headerName: 'Status',
-            renderCell: params => {
-              const { row } = params
-              return (
-                <CustomChip
-                  rounded
-                  size='small'
-                  skin='light'
-                  color={row.status === 'PENDING' ? 'info' : 'success'}
-                  label={row.status}
-                  sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
-                />
-              )
-            }
-          },
-          {
-            flex: 0.01,
+            flex: 0.20,
             minWidth: 100,
             sortable: false,
             field: 'actions',
@@ -229,9 +234,10 @@ export default function TableAllReceive({ }) {
           },
           toolbar: {
             value: searchText,
-            placeholder: 'Cari surat jalan',
+            placeholder: 'Cari penerimaan surat jalan',
             clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value)
+            onChange: event => handleSearch(event.target.value),
+            handleAdd: handleAdd
           }
         }}
       />

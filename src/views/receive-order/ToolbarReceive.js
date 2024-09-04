@@ -14,14 +14,14 @@ import { useDispatch } from 'react-redux'
 import { updateReceiveOrder } from 'src/store/apps/receive-order'
 
 const ToolbarReceive = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, status }) => {
-  const auth = UseAuth()
-  const dispatch = useDispatch()
-  const router = useRouter()
+  // const auth = UseAuth()
+  // const dispatch = useDispatch()
+  // const router = useRouter()
 
-  const onUpdateSuratJalan = (deliveryOrderId, e) => {
-    // e.preventDefault()
-    dispatch(updateReceiveOrder({ deliveryOrderId, router }))
-  }
+  // const onUpdateSuratJalan = (deliveryOrderId, e) => {
+  //   // e.preventDefault()
+  //   dispatch(updateReceiveOrder({ deliveryOrderId, router }))
+  // }
   return (
     <Card>
       <CardContent>
@@ -44,7 +44,7 @@ const ToolbarReceive = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
           <Icon fontSize='1.125rem' icon='tabler:printer' />
           Cetak / Print
         </Button>
-        {[1, 3].includes(auth?.user?.roleId) && status == 'PENDING' ? (
+        {/* {[1, 3].includes(auth?.user?.roleId) && status == 'PENDING' ? (
           <>
             <Button
               fullWidth
@@ -56,7 +56,7 @@ const ToolbarReceive = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
               Terima Surat Jalan
             </Button>
           </>
-        ) : null}
+        ) : null} */}
         {/* <Button
           fullWidth
           sx={{ mb: 2 }}

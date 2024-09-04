@@ -7,9 +7,8 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { Button } from '@mui/material'
 
-const TableHeaderReceive = props => {
+export default function TableHeaderChooseReceiveOrder(props) {
   return (
     <Box
       sx={{
@@ -47,17 +46,6 @@ const TableHeaderReceive = props => {
           }
         }}
       />
-      <Button onClick={() => props.handleAdd(true)} variant='contained' sx={{
-        width: '100%',
-        '@media (min-width: 600px)': {
-          width: 'auto',
-        }, '& svg': { mr: 2 }
-      }}>
-        <Icon fontSize='1.125rem' icon='tabler:plus' />
-        Buat Penerimaan Surat Jalan
-      </Button>
     </Box>
   )
 }
-
-export default TableHeaderReceive

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Penerimaan Surat Jalan'
 
@@ -31,16 +31,58 @@ export const updateReceiveOrder = createAsyncThunk(
 
 export const fetchDetailReceiveOrder = createAsyncThunk(
   'deliveryOrderReceive/fetchDetailDeliveryOrderReceive',
-  async (deliveryOrderId, { rejectWithValue }) => {
+  async (deliveryOrderReceiveId, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
-        url: '/delivery-order/' + deliveryOrderId,
+        url: '/delivery-order-receive/' + deliveryOrderReceiveId,
       })
       return response.data
     } catch (error) {
       swalToastError({ label, error })
       return rejectWithValue([])
+    }
+  }
+)
+
+export const fetchAllReceiveOrder = createAsyncThunk(
+  'deliveryOrderReceive/fetchAllReceiveOrder',
+  async (warehouseId, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/delivery-order-receive/all',
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
+// CREATE DELIVERY ORDER RECEIVE
+export const createDeliveryOrderReceive = createAsyncThunk(
+  'deliveryOrderReceive/createDeliveryOrderReceive',
+  async ({ data, router }, { dispatch, rejectWithValue }) => {
+    try {
+      await swalConfirmationAdd({
+        label: 'Penerimaan Surat Jalan',
+        name: 'Surat',
+        title: "Anda akan membuat penerimaan surat jalan produk?",
+        axiosRequest: () => {
+          return axios({
+            method: 'POST',
+            url: '/delivery-order-receive/create',
+            data
+          })
+        },
+        dispatchRequest: () => {
+          router.push(`/receive-order/`)
+        }
+      })
+    } catch (error) {
+      return rejectWithValue({})
     }
   }
 )
@@ -54,6 +96,10 @@ export const ReceiveOrderSlice = createSlice({
     detailReceiveOrder: {},
     loadingDetailReceiveOrder: true,
     errorDetailReceiveOrder: false,
+
+    loadingDataListOrderReceive: false,
+    dataListOrderReceive: [],
+    errorDataListOrderReceive: false,
   },
   reducers: {},
   extraReducers: builder => {
@@ -80,6 +126,19 @@ export const ReceiveOrderSlice = createSlice({
         state.detailReceiveOrder = {}
         state.loadingDetailReceiveOrder = false
         state.errorDetailReceiveOrder = action.error.message
+      })
+
+      .addCase(fetchAllReceiveOrder.pending, (state, action) => {
+        state.loadingDataListOrderReceive = true
+      })
+      .addCase(fetchAllReceiveOrder.fulfilled, (state, action) => {
+        state.dataListOrderReceive = action.payload.data
+        state.loadingDataListOrderReceive = false
+      })
+      .addCase(fetchAllReceiveOrder.rejected, (state, action) => {
+        state.dataListOrderReceive = []
+        state.loadingDataListOrderReceive = false
+        state.errorDataListOrderReceive = action.error.message
       })
   }
 })

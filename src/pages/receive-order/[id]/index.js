@@ -8,13 +8,9 @@ import Grid from '@mui/material/Grid'
 import Alert from '@mui/material/Alert'
 
 // ** Demo Components Imports
-import PreviewCard from 'src/views/apps/invoice/preview/PreviewCard'
-import PreviewActions from 'src/views/apps/invoice/preview/PreviewActions'
-import AddPaymentDrawer from 'src/views/apps/invoice/shared-drawer/AddPaymentDrawer'
-import SendInvoiceDrawer from 'src/views/apps/invoice/shared-drawer/SendInvoiceDrawer'
-import DetailInvoice from 'src/views/delivery-order/DetailInvoice'
 import ToolbarReceive from 'src/views/receive-order/ToolbarReceive'
 import { fetchDetailReceiveOrder } from 'src/store/apps/receive-order'
+import DetailReceiveOrder from 'src/views/receive-order/DetailReceiveOrder'
 
 export default function ReceiveOrder({}) {
   const dispatch = useDispatch()
@@ -45,19 +41,12 @@ export default function ReceiveOrder({}) {
       <>
         <Grid container spacing={6}>
           <Grid item xl={9} md={8} xs={12}>
-            <DetailInvoice data={data} />
+            <DetailReceiveOrder data={data} />
           </Grid>
           <Grid item xl={3} md={4} xs={12}>
             <ToolbarReceive id={id} status={data?.status} />
-            {/* <PreviewActions
-              id={id}
-              toggleAddPaymentDrawer={toggleAddPaymentDrawer}
-              toggleSendInvoiceDrawer={toggleSendInvoiceDrawer}
-            /> */}
           </Grid>
         </Grid>
-        {/* <SendInvoiceDrawer open={sendInvoiceOpen} toggle={toggleSendInvoiceDrawer} /> */}
-        {/* <AddPaymentDrawer open={addPaymentOpen} toggle={toggleAddPaymentDrawer} /> */}
       </>
     )
   } else {

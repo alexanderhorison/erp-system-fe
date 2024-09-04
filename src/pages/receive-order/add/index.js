@@ -1,14 +1,14 @@
 import { Grid, Typography } from '@mui/material'
-import AddInvoice from 'src/views/delivery-order/AddInvoice'
+import TableAllChooseReceiveOrder from 'src/views/receive-order/TableAllChooseReceiveOrder'
 
-export default function HomeAddInvoice() {
+export default function AddReceiveOrder() {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Typography paddingY={3} fontSize={20}>
-          Pembuatan surat jalan
+          List Surat Jalan
         </Typography>
-        <AddInvoice />
+        <TableAllChooseReceiveOrder />
       </Grid>
     </Grid>
   )

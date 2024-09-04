@@ -26,11 +26,12 @@ export const fetchInvoiceListProductByWarehouseId = createAsyncThunk(
 // GET ALL DELIVERY ORDER
 export const fetchAllDeliveryOrder = createAsyncThunk(
   'deliveryOrder/fetchAllDeliveryOrder',
-  async (warehouseId, { rejectWithValue }) => {
+  async (filter, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
         url: '/delivery-order/all',
+        params: filter
       })
       return response.data
     } catch (error) {
