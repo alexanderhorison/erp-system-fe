@@ -1,5 +1,5 @@
 
-import { Button, Card, CardContent, Grid } from '@mui/material'
+import { Alert, Button, Card, CardContent, Grid, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -53,6 +53,15 @@ export default function DetailStockOpname({ stockOpnameId, detailStockOpname }) 
             <Card>
               <CardContent>Notes</CardContent>
               <CardContent>{detailStockOpname?.notes || '-'}</CardContent>
+            </Card>
+          </Grid>
+        )
+      }
+      {
+        (detailStockOpname?.status === 'APPROVED') && (
+          <Grid item xs={12}>
+            <Card>
+              <Alert severity='info'>Status telah disetujui. Anda dapat melakukan adjustment dengan mencentang opsi di bawah ini.</Alert>
             </Card>
           </Grid>
         )

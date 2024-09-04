@@ -190,7 +190,7 @@ export const appMasterProductSlice = createSlice({
     dataListProductWarehouse: {
       data: []
     },
-    loadingListProductWarehouse: true,
+    loadingListProductWarehouse: false,
     errorListProductWarehouse: false,
 
     detailProductWarehouse: {},

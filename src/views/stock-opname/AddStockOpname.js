@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, Grid, useTheme } from '@mui/material'
+import { Alert, Button, Card, CardContent, Grid, Skeleton, useTheme } from '@mui/material'
 import { forwardRef, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -10,22 +10,17 @@ import Icon from 'src/@core/components/icon'
 import { useRouter } from 'next/router'
 
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
-import { fetchListProductByWarehouse } from 'src/store/apps/product-warehouse'
 import TableAddStockOpname from './TableAddStockOpname'
-import { createStockOpname, updateStatusStockOpname } from 'src/store/apps/stock-opname'
+import {
+  checkStockOpnameWarehouse,
+  createStockOpname,
+} from 'src/store/apps/stock-opname'
 
 const PickersComponent = forwardRef(({ ...props }, ref) => {
   // ** Props
   const { label, readOnly } = props
 
-  return (
-    <CustomTextField
-      fullWidth
-      {...props}
-      inputRef={ref}
-      label={label || ''}
-    />
-  )
+  return <CustomTextField fullWidth {...props} inputRef={ref} label={label || ''} />
 })
 
 export default function AddStockOpname({ warehouse }) {
@@ -35,13 +30,15 @@ export default function AddStockOpname({ warehouse }) {
   const theme = useTheme()
   const { direction } = theme
   const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
+  const [fields, setFields] = useState([])
+  const [warehouseId, setWarehouseId] = useState(0)
 
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
   const { dataListProductWarehouse: dataProduct, loadingListProductWarehouse: loading } = useSelector(
     state => state.productWarehouse
   )
 
-  const [fields, setFields] = useState([])
+  const { checkStockOpname, loadingCheckStockOpname } = useSelector(state => state.stockOpname)
 
   const {
     control,
@@ -77,19 +74,19 @@ export default function AddStockOpname({ warehouse }) {
   }
 
   useEffect(() => {
-    fields.length !== 0 && setFields([])
-    if (dataProduct?.data && fields.length === 0) {
+    if (dataProduct?.data) {
       setFields(dataProduct?.data)
     }
   }, [dataProduct])
 
   useEffect(() => {
-    setFields([])
-  }, [])
-
-  useEffect(() => {
     dispatch(fetchMasterDataWarehouse())
   }, [dispatch])
+
+  useEffect(() => {
+    dispatch(checkStockOpnameWarehouse({ warehouseId: warehouseId }))
+    setFields([])
+  }, [])
 
   const handleChange = (actualStock, productWarehouseId) => {
     let data = fields
@@ -130,6 +127,10 @@ export default function AddStockOpname({ warehouse }) {
     dispatch(createStockOpname({ sendData, router }))
   }
 
+  const handleChangeWarehouse = id => {
+    dispatch(checkStockOpnameWarehouse({ warehouseId: id }))
+  }
+
   return (
     <form onSubmit={e => onSubmit(e)}>
       <Grid container spacing={6}>
@@ -145,11 +146,13 @@ export default function AddStockOpname({ warehouse }) {
                     render={({ field: { value, onChange } }) => (
                       <CustomAutocomplete
                         options={masterDataWarehouse}
+                        disableClearable={true}
                         id='autocomplete-custom'
                         getOptionLabel={option => option.name || ''}
+                        clearable={false}
                         onChange={(event, newValue) => {
                           onChange(+newValue?.id)
-                          dispatch(fetchListProductByWarehouse({ warehouseId: +newValue?.id }))
+                          handleChangeWarehouse(+newValue?.id)
                         }}
                         renderInput={params => (
                           <CustomTextField
@@ -179,37 +182,55 @@ export default function AddStockOpname({ warehouse }) {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12}>
-          <TableAddStockOpname data={fields} handleChange={handleChange} />
-        </Grid>
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Grid item xs={12}>
-                <Controller
-                  name={`notes`}
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange } }) => (
-                    <CustomTextField
-                      multiline
-                      rows={3}
-                      fullWidth
-                      label='Catatan'
-                      placeholder={'Catatan...'}
-                      value={value}
-                      onChange={e => {
-                        onChange(e.target.value)
-                      }}
-                      type='text'
-                      sx={{ display: 'block' }}
+        {checkStockOpname.isHaveStockOpname ? (
+          <Grid item xs={12}>
+            <Alert
+              sx={{ ':hover': { cursor: 'pointer', color: 'blue' } }}
+              severity='error'
+              onClick={() => router.push(`/stock-opname/${checkStockOpname.stockOpnameCode}`)}
+            >
+              {checkStockOpname.message}
+            </Alert>
+          </Grid>
+        ) : (
+          <>
+            <Grid item xs={12}>
+              <TableAddStockOpname
+                loading={loadingCheckStockOpname || loading}
+                data={fields}
+                handleChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Card>
+                <CardContent>
+                  <Grid item xs={12}>
+                    <Controller
+                      name={`notes`}
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomTextField
+                          multiline
+                          rows={3}
+                          fullWidth
+                          label='Catatan'
+                          placeholder={'Catatan...'}
+                          value={value}
+                          onChange={e => {
+                            onChange(e.target.value)
+                          }}
+                          type='text'
+                          sx={{ display: 'block' }}
+                        />
+                      )}
                     />
-                  )}
-                />
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Grid>
+          </>
+        )}
         <Grid
           container
           sx={{ paddingLeft: '25px', marginTop: '20px' }}
@@ -217,8 +238,13 @@ export default function AddStockOpname({ warehouse }) {
           justifyContent='flex-end'
           gap={6}
         >
+          {checkStockOpname.isHaveStockOpname && (
+            <Button variant='tonal' onClick={() => router.back()} startIcon={<Icon icon='tabler:arrow-left' />}>
+              Kembali
+            </Button>
+          )}
           <Button variant='tonal' color='secondary' onClick={() => router.back()} startIcon={<Icon icon='tabler:x' />}>
-            Cancel
+            Batal
           </Button>
           <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
             Simpan Draft

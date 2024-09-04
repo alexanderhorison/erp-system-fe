@@ -1,15 +1,20 @@
-import { Card, Typography } from '@mui/material'
+import { Card, Skeleton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { useState } from 'react'
 import CustomTextField from 'src/@core/components/mui/text-field'
 
-export default function TableAddStockOpname({ data, handleChange, type = "add" }) {
+export default function TableAddStockOpname({ data, handleChange, type = 'add', loading }) {
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
 
+  if (loading) {
+    return <Skeleton width={'full'} height={300} animation='wave' sx={{ mt: -18, mb: -15 }}></Skeleton>
+  }
+
   return (
-    <form >
-      <Card >
+    <form>
+      <Card>
         <DataGrid
+          loading={loading}
           autoHeight
           getRowId={(row) => row.productWarehouseId}
           columns={[
