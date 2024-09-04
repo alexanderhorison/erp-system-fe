@@ -59,13 +59,23 @@ export default function AddInternalTransfer() {
     const lastIndexMap = new Map()
     let duplicate = true
     let lastIndex = -1
+    let validationRack = false
     for (let i = 0; i < listItems.length; i++) {
-      const { warehouseProductId } = listItems[i]
+      const { warehouseProductId, warehouseRackFromId, warehouseRackToId } = listItems[i]
       const key = `${warehouseProductId}`
       if (lastIndexMap.has(key)) {
         lastIndex = i
       }
       lastIndexMap.set(key, i)
+
+      // Check if transferring to the same rack
+      if (warehouseRackFromId === warehouseRackToId) {
+        setError(`data[${i}].warehouseRackToId`, {
+          type: 'invalidTransfer',
+          message: 'Rak asal dan rak tujuan tidak boleh sama'
+        })
+        validationRack = true // Set duplicate to true to prevent sending the data
+      }
     }
     // Check duplicate index
     lastIndex !== -1 ? lastIndex : (duplicate = false)
@@ -73,7 +83,7 @@ export default function AddInternalTransfer() {
       type: 'duplicate',
       message: `Produk sudah dipilih`
     })
-    if (!duplicate) {
+    if (!duplicate && !validationRack) {
       let sendData = {
         warehouseId: Number(data.warehouseId),
         listProduct: listItems,
