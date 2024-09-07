@@ -92,6 +92,11 @@ const navigation = () => {
           title: 'Penerimaan Surat Jalan',
           path: '/receive-order',
           menuId: 11
+        },
+        {
+          title: 'Produk Outstanding',
+          path: '/receipt-order-outstanding',
+          menuId: 19
         }
       ]
     },
@@ -214,6 +219,11 @@ const navigation = () => {
           title: 'Penerimaan Surat Jalan',
           path: '/receive-order',
           menuId: 11
+        },
+        {
+          title: 'Produk Outstanding',
+          path: '/receipt-order-outstanding',
+          menuId: 19
         }
       ]
     },

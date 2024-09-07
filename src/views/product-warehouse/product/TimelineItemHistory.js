@@ -8,6 +8,7 @@ import {
 import { Grid, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { CustomSimpleAccordion } from "src/@core/components/common";
+import BoxCode from "./BoxCode";
 
 
 export default function TimelineItemHistory(props) {
@@ -77,33 +78,13 @@ export default function TimelineItemHistory(props) {
               Stock Akhir : {props?.lastQuantity} {props?.product?.unitName.toLowerCase()}
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'success.main' } }}>
-            <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
-              {props?.formula}
-              {props?.goodsIn}
-              {props?.deliveryOrder}
-            </Typography>
-            <Typography
-              variant='body2'
-              sx={{ fontWeight: 500, color: 'text.primary', ":hover": { cursor: "pointer", color: "blue" } }}
-              onClick={() => {
-                const url = `/stock-opname/${props?.stockOpnameCode}`;
-                window.open(url, '_blank');
-              }}
-            >
-              {props?.stockOpname}
-            </Typography>
-            <Typography
-              variant='body2'
-              sx={{ fontWeight: 500, color: 'text.primary', ":hover": { cursor: "pointer", color: "blue" } }}
-              onClick={() => {
-                const url = `/adjustment/goods-out/${props?.goodsOutCode}`;
-                window.open(url, '_blank');
-              }}
-            >
-              {props?.goodsOut}
-            </Typography>
-          </Box>
+          <BoxCode value={props?.outstanding} isClickable url={`/receipt-order-outstanding/${props?.outstandingCode}`} />
+          <BoxCode value={props?.formula} />
+          <BoxCode value={props?.goodsIn} />
+          <BoxCode value={props?.deliveryOrder} />
+          <BoxCode value={props?.stockOpname} isClickable url={`/stock-opname/${props?.stockOpnameCode}`} />
+          <BoxCode value={props?.deliveryOrderReceipt} isClickable url={`/receive-order/${props?.deliveryOrderReceiptCode}`} />
+          <BoxCode value={props?.goodsOut} isClickable url={`/adjustment/goods-out/${props?.goodsOutCode}`} />
           {
             props?.notes && (
               <Grid xs={12} md={5} mt={2}>
