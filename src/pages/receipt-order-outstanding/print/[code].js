@@ -8,8 +8,7 @@ import PrintReceiptOrderOutstanding from 'src/views/receipt-order-outstanding/Pr
 const InvoicePrint = () => {
   const router = useRouter()
   const code = router.query.code
-  return <>On Progress</>
-  // return <PrintReceiptOrderOutstanding code={code} />
+  return <PrintReceiptOrderOutstanding code={code} />
 }
 
 InvoicePrint.getLayout = page => <BlankLayout>{page}</BlankLayout>
