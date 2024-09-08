@@ -48,7 +48,7 @@ const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAdd
             target='_blank'
             variant='contained'
             component={Link}
-            href={`/receive-order/print/${id}`}
+            href={`/receipt-order-outstanding/print/${data.code}`}
           >
             <Icon fontSize='1.125rem' icon='tabler:printer' />
             Cetak / Print
@@ -59,7 +59,7 @@ const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAdd
                 fullWidth
                 variant='contained'
                 color='warning'
-                onClick={e => handleSave(id, e)}
+                onClick={e => handleSave()}
                 sx={{ mb: 2, '& svg': { mr: 2 } }}
               >
                 <Icon fontSize='1.125rem' icon='tabler:device-floppy' />
@@ -73,7 +73,7 @@ const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAdd
                 fullWidth
                 variant='contained'
                 color='success'
-                onClick={e => handleApprove(id, e)}
+                onClick={e => handleApprove()}
                 sx={{ mb: 2, '& svg': { mr: 2 } }}
               >
                 <Icon fontSize='1.125rem' icon='tabler:circle-dashed-check' />
