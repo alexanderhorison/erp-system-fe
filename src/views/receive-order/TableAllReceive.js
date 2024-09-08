@@ -63,7 +63,7 @@ export default function TableAllReceive({ }) {
   }
 
   const handleRowClick = params => {
-    const code = params.code
+    const code = params.codeReceipt
     router.push(`/receive-order/${code}`)
   }
 
@@ -88,15 +88,31 @@ export default function TableAllReceive({ }) {
           {
             flex: 0.2,
             minWidth: 100,
-            field: 'code',
-            headerName: 'Code',
+            field: 'codeReceipt',
+            headerName: 'Code Receipt',
             cellClassName: {
               cursor: 'pointer'
             },
             renderCell: params => {
               return (
                 <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.code}
+                  {params.row.codeReceipt}
+                </Typography>
+              )
+            }
+          },
+          {
+            flex: 0.2,
+            minWidth: 100,
+            field: 'codeDeliveryOrder',
+            headerName: 'Code Delivery Order',
+            cellClassName: {
+              cursor: 'pointer'
+            },
+            renderCell: params => {
+              return (
+                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
+                  {params.row.codeDeliveryOrder}
                 </Typography>
               )
             }
@@ -214,7 +230,7 @@ export default function TableAllReceive({ }) {
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
-        // onCellClick={handleRowClick}
+        onCellClick={params => handleRowClick(params.row)}
         paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderReceive }}
         onPaginationModelChange={setPaginationModel}

@@ -108,14 +108,12 @@ const DetailInvoice = ({ data }) => {
             </Grid>
             <Grid item sm={6} xs={12}>
               <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
-                <Table sx={{ maxWidth: '18rem' }}>
+                <Table sx={{ maxWidth: '15rem' }}>
                   <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
                     <TableRow>
                       <MUITableCell>
-                        <Typography variant='h5'>Surat Jalan</Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <Typography variant='h5'>{`#${data.code}`}</Typography>
+                        <Typography variant='h6'>Surat Jalan</Typography>
+                        <Typography variant='h6'>{`#${data.code}`}</Typography>
                       </MUITableCell>
                     </TableRow>
                     {/* <TableRow>

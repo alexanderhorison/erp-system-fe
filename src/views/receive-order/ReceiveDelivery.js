@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid } from '@mui/material'
+import { Button, Card, CardContent, CardHeader, Divider, Grid, Typography } from '@mui/material'
 import { useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
@@ -9,6 +9,8 @@ import Icon from 'src/@core/components/icon'
 import * as yup from 'yup'
 import { useRouter } from 'next/router'
 import { createDeliveryOrderReceive } from 'src/store/apps/receive-order'
+import CustomChip from 'src/@core/components/mui/chip'
+
 
 export default function ReceiveDelivery({ data }) {
   const dispatch = useDispatch()
@@ -242,6 +244,20 @@ export default function ReceiveDelivery({ data }) {
                     )}
                   />
                 </Grid>
+              </CardContent>
+            </Card>
+            <Card sx={{ marginTop: '1rem' }}>
+              <CardHeader
+                title='Informasi Tambahan'
+                action={<CustomChip rounded label={`Important!`} skin='light' color={`warning`} />}
+              />
+              <CardContent>
+                <Typography variant='body2' color='text.secondary'>
+                  Tanpa approval, stock akan langsung masuk ke gudang sesuai kuantiti yang di terima
+                </Typography>
+                <Typography variant='body2' color='text.secondary'>
+                  Jika terdapat selisih antara kuantiti diterima dengan kuantiti asal akan masuk ke dalam surat outstanding
+                </Typography>
               </CardContent>
             </Card>
           </Grid>

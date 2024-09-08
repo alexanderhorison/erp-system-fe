@@ -16,6 +16,7 @@ import TableCell from '@mui/material/TableCell'
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
 import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
+import { LinkStyled } from 'src/pages/components/swiper'
 
 const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
@@ -39,8 +40,6 @@ const DetailReceiveOrder = ({ data }) => {
   // ** Hook
   const theme = useTheme()
 
-  console.log(data);
-  
 
   if (data) {
     return (
@@ -109,14 +108,22 @@ const DetailReceiveOrder = ({ data }) => {
             </Grid>
             <Grid item sm={6} xs={12}>
               <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
-                <Table sx={{ maxWidth: '25rem' }}>
+                <Table sx={{ maxWidth: '15rem' }}>
                   <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
                     <TableRow>
                       <MUITableCell>
-                        <Typography variant='h5'>Penerimaan Surat Jalan</Typography>
+                        <Typography variant='h6'>Penerimaan Surat Jalan</Typography>
+                        <Typography variant='h6'>{`#${data.codeReceipt}`}</Typography>
                       </MUITableCell>
+                    </TableRow>
+                    <TableRow>
                       <MUITableCell>
-                        <Typography variant='h5'>{`#${data.code}`}</Typography>
+                        <Typography variant='h6'>Surat Jalan</Typography>
+                        <Typography variant='h6'>
+                          <LinkStyled href={`/delivery-order/${data.codeDeliveryOrder}`} target='_blank'>
+                            {`#${data.codeDeliveryOrder}`}
+                          </LinkStyled>
+                        </Typography>
                       </MUITableCell>
                     </TableRow>
                   </TableBody>

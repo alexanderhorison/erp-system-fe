@@ -34,7 +34,7 @@ import * as source from 'src/views/components/swiper/SwiperSourceCode'
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
 
-const LinkStyled = styled(Link)(({ theme }) => ({
+export const LinkStyled = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   color: theme.palette.primary.main
 }))

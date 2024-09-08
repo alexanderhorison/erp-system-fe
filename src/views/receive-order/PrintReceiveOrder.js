@@ -135,10 +135,14 @@ const PrintReceiveOrder = ({ id }) => {
                   <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
                     <TableRow>
                       <MUITableCell>
-                        <Typography variant='h5'>Penerimaan Surat Jalan</Typography>
+                        <Typography variant='h6'>Penerimaan Surat Jalan</Typography>
+                        <Typography variant='h6'>{`#${data.codeReceipt}`}</Typography>
                       </MUITableCell>
+                    </TableRow>
+                    <TableRow>
                       <MUITableCell>
-                        <Typography variant='h5'>{`#${data.code}`}</Typography>
+                        <Typography variant='h6'>Surat Jalan</Typography>
+                        <Typography variant='h6'>{`#${data.codeDeliveryOrder}`}</Typography>
                       </MUITableCell>
                     </TableRow>
                   </TableBody>
