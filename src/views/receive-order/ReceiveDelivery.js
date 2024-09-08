@@ -30,7 +30,8 @@ export default function ReceiveDelivery({ data }) {
             return value <= quantity
           })
       })
-    )
+    ),
+    notes: yup.string().optional()
   })
 
   const {
@@ -51,7 +52,8 @@ export default function ReceiveDelivery({ data }) {
   const onSubmit = data => {
     let sendData = {
       data: data.data,
-      deliveryOrderId: data.deliveryOrderId
+      deliveryOrderId: data.deliveryOrderId,
+      notes: data.notes,
     }
     dispatch(createDeliveryOrderReceive({ data: sendData, router }))
   }
@@ -235,10 +237,12 @@ export default function ReceiveDelivery({ data }) {
                         multiline
                         rows={3}
                         fullWidth
-                        disabled
                         label='Catatan'
                         placeholder={'Catatan...'}
-                        value={data?.notes}
+                        value={value}
+                        onChange={e => {
+                          onChange(e.target.value)
+                        }}
                         sx={{ display: 'block' }}
                       />
                     )}

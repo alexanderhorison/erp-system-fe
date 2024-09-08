@@ -164,14 +164,6 @@ export default function TableAllChooseReceiveOrder({}) {
                 </Typography>
               )
             }
-          },
-          {
-            flex: 0.1,
-            minWidth: 100,
-            sortable: false,
-            field: 'actions',
-            headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions handleView={() => handleRowClick(row)} />
           }
         ]}
         loading={loadingDataListDeliveryOrder}

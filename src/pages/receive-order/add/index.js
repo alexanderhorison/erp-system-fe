@@ -7,6 +7,7 @@ export default function AddReceiveOrder() {
       <Grid item xs={12}>
         <Typography paddingY={3} fontSize={20}>
           List Surat Jalan
+          <Typography fontSize={15}>Pilih surat jalan</Typography>
         </Typography>
         <TableAllChooseReceiveOrder />
       </Grid>
