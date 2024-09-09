@@ -9,7 +9,7 @@ import TableBody from '@mui/material/TableBody'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import CardContent from '@mui/material/CardContent'
-import { styled, useTheme } from '@mui/material/styles'
+import { useTheme } from '@mui/material/styles'
 import TableContainer from '@mui/material/TableContainer'
 import TableCell from '@mui/material/TableCell'
 
@@ -19,29 +19,14 @@ import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
 import { companyInfo } from 'src/data/companyInfo'
 import { MenuItem, Select } from '@mui/material'
 import IconTjahayaBerkatAbadi from '../common/iconTjahayaBerkatAbadi'
-import { useMemo } from 'react'
-
-const MUITableCell = styled(TableCell)(({ theme }) => ({
-  borderBottom: 0,
-  paddingLeft: '0 !important',
-  paddingRight: '0 !important',
-  '&:not(:last-child)': {
-    paddingRight: `${theme.spacing(2)} !important`
-  }
-}))
-
-const CalcWrapper = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  '&:not(:last-of-type)': {
-    marginBottom: theme.spacing(2)
-  }
-}))
+import { useMemo, useState } from 'react'
+import CustomTextField from 'src/@core/components/mui/text-field'
+import HeaderReceiptOrderOutstanding from './HeaderReceiptOrderOutstanding'
 
 const DetailReceiptOrderOutstanding = ({ data, setData }) => {
   // ** Hook
   const theme = useTheme()
+  const [notes, setNotes] = useState(data?.notes || "")
 
   const handleStatusChange = (index, newStatus) => {
     const updatedProductOutstandings = data.productOutstandings.map((product, i) =>
@@ -50,7 +35,7 @@ const DetailReceiptOrderOutstanding = ({ data, setData }) => {
     setData({ ...data, productOutstandings: updatedProductOutstandings });
   };
 
-  const disabledItem = useMemo(() => {
+  const isApproved = useMemo(() => {
     return data?.status === "APPROVED"
   }, [data?.status]);
 
@@ -74,20 +59,9 @@ const DetailReceiptOrderOutstanding = ({ data, setData }) => {
                 </Box>
               </Box>
             </Grid>
-            <Grid item sm={6} xs={12} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
-                <Typography variant='h6'>Surat Jalan</Typography>
-                <Typography variant='h6'>{`#${data.deliveryOrderCode}`}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
-                <Typography variant='h6'>Penerimaan Surat Jalan</Typography>
-                <Typography variant='h6'>{`#${data.deliveryOrderReceiptCode}`}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
-                <Typography variant='h6'>Surat Outstanding</Typography>
-                <Typography variant='h6'>{`#${data.code}`}</Typography>
-              </Box>
-            </Grid>
+            <HeaderReceiptOrderOutstanding
+              data={data}
+            />
           </Grid>
         </CardContent>
         <Divider />
@@ -111,16 +85,17 @@ const DetailReceiptOrderOutstanding = ({ data, setData }) => {
             </Grid>
           </Grid>
         </CardContent>
-
         <Divider />
-
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell width={"30%"} align='left'>Produk</TableCell>
-                <TableCell width={"11%"} align='left'>Unit</TableCell>
-                <TableCell width={"11%"} align='left'>Rak</TableCell>
+                <TableCell width={"30%"} align='left'>
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography variant='body2'>Produk</Typography>
+                    <Typography variant='body2'>Rak</Typography>
+                  </Box>
+                </TableCell>
                 <TableCell width={"16%"} align='left'>Kuantiti Asal</TableCell>
                 <TableCell width={"16%"} align='left'>Kuantiti Diterima</TableCell>
                 <TableCell width={"16%"} align='left'>Kuantiti Outstanding</TableCell>
@@ -138,16 +113,19 @@ const DetailReceiptOrderOutstanding = ({ data, setData }) => {
               {data?.productOutstandings?.map((data, index) => {
                 return (
                   <TableRow key={index}>
-                    <TableCell>{data?.productName}</TableCell>
-                    <TableCell>{data?.unitName || ''}</TableCell>
-                    <TableCell>{data?.rackName}</TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography variant='body2'>{data?.productName} - {data?.unitName || ''}</Typography>
+                        <Typography variant='body2'>{data?.rackName}</Typography>
+                      </Box>
+                    </TableCell>
                     <TableCell>{data?.quantityFrom}</TableCell>
                     <TableCell>{data?.quantityReceived}</TableCell>
                     <TableCell>{data?.quantityOutstanding}</TableCell>
                     <TableCell>
                       <Select
-                        // disabled={data?.status === "APPROVED" ? true : false}
-                        disabled={disabledItem}
+                        size='small'
+                        disabled={isApproved}
                         value={data?.status}
                         onChange={(e) => handleStatusChange(index, e.target.value)}
                       >
@@ -161,21 +139,45 @@ const DetailReceiptOrderOutstanding = ({ data, setData }) => {
             </TableBody>
           </Table>
         </TableContainer>
-
-        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
-          <Grid container>
-            <Grid item xs={12} sm={9} lg={9} sx={{ order: { sm: 1, xs: 2 }, mb: 4 }}>
-              <Box sx={{ mb: 2, display: 'flex-col', alignItems: 'center' }}>
-                <Typography sx={{ color: 'text.secondary' }}>
-                  <Typography component='span' sx={{ mr: 1.5, fontWeight: 500, color: 'inherit' }}>
-                    CATATAN :
-                  </Typography>
-                </Typography>
-                <Typography sx={{ color: 'text.secondary', mt: 3 }}>{data?.notes}</Typography>
-              </Box>
+        {
+          isApproved ?
+            <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
+              <Grid container>
+                <Grid item xs={12} sm={9} lg={9} sx={{ order: { sm: 1, xs: 2 }, mb: 4 }}>
+                  <Box sx={{ mb: 2, display: 'flex-col', alignItems: 'center' }}>
+                    <Typography sx={{ color: 'text.secondary' }}>
+                      <Typography component='span' sx={{ mr: 1.5, fontWeight: 500, color: 'inherit' }}>
+                        CATATAN :
+                      </Typography>
+                    </Typography>
+                    <Typography sx={{ color: 'text.secondary', mt: 3 }}>{data?.notes}</Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </CardContent>
+            :
+            <Grid item xs={12}>
+              <Card sx={{ boxShadow: 'none' }}>
+                <CardContent>
+                  <Grid item xs={12}>
+                    <CustomTextField
+                      multiline
+                      rows={3}
+                      fullWidth
+                      label='Catatan'
+                      placeholder={'Catatan...'}
+                      value={data?.notes}
+                      onChange={e => {
+                        setData({ ...data, notes: e.target.value })
+                      }}
+                      type='text'
+                      sx={{ display: 'block' }}
+                    />
+                  </Grid>
+                </CardContent>
+              </Card>
             </Grid>
-          </Grid>
-        </CardContent>
+        }
 
         <Divider />
 

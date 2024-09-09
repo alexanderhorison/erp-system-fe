@@ -11,21 +11,20 @@ import Icon from 'src/@core/components/icon'
 import { DataGrid } from '@mui/x-data-grid'
 
 import HandleSearh from 'src/helpers/handleSearch'
-import { returnFormatTime } from 'src/helpers/formatDate'
+import { returnFormatDate, returnFormatDateDay, returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
 import { fetchAllReceiptOrderOutstanding } from 'src/store/apps/receipt-order-outstanding'
 import TableHeaderReceiptOrderOutstanding from './TableHeaderReceiptOrderOutstanding'
 
-const renderClient = params => {
-  const { row } = params
-  const name = getInitials(row.createdBy.name ? row.createdBy.name : '-').slice(0, 2)
+const renderClient = ({ name }) => {
+  const initial = getInitials(name ? name : '-').slice(0, 2)
   const stateNum = 5
   const states = ['success', 'error', 'warning', 'info', 'primary', 'secondary']
   const color = states[stateNum]
 
   return (
     <CustomAvatar skin='light' color={color} sx={{ mr: 3, fontSize: '.8rem', width: '1.875rem', height: '1.875rem' }}>
-      {name}
+      {initial}
     </CustomAvatar>
   )
 }
@@ -82,17 +81,27 @@ export default function TableReceiptOrderOutstanding({ }) {
         loading={loading}
         columns={[
           {
-            flex: 0.2,
+            flex: 0.15,
             minWidth: 100,
             field: 'code',
-            headerName: 'Code',
-            cellClassName: {
-              cursor: 'pointer'
-            },
+            headerName: 'Code Outstanding',
             renderCell: params => {
               return (
                 <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
                   {params.row.code}
+                </Typography>
+              )
+            }
+          },
+          {
+            flex: 0.15,
+            minWidth: 100,
+            field: 'deliveryOrderReceiptCode',
+            headerName: 'Kode penerimaan surat jalan',
+            renderCell: params => {
+              return (
+                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
+                  {params.row.deliveryOrderReceiptCode}
                 </Typography>
               )
             }
@@ -105,11 +114,11 @@ export default function TableReceiptOrderOutstanding({ }) {
             renderCell: params => {
               return (
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.createdAt}
+                  <Typography variant='body2' sx={{ color: 'text.primary', textAlign: 'center' }}>
+                    {returnFormatDateDay(params.row.createdAt)}
                   </Typography>
                   <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.dateCreated)}
+                    {returnFormatTime(params.row.createdAt)}
                   </Typography>
                 </Box>
               )
@@ -134,7 +143,7 @@ export default function TableReceiptOrderOutstanding({ }) {
           //   }
           // },
           {
-            flex: 0.2,
+            flex: 0.15,
             minWidth: 120,
             field: 'createdBy',
             headerName: 'Dibuat Oleh',
@@ -142,7 +151,7 @@ export default function TableReceiptOrderOutstanding({ }) {
               const { row } = params
               return (
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {renderClient(params)}
+                  {renderClient({ name: row.createdBy.name })}
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
                       {row.createdBy.name}
@@ -156,7 +165,29 @@ export default function TableReceiptOrderOutstanding({ }) {
             }
           },
           {
-            flex: 0.07,
+            flex: 0.18,
+            minWidth: 120,
+            field: 'approvedBy',
+            headerName: 'Diselesaikan Oleh',
+            renderCell: params => {
+              const { row } = params
+              return (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {renderClient({ name: row?.approvedBy?.name })}
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
+                      {row?.approvedBy?.name || "-"}
+                    </Typography>
+                    <Typography noWrap variant='caption'>
+                      {row?.approvedBy?.roleName || "-"}
+                    </Typography>
+                  </Box>
+                </Box>
+              )
+            }
+          },
+          {
+            flex: 0.15,
             minWidth: 120,
             field: 'status',
             headerName: 'Status',
@@ -170,7 +201,7 @@ export default function TableReceiptOrderOutstanding({ }) {
             }
           },
           {
-            flex: 0.20,
+            flex: 0.15,
             minWidth: 100,
             sortable: false,
             field: 'actions',
@@ -190,6 +221,16 @@ export default function TableReceiptOrderOutstanding({ }) {
           },
           '& .MuiDataGrid-cell': {
             cursor: 'pointer'
+          },
+          "& .MuiDataGrid-columnHeaderTitle": {
+            whiteSpace: "normal",
+            lineHeight: "normal"
+          },
+          "& .MuiDataGrid-columnHeader": {
+            height: "unset !important"
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            maxHeight: "168px !important",
           }
         }}
         slotProps={{

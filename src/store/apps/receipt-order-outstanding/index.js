@@ -50,12 +50,12 @@ export const saveToDraftOutstandingProduct = createAsyncThunk(
         axiosRequest: () => {
           return axios({
             method: 'PUT',
-            url: `/delivery-order-receive/outstanding/draft`,
+            url: `/delivery-order-receive/outstanding/draft/` + code,
             data
           })
         },
         dispatchRequest: () => {
-          // router.push('/receipt-order-outstanding')
+          router.push('/receipt-order-outstanding')
           // dispatch(fetchAllReceiptOrderOutstanding())
         }
       })
@@ -69,7 +69,7 @@ export const saveToDraftOutstandingProduct = createAsyncThunk(
 // APPROVE OUTSTANDING
 export const approveOutstandingProduct = createAsyncThunk(
   'appStockOpname/updateStatusStockOpname',
-  async ({ data, code, router }, { dispatch, rejectWithValue }) => {
+  async ({ sendData, code, router, }, { dispatch, rejectWithValue }) => {
     try {
       const response = await swalConfirmationAdd({
         label,
@@ -79,11 +79,11 @@ export const approveOutstandingProduct = createAsyncThunk(
           return axios({
             method: 'POST',
             url: `/delivery-order-receive/outstanding/approve/` + code,
-            data
+            data: sendData,
           })
         },
         dispatchRequest: () => {
-          // router.push('/receipt-order-outstanding')
+          router.push('/receipt-order-outstanding')
           // dispatch(fetchAllReceiptOrderOutstanding())
         }
       })
