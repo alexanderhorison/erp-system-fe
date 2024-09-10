@@ -19,14 +19,13 @@ import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
 import { companyInfo } from 'src/data/companyInfo'
 import { MenuItem, Select } from '@mui/material'
 import IconTjahayaBerkatAbadi from '../common/iconTjahayaBerkatAbadi'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import HeaderReceiptOrderOutstanding from './HeaderReceiptOrderOutstanding'
 
 const DetailReceiptOrderOutstanding = ({ data, setData }) => {
   // ** Hook
   const theme = useTheme()
-  const [notes, setNotes] = useState(data?.notes || "")
 
   const handleStatusChange = (index, newStatus) => {
     const updatedProductOutstandings = data.productOutstandings.map((product, i) =>
@@ -161,10 +160,11 @@ const DetailReceiptOrderOutstanding = ({ data, setData }) => {
                 <CardContent>
                   <Grid item xs={12}>
                     <CustomTextField
+                      label='Catatan'
+                      key={data?.id}
                       multiline
                       rows={3}
                       fullWidth
-                      label='Catatan'
                       placeholder={'Catatan...'}
                       value={data?.notes}
                       onChange={e => {
