@@ -25,6 +25,7 @@ import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
 import { transformColor } from 'src/helpers/transformColor'
 import CustomChip from 'src/@core/components/mui/chip'
 import { fetchDetailInternalTransfer } from 'src/store/apps/internal-transfer'
+import { companyInfo } from 'src/data/companyInfo'
 
 const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
@@ -119,9 +120,10 @@ const PrintDetailInternalTransfer = ({ id }) => {
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>Jl. Kav. Perkebunan Raya</Typography>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>Kota Tangerang, Banten</Typography>
-                  <Typography sx={{ color: `'text.secondary'` }}>(021) 55722282</Typography>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.companyName}</Typography>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.address}</Typography>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.city}</Typography>
+                  <Typography sx={{ color: `'text.secondary'` }}>{companyInfo.phoneNumber}</Typography>
                 </Box>
               </Box>
             </Grid>

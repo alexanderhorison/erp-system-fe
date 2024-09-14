@@ -23,6 +23,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Card, CardContent, Box, CircularProgress } from '@mui/material'
 import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
 import { fetchDetailReceiveOrder } from 'src/store/apps/receive-order'
+import { companyInfo } from 'src/data/companyInfo'
 
 const CalcWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -123,9 +124,10 @@ const PrintReceiveOrder = ({ id }) => {
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>Jl. Kav. Perkebunan Raya</Typography>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>Kota Tangerang, Banten</Typography>
-                  <Typography sx={{ color: `'text.secondary'` }}>(021) 55722282</Typography>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.companyName}</Typography>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.address}</Typography>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.city}</Typography>
+                  <Typography sx={{ color: `'text.secondary'` }}>{companyInfo.phoneNumber}</Typography>
                 </Box>
               </Box>
             </Grid>

@@ -1,5 +1,6 @@
 export const companyInfo = {
-  address: 'Jl. Kav. Perkebunan Raya',
-  city: "Kota Tangerang, Banten",
-  phoneNumber: "(021) 55722282",
+  companyName: "Toko Jaya Makmur",
+  address: 'Jl. Raya Kebayoran Lama No. 555',
+  city: "Grogol Selatan, Jakarta Selatan 12220",
+  phoneNumber: "081807922555",
 }

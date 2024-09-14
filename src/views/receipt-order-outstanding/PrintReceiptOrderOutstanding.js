@@ -88,6 +88,7 @@ export default function PrintReceiptOrderOutstanding({ code }) {
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.companyName}</Typography>
                   <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.address}</Typography>
                   <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.city}</Typography>
                   <Typography sx={{ color: `'text.secondary'` }}>{companyInfo.phoneNumber}</Typography>
