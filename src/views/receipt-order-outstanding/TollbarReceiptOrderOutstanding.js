@@ -28,12 +28,26 @@ const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAdd
         status: product.status
       }
     })
-    dispatch(saveToDraftOutstandingProduct({ data: product, code: data.code, router }))
+    const sendData = {
+      notes: data.notes,
+      product,
+    }
+    dispatch(saveToDraftOutstandingProduct({ data: sendData, code: data.code, router }))
   }
 
   const handleApprove = () => {
     const code = data.code
-    dispatch(approveOutstandingProduct({ data, code, router }))
+    const product = data.productOutstandings.map(product => {
+      return {
+        id: product.productOutstandingsId,
+        status: product.status
+      }
+    })
+    const sendData = {
+      notes: data.notes,
+      products: product
+    }
+    dispatch(approveOutstandingProduct({ code, router, sendData }))
   }
   return (
     <>

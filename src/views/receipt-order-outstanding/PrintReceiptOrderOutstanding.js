@@ -22,6 +22,7 @@ import { useEffect } from 'react'
 import { fetchDetailReceiptOrderOutstanding } from 'src/store/apps/receipt-order-outstanding'
 import { useTheme } from '@mui/system'
 import { CircularProgress } from '@mui/material'
+import HeaderReceiptOrderOutstanding from './HeaderReceiptOrderOutstanding'
 
 export default function PrintReceiptOrderOutstanding({ code }) {
   console.log(code);
@@ -76,7 +77,7 @@ export default function PrintReceiptOrderOutstanding({ code }) {
 
   if (data) {
     return (
-      <Card>
+      <Card sx={{ boxShadow: 0 }}>
         <CardContent sx={{ p: [`${theme.spacing(4)} !important`, `${theme.spacing(6)} !important`] }}>
           <Grid container sx={{ mt: 7 }}>
             <Grid item sm={6} xs={12}>
@@ -95,20 +96,7 @@ export default function PrintReceiptOrderOutstanding({ code }) {
                 </Box>
               </Box>
             </Grid>
-            <Grid item sm={6} xs={12} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
-                <Typography variant='h6'>Surat Jalan</Typography>
-                <Typography variant='h6'>{`#${data.deliveryOrderCode}`}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
-                <Typography variant='h6'>Penerimaan Surat Jalan</Typography>
-                <Typography variant='h6'>{`#${data.deliveryOrderReceiptCode}`}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
-                <Typography variant='h6'>Surat Outstanding</Typography>
-                <Typography variant='h6'>{`#${data.code}`}</Typography>
-              </Box>
-            </Grid>
+            <HeaderReceiptOrderOutstanding data={data} />
           </Grid>
         </CardContent>
         <Divider />
@@ -139,9 +127,12 @@ export default function PrintReceiptOrderOutstanding({ code }) {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell width={"30%"} align='left'>Produk</TableCell>
-                <TableCell width={"11%"} align='left'>Unit</TableCell>
-                <TableCell width={"11%"} align='left'>Rak</TableCell>
+                <TableCell width={"30%"} align='left'>
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography variant='body2'>Produk</Typography>
+                    <Typography variant='body2'>Rak</Typography>
+                  </Box>
+                </TableCell>
                 <TableCell width={"16%"} align='left'>Kuantiti Asal</TableCell>
                 <TableCell width={"16%"} align='left'>Kuantiti Diterima</TableCell>
                 <TableCell width={"16%"} align='left'>Kuantiti Outstanding</TableCell>
@@ -159,9 +150,12 @@ export default function PrintReceiptOrderOutstanding({ code }) {
               {data?.productOutstandings?.map((data, index) => {
                 return (
                   <TableRow key={index}>
-                    <TableCell>{data?.productName}</TableCell>
-                    <TableCell>{data?.unitName || ''}</TableCell>
-                    <TableCell>{data?.rackName}</TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography variant='body2'>{data?.productName} - {data?.unitName || ''}</Typography>
+                        <Typography variant='body2'>{data?.rackName}</Typography>
+                      </Box>
+                    </TableCell>
                     <TableCell>{data?.quantityFrom}</TableCell>
                     <TableCell>{data?.quantityReceived}</TableCell>
                     <TableCell>{data?.quantityOutstanding}</TableCell>
