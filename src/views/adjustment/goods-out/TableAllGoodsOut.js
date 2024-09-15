@@ -42,7 +42,7 @@ const RowOptions = ({ handleView }) => {
   )
 }
 
-export default function TableAllGoodsOut({}) {
+export default function TableAllGoodsOut({ timeFilter }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -58,7 +58,8 @@ export default function TableAllGoodsOut({}) {
       data,
       keys: ['code', 'warehouseOriginName'],
       searchValue,
-      setData: setFilteredData
+      setData: setFilteredData,
+      timeFilter: timeFilter
     })
   }
 
@@ -76,8 +77,23 @@ export default function TableAllGoodsOut({}) {
   }, [dispatch])
 
   useEffect(() => {
-    setFilteredData(data)
-  }, [data])
+    if (timeFilter && timeFilter.year) {
+      const filtered = data.filter(item => {
+        const itemDate = new Date(item.createdAt)
+        const itemYear = itemDate.getFullYear() // Get the year from createdAt
+        const itemMonth = itemDate.getMonth() // Get the month from createdAt (0-based index)
+
+        // Compare it with timeFilter.year and timeFilter.month (if provided)
+        const matchesYear = itemYear === parseInt(timeFilter.year)
+        const matchesMonth = timeFilter.month ? itemMonth === parseInt(timeFilter.month - 1) : true
+
+        return matchesYear && matchesMonth
+      })
+      setFilteredData(filtered)
+    } else {
+      setFilteredData(data) // If no year filter, show all data
+    }
+  }, [data, timeFilter])
 
   return (
     <Card>

@@ -42,7 +42,7 @@ const RowOptions = ({ handleView }) => {
   )
 }
 
-export default function TableAllReceive({ }) {
+export default function TableAllReceive({ timeFilter }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -56,9 +56,10 @@ export default function TableAllReceive({ }) {
     setSearchText(searchValue)
     HandleSearh({
       data,
-      keys: ['code'],
+      keys: ['codeReceipt', 'codeDeliveryOrder'],
       searchValue,
-      setData: setFilteredData
+      setData: setFilteredData,
+      timeFilter: timeFilter
     })
   }
 
@@ -76,8 +77,23 @@ export default function TableAllReceive({ }) {
   }, [dispatch])
 
   useEffect(() => {
-    setFilteredData(data)
-  }, [data])
+    if (timeFilter && timeFilter.year) {
+      const filtered = data.filter(item => {
+        const itemDate = new Date(item.createdAt)
+        const itemYear = itemDate.getFullYear() // Get the year from createdAt
+        const itemMonth = itemDate.getMonth() // Get the month from createdAt (0-based index)
+
+        // Compare it with timeFilter.year and timeFilter.month (if provided)
+        const matchesYear = itemYear === parseInt(timeFilter.year)
+        const matchesMonth = timeFilter.month ? itemMonth === parseInt(timeFilter.month - 1) : true
+
+        return matchesYear && matchesMonth
+      })
+      setFilteredData(filtered)
+    } else {
+      setFilteredData(data) // If no year filter, show all data
+    }
+  }, [data, timeFilter])
 
   return (
     <Card>
@@ -221,7 +237,7 @@ export default function TableAllReceive({ }) {
           //   }
           // },
           {
-            flex: 0.20,
+            flex: 0.2,
             minWidth: 100,
             sortable: false,
             field: 'actions',

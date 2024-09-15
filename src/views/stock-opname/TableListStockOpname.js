@@ -12,7 +12,7 @@ import TableHeaderStockOpname from './TableHeaderStockOpname'
 import { returnFormatDate } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
 
-const RowOptions = (props) => {
+const RowOptions = props => {
   const dispatch = useDispatch()
 
   const handleDelete = () => {
@@ -29,29 +29,26 @@ const RowOptions = (props) => {
 
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center', }}>
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <IconButton onClick={handleClickDetail}>
           <Icon icon='tabler:eye' />
         </IconButton>
-        {
-          props.status === 'DRAFT' &&
-          <IconButton onClick={handleEdit} >
+        {props.status === 'DRAFT' && (
+          <IconButton onClick={handleEdit}>
             <Icon icon='tabler:edit' />
           </IconButton>
-        }
-        {
-          process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
-            <IconButton onClick={handleDelete}>
-              <Icon icon='tabler:trash' />
-            </IconButton>
-          )
-        }
+        )}
+        {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
+          <IconButton onClick={handleDelete}>
+            <Icon icon='tabler:trash' />
+          </IconButton>
+        )}
       </Box>
     </>
   )
 }
 
-export default function TableListStockOpname({ }) {
+export default function TableListStockOpname({ timeFilter }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -63,16 +60,37 @@ export default function TableListStockOpname({ }) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({ data, keys: ['code', 'warehouseName'], searchValue, setData: setFilteredData })
+    HandleSearh({
+      data,
+      keys: ['code', 'warehouseName'],
+      searchValue,
+      setData: setFilteredData,
+      timeFilter: timeFilter
+    })
   }
 
   useEffect(() => {
     dispatch(fetchListStockOpname())
   }, [dispatch])
 
-  useMemo(() => {
-    setFilteredData(data)
-  }, [data])
+  useEffect(() => {
+    if (timeFilter && timeFilter.year) {
+      const filtered = data.filter(item => {
+        const itemDate = new Date(item.createdAt);
+        const itemYear = itemDate.getFullYear();  // Get the year from createdAt
+        const itemMonth = itemDate.getMonth();    // Get the month from createdAt (0-based index)
+
+        // Compare it with timeFilter.year and timeFilter.month (if provided)
+        const matchesYear = itemYear === parseInt(timeFilter.year);
+        const matchesMonth = timeFilter.month ? itemMonth === parseInt(timeFilter.month - 1) : true;
+  
+        return matchesYear && matchesMonth;
+      });
+      setFilteredData(filtered);
+    } else {
+      setFilteredData(data) // If no year filter, show all data
+    }
+  }, [data, timeFilter])
 
   const handleAddStockOpname = () => {
     router.push('/stock-opname/add')
@@ -82,7 +100,7 @@ export default function TableListStockOpname({ }) {
     <Card>
       <DataGrid
         autoHeight
-        getRowId={(row) => row.code}
+        getRowId={row => row.code}
         columns={[
           {
             flex: 0.1,
@@ -129,9 +147,7 @@ export default function TableListStockOpname({ }) {
             field: 'status',
             headerName: 'Status',
             renderCell: params => {
-              return (
-                <Status status={params.row.status} />
-              )
+              return <Status status={params.row.status} />
             }
           },
           {
@@ -140,7 +156,16 @@ export default function TableListStockOpname({ }) {
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} date={returnFormatDate(row.createdAt)} warehouseName={row.warehouseName} code={row.code} router={router} status={row.status} />
+            renderCell: ({ row }) => (
+              <RowOptions
+                id={row.id}
+                date={returnFormatDate(row.createdAt)}
+                warehouseName={row.warehouseName}
+                code={row.code}
+                router={router}
+                status={row.status}
+              />
+            )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
