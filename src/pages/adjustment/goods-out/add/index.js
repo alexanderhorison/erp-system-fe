@@ -1,13 +1,12 @@
 import { Grid, Typography } from '@mui/material'
 import AddAdjustmentGoodsOut from 'src/views/adjustment/goods-out/AddAdjustmentGoodsOut'
+import ButtonBack from 'src/views/common/ButtonBack'
 
 export default function AdjustmentGoodOutAdd() {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          Pembuatan surat barang keluar
-        </Typography>
+        <ButtonBack paddingY={3} name='Pembuatan surat barang keluar' />
         <AddAdjustmentGoodsOut />
       </Grid>
     </Grid>

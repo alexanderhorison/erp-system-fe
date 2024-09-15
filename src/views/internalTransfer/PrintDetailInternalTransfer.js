@@ -58,9 +58,6 @@ const PrintDetailInternalTransfer = ({ id }) => {
     }
   }, [id, dispatch])
 
-  console.log(data);
-  
-
   if (data) {
     return (
       <Card>

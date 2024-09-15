@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchDetailStockOpname } from 'src/store/apps/stock-opname'
 import DetailStockOpname from 'src/views/stock-opname/DetailStockOpname'
 import Icon from 'src/@core/components/icon'
+import ButtonBack from 'src/views/common/ButtonBack'
 
 export default function HomeDetailStockOpname() {
   const { id } = useRouter().query
@@ -22,9 +23,7 @@ export default function HomeDetailStockOpname() {
       <Grid item xs={12}>
         <Grid container alignContent={'center'} justifyContent={'space-between'}>
           <Grid item>
-            <Typography paddingY={3} fontSize={20}>
-              Detail stok opname
-            </Typography>
+            <ButtonBack name='Detail Stok Opname' />
           </Grid>
           {detailStockOpname?.status === 'DRAFT' &&
             <Grid item sx={{ alignContent: 'center' }}>

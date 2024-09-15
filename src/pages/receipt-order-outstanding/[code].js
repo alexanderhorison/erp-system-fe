@@ -14,6 +14,7 @@ import DetailReceiptOrderOutstanding from 'src/views/receipt-order-outstanding/D
 import { Box, IconButton, Typography } from '@mui/material'
 
 import Icon from 'src/@core/components/icon'
+import ButtonBack from 'src/views/common/ButtonBack'
 export default function ReceiveOrder({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
@@ -53,17 +54,7 @@ export default function ReceiveOrder({ }) {
     return (
       <>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
-            {/* <Box>
-              
-            </Box> */}
-            <Typography fontSize={20}>
-              <IconButton onClick={goBack}>
-                <Icon icon='tabler:arrow-left' />
-              </IconButton>
-              Kembali
-            </Typography>
-          </Grid>
+          <ButtonBack paddingY={0} />
           <Grid item xl={9} md={8} xs={12}>
             <DetailReceiptOrderOutstanding data={data} setData={setData} />
           </Grid>

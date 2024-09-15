@@ -11,8 +11,9 @@ import Alert from '@mui/material/Alert'
 import ToolbarReceive from 'src/views/receive-order/ToolbarReceive'
 import { fetchDetailReceiveOrder } from 'src/store/apps/receive-order'
 import DetailReceiveOrder from 'src/views/receive-order/DetailReceiveOrder'
+import ButtonBack from 'src/views/common/ButtonBack'
 
-export default function ReceiveOrder({}) {
+export default function ReceiveOrder({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id
@@ -40,6 +41,7 @@ export default function ReceiveOrder({}) {
     return (
       <>
         <Grid container spacing={6}>
+          <ButtonBack paddingY={0} />
           <Grid item xl={9} md={8} xs={12}>
             <DetailReceiveOrder data={data} />
           </Grid>

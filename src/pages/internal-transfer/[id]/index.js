@@ -13,8 +13,9 @@ import { CircularProgress, Typography } from '@mui/material'
 import { fetchDetailInternalTransfer } from 'src/store/apps/internal-transfer'
 import ToolbarInternalTransfer from 'src/views/internalTransfer/ToolbarInternalTransfer'
 import PageDetailInternalTransfer from 'src/views/internalTransfer/PageDetailInternalTransfer'
+import ButtonBack from 'src/views/common/ButtonBack'
 DetailInternalTransfer
-export default function DetailInternalTransfer({}) {
+export default function DetailInternalTransfer({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id
@@ -46,6 +47,7 @@ export default function DetailInternalTransfer({}) {
     return (
       <>
         <Grid container spacing={6}>
+          <ButtonBack paddingY={0} />
           <Grid item xl={9} md={8} xs={12}>
             <PageDetailInternalTransfer data={data} />
           </Grid>

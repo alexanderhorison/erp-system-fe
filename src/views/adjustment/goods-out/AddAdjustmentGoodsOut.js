@@ -171,7 +171,6 @@ export default function AddAdjustmentGoodsOut() {
                               id='autocomplete-grouped'
                               getOptionLabel={option => option.productName || ''}
                               onChange={(event, newValue) => {
-                                console.log(newValue)
                                 // Ini menggunakan productWarehouseId data mapping dari delivery order
                                 onChange(+newValue?.productWarehouseId)
                                 const selectedProduct = listProduct.find(

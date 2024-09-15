@@ -15,8 +15,9 @@ import AddPaymentDrawer from 'src/views/apps/invoice/shared-drawer/AddPaymentDra
 import SendInvoiceDrawer from 'src/views/apps/invoice/shared-drawer/SendInvoiceDrawer'
 import DetailInvoice from 'src/views/delivery-order/DetailInvoice'
 import ToolbarInvoice from 'src/views/delivery-order/ToolbarInvoice'
+import ButtonBack from 'src/views/common/ButtonBack'
 
-export default function DetailDeliveryOrder({}) {
+export default function DetailDeliveryOrder({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id
@@ -44,6 +45,7 @@ export default function DetailDeliveryOrder({}) {
     return (
       <>
         <Grid container spacing={6}>
+          <ButtonBack paddingY={0} />
           <Grid item xl={9} md={8} xs={12}>
             <DetailInvoice data={data} />
           </Grid>

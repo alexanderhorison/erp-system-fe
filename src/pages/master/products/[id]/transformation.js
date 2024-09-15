@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchMasterDataProductDetail } from 'src/store/apps/master/product'
 import TableMasterTransformation from 'src/views/master/transformation/TableMasterTransformation'
+import ButtonBack from 'src/views/common/ButtonBack'
 
 export default function MasterProductTransformation() {
   const router = useRouter()
@@ -22,21 +23,10 @@ export default function MasterProductTransformation() {
     }
   }, [id, dispatch])
 
-  const goBack = () => {
-    router.back()
-  }
-
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <Box>
-          <IconButton onClick={goBack}>
-            <Icon icon='tabler:arrow-left' />
-          </IconButton>
-        </Box>
-        <Typography paddingY={3} fontSize={20}>
-          Master Transformasi {detail.name}
-        </Typography>
+        <ButtonBack paddingY={3} name={`Master Transformasi ${detail.name}`} />
         <TableMasterTransformation product={detail} />
       </Grid>
     </Grid>

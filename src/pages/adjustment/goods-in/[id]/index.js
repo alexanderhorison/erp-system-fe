@@ -13,8 +13,9 @@ import { CircularProgress, Typography } from '@mui/material'
 import { fetchDetailAdjustmentGoodsIn } from 'src/store/apps/adjustment/goods-in'
 import DetailGoodsIn from 'src/views/adjustment/goods-in/DetailGoodsIn'
 import ToolbarGoodsIn from 'src/views/adjustment/goods-in/ToolbarGoodsIn'
+import ButtonBack from 'src/views/common/ButtonBack'
 
-export default function DetailAdjustmentGoodsIn({}) {
+export default function DetailAdjustmentGoodsIn({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id
@@ -31,8 +32,6 @@ export default function DetailAdjustmentGoodsIn({}) {
     }
   }, [id, dispatch])
 
-  console.log(data, id)
-
   if (errorDetailAdjustmentGoodsIn) {
     return (
       <Grid container spacing={6}>
@@ -48,6 +47,7 @@ export default function DetailAdjustmentGoodsIn({}) {
     return (
       <>
         <Grid container spacing={6}>
+          <ButtonBack paddingY={0} />
           <Grid item xl={9} md={8} xs={12}>
             <DetailGoodsIn data={data} />
           </Grid>

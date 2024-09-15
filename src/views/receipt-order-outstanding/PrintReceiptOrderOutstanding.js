@@ -25,8 +25,6 @@ import { CircularProgress } from '@mui/material'
 import HeaderReceiptOrderOutstanding from './HeaderReceiptOrderOutstanding'
 
 export default function PrintReceiptOrderOutstanding({ code }) {
-  console.log(code);
-
   // ** Hook
   const theme = useTheme()
   const dispatch = useDispatch()
@@ -46,9 +44,6 @@ export default function PrintReceiptOrderOutstanding({ code }) {
       dispatch(fetchDetailReceiptOrderOutstanding({ code }))
     }
   }, [code, dispatch])
-  console.log(
-    data
-  );
 
   // return null
   if (loadingDetail) {

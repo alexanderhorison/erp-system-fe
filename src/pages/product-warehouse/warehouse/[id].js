@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchListProductByWarehouse } from 'src/store/apps/product-warehouse'
+import ButtonBack from 'src/views/common/ButtonBack'
 import TableProduct from 'src/views/product-warehouse/warehouse/TableProduct'
 
 export default function HomeProductWarehouseId() {
@@ -19,22 +20,10 @@ export default function HomeProductWarehouseId() {
     }
   }, [id, dispatch])
 
-  // if (loading) {
-  //   return (
-  //     <Grid container marginTop={-25}>
-  //       <Grid item xs={12}>
-  //         <Skeleton height={500} width={'full'}></Skeleton>
-  //       </Grid>
-  //     </Grid>
-  //   )
-  // }
-
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          {`Daftar Produk di ${data?.warehouseName}`}
-        </Typography>
+        <ButtonBack name={`Daftar Produk di ${data?.warehouseName}`} />
         <TableProduct loading={loading} data={data?.data || []} warehouseId={id} />
       </Grid>
     </Grid>

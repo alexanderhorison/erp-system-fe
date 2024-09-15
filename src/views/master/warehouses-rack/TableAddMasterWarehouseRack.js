@@ -23,19 +23,19 @@ export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
     name: yup.string().required('Nama Rak tidak boleh kosong'),
     description: yup.string().optional(),
     data: yup.array().of(
-        yup.object().shape({
-          key: yup.string().optional(),
-          value: yup
-            .string()
-            .test('value-required-if-key', 'Value attribut tidak boleh kosong', function (value) {
-              const { key } = this.parent
-              if (key) {
-                return !!value // value must be present if key is provided
-              }
-              return true // if key is not provided, value can be anything
-            })
-        })
-      )
+      yup.object().shape({
+        key: yup.string().optional(),
+        value: yup
+          .string()
+          .test('value-required-if-key', 'Value attribut tidak boleh kosong', function (value) {
+            const { key } = this.parent
+            if (key) {
+              return !!value // value must be present if key is provided
+            }
+            return true // if key is not provided, value can be anything
+          })
+      })
+    )
       .optional()
   })
 
@@ -179,7 +179,6 @@ export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
                           rules={{ required: true }}
                           render={({ field: { value, onChange } }) => {
                             const selectKey = watch(`data[${index}].key`)
-                            console.log(selectKey)
                             return selectKey === 'PRODUCTION DATE' || selectKey === 'EXPIRED DATE' ? (
                               <DatePicker
                                 fullWidth

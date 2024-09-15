@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchHistoryProduct } from 'src/store/apps/product-warehouse'
+import ButtonBack from 'src/views/common/ButtonBack'
 import TableHistoryProduct from 'src/views/product-warehouse/product/TableHistoryProduct'
 export default function HomeProduct() {
   const router = useRouter()
@@ -18,9 +19,10 @@ export default function HomeProduct() {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
+        <ButtonBack paddingY={3} name={`${data?.product?.productName} - ${data?.product?.unitName}`} />
+        {/* <Typography paddingY={3} fontSize={20}>
           {data?.product?.productName} - {data?.product?.unitName}
-        </Typography>
+        </Typography> */}
         <TableHistoryProduct history={data.history} product={data.product} />
       </Grid>
     </Grid>

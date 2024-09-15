@@ -175,8 +175,6 @@ export default function ModalAddMasterWarehouse({ open, setOpen, typeModal, id }
                               {...(errors.status && { helperText: errors.status.message })}
                             >
                               {masterStatus.map(item => {
-                                console.log(value);
-
                                 return (
                                   <MenuItem key={item.value} value={item.value}>
                                     {item.label}

@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import TableMasterWarehouseRack from 'src/views/master/warehouses-rack/TableMasterWarehouseRack'
 import { fetchMasterDataWarehouseDetail } from 'src/store/apps/master/warehouse'
+import ButtonBack from 'src/views/common/ButtonBack'
 
 export default function MasterWarehouseRack() {
   const router = useRouter()
@@ -22,22 +23,11 @@ export default function MasterWarehouseRack() {
     }
   }, [id, dispatch])
 
-  const goBack = () => {
-    router.back()
-  }
-
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <Box>
-          <IconButton onClick={goBack}>
-            <Icon icon='tabler:arrow-left' />
-          </IconButton>
-        </Box>
-        <Typography paddingY={3} fontSize={20}>
-          Master Rak Gudang "{detail.name}"
-        </Typography>
-        <TableMasterWarehouseRack warehouseId={detail.id}/>
+        <ButtonBack paddingY={3} name={`Master Rak Gudang ${detail.name}`} />
+        <TableMasterWarehouseRack warehouseId={detail.id} />
       </Grid>
     </Grid>
   )

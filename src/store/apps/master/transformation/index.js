@@ -9,7 +9,6 @@ export const fetchMasterDataTransformation = createAsyncThunk(
   'appMasterTransformation/fetchData',
   async (id, { rejectWithValue }) => {
     try {
-      console.log(id)
       const response = await axios({
         method: 'GET',
         url: '/master/product/transformation/' + id
@@ -31,7 +30,6 @@ export const fetchMasterDataTransformationDetail = createAsyncThunk(
         method: 'GET',
         url: '/master/product/transformation/detail/' + id
       })
-      console.log(response.data)
       return response.data
     } catch (error) {
       swalToastError({ label, error })
