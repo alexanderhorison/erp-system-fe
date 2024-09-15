@@ -27,9 +27,7 @@ export default function HeaderReceiptOrderOutstanding({ data }) {
                   <MUITableCell>
                     <Typography variant='h6'>Surat Outstanding</Typography>
                     <Typography variant='h6'>
-                      <LinkStyled href={`/receipt-order-outstanding/${data.code}`} target='_blank'>
-                        {`#${data.code}`}
-                      </LinkStyled>
+                      {`#${data.code}`}
                     </Typography>
                   </MUITableCell>
                 </TableRow>
