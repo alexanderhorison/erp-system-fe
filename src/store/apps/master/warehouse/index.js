@@ -50,7 +50,7 @@ export const addMasterDataWarehouse = createAsyncThunk(
         data
       })
       swalSuccess({ label, name: 'Gudang', response })
-      dispatch(fetchMasterDataWarehouse())
+      dispatch(fetchMasterDataWarehouse({ status: "all" }))
     } catch (error) {
       swalError({ error, label })
       return rejectWithValue({})
@@ -69,7 +69,7 @@ export const editMasterDataWarehouse = createAsyncThunk(
         data: data
       })
       swalSuccess({ label, name: 'Gudang', response })
-      dispatch(fetchMasterDataWarehouse())
+      dispatch(fetchMasterDataWarehouse({ status: "all" }))
     } catch (error) {
       swalError({ label, error })
       return rejectWithValue({})
@@ -92,7 +92,7 @@ export const deleteMasterDataWarehouse = createAsyncThunk(
           })
         },
         dispatchRequest: () => {
-          return dispatch(fetchMasterDataWarehouse())
+          return dispatch(fetchMasterDataWarehouse({ status: "all" }))
         }
       })
     } catch (error) {
@@ -111,12 +111,14 @@ export const appMasterWarehouseSlice = createSlice({
     detail: {
       id: '',
       name: '',
-      location: ''
+      location: '',
+      status: 'active'
     },
     defaultValue: {
       id: '',
       name: '',
-      location: ''
+      location: '',
+      status: 'active'
     },
     loadingDetail: false,
     total: 1,

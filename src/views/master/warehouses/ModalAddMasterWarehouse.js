@@ -17,7 +17,7 @@ import 'react-credit-cards/es/styles-compiled.css'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { IconButton } from '@mui/material'
+import { IconButton, MenuItem } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -45,7 +45,8 @@ export default function ModalAddMasterWarehouse({ open, setOpen, typeModal, id }
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    name: yup.string().required('Nama gudang harus diisi')
+    name: yup.string().required('Nama gudang harus diisi'),
+    location: yup.string().required('Lokasi harus diisi'),
   })
   // REACT FORM
   const {
@@ -61,6 +62,7 @@ export default function ModalAddMasterWarehouse({ open, setOpen, typeModal, id }
   // ON SUBMIT
   const onSubmit = data => {
     if (typeModal === 'ADD') {
+      delete data.status
       dispatch(addMasterDataWarehouse(data))
     } else {
       dispatch(editMasterDataWarehouse({ id, data }))
@@ -72,6 +74,17 @@ export default function ModalAddMasterWarehouse({ open, setOpen, typeModal, id }
   const handleClose = () => {
     setOpen(false)
   }
+
+  const masterStatus = [
+    {
+      value: 'active',
+      label: 'Active'
+    },
+    {
+      value: 'not-active',
+      label: 'Not Active'
+    }
+  ]
 
   return (
     <Card>
@@ -142,6 +155,40 @@ export default function ModalAddMasterWarehouse({ open, setOpen, typeModal, id }
                       )}
                     />
                   </Grid>
+                  {
+                    typeModal === "EDIT" && (
+                      <Grid item xs={12} sm={12}>
+                        <Controller
+                          name='status'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomTextField
+                              select
+                              fullWidth
+                              label='Status'
+                              value={value || 'active'}
+                              onChange={onChange}
+                              disabled={typeModal === 'VIEW'}
+                              error={Boolean(errors.status)}
+                              aria-describedby='validation-schema-status'
+                              {...(errors.status && { helperText: errors.status.message })}
+                            >
+                              {masterStatus.map(item => {
+                                console.log(value);
+
+                                return (
+                                  <MenuItem key={item.value} value={item.value}>
+                                    {item.label}
+                                  </MenuItem>
+                                )
+                              })}
+                            </CustomTextField>
+                          )}
+                        />
+                      </Grid>
+                    )
+                  }
                 </Grid>
               </Grid>
             </Grid>
