@@ -3,6 +3,8 @@ import { Box } from "@mui/system";
 import { LinkStyled } from "src/pages/components/swiper";
 import { styled, useTheme } from '@mui/material/styles'
 import TableCell from '@mui/material/TableCell'
+import { Status } from "src/@core/components/common";
+import { useRouter } from "next/router";
 
 const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
@@ -15,7 +17,9 @@ const MUITableCell = styled(TableCell)(({ theme }) => ({
 
 export default function HeaderReceiptOrderOutstanding({ data }) {
   const theme = useTheme()
+  const router = useRouter()
 
+  const isPrint = router.pathname.includes('print')
   return (
     <Grid item sm={6} xs={12}>
       <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
@@ -47,6 +51,14 @@ export default function HeaderReceiptOrderOutstanding({ data }) {
                 </TableRow>
               )
             }
+            <TableRow>
+              <MUITableCell>
+                <Status
+                  status={data?.status}
+                  {...(isPrint ? { color: "secondary" } : {})}
+                />
+              </MUITableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </Box>

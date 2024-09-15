@@ -59,10 +59,12 @@ const PrintInvoice = ({ id }) => {
   } = useSelector(state => state.deliveryOrder)
 
   useEffect(() => {
-    setTimeout(() => {
-      window.print()
-    }, 100)
-  }, [])
+    if (data?.code === id) {
+      setTimeout(() => {
+        window.print()
+      }, 200)
+    }
+  }, [loadingDetailDeliveryOrder])
 
   useEffect(() => {
     if (id) {

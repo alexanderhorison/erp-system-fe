@@ -92,8 +92,7 @@ const DetailReceiptOrderOutstanding = ({ data, setData }) => {
               <TableRow>
                 <TableCell width={"30%"} align='left'>
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography variant='body2'>Produk</Typography>
-                    <Typography variant='body2'>Rak</Typography>
+                    <Typography fontWeight={600} variant='body2'>Produk & Rak</Typography>
                   </Box>
                 </TableCell>
                 <TableCell width={"16%"} align='left'>Kuantiti Asal</TableCell>

@@ -4,7 +4,10 @@ import CustomChip from 'src/@core/components/mui/chip'
 
 export default function Status(props) {
   const color = useMemo(() => {
-    switch (props.status) {
+    if (props?.color) {
+      return props?.color
+    }
+    switch (props?.status) {
       case 'PENDING':
         return 'info'
       case 'APPROVED':
@@ -16,8 +19,7 @@ export default function Status(props) {
       default:
         return 'primary'
     }
-  }, [props.status]
-  )
+  }, [props?.status])
 
   return (
     <CustomChip

@@ -47,10 +47,12 @@ const PrintDetailInternalTransfer = ({ id }) => {
   } = useSelector(state => state.internalTransfer)
 
   useEffect(() => {
-    setTimeout(() => {
-      window.print()
-    }, 100)
-  }, [])
+    if (data?.code === id) {
+      setTimeout(() => {
+        window.print()
+      }, 100)
+    }
+  }, [loadingDetailInternalTransfer])
 
   useEffect(() => {
     if (id) {

@@ -54,10 +54,12 @@ const PrintReceiveOrder = ({ id }) => {
   } = useSelector(state => state.receiveOrder)
 
   useEffect(() => {
-    setTimeout(() => {
-      window.print()
-    }, 100)
-  }, [])
+    if (data?.codeReceipt === id) {
+      setTimeout(() => {
+        window.print()
+      }, 100)
+    }
+  }, [loadingDetailReceiveOrder])
 
   useEffect(() => {
     if (id) {

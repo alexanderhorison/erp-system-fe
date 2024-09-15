@@ -29,7 +29,11 @@ export default function PrintReceiptOrderOutstanding({ code }) {
   const theme = useTheme()
   const dispatch = useDispatch()
 
-  const { detail: data, errorDetail, loadingDetail } = useSelector(state => state.deliveryOrderReceiptOutstanding)
+  const {
+    detail: data,
+    errorDetail,
+    loadingDetail
+  } = useSelector(state => state.deliveryOrderReceiptOutstanding)
 
   useEffect(() => {
     if (data?.code === code) {

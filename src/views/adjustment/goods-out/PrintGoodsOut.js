@@ -47,10 +47,12 @@ const PrintGoodsOut = ({ id }) => {
   } = useSelector(state => state.adjustmentGoodsOut)
 
   useEffect(() => {
-    setTimeout(() => {
-      window.print()
-    }, 100)
-  }, [])
+    if (data?.code === id) {
+      setTimeout(() => {
+        window.print()
+      }, 200)
+    }
+  }, [loadingDetailAdjustmentGoodsOut])
 
   useEffect(() => {
     if (id) {
