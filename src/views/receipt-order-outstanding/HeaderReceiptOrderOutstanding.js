@@ -23,7 +23,7 @@ export default function HeaderReceiptOrderOutstanding({ data }) {
   return (
     <Grid item sm={6} xs={12}>
       <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
-        <Table sx={{ maxWidth: '15rem' }}>
+        <Table sx={{ maxWidth: isPrint ? '12rem' : '15rem' }}>
           <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
             {
               data?.code && (

@@ -16,9 +16,8 @@ import TableCell from '@mui/material/TableCell'
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
 import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
-import { transformColor } from 'src/helpers/transformColor'
-import CustomChip from 'src/@core/components/mui/chip'
 import { companyInfo } from 'src/data/companyInfo'
+import { Status } from 'src/@core/components/common'
 
 const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
@@ -101,26 +100,18 @@ const PageDetailInternalTransfer = ({ data }) => {
             </Grid>
             <Grid item sm={6} xs={12}>
               <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
-                <Table sx={{ maxWidth: '18rem' }}>
+                <Table sx={{ maxWidth: '12rem' }}>
                   <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
                     <TableRow>
                       <MUITableCell>
-                        <Typography variant='h5'>Kode Surat</Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <Typography variant='h5'>{`#${data.code}`}</Typography>
+                        <Typography variant='h6'>Internal Transfer</Typography>
+                        <Typography variant='h6'>{`#${data.code}`}</Typography>
                       </MUITableCell>
                     </TableRow>
                     <TableRow>
                       <MUITableCell>
-                        <Typography sx={{ color: 'text.secondary' }}>Status</Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <CustomChip
-                          rounded
-                          label={`${data?.status}`}
-                          skin='light'
-                          color={`${transformColor(data?.status)}`}
+                        <Status
+                          status={data?.status}
                         />
                       </MUITableCell>
                     </TableRow>
