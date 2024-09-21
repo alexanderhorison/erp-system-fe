@@ -39,6 +39,16 @@ const navigation = () => {
           title: 'Company',
           path: '/master/company',
           menuId: 13
+        },
+        {
+          title: 'Customer',
+          path: '/master/customer',
+          menuId: 21
+        },
+        {
+          title: 'Rank',
+          path: '/master/rank',
+          menuId: 22
         }
       ]
     },

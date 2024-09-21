@@ -26,6 +26,8 @@ import adjustmentGoodsOut from './apps/adjustment/goods-out'
 import adjustmentGoodsIn from './apps/adjustment/goods-in'
 import internalTransfer from './apps/internal-transfer'
 import deliveryOrderReceiptOutstanding from './apps/receipt-order-outstanding'
+import masterCustomer from './apps/master/customer'
+import masterRank from './apps/master/rank'
 
 export const store = configureStore({
   reducer: {
@@ -52,6 +54,8 @@ export const store = configureStore({
     adjustmentGoodsIn,
     internalTransfer,
     deliveryOrderReceiptOutstanding,
+    masterCustomer,
+    masterRank,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
