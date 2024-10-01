@@ -85,6 +85,7 @@ export default function TimelineItemHistory(props) {
           <BoxCode value={props?.stockOpname} isClickable url={`/stock-opname/${props?.stockOpnameCode}`} />
           <BoxCode value={props?.deliveryOrderReceipt} isClickable url={`/receive-order/${props?.deliveryOrderReceiptCode}`} />
           <BoxCode value={props?.goodsOut} isClickable url={`/adjustment/goods-out/${props?.goodsOutCode}`} />
+          <BoxCode value={props?.salesOrder} isClickable url={`/sales-order/${props?.salesOrderCode}`} />
           {
             props?.notes && (
               <Grid xs={12} md={5} mt={2}>

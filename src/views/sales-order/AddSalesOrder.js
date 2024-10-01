@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material'
-import { useCallback, useEffect, useState } from 'react'
+import { Button, Card, CardContent, Divider, Grid, IconButton, useTheme } from '@mui/material'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
@@ -17,12 +17,11 @@ import { createSalesOrder } from 'src/store/apps/sales-order'
 import PickersComponent from '../forms/form-elements/pickers/PickersCustomInput'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { priceFormat } from 'src/helpers/priceFormatter'
 
 export default function AddSalesOrder({ warehouse }) {
   const dispatch = useDispatch()
   const router = useRouter()
-
-  const numberFormatter = new Intl.NumberFormat('en-US')
 
   const theme = useTheme()
   const { direction } = theme
@@ -95,7 +94,7 @@ export default function AddSalesOrder({ warehouse }) {
       type: 'duplicate',
       message: `Produk dan Satuan sudah dipilih`
     })
-    
+
     if (!duplicate) {
       let sendData = {
         warehouseId: +data.warehouseId,
@@ -121,11 +120,11 @@ export default function AddSalesOrder({ warehouse }) {
   // Calculate grand total when subTotals change
   const calculateGrandTotal = useCallback(
     index => {
-      if (!index) {
+      if (index || index === 0) {
+        setValue('grandTotal', control._formValues.grandTotal - formField[index].subTotal) // Update grand total
+      } else {
         const calculatedGrandTotal = formField?.reduce((acc, item) => acc + (item.quantity * item.price || 0), 0)
         setValue('grandTotal', calculatedGrandTotal) // Update grand total
-      } else {
-        setValue('grandTotal', control._formValues.grandTotal - formField[index].subTotal) // Update grand total
       }
     },
     [formField, setValue]
@@ -229,8 +228,8 @@ export default function AddSalesOrder({ warehouse }) {
           <Grid item xs={12}>
             <Card>
               {fields.map((item, index) => (
-                <>
-                  <CardContent key={index}>
+                <React.Fragment key={item.id}>
+                  <CardContent>
                     <Grid container spacing={6}>
                       <Grid item xs={12} md={4}>
                         <Controller
@@ -239,7 +238,7 @@ export default function AddSalesOrder({ warehouse }) {
                           rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
                             <CustomAutocomplete
-                              key={index}
+                              key={item.id}
                               options={OptionsGroup(listProduct, 'categoryName')}
                               groupBy={option => option.categoryName}
                               id='autocomplete-grouped'
@@ -366,7 +365,7 @@ export default function AddSalesOrder({ warehouse }) {
                             <CustomTextField
                               fullWidth
                               label='Price'
-                              value={value ? numberFormatter.format(value) : ''}
+                              value={value ? priceFormat(value) : ''}
                               onChange={e => {
                                 const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
                                 const newPrice = +rawValue
@@ -405,7 +404,7 @@ export default function AddSalesOrder({ warehouse }) {
                             <CustomTextField
                               fullWidth
                               label='Sub Total'
-                              value={numberFormatter.format(value || 0)}
+                              value={priceFormat(value || 0)}
                               disabled
                               type='text'
                               sx={{ display: 'block' }}
@@ -418,7 +417,7 @@ export default function AddSalesOrder({ warehouse }) {
                         />
                       </Grid>
                       <Grid item xs={1} md={1} sx={{ marginTop: 'auto' }}>
-                        {index !== 0 && fields.length - 1 === index && (
+                        {fields.length > 1 && (
                           <IconButton onClick={() => deleteItem(index)} sx={{ color: 'text.primary' }}>
                             <Icon icon='tabler:trash' />
                           </IconButton>
@@ -427,7 +426,7 @@ export default function AddSalesOrder({ warehouse }) {
                     </Grid>
                   </CardContent>
                   <Divider />
-                </>
+                </React.Fragment>
               ))}
               <CardContent>
                 <Grid container spacing={6}>
@@ -445,7 +444,7 @@ export default function AddSalesOrder({ warehouse }) {
                         <CustomTextField
                           fullWidth
                           label='Grand Total'
-                          value={value ? numberFormatter.format(value) : '0'}
+                          value={value ? priceFormat(value) : '0'}
                           type='text'
                           disabled
                           sx={{ display: 'block' }}
