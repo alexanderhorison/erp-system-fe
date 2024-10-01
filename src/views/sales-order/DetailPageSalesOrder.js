@@ -186,8 +186,8 @@ const DetailPageSalesOrder = ({ data }) => {
                     <TableCell>{data?.rackName}</TableCell>
                     <TableCell>{data?.unitName || ''}</TableCell>
                     <TableCell>{data?.quantity || ''}</TableCell>
-                    <TableCell>{priceFormat(data?.price)}</TableCell>
-                    <TableCell>{priceFormat(data?.subTotal)}</TableCell>
+                    <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
+                    <TableCell>Rp. {priceFormat(data?.subTotal)}</TableCell>
                   </TableRow>
                 )
               })}
@@ -198,7 +198,7 @@ const DetailPageSalesOrder = ({ data }) => {
         <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
           <Grid container>
             <Grid item xs={12} sm={8} lg={7} sx={{ order: { sm: 1, xs: 2 }, mb: 4 }}>
-              <Box sx={{ mb: 2, display: 'flex-col', alignItems: 'center' }}>
+              <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
                 <Typography sx={{ color: 'text.secondary' }}>
                   <Typography component='span' sx={{ mr: 1.5, fontWeight: 500, color: 'inherit' }}>
                     CATATAN :
@@ -207,32 +207,28 @@ const DetailPageSalesOrder = ({ data }) => {
                 <Typography sx={{ color: 'text.secondary', mt: 3 }}>{data?.notes}</Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={8} lg={4.6} sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 1, xs: 2 } }}>
-              <CalcWrapper>
-                <Typography sx={{ color: 'text.secondary' }}>Grand Total:</Typography>
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>
-                  Rp. {priceFormat(data?.grandTotal)}
-                </Typography>
-              </CalcWrapper>
-              {/* <CalcWrapper>
-                <Typography sx={{ color: 'text.secondary' }}>Discount:</Typography>
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>$28</Typography>
-              </CalcWrapper>
-              <CalcWrapper sx={{ mb: '0 !important' }}>
-                <Typography sx={{ color: 'text.secondary' }}>Tax:</Typography>
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>21%</Typography>
-              </CalcWrapper>
-              <Divider sx={{ my: `${theme.spacing(2)} !important` }} />
-              <CalcWrapper>
-                <Typography sx={{ color: 'text.secondary' }}>Total:</Typography>
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>$1690</Typography>
-              </CalcWrapper> */}
+            <Grid item xs={12} sm={12} lg={1} sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 1, xs: 2 } }}></Grid>
+            <Grid item xs={12} sm={12} lg={2} sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 1, xs: 2 } }}>
+              <Typography sx={{ color: 'text.secondary', ml: 6 }}>Grand Total:</Typography>
+            </Grid>
+            <Grid item xs={8} sm={8} lg={2} sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 1, xs: 2 } }}>
+              <Typography sx={{ color: 'text.secondary', ml: 6.5 }}>Rp. {priceFormat(data?.grandTotal)}</Typography>
             </Grid>
           </Grid>
         </CardContent>
 
         <Divider />
 
+        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
+          <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
+            <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
+              Silahkan transfer ke rekening:
+            </Typography>
+            <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>{companyInfo.bank}</Typography>
+          </Box>
+        </CardContent>
+
+        <Divider />
         <CardContent sx={{ px: [6, 10] }}>
           <Grid container>
             <Grid item xs={12} sm={12} lg={12} sx={{ mb: 20, mx: 7 }}>
@@ -245,29 +241,18 @@ const DetailPageSalesOrder = ({ data }) => {
                   textAlign: 'center'
                 }}
               >
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Dibuat Oleh</Typography>
-                <div>
-                  <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
-                    Silahkan transfer ke rekening:
-                  </Typography>
-                  <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>
-                    248 882 2298 BCA a/n PT TJAHAYA BERKAT ABADI
-                  </Typography>
-                </div>
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Diterima Oleh</Typography>
+                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Penerima</Typography>
+                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Dengan Hormat,</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={12} lg={12} sx={{}}>
               <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box sx={{ mb: 2, ml: 5, display: 'flex-column', alignItems: 'center', textAlign: 'center' }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.createdBy}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.createdAt)}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.createdAt)}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>( ................... )</Typography>
                 </Box>
                 <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.approvedBy}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.approvedAt)}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.approvedAt)}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{companyInfo.ownerName}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{companyInfo.ownerTitle}</Typography>
                 </Box>
               </Box>
             </Grid>
