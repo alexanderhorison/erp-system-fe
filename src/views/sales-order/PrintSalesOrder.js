@@ -213,8 +213,8 @@ const PrintSalesOrder = ({ id }) => {
         </TableContainer>
 
         <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
-          <Grid container>
-            <Grid item xs={12} sm={8} lg={7} sx={{ order: { sm: 1, xs: 2 }, mb: 4 }}>
+          {/* <Grid container>
+            <Grid item xs={12} sm={8} lg={4} sx={{ order: { sm: 1, xs: 2 }, mb: 4 }}>
               <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
                 <Typography sx={{ color: 'text.secondary' }}>
                   <Typography component='span' sx={{ mr: 1.5, fontWeight: 500, color: 'inherit' }}>
@@ -231,12 +231,28 @@ const PrintSalesOrder = ({ id }) => {
             <Grid item xs={8} sm={8} lg={2} sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 1, xs: 2 } }}>
               <Typography sx={{ color: 'text.secondary', ml: 5.8 }}>Rp. {priceFormat(data?.grandTotal)}</Typography>
             </Grid>
+          </Grid> */}
+          <Grid container>
+            <Grid item xs={8} sm={7} lg={9}>
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, color: 'text.secondary' }}>CATATAN :</Typography>
+              </Box>
+
+              <Typography sx={{ color: 'text.secondary', mt: 3 }}>{data?.notes}</Typography>
+            </Grid>
+            <Grid item xs={4} sm={5} lg={4}>
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'right' }}>
+                <Typography sx={{ color: 'text.secondary' }}>Grand Total:</Typography>
+                <Typography sx={{ color: 'text.secondary', ml: 10 }}>Rp.</Typography>
+                <Typography sx={{ color: 'text.secondary', ml: 2 }}>{priceFormat(data?.grandTotal)}</Typography>
+              </Box>
+            </Grid>
           </Grid>
         </CardContent>
 
-        <Divider />
+        <Divider sx={{ mt: 7 }} />
 
-        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
+        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`], mt: 5 }}>
           <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
             <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
               Silahkan transfer ke rekening:
