@@ -23,7 +23,7 @@ import axios from 'axios'
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
 
-const CalcWrapper = styled(Box)(({ theme }) => ({
+export const CalcWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',

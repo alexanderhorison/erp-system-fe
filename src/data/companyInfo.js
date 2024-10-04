@@ -3,4 +3,7 @@ export const companyInfo = {
   address: 'Jl. Raya Kebayoran Lama No. 555',
   city: "Grogol Selatan, Jakarta Selatan 12220",
   phoneNumber: "081807922555",
+  ownerName: "Michael Santoso",
+  ownerTitle: "Finance Dept",
+  bank: "248 882 2298 BCA a/n PT TJAHAYA BERKAT ABADI"
 }

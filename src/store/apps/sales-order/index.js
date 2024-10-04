@@ -1,0 +1,208 @@
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import axios from 'src/configs/axios'
+import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
+
+const label = 'Sales Order'
+
+// GET ALL SALES ORDER
+export const fetchAllSalesOrder = createAsyncThunk('salesOrder/fetchAllSalesOrder', async (_, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/sales-order/'
+    })
+    return response.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
+// CREATE SALES ORDER
+export const createSalesOrder = createAsyncThunk(
+  'salesOrder/createSalesOrder',
+  async ({ data, router }, { dispatch, rejectWithValue }) => {
+    try {
+      await swalConfirmationAdd({
+        label: label,
+        name: 'Surat',
+        title: 'Anda akan membuat surat sales order?',
+        axiosRequest: () => {
+          return axios({
+            method: 'POST',
+            url: '/sales-order/create',
+            data
+          })
+        },
+        dispatchRequest: () => {
+          router.push(`/sales-order`)
+        }
+      })
+    } catch (error) {
+      return rejectWithValue({})
+    }
+  }
+)
+
+// GET DETAIL SALES ORDER
+export const fetchDetailSalesOrder = createAsyncThunk(
+  'salesOrder/fetchDetailSalesOrder',
+  async (code, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/sales-order/' + code
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
+// UPDATE FORM SALES ORDER
+export const updateFormSalesOrder = createAsyncThunk(
+  'salesOrder/updateFormSalesOrder',
+  async ({ data, code, router }, { dispatch, rejectWithValue }) => {
+    try {
+      await swalConfirmationAdd({
+        label: label,
+        name: 'Sales Order',
+        title: 'Anda akan edit sales order?',
+        axiosRequest: () => {
+          return axios({
+            method: 'PUT',
+            url: '/sales-order/' + code,
+            data
+          })
+        },
+        dispatchRequest: () => {
+          router.push(`/sales-order`)
+        }
+      })
+    } catch (error) {
+      return rejectWithValue({})
+    }
+  }
+)
+
+// TERIMA / TOLAK SALES ORDER
+export const updateSalesOrder = createAsyncThunk(
+  'salesOrder/updateSalesOrder',
+  async ({ code, type, router }, { dispatch, rejectWithValue }) => {
+    try {
+      await swalConfirmationAdd({
+        label,
+        name: 'Surat',
+        title: type == 'approve' ? 'Anda akan menerima sales order?' : 'Anda akan tolak sales order?',
+        axiosRequest: () => {
+          return axios({
+            method: 'POST',
+            // TYPE (approve/reject)
+            // CODE (sales order code)
+            url: `/sales-order/${type}/${code}`
+          })
+        },
+        dispatchRequest: () => {
+          router.push('/sales-order')
+        }
+      })
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue({})
+    }
+  }
+)
+
+// GET LIST MASTER PRODUCT SALES ORDER
+export const fetchListProductSalesOrder = createAsyncThunk(
+  'appProductWarehouse/fetchListProductSalesOrder',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/product-warehouse/warehouse/' + id + '/list-product-sales-order'
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return error
+    }
+  }
+)
+
+export const appMasterProductSlice = createSlice({
+  name: 'salesOrder',
+  initialState: {
+    dataSalesOrder: [],
+    loadingDataSalesOrder: true,
+    errorDataSalesOrder: false,
+
+    detailSalesOrder: {},
+    loadingDetailSalesOrder: false,
+    errorDetailSalesOrder: false,
+
+    loadingUpdateSalesOrder: false,
+    errorUpdateSalesOrder: false,
+
+    listProductSalesOrder: [],
+    loadingListProductSalesOrder: false,
+    errorListProductSalesOrder: false
+  },
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(fetchAllSalesOrder.pending, (state, action) => {
+        state.loadingDataSalesOrder = true
+      })
+      .addCase(fetchAllSalesOrder.fulfilled, (state, action) => {
+        state.dataSalesOrder = action.payload.data
+        state.loadingDataSalesOrder = false
+      })
+      .addCase(fetchAllSalesOrder.rejected, (state, action) => {
+        state.dataSalesOrder = []
+        state.loadingDataSalesOrder = false
+        state.errorDataSalesOrder = action.error.message
+      })
+
+      .addCase(fetchDetailSalesOrder.pending, (state, action) => {
+        state.loadingDetailSalesOrder = true
+      })
+      .addCase(fetchDetailSalesOrder.fulfilled, (state, action) => {
+        state.detailSalesOrder = action.payload.data
+        state.loadingDetailSalesOrder = false
+      })
+      .addCase(fetchDetailSalesOrder.rejected, (state, action) => {
+        state.detailSalesOrder = {}
+        state.loadingDetailSalesOrder = false
+        state.errorDetailSalesOrder = action.error.message
+      })
+
+      .addCase(updateSalesOrder.pending, (state, action) => {
+        state.loadingUpdateSalesOrder = true
+      })
+      .addCase(updateSalesOrder.fulfilled, (state, action) => {
+        state.loadingUpdateSalesOrder = false
+      })
+      .addCase(updateSalesOrder.rejected, (state, action) => {
+        state.loadingUpdateSalesOrder = false
+        state.errorUpdateSalesOrder = action.error.message
+      })
+
+      .addCase(fetchListProductSalesOrder.pending, (state, action) => {
+        state.loadingListProductSalesOrder = true
+      })
+      .addCase(fetchListProductSalesOrder.fulfilled, (state, action) => {
+        state.listProductSalesOrder = action.payload.data
+        state.loadingListProductSalesOrder = false
+      })
+      .addCase(fetchListProductSalesOrder.rejected, (state, action) => {
+        state.listProductSalesOrder = []
+        state.loadingListProductSalesOrder = false
+        state.errorListProductSalesOrder = action.error.message
+      })
+  }
+})
+
+export default appMasterProductSlice.reducer

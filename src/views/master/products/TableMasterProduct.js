@@ -32,7 +32,7 @@ const RowOptions = ({ id, name }) => {
   }
 
   const handlePageTransformation = () => {
-    router.push(`/master/products/${id}/transformation`)
+    router.push(`/master/products/${id}`)
   }
 
   return (
@@ -82,24 +82,31 @@ export default function TableMasterProduct({}) {
     HandleSearh({ data, keys: ['name', 'category', 'type'], searchValue, setData: setFilteredData })
   }
 
-  const updatedUrl = useCallback((params) => {
-    const { categoryId, typeId, companyId } = params
-    router.push({
-      pathname: router.pathname,
-      query: {
-        categoryId: categoryId || '',
-        typeId: typeId || '',
-        companyId: companyId || '',
-      }
-    }, undefined, { shallow: true });
-  } , [router])
+  const updatedUrl = useCallback(
+    params => {
+      const { categoryId, typeId, companyId } = params
+      router.push(
+        {
+          pathname: router.pathname,
+          query: {
+            categoryId: categoryId || '',
+            typeId: typeId || '',
+            companyId: companyId || ''
+          }
+        },
+        undefined,
+        { shallow: true }
+      )
+    },
+    [router]
+  )
 
   useEffect(() => {
     const query = router.query
     const initialFilter = {
       categoryId: query.categoryId || '',
       typeId: query.typeId || '',
-      companyId: query.companyId || '',
+      companyId: query.companyId || ''
     }
     setFilterInput(initialFilter)
     dispatch(fetchMasterDataProduct(initialFilter))
@@ -121,7 +128,7 @@ export default function TableMasterProduct({}) {
       updatedUrl({
         categoryId: '',
         typeId: '',
-        companyId: '',
+        companyId: ''
       })
     },
     [dispatch, updatedUrl]
@@ -132,7 +139,7 @@ export default function TableMasterProduct({}) {
       updatedUrl({
         categoryId: filterInput.categoryId,
         typeId: filterInput.typeId,
-        companyId: filterInput.companyId,
+        companyId: filterInput.companyId
       })
       dispatch(fetchMasterDataProduct(filterInput))
     } else {

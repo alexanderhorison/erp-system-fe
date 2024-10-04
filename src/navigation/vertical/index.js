@@ -111,6 +111,17 @@ const navigation = () => {
       ]
     },
     {
+      title: 'Sales Order',
+      icon: 'tabler:server-cog',
+      children: [
+        {
+          title: 'Sales Order',
+          path: '/sales-order',
+          menuId: 23
+        },
+      ]
+    },
+    {
       sectionTitle: 'Pengguna & Otoritas',
       menuId: [1, 2]
     },
@@ -235,6 +246,17 @@ const navigation = () => {
           path: '/receipt-order-outstanding',
           menuId: 19
         }
+      ]
+    },
+    {
+      title: 'Sales Order',
+      icon: 'tabler:server-cog',
+      children: [
+        {
+          title: 'Sales Order',
+          path: '/sales-order',
+          menuId: 23
+        },
       ]
     },
     {

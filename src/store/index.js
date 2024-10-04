@@ -14,6 +14,7 @@ import company from './apps/master/company'
 import masterProduct from './apps/master/product'
 import menu from 'src/store/apps/menu'
 import unit from './apps/master/unit'
+import masterProductPrice from './apps/master/product-price'
 import warehouse from './apps/master/warehouse'
 import productWarehouse from './apps/product-warehouse/'
 import deliveryOrder from './apps/delivery-order'
@@ -29,6 +30,7 @@ import deliveryOrderReceiptOutstanding from './apps/receipt-order-outstanding'
 import masterCustomer from './apps/master/customer'
 import masterRank from './apps/master/rank'
 import dashboard from './apps/dashboard'
+import salesOrder from './apps/sales-order'
 
 export const store = configureStore({
   reducer: {
@@ -58,6 +60,8 @@ export const store = configureStore({
     masterCustomer,
     masterRank,
     dashboard,
+    salesOrder,
+    masterProductPrice
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
