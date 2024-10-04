@@ -18,6 +18,7 @@ import PickersComponent from '../forms/form-elements/pickers/PickersCustomInput'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from 'src/helpers/priceFormatter'
+import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
 
 export default function AddSalesOrder({ warehouse }) {
   const dispatch = useDispatch()
@@ -252,6 +253,19 @@ export default function AddSalesOrder({ warehouse }) {
                                   setValue(`data[${index}].qty`, selectedProduct.quantity)
                                   setValue(`data[${index}].masterProductId`, selectedProduct.masterProductId)
                                   setValue(`data[${index}].rackName`, selectedProduct.rackName)
+
+                                  // Fetch price base on selected product
+                                  dispatch(
+                                    fetchOneMasterDataProductPrice({
+                                      productId: selectedProduct.masterProductId,
+                                      unitId: selectedProduct.masterUnitId
+                                    })
+                                  ).then(({ payload }) => {
+                                    // if price exist then switch to replace
+                                    if (payload.data) {
+                                      setValue(`data[${index}].price`, payload.data.basePrice)
+                                    }
+                                  })
                                 } else {
                                   setValue(`data[${index}].qty`, '')
                                   setValue(`data[${index}].masterProductId`, '')

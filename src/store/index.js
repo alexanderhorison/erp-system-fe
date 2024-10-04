@@ -14,6 +14,7 @@ import company from './apps/master/company'
 import masterProduct from './apps/master/product'
 import menu from 'src/store/apps/menu'
 import unit from './apps/master/unit'
+import masterProductPrice from './apps/master/product-price'
 import warehouse from './apps/master/warehouse'
 import productWarehouse from './apps/product-warehouse/'
 import deliveryOrder from './apps/delivery-order'
@@ -57,7 +58,8 @@ export const store = configureStore({
     deliveryOrderReceiptOutstanding,
     masterCustomer,
     masterRank,
-    salesOrder
+    salesOrder,
+    masterProductPrice
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
