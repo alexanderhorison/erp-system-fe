@@ -61,6 +61,32 @@ export const fetchDetailSalesOrder = createAsyncThunk(
   }
 )
 
+// UPDATE FORM SALES ORDER
+export const updateFormSalesOrder = createAsyncThunk(
+  'salesOrder/updateFormSalesOrder',
+  async ({ data, code, router }, { dispatch, rejectWithValue }) => {
+    try {
+      await swalConfirmationAdd({
+        label: label,
+        name: 'Sales Order',
+        title: 'Anda akan edit sales order?',
+        axiosRequest: () => {
+          return axios({
+            method: 'PUT',
+            url: '/sales-order/' + code,
+            data
+          })
+        },
+        dispatchRequest: () => {
+          router.push(`/sales-order`)
+        }
+      })
+    } catch (error) {
+      return rejectWithValue({})
+    }
+  }
+)
+
 // TERIMA / TOLAK SALES ORDER
 export const updateSalesOrder = createAsyncThunk(
   'salesOrder/updateSalesOrder',

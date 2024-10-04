@@ -15,12 +15,15 @@ import renderClient from 'src/helpers/renderClient'
 import { fetchAllSalesOrder } from 'src/store/apps/sales-order'
 import TableHeaderSalesOrder from './TableHeaderSalesOrder'
 
-const RowOptions = ({ handleView }) => {
+const RowOptions = ({ handleView, handleEdit }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <IconButton onClick={handleView}>
           <Icon icon='tabler:eye' />
+        </IconButton>
+        <IconButton onClick={handleEdit}>
+          <Icon icon='tabler:edit' />
         </IconButton>
       </Box>
     </>
@@ -51,6 +54,11 @@ export default function TableAllSalesOrder({ timeFilter }) {
   const handleRowClick = params => {
     const id = params?.code || params?.row?.code
     router.push(`/sales-order/${id}`)
+  }
+
+  const handleRowEdit = params => {
+    const id = params?.code || params?.row?.code
+    router.push(`/sales-order/edit/${id}`)
   }
 
   const handleAdd = () => {
@@ -188,11 +196,13 @@ export default function TableAllSalesOrder({ timeFilter }) {
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions handleView={() => handleRowClick(row)} />
+            renderCell: ({ row }) => (
+              <RowOptions handleView={() => handleRowClick(row)} handleEdit={() => handleRowEdit(row)} />
+            )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
-        onCellClick={handleRowClick}
+        // onCellClick={handleRowClick}
         paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderSalesOrder }}
         onPaginationModelChange={setPaginationModel}

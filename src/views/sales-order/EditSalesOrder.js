@@ -1,26 +1,20 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid, IconButton, useTheme } from '@mui/material'
+import { Button, Card, CardContent, Divider, Grid, useTheme } from '@mui/material'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useDispatch, useSelector } from 'react-redux'
-import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
+import { useDispatch } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 
 import Icon from 'src/@core/components/icon'
 import * as yup from 'yup'
 import { useRouter } from 'next/router'
-import { fetchInvoiceListProductByWarehouseId } from 'src/store/apps/delivery-order'
-import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
-import OptionsGroup from 'src/helpers/groupedInput'
-import { fetchMasterDataCustomer } from 'src/store/apps/master/customer'
-import { createSalesOrder } from 'src/store/apps/sales-order'
+import { updateFormSalesOrder } from 'src/store/apps/sales-order'
 import PickersComponent from '../forms/form-elements/pickers/PickersCustomInput'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from 'src/helpers/priceFormatter'
-import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
 
-export default function AddSalesOrder({ warehouse }) {
+export default function EditSalesOrderPage({ data, salesOrderCode }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -28,10 +22,6 @@ export default function AddSalesOrder({ warehouse }) {
   const { direction } = theme
   const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
   const [date, setDate] = useState(new Date())
-
-  const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
-  const { data: masterCustomer } = useSelector(state => state.masterCustomer)
-  const { dataListProductWarehouse: listProduct } = useSelector(state => state.deliveryOrder)
 
   const schema = yup.object({
     customerId: yup.string().required('Customer harus diisi'),
@@ -105,18 +95,38 @@ export default function AddSalesOrder({ warehouse }) {
         notes: data.notes,
         listProduct: listItems
       }
-      dispatch(createSalesOrder({ data: sendData, router }))
+      dispatch(updateFormSalesOrder({ data: sendData, code: salesOrderCode, router }))
     }
   }
 
-  const addMore = () => {
-    append({ warehouseProductId: '', price: '', quantity: '', subTotal: '' })
+  const formatDate = date => {
+    const [day, month, year] = date.split('/')
+    const isoDate = `${year}-${month}-${day}`
+    const dateObject = new Date(isoDate)
+    return dateObject
   }
 
-  const deleteItem = itemIndex => {
-    remove(itemIndex)
-    calculateGrandTotal(itemIndex)
-  }
+  useEffect(() => {
+    remove()
+    data?.listProducts.forEach(product => {
+      append({
+        id: product.id,
+        productName: `${product?.productName} - ${product.unitName}`,
+        warehouseProductId: product.warehouseProductId,
+        rackName: product.rackName,
+        unitName: product.unitName,
+        quantity: product.quantity,
+        price: product.price,
+        subTotal: product.subTotal,
+        qty: product.qty
+      })
+    })
+    setDate(formatDate(data?.dueDate))
+    setValue('customerId', data?.customer?.id)
+    setValue('warehouseId', data?.warehouseId)
+    setValue('grandTotal', data?.grandTotal)
+    setValue('notes', data?.notes)
+  }, [dispatch, append])
 
   // Calculate grand total when subTotals change
   const calculateGrandTotal = useCallback(
@@ -131,19 +141,6 @@ export default function AddSalesOrder({ warehouse }) {
     [formField, setValue]
   )
 
-  useEffect(() => {
-    if (fields.length === 0) {
-      append({
-        warehouseProductId: '',
-        price: '',
-        quantity: '',
-        subTotal: ''
-      })
-    }
-    dispatch(fetchMasterDataWarehouse())
-    dispatch(fetchMasterDataCustomer())
-  }, [dispatch, listProduct])
-
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -156,28 +153,13 @@ export default function AddSalesOrder({ warehouse }) {
                     <Controller
                       name={`warehouseId`}
                       control={control}
-                      rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
-                        <CustomAutocomplete
-                          options={masterDataWarehouse}
-                          id='autocomplete-custom'
-                          getOptionLabel={option => option.name || ''}
-                          onChange={(event, newValue) => {
-                            onChange(+newValue?.id)
-                            dispatch(fetchInvoiceListProductByWarehouseId(+newValue?.id))
-                            remove()
-                          }}
-                          renderInput={params => (
-                            <CustomTextField
-                              value={value}
-                              {...params}
-                              error={Boolean(errors?.warehouseId)}
-                              {...(errors?.warehouseId && {
-                                helperText: errors?.warehouseId.message
-                              })}
-                              label='Gudang Sumber'
-                            />
-                          )}
+                        <CustomTextField
+                          fullWidth
+                          label='Gudang Sumber'
+                          disabled
+                          value={data?.warehouseName}
+                          sx={{ display: 'block' }}
                         />
                       )}
                     />
@@ -186,26 +168,13 @@ export default function AddSalesOrder({ warehouse }) {
                     <Controller
                       name={`customerId`}
                       control={control}
-                      rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
-                        <CustomAutocomplete
-                          options={masterCustomer}
-                          id='autocomplete-custom'
-                          getOptionLabel={option => option.name || ''}
-                          onChange={(event, newValue) => {
-                            onChange(+newValue?.id || '')
-                          }}
-                          renderInput={params => (
-                            <CustomTextField
-                              value={value}
-                              {...params}
-                              error={Boolean(errors?.customerId)}
-                              {...(errors?.customerId && {
-                                helperText: errors?.customerId.message
-                              })}
-                              label='Customer'
-                            />
-                          )}
+                        <CustomTextField
+                          fullWidth
+                          label='Customer'
+                          disabled
+                          value={data?.customer?.name}
+                          sx={{ display: 'block' }}
                         />
                       )}
                     />
@@ -234,55 +203,15 @@ export default function AddSalesOrder({ warehouse }) {
                     <Grid container spacing={6}>
                       <Grid item xs={12} md={4}>
                         <Controller
-                          name={`data[${index}].warehouseProductId`}
+                          name={`data[${index}].productName`}
                           control={control}
-                          rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
-                            <CustomAutocomplete
-                              key={item.id}
-                              options={OptionsGroup(listProduct, 'categoryName')}
-                              groupBy={option => option.categoryName}
-                              id='autocomplete-grouped'
-                              getOptionLabel={option => option.productName || ''}
-                              onChange={(event, newValue) => {
-                                onChange(+newValue?.productWarehouseId)
-                                const selectedProduct = listProduct.find(
-                                  product => product.productWarehouseId === +newValue?.productWarehouseId
-                                )
-                                if (selectedProduct) {
-                                  setValue(`data[${index}].qty`, selectedProduct.quantity)
-                                  setValue(`data[${index}].masterProductId`, selectedProduct.masterProductId)
-                                  setValue(`data[${index}].rackName`, selectedProduct.rackName)
-
-                                  // Fetch price base on selected product
-                                  dispatch(
-                                    fetchOneMasterDataProductPrice({
-                                      productId: selectedProduct.masterProductId,
-                                      unitId: selectedProduct.masterUnitId
-                                    })
-                                  ).then(({ payload }) => {
-                                    // if price exist then switch to replace
-                                    if (payload.data) {
-                                      setValue(`data[${index}].price`, payload.data.basePrice)
-                                    }
-                                  })
-                                } else {
-                                  setValue(`data[${index}].qty`, '')
-                                  setValue(`data[${index}].masterProductId`, '')
-                                  setValue(`data[${index}].rackName`, '')
-                                }
-                              }}
-                              renderInput={params => (
-                                <CustomTextField
-                                  value={item.warehouseProductId}
-                                  {...params}
-                                  error={Boolean(errors?.data?.[index]?.warehouseProductId)}
-                                  {...(errors?.data?.[index]?.warehouseProductId && {
-                                    helperText: errors?.data?.[index]?.warehouseProductId.message
-                                  })}
-                                  label='Produk'
-                                />
-                              )}
+                            <CustomTextField
+                              fullWidth
+                              label='Produk'
+                              disabled
+                              value={value}
+                              sx={{ display: 'block' }}
                             />
                           )}
                         />
@@ -430,13 +359,6 @@ export default function AddSalesOrder({ warehouse }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={1} md={1} sx={{ marginTop: 'auto' }}>
-                        {fields.length > 1 && (
-                          <IconButton onClick={() => deleteItem(index)} sx={{ color: 'text.primary' }}>
-                            <Icon icon='tabler:trash' />
-                          </IconButton>
-                        )}
-                      </Grid>
                     </Grid>
                   </CardContent>
                   <Divider />
@@ -444,11 +366,7 @@ export default function AddSalesOrder({ warehouse }) {
               ))}
               <CardContent>
                 <Grid container spacing={6}>
-                  <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}>
-                    <Button onClick={addMore} startIcon={<Icon icon='tabler:plus' />}>
-                      Tambahkan produk
-                    </Button>
-                  </Grid>
+                  <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}></Grid>
                   <Grid item xs={12} md={2}>
                     <Controller
                       name={`grandTotal`}
@@ -490,11 +408,11 @@ export default function AddSalesOrder({ warehouse }) {
                         label='Catatan'
                         placeholder={'Catatan...'}
                         value={value}
+                        sx={{ display: 'block' }}
                         onChange={e => {
                           onChange(e.target.value)
                         }}
                         type='text'
-                        sx={{ display: 'block' }}
                       />
                     )}
                   />

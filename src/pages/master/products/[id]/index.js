@@ -1,6 +1,4 @@
-import { Grid, IconButton, Typography } from '@mui/material'
-import Icon from 'src/@core/components/icon'
-import { Box } from '@mui/system'
+import { Grid, Typography } from '@mui/material'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -29,7 +27,10 @@ export default function MasterProductTransformation() {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <ButtonBack paddingY={3} name={`Master Transformasi ${detail.name}`} />
+        <ButtonBack paddingY={3} />
+        <Typography fontSize={20} paddingY={3}>
+          Master Transformasi {detail?.name}
+        </Typography>
         <TableMasterTransformation product={detail} />
       </Grid>
       <Grid item xs={12}>
