@@ -1,0 +1,330 @@
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import axios from 'src/configs/axios'
+import { swalConfirmationAdd, swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+
+const label = 'Dashboard'
+
+// 1.⁠ ⁠Daftar barang habis
+// 2.⁠ ⁠TOP 5 barang tidak bergerak  (Tambahkan Config Get data Days)
+// 3.⁠ ⁠Top 5 barang gerak cepat 
+// 4.⁠ ⁠TOP 5 barang dengan quantity terbanyak (API berubah ngambil data dari suatu unit limit 5 data) Fetch semua Unit (total 25 data)
+// 5.⁠ ⁠Statistik total quantity per unit (API ada Perubahan)
+// 6. Statistik jumlah surat (API ada perubahan)
+// 7. Statistik jumla surat pending (api ada perubahan)
+// 8. Dashboard Banyak Produk Hilang di Outstanding
+// 9. Dashboard Banyak Quantity Hilang di Outstanding
+// ======================================================================
+// 1. DashboardBarangHabis.js
+// 2. DashboardBarangTidakBergerak.js
+// 3. DashboardBarangCepat.js
+// 4. DashboardBarangQuantityTerbanyak.js
+// 5. DashboardTotalQuantityPerUnit.js
+// 6. DashboardJumlahSurat.js
+// 7. DashboardJumlahSuratPending.js
+// 8. DashboardProductBanyakHilang.js
+// 9. DashboardProductQuantityBanyakHilang.js
+
+// 1. DashboardBarangHabis.js
+export const fetchDashboardBarangHabis = createAsyncThunk('appDashboard/fetchDashboardBarangHabis', async ({ query }, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/minimum-stock',
+      params: query
+    })
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
+// 2. DashboardBarangTidakBergerak.js
+export const fetchDashboardBarangTidakBergerak = createAsyncThunk('appDashboard/fetchDashboardBarangTidakBergerak', async ({ query }, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/slow-stock',
+      params: query
+    })
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
+// 3. DashboardBarangCepat.js
+export const fetchDashboardBarangCepat = createAsyncThunk('appDashboard/fetchDashboardBarangCepat', async ({ query }, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/fast-stock',
+      params: query
+    })
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
+// 4. DashboardBarangQuantityTerbanyak.js
+export const fetchDashboardBarangQuantityTerbanyak = createAsyncThunk('appDashboard/fetchDashboardBarangQuantityTerbanyak', async ({ query, unitId }, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/max-quantity-by-unit',
+      params: {
+        ...query,
+        unitId
+      }
+    })
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
+// 5. DashboardTotalQuantityPerUnit.js
+export const fetchDashboardTotalQuantityPerUnit = createAsyncThunk('appDashboard/fetchDashboardTotalQuantityPerUnit', async ({ query }, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/total-product-in-warehouse',
+      params: query
+    })
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
+// 6. DashboardJumlahSurat.js
+export const fetchDashboardJumlahSurat = createAsyncThunk('appDashboard/fetchDashboardJumlahSurat', async ({ query }, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/total-surat',
+      params: query
+    })
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
+// 7. DashboardJumlahSuratPending.js
+export const fetchDashboardJumlahSuratPending = createAsyncThunk('appDashboard/fetchDashboardJumlahSuratPending', async ({ query }, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/total-surat-pending',
+      params: query
+    })
+
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
+// 8. DashboardProductBanyakHilang.js
+export const fetchDashboardProductBanyakHilang = createAsyncThunk('appDashboard/fetchDashboardProductBanyakHilang', async ({ query }, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/most-lost-product-outstanding',
+      params: query
+    })
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
+// 9. DashboardProductQuantityBanyakHilang.js
+export const fetchDashboardProductQuantityBanyakHilang = createAsyncThunk('appDashboard/fetchDashboardProductQuantityBanyakHilang', async ({ query }, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/most-lost-quantity-product-outstanding',
+      params: query
+    })
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
+// REDUCER DASHBOARD
+export const appMasterRankSlice = createSlice({
+  name: 'appDashboard',
+  initialState: {
+    // 1
+    dataDashboardBarangHabis: [],
+    loadingDashboardBarangHabis: false,
+    errorDashboardBarangHabis: false,
+    // 2
+    dataDashboardBarangTidakBergerak: [],
+    loadingDashboardBarangTidakBergerak: false,
+    errorDashboardBarangTidakBergerak: false,
+    // 3
+    dataDashboardBarangCepat: [],
+    loadingDashboardBarangCepat: false,
+    errorDashboardBarangCepat: false,
+    // 4
+    dataDashboardBarangQuantityTerbanyak: [],
+    loadingDashboardBarangQuantityTerbanyak: false,
+    errorDashboardBarangQuantityTerbanyak: false,
+    // 5
+    dataDashboardTotalQuantityPerUnit: [],
+    loadingDashboardTotalQuantityPerUnit: false,
+    errorDashboardTotalQuantityPerUnit: false,
+    // 6
+    dataDashboardJumlahSurat: [],
+    loadingDashboardJumlahSurat: false,
+    errorDashboardJumlahSurat: false,
+    // 7
+    dataDashboardJumlahSuratPending: [],
+    loadingDashboardJumlahSuratPending: false,
+    errorDashboardJumlahSuratPending: false,
+    // 8
+    dataDashboardProductBanyakHilang: [],
+    loadingDashboardProductBanyakHilang: false,
+    errorDashboardProductBanyakHilang: false,
+    // 9
+    dataDashboardProductQuantityBanyakHilang: [],
+    loadingDashboardProductQuantityBanyakHilang: false,
+    errorDashboardProductQuantityBanyakHilang: false
+  },
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      // 1
+      .addCase(fetchDashboardBarangHabis.fulfilled, (state, action) => {
+        state.loadingDashboardBarangHabis = false
+        state.dataDashboardBarangHabis = action.payload
+      })
+      .addCase(fetchDashboardBarangHabis.pending, (state, action) => {
+        state.dataDashboardBarangHabis = []
+        state.loadingDashboardBarangHabis = true
+      })
+      .addCase(fetchDashboardBarangHabis.rejected, (state, action) => {
+        state.loadingDashboardBarangHabis = false
+        state.errorDashboardBarangHabis = true
+      })
+      // 2
+      .addCase(fetchDashboardBarangTidakBergerak.fulfilled, (state, action) => {
+        state.loadingDashboardBarangTidakBergerak = false
+        state.dataDashboardBarangTidakBergerak = action.payload
+      })
+      .addCase(fetchDashboardBarangTidakBergerak.pending, (state, action) => {
+        state.dataDashboardBarangTidakBergerak = []
+        state.loadingDashboardBarangTidakBergerak = true
+      })
+      .addCase(fetchDashboardBarangTidakBergerak.rejected, (state, action) => {
+        state.loadingDashboardBarangTidakBergerak = false
+        state.errorDashboardBarangTidakBergerak = true
+      })
+      // 3
+      .addCase(fetchDashboardBarangCepat.fulfilled, (state, action) => {
+        state.loadingDashboardBarangCepat = false
+        state.dataDashboardBarangCepat = action.payload
+      })
+      .addCase(fetchDashboardBarangCepat.pending, (state, action) => {
+        state.dataDashboardBarangCepat = []
+        state.loadingDashboardBarangCepat = true
+      })
+      .addCase(fetchDashboardBarangCepat.rejected, (state, action) => {
+        state.loadingDashboardBarangCepat = false
+        state.errorDashboardBarangCepat = true
+      })
+      // 4
+      .addCase(fetchDashboardBarangQuantityTerbanyak.fulfilled, (state, action) => {
+        state.loadingDashboardBarangQuantityTerbanyak = false
+        state.dataDashboardBarangQuantityTerbanyak = action.payload
+      })
+      .addCase(fetchDashboardBarangQuantityTerbanyak.pending, (state, action) => {
+        state.dataDashboardBarangQuantityTerbanyak = []
+        state.loadingDashboardBarangQuantityTerbanyak = true
+      })
+      .addCase(fetchDashboardBarangQuantityTerbanyak.rejected, (state, action) => {
+        state.loadingDashboardBarangQuantityTerbanyak = false
+        state.errorDashboardBarangQuantityTerbanyak = true
+      })
+      // 5
+      .addCase(fetchDashboardTotalQuantityPerUnit.fulfilled, (state, action) => {
+        state.loadingDashboardTotalQuantityPerUnit = false
+        state.dataDashboardTotalQuantityPerUnit = action.payload
+      })
+      .addCase(fetchDashboardTotalQuantityPerUnit.pending, (state, action) => {
+        state.dataDashboardTotalQuantityPerUnit = []
+        state.loadingDashboardTotalQuantityPerUnit = true
+      })
+      .addCase(fetchDashboardTotalQuantityPerUnit.rejected, (state, action) => {
+        state.loadingDashboardTotalQuantityPerUnit = false
+        state.errorDashboardTotalQuantityPerUnit = true
+      })
+      // 6
+      .addCase(fetchDashboardJumlahSurat.fulfilled, (state, action) => {
+        state.loadingDashboardJumlahSurat = false
+        state.dataDashboardJumlahSurat = action.payload
+      })
+      .addCase(fetchDashboardJumlahSurat.pending, (state, action) => {
+        state.dataDashboardJumlahSurat = []
+        state.loadingDashboardJumlahSurat = true
+      })
+      .addCase(fetchDashboardJumlahSurat.rejected, (state, action) => {
+        state.loadingDashboardJumlahSurat = false
+        state.errorDashboardJumlahSurat = true
+      })
+      // 7
+      .addCase(fetchDashboardJumlahSuratPending.fulfilled, (state, action) => {
+        state.loadingDashboardJumlahSuratPending = false
+        state.dataDashboardJumlahSuratPending = action.payload
+      })
+      .addCase(fetchDashboardJumlahSuratPending.pending, (state, action) => {
+        state.dataDashboardJumlahSuratPending = []
+        state.loadingDashboardJumlahSuratPending = true
+      })
+      .addCase(fetchDashboardJumlahSuratPending.rejected, (state, action) => {
+        state.loadingDashboardJumlahSuratPending = false
+        state.errorDashboardJumlahSuratPending = true
+      })
+      // 8
+      .addCase(fetchDashboardProductBanyakHilang.fulfilled, (state, action) => {
+        state.loadingDashboardProductBanyakHilang = false
+        state.dataDashboardProductBanyakHilang = action.payload
+      })
+      .addCase(fetchDashboardProductBanyakHilang.pending, (state, action) => {
+        state.dataDashboardProductBanyakHilang = []
+        state.loadingDashboardProductBanyakHilang = true
+      })
+      .addCase(fetchDashboardProductBanyakHilang.rejected, (state, action) => {
+        state.loadingDashboardProductBanyakHilang = false
+        state.errorDashboardProductBanyakHilang = true
+      })
+      // 9
+      .addCase(fetchDashboardProductQuantityBanyakHilang.fulfilled, (state, action) => {
+        state.loadingDashboardProductQuantityBanyakHilang = false
+        state.dataDashboardProductQuantityBanyakHilang = action.payload
+      })
+      .addCase(fetchDashboardProductQuantityBanyakHilang.pending, (state, action) => {
+        state.dataDashboardProductQuantityBanyakHilang = []
+        state.loadingDashboardProductQuantityBanyakHilang = true
+      })
+      .addCase(fetchDashboardProductQuantityBanyakHilang.rejected, (state, action) => {
+        state.loadingDashboardProductQuantityBanyakHilang = false
+        state.errorDashboardProductQuantityBanyakHilang = true
+      })
+  }
+})
+
+export default appMasterRankSlice.reducer

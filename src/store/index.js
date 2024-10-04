@@ -28,6 +28,7 @@ import internalTransfer from './apps/internal-transfer'
 import deliveryOrderReceiptOutstanding from './apps/receipt-order-outstanding'
 import masterCustomer from './apps/master/customer'
 import masterRank from './apps/master/rank'
+import dashboard from './apps/dashboard'
 
 export const store = configureStore({
   reducer: {
@@ -56,6 +57,7 @@ export const store = configureStore({
     deliveryOrderReceiptOutstanding,
     masterCustomer,
     masterRank,
+    dashboard,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

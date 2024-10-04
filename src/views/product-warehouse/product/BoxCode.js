@@ -8,12 +8,33 @@ export default function BoxCode({
   url,
 }) {
 
+  const user = JSON.parse(localStorage.getItem("userData"));
+
   if (!value) {
     return null
   }
 
+  const code = value?.split(':')[1] || "-";
+  const message = value?.split(':')[0] || "-";
+
+  if (user.roleId === 1) {
+    isClickable = true
+  }
+
+
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'success.main' } }}>
+    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', '& svg': { color: 'success.main' } }}>
+      <Typography
+        variant='body2'
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          fontWeight: 500,
+          color: 'text.primary',
+        }}
+      >
+        {`${message}:` || "-"}
+      </Typography>
       <Typography
         variant='body2'
         sx={{
@@ -31,7 +52,7 @@ export default function BoxCode({
           window.open(url, '_blank');
         } : undefined}
       >
-        {value || "-"}
+        {code || "-"}
       </Typography>
     </Box>
   )

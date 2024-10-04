@@ -81,7 +81,7 @@ export default function TimelineItemHistory(props) {
           <BoxCode value={props?.outstanding} isClickable url={`/receipt-order-outstanding/${props?.outstandingCode}`} />
           <BoxCode value={props?.formula} />
           <BoxCode value={props?.goodsIn} />
-          <BoxCode value={props?.deliveryOrder} />
+          <BoxCode value={props?.deliveryOrder} isClickable url={`/delivery-order/${props?.deliveryOrderCode}`} />
           <BoxCode value={props?.stockOpname} isClickable url={`/stock-opname/${props?.stockOpnameCode}`} />
           <BoxCode value={props?.deliveryOrderReceipt} isClickable url={`/receive-order/${props?.deliveryOrderReceiptCode}`} />
           <BoxCode value={props?.goodsOut} isClickable url={`/adjustment/goods-out/${props?.goodsOutCode}`} />
