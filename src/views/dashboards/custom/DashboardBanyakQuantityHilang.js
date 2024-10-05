@@ -51,21 +51,56 @@ export default function DashboardBanyakQuantityHilang({ query }) {
                 >
                   {item.totalQuantityOutstanding}
                 </CustomAvatar>
-                <Typography
-                  sx={{
-                    fontWeight: 500,
-                    fontSize: '0.875rem',
-                    // ":hover": {
-                    //   cursor: "pointer",
-                    //   color: "blue", fontWeight: "bold"
-                    // }
-                  }}
-                // onClick={() => router.push(item.url)}
-                >{item.product} - {item.unit}</Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Typography
+                    sx={{
+                      fontWeight: 500,
+                      fontSize: '0.875rem',
+                      // ":hover": {
+                      //   cursor: "pointer",
+                      //   color: "blue", fontWeight: "bold"
+                      // }
+                    }}
+                  // onClick={() => router.push(item.url)}
+                  >{item.productName} - {item.unitName}</Typography>
+                  {
+                    query.warehouseId == 0 && (
+                      <Typography
+                        sx={{
+                          fontWeight: 500,
+                          fontSize: '0.875rem',
+                          color: 'text.secondary',
+                        }}
+                      >{item.warehouseName}</Typography>
+                    )
+                  }
+                </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                 </Box>
               </Box>
             ))}
+            {
+              data.length == 0 && !loading && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%',
+                    width: '100%'
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontWeight: 500,
+                      fontSize: '0.875rem',
+                      color: 'text.secondary',
+                    }}
+                  >Tidak ada data</Typography>
+                </Box>
+              )
+            }
           </Grid>
           <Grid item xs={12} sm={7} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           </Grid>

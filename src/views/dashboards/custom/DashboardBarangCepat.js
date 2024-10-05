@@ -41,7 +41,7 @@ export default function DashboardBarangCepat({ query }) {
         {data.map((item, index) => {
           return (
             <Box
-              key={item.title}
+              key={index}
               sx={{
                 display: 'flex',
                 '& img': { mr: 4 },
@@ -62,13 +62,18 @@ export default function DashboardBarangCepat({ query }) {
                   justifyContent: 'space-between'
                 }}
               >
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }} key={index}>
                   <Typography variant='h6' sx={{ fontSize: (theme) => theme.typography.pxToRem(16 - (item.productName.length / 10)) }}>
                     {item.productName}
                   </Typography>
                   <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.disabled' }}>
                     {item.unitName} - {item.rackName}
                   </Typography>
+                  {
+                    query.warehouseId === 0 && <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.disabled' }}>
+                      {item.warehouseName}
+                    </Typography>
+                  }
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <Typography fontSize={12} sx={{ color: 'text.secondary' }}>{item.dateUpdate.split(',')[0]}</Typography>

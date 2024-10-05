@@ -12,6 +12,7 @@ import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
 import FilterUnit from 'src/pages/components/filter/FilterUnit'
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 import { useTheme } from '@mui/material/styles'
+import Typography from '@mui/material/Typography'
 
 const donutColors = {
   series1: '#fdd835',
@@ -45,7 +46,10 @@ export default function DashboardBarangQuantityTerbanyak({ query }) {
   }, [unit, query])
 
   // Extract labels and series from the data
-  const labels = data.length ? data[0]?.products?.map(item => item.productName) : []
+  const labels = data.length ? data[0]?.products?.map(item => {
+    return query.warehouseId != 0 ? item.productName : `${item.productName} - ${item.warehouseName}`
+  }) : []
+
   const series = data.length ? data[0]?.products?.map(item => parseInt(item.quantity, 10)) : []
 
   const options = {
@@ -141,8 +145,11 @@ export default function DashboardBarangQuantityTerbanyak({ query }) {
           />
         }
       />
-      <CardContent>
+      <CardContent >
         <LoadingSpinner loading={loading} />
+        {
+          labels.length === 0 && !loading && <Typography variant="h6" align="center">Tidak ada produk</Typography>
+        }
         <ReactApexcharts
           type='donut'
           height={330}

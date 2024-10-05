@@ -38,7 +38,7 @@ export default function DashboardTotalQuantityPerUnit({ query }) {
   const series = data ? data.map(item => parseInt(item.totalQuantity, 10)) : []
 
   const options = {
-    stroke: { width: 0 },
+    stroke: { width: 5 },
     labels: labels,
     colors: [donutColors.series1, donutColors.series2, donutColors.series3, donutColors.series4, donutColors.series5],
     dataLabels: {

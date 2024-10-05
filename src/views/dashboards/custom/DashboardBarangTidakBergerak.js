@@ -35,7 +35,7 @@ export default function DashboardBarangTidakBergerak({ query }) {
         {data.map((item, index) => {
           return (
             <Box
-              key={item.title}
+              key={index}
               sx={{
                 display: 'flex',
                 '& img': { mr: 4 },
@@ -46,6 +46,7 @@ export default function DashboardBarangTidakBergerak({ query }) {
               <img width={46} src='https://img.freepik.com/premium-vector/cigarettes-pack-illustration-design-element-flat-icon_645658-280.jpg' alt={item.title} />
 
               <Box
+                key={index}
                 sx={{
                   rowGap: 1,
                   columnGap: 4,
@@ -56,13 +57,25 @@ export default function DashboardBarangTidakBergerak({ query }) {
                   justifyContent: 'space-between'
                 }}
               >
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                <Box
+                  key={index}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start'
+                  }}
+                >
                   <Typography variant='h6' sx={{ fontSize: (theme) => theme.typography.pxToRem(16 - (item.productName.length / 10)) }}>
                     {item.productName}
                   </Typography>
                   <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.disabled' }}>
                     {item.unitName} - {item.rackName}
                   </Typography>
+                  {
+                    query.warehouseId === 0 && <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.disabled' }}>
+                      {item.warehouseName}
+                    </Typography>
+                  }
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <Typography fontSize={12} sx={{ color: 'text.secondary' }}>{item.dateUpdate.split(',')[0]}</Typography>

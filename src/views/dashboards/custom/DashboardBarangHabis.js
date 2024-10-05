@@ -27,14 +27,14 @@ export default function DashboardBarangHabis({ query }) {
   return (
     <Card sx={{ height: '100%' }}>
       <CardHeader
-        title='Daftar Barang Habis'
+        title='Daftar 5 Barang Habis'
       />
       <CardContent>
         <LoadingSpinner loading={loading} />
         {data.map((item, index) => {
           return (
             <Box
-              key={item.title}
+              key={index}
               sx={{
                 display: 'flex',
                 '& img': { mr: 4 },
@@ -62,6 +62,11 @@ export default function DashboardBarangHabis({ query }) {
                   <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.disabled' }}>
                     {item.unitName} - {item.rackName}
                   </Typography>
+                  {
+                    query.warehouseId === 0 && <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.disabled' }}>
+                      {item.warehouseName}
+                    </Typography>
+                  }
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <Typography sx={{ color: 'text.secondary' }}>Stock</Typography>
