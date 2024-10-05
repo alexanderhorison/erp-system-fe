@@ -20,7 +20,7 @@ const Homepage = () => {
   const dispatch = useDispatch()
   const user = JSON.parse(localStorage.getItem('userData'))
   const [query, setQuery] = useState({
-    warehouseId: user?.warehouseId || 5,
+    warehouseId: user?.warehouseId || 0,
   })
 
   const handleChangeQuery = ({ key, value }) => {

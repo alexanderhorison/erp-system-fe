@@ -48,7 +48,7 @@ export default function FilterWarehouse({ data, handleChangeQuery }) {
         onClick={handleOpenMenu}
         sx={{ mr: 2, '& svg': { ml: 0.5 } }}
       >
-        {selectedWarehouse?.name || 'Select Warehouse'}
+        {selectedWarehouse?.name || 'Semua Gudang'}
         <Icon fontSize="1rem" icon="tabler:chevron-down" />
       </Button>
       <Menu
@@ -57,12 +57,14 @@ export default function FilterWarehouse({ data, handleChangeQuery }) {
         open={Boolean(anchorEl)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        onBlur={handleCloseMenu}
       >
         {warehouseList.map((item) => (
           <MenuItem key={item.id} onClick={() => handleSelectWarehouse(item)}>
             {item.name}
           </MenuItem>
         ))}
+        <MenuItem key={0} onClick={() => handleSelectWarehouse({ id: 0 })}>Semua Gudang</MenuItem>
       </Menu>
     </Box>
   );
