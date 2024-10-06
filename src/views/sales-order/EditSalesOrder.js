@@ -13,7 +13,6 @@ import PickersComponent from '../forms/form-elements/pickers/PickersCustomInput'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from 'src/helpers/priceFormatter'
-import zIndex from '@mui/material/styles/zIndex'
 
 export default function EditSalesOrderPage({ data, salesOrderCode }) {
   const dispatch = useDispatch()
