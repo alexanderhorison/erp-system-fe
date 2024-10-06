@@ -29,12 +29,6 @@ export default function DashboardBarangCepat({ query }) {
     <Card>
       <CardHeader
         title='Daftar Barang Fast Stock'
-        action={
-          <OptionsMenu
-            iconButtonProps={{ size: 'small', sx: { color: 'text.disabled' } }}
-            options={['Price - low to high', 'Price - high to low', 'Best seller']}
-          />
-        }
       />
       <CardContent>
         <LoadingSpinner loading={loading} />

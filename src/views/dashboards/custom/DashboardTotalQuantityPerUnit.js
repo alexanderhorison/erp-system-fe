@@ -122,7 +122,7 @@ export default function DashboardTotalQuantityPerUnit({ query }) {
   return (
     <Card sx={{ height: '100%' }}>
       <CardHeader
-        title='Total 5 Produk Berdasarkan Unit'
+        title='Quantity Terbanyak Setiap Unit'
       />
       <CardContent>
         <LoadingSpinner loading={loading} />

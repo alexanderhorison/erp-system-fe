@@ -10,13 +10,6 @@ import DashboardJumlahSuratPending from 'src/views/dashboards/custom/DashboardJu
 import DashboardTotalQuantityPerUnit from 'src/views/dashboards/custom/DashboardTotalQuantityPerUnit'
 import DashboardBarangCepat from 'src/views/dashboards/custom/DashboardBarangCepat'
 import DashboardBarangTidakBergerak from 'src/views/dashboards/custom/DashboardBarangTidakBergerak'
-import EcommerceDashboard from '../ecommerce'
-import CrmDashboard from '../crm'
-import AnalyticsDashboard from '../analytics'
-import Recharts from 'src/pages/charts/recharts'
-import ChartJS from 'src/pages/charts/chartjs'
-import ApexCharts from 'src/pages/charts/apex-charts'
-import { Divider } from '@mui/material'
 import DashboardBanyakProdukHilang from 'src/views/dashboards/custom/DashboardBanyakProdukHilang'
 import DashboardBanyakQuantityHilang from 'src/views/dashboards/custom/DashboardBanyakQuantityHilang'
 
@@ -73,13 +66,6 @@ export default function CustomDashboard({ query }) {
           </Grid>
         </Grid>
       </KeenSliderWrapper>
-      {/* <Divider sx={{ my: 30 }} />
-      <EcommerceDashboard />
-      <CrmDashboard />
-      <AnalyticsDashboard />
-      <ChartJS />
-      <ApexCharts />
-      <Recharts /> */}
     </ApexChartWrapper>
   )
 }

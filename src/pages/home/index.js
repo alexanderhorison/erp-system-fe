@@ -1,16 +1,10 @@
 // ** React Imports
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
 import CustomDashboard from '../dashboards/custom'
-import CrmDashboard from '../dashboards/crm'
-import AnalyticsDashboard from '../dashboards/analytics'
-import EcommerceDashboard from '../dashboards/ecommerce'
 import { useDispatch } from 'react-redux'
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
 import { Box } from '@mui/system'
@@ -20,7 +14,7 @@ const Homepage = () => {
   const dispatch = useDispatch()
   const user = JSON.parse(localStorage.getItem('userData'))
   const [query, setQuery] = useState({
-    warehouseId: user?.warehouseId || 0,
+    warehouseId: user?.warehouseId || 6,
   })
 
   const handleChangeQuery = ({ key, value }) => {
@@ -43,19 +37,7 @@ const Homepage = () => {
         </Box>
       </Grid>
       <Grid item md={12} xs={12}>
-        <Card>
-          <CardContent>
-            <CustomDashboard query={query} />
-          </CardContent>
-        </Card>
-        {/* <Card>
-          <CardHeader title='Selamat datang di inventory sistem' />
-          <CardContent>
-            <AnalyticsDashboard />
-            <CrmDashboard />
-            <EcommerceDashboard />
-          </CardContent>
-        </Card> */}
+        <CustomDashboard query={query} />
       </Grid>
     </Grid>
   )
