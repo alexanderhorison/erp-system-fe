@@ -13,6 +13,7 @@ import PickersComponent from '../forms/form-elements/pickers/PickersCustomInput'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from 'src/helpers/priceFormatter'
+import zIndex from '@mui/material/styles/zIndex'
 
 export default function EditSalesOrderPage({ data, salesOrderCode }) {
   const dispatch = useDispatch()
@@ -164,7 +165,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                       )}
                     />
                   </Grid>
-                  <Grid item xs={12} md={2}>
+                  <Grid item xs={12} md={4}>
                     <Controller
                       name={`customerId`}
                       control={control}
@@ -180,8 +181,8 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                     />
                   </Grid>
                 </Grid>
-                <Grid container display='flex' gap={4} justifyContent='flex-end' sx={{ marginTop: '1rem' }}>
-                  <Grid item xs={12} md={2}>
+                <Grid container display='flex' gap={4} justifyContent='flex-start' sx={{ marginTop: '1rem' }}>
+                  <Grid item xs={12} md={4}>
                     <DatePicker
                       selected={date}
                       id='basic'
@@ -211,7 +212,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                               label='Produk'
                               disabled
                               value={value}
-                              sx={{ display: 'block' }}
+                              sx={{ display: 'block', zIndex: 0 }}
                             />
                           )}
                         />

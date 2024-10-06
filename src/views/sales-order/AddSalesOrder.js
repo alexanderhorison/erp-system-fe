@@ -19,6 +19,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
+import zIndex from '@mui/material/styles/zIndex'
 
 export default function AddSalesOrder({ warehouse }) {
   const dispatch = useDispatch()
@@ -182,7 +183,7 @@ export default function AddSalesOrder({ warehouse }) {
                       )}
                     />
                   </Grid>
-                  <Grid item xs={12} md={2}>
+                  <Grid item xs={12} md={4}>
                     <Controller
                       name={`customerId`}
                       control={control}
@@ -211,8 +212,8 @@ export default function AddSalesOrder({ warehouse }) {
                     />
                   </Grid>
                 </Grid>
-                <Grid container display='flex' gap={4} justifyContent='flex-end' sx={{ marginTop: '1rem' }}>
-                  <Grid item xs={12} md={2}>
+                <Grid container display='flex' gap={4} justifyContent='flex-start' sx={{ marginTop: '1rem' }}>
+                  <Grid item xs={12} md={4}>
                     <DatePicker
                       selected={date}
                       id='basic'
@@ -276,6 +277,7 @@ export default function AddSalesOrder({ warehouse }) {
                                 <CustomTextField
                                   value={item.warehouseProductId}
                                   {...params}
+                                  sx={{ zIndex: 0 }}
                                   error={Boolean(errors?.data?.[index]?.warehouseProductId)}
                                   {...(errors?.data?.[index]?.warehouseProductId && {
                                     helperText: errors?.data?.[index]?.warehouseProductId.message
