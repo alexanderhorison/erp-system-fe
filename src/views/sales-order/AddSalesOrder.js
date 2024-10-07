@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid, IconButton, useTheme } from '@mui/material'
+import { Button, Card, CardContent, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -19,6 +19,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
+import { Box } from '@mui/system'
 
 export default function AddSalesOrder({ warehouse }) {
   const dispatch = useDispatch()
@@ -28,6 +29,7 @@ export default function AddSalesOrder({ warehouse }) {
   const { direction } = theme
   const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
   const [date, setDate] = useState(new Date())
+  const [customerData, setCustomerData] = useState({})
 
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
   const { data: masterCustomer } = useSelector(state => state.masterCustomer)
@@ -194,6 +196,7 @@ export default function AddSalesOrder({ warehouse }) {
                           getOptionLabel={option => option.name || ''}
                           onChange={(event, newValue) => {
                             onChange(+newValue?.id || '')
+                            setCustomerData(newValue)
                           }}
                           renderInput={params => (
                             <CustomTextField
@@ -211,7 +214,7 @@ export default function AddSalesOrder({ warehouse }) {
                     />
                   </Grid>
                 </Grid>
-                <Grid container display='flex' gap={4} justifyContent='flex-start' sx={{ marginTop: '1rem' }}>
+                <Grid container display='flex' gap={3} justifyContent='space-between' sx={{ marginTop: '1rem' }}>
                   <Grid item xs={12} md={4}>
                     <DatePicker
                       selected={date}
@@ -221,6 +224,14 @@ export default function AddSalesOrder({ warehouse }) {
                       fullWidth
                       customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
                     />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Box sx={{ display: 'flex-column', alignItems: 'left', textAlign: 'right' }}>
+                      <Typography sx={{ color: 'text.secondary' }}>{customerData?.email}</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>{customerData?.address}</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>{customerData?.phoneNumber}</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>{customerData?.rankName}</Typography>
+                    </Box>
                   </Grid>
                 </Grid>
               </CardContent>
