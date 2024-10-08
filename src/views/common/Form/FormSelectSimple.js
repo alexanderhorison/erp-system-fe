@@ -31,9 +31,9 @@ export default function FormSelectSimple({
           aria-describedby={`validation-schema-${name}-helper-text`}
           {...(errors[name] && { helperText: errors[name].message })}
         >
-          {data?.map(item => {
+          {data?.map((item, index) => {
             return (
-              <MenuItem key={item.id} value={item[optionsValue]}>
+              <MenuItem key={index} value={item[optionsValue]}>
                 {item[optionsLabel]}
               </MenuItem>
             )
