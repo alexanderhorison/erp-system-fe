@@ -142,6 +142,8 @@ export default function ModalAddMasterCustomer({ open, setOpen, typeModal, id })
                       errors={errors}
                       disabled={typeModal === 'VIEW'}
                       placeholder='Masukkan Alamat Customer'
+                      multiline={true}
+                      rows={3}
                     />
                   </Grid>
                   <Grid item xs={12} sm={12}>

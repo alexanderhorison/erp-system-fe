@@ -78,10 +78,10 @@ export default function DetailVendor({
                 <Icon fontSize='1.25rem' icon='tabler:mail' />
                 <Typography sx={{ color: 'text.secondary' }}>{data.email}</Typography>
               </Box>
-              <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1.5, color: 'text.secondary' } }}>
-                <Icon fontSize='1.25rem' icon='tabler:map-pin' />
-                <Typography sx={{ color: 'text.secondary' }}>{data.address}</Typography>
-              </Box>
+            </Box>
+            <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1.5, color: 'text.secondary' } }}>
+              <Icon fontSize='1.25rem' icon='tabler:map-pin' />
+              <Typography sx={{ color: 'text.secondary' }}>{data.address}</Typography>
             </Box>
             <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1.5, color: 'text.secondary' } }}>
               <Icon fontSize='1.25rem' icon='tabler:arrow-badge-down' />
