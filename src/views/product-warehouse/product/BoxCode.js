@@ -1,5 +1,6 @@
 import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
+import { useMemo } from "react";
 
 
 export default function BoxCode({
@@ -17,9 +18,10 @@ export default function BoxCode({
   const code = value?.split(':')[1] || "-";
   const message = value?.split(':')[0] || "-";
 
-  if (user.roleId === 1) {
-    isClickable = true
-  }
+  // CHANGE LATER IF NEED USER ACCESS
+  const haveAccess = useMemo(() => {
+    return true
+  }, [])
 
 
   return (
@@ -44,11 +46,11 @@ export default function BoxCode({
           color: 'text.primary',
           '& svg': { color: 'success.main' },
           ':hover': {
-            cursor: isClickable ? 'pointer' : 'default',
-            color: isClickable ? 'blue' : 'text.primary',
+            cursor: haveAccess && isClickable ? 'pointer' : 'default',
+            color: haveAccess && isClickable ? 'blue' : 'text.primary',
           },
         }}
-        onClick={isClickable ? () => {
+        onClick={haveAccess && isClickable ? () => {
           window.open(url, '_blank');
         } : undefined}
       >
