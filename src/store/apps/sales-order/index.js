@@ -132,6 +132,20 @@ export const fetchListProductSalesOrder = createAsyncThunk(
   }
 )
 
+// GET ALL SALES ORDER CUSTOMER
+export const fetchAllSalesOrderCustomer = createAsyncThunk('salesOrder/fetchAllSalesOrderCustomer', async ({ id }, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/sales-order/customer/' + id,
+    })
+    return response.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
 export const appMasterProductSlice = createSlice({
   name: 'salesOrder',
   initialState: {
@@ -148,7 +162,11 @@ export const appMasterProductSlice = createSlice({
 
     listProductSalesOrder: [],
     loadingListProductSalesOrder: false,
-    errorListProductSalesOrder: false
+    errorListProductSalesOrder: false,
+
+    dataSalesOrderCustomer: [],
+    loadingDataSalesOrderCustomer: true,
+    errorDataSalesOrderCustomer: false,
   },
   reducers: {},
   extraReducers: builder => {
@@ -201,6 +219,19 @@ export const appMasterProductSlice = createSlice({
         state.listProductSalesOrder = []
         state.loadingListProductSalesOrder = false
         state.errorListProductSalesOrder = action.error.message
+      })
+
+      .addCase(fetchAllSalesOrderCustomer.pending, (state, action) => {
+        state.loadingDataSalesOrderCustomer = true
+      })
+      .addCase(fetchAllSalesOrderCustomer.fulfilled, (state, action) => {
+        state.dataSalesOrderCustomer = action.payload.data
+        state.loadingDataSalesOrderCustomer = false
+      })
+      .addCase(fetchAllSalesOrderCustomer.rejected, (state, action) => {
+        state.dataSalesOrderCustomer = []
+        state.loadingDataSalesOrderCustomer = false
+        state.errorDataSalesOrderCustomer = action.error.message
       })
   }
 })

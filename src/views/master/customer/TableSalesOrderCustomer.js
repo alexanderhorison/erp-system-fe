@@ -12,37 +12,34 @@ import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
 import renderClient from 'src/helpers/renderClient'
-import { fetchAllSalesOrder } from 'src/store/apps/sales-order'
-import TableHeaderSalesOrder from './TableHeaderSalesOrder'
+import { fetchAllSalesOrder, fetchAllSalesOrderCustomer } from 'src/store/apps/sales-order'
+import TableHeaderSalesOrderCustomer from './TableHeaderSalesOrderCustomer'
 
-const RowOptions = ({ handleView, handleEdit, data }) => {
+const RowOptions = ({ handleView, handleEdit }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <IconButton onClick={handleView}>
           <Icon icon='tabler:eye' />
         </IconButton>
-        {
-          data?.status === "PENDING" && (
-            <IconButton onClick={handleEdit}>
-              <Icon icon='tabler:edit' />
-            </IconButton>
-          )
-        }
+        {/* <IconButton onClick={handleEdit}>
+          <Icon icon='tabler:edit' />
+        </IconButton> */}
       </Box>
     </>
   )
 }
 
-export default function TableAllSalesOrder({ timeFilter }) {
+export default function TableSalesOrderCustomer() {
   const dispatch = useDispatch()
   const router = useRouter()
-
+  const id = router.query.id
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
+
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  const { dataSalesOrder: data } = useSelector(state => state.salesOrder)
+  const { dataSalesOrderCustomer: data, loadingDataSalesOrderCustomer: loading } = useSelector(state => state.salesOrder)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
@@ -50,8 +47,7 @@ export default function TableAllSalesOrder({ timeFilter }) {
       data,
       keys: ['code'],
       searchValue,
-      setData: setFilteredData,
-      timeFilter: timeFilter
+      setData: setFilteredData
     })
   }
 
@@ -65,36 +61,20 @@ export default function TableAllSalesOrder({ timeFilter }) {
     router.push(`/sales-order/edit/${id}`)
   }
 
-  const handleAdd = () => {
-    router.push(`/sales-order/add`)
-  }
+  useEffect(() => {
+    dispatch(fetchAllSalesOrderCustomer({
+      id
+    }))
+  }, [id])
 
   useEffect(() => {
-    dispatch(fetchAllSalesOrder())
-  }, [dispatch])
-
-  useEffect(() => {
-    if (timeFilter && timeFilter.year) {
-      const filtered = data.filter(item => {
-        const itemDate = new Date(item.createdAt)
-        const itemYear = itemDate.getFullYear() // Get the year from createdAt
-        const itemMonth = itemDate.getMonth() // Get the month from createdAt (0-based index)
-
-        // Compare it with timeFilter.year and timeFilter.month (if provided)
-        const matchesYear = itemYear === parseInt(timeFilter.year)
-        const matchesMonth = timeFilter.month ? itemMonth === parseInt(timeFilter.month - 1) : true
-
-        return matchesYear && matchesMonth
-      })
-      setFilteredData(filtered)
-    } else {
-      setFilteredData(data) // If no year filter, show all data
-    }
-  }, [data, timeFilter])
+    setFilteredData(data) // If no year filter, show all data
+  }, [data])
 
   return (
     <Card>
       <DataGrid
+        loading={loading}
         autoHeight
         columns={[
           {
@@ -201,14 +181,14 @@ export default function TableAllSalesOrder({ timeFilter }) {
             field: 'actions',
             headerName: 'Actions',
             renderCell: ({ row }) => (
-              <RowOptions handleView={() => handleRowClick(row)} handleEdit={() => handleRowEdit(row)} data={row} />
+              <RowOptions handleView={() => handleRowClick(row)} handleEdit={() => handleRowEdit(row)} />
             )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
-        onCellClick={(e) => handleRowClick(e)}
+        onCellClick={handleRowClick}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderSalesOrder }}
+        slots={{ toolbar: TableHeaderSalesOrderCustomer }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
         sx={{
@@ -229,7 +209,6 @@ export default function TableAllSalesOrder({ timeFilter }) {
             placeholder: 'Cari sales order',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
-            handleAdd: handleAdd
           }
         }}
       />

@@ -10,8 +10,9 @@ import HandleSearh from 'src/helpers/handleSearch'
 import { deleteMasterDataCustomer, fetchMasterDataCustomer, fetchMasterDataCustomerDetail } from 'src/store/apps/master/customer'
 import ModalAddMasterCustomer from './ModalAddMasterCustomer'
 import TableHeaderMasterCustomer from './TableHeaderMasterCustomer'
+import { useRouter } from 'next/router'
 
-const RowOptions = ({ id, name }) => {
+const RowOptions = ({ id, name, router }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
   const [openModalView, setOpenModalView] = useState(false)
@@ -26,8 +27,7 @@ const RowOptions = ({ id, name }) => {
   }
 
   const handleView = () => {
-    dispatch(fetchMasterDataCustomerDetail(id))
-    setOpenModalView(true)
+    router.push(`/master/customer/${id}`)
   }
 
   return (
@@ -55,6 +55,7 @@ const RowOptions = ({ id, name }) => {
 
 export default function TableMasterCustomer({ }) {
   const dispatch = useDispatch()
+  const router = useRouter()
   const [openModalAdd, setOpenModalAdd] = useState(false)
 
   const [searchText, setSearchText] = useState('')
@@ -166,11 +167,14 @@ export default function TableMasterCustomer({ }) {
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
+            renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} router={router} />
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
+        onRowClick={params => {
+          router.push(`/master/customer/${params.id}`)
+        }}
         slots={{ toolbar: TableHeaderMasterCustomer }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}

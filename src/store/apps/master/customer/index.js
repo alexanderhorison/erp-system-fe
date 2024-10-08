@@ -82,6 +82,7 @@ export const editMasterDataCustomer = createAsyncThunk(
         dispatchRequest: () => {
           setOpen(false)
           dispatch(fetchMasterDataCustomer())
+          dispatch(fetchMasterDataCustomerDetail(id))
         }
       })
     } catch (error) {
