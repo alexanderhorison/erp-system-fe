@@ -24,6 +24,9 @@ const label = 'Dashboard'
 // 8. DashboardProductBanyakHilang.js
 // 9. DashboardProductQuantityBanyakHilang.js
 
+// ========= GABUNG DENGAN SUMMARY CUSTOMER =============
+// 1. Summary Customer
+
 // 1. DashboardBarangHabis.js
 export const fetchDashboardBarangHabis = createAsyncThunk('appDashboard/fetchDashboardBarangHabis', async ({ query }, { rejectWithValue }) => {
   try {
@@ -163,6 +166,21 @@ export const fetchDashboardProductQuantityBanyakHilang = createAsyncThunk('appDa
   }
 })
 
+
+// SUMMARY CUSTOMER
+export const fetchDashboardSummaryCustomer = createAsyncThunk('appDashboard/fetchDashboardSummaryCustomer', async ({ id }, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/summary-customer/' + id,
+    })
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
 // REDUCER DASHBOARD
 export const appMasterRankSlice = createSlice({
   name: 'appDashboard',
@@ -202,7 +220,13 @@ export const appMasterRankSlice = createSlice({
     // 9
     dataDashboardProductQuantityBanyakHilang: [],
     loadingDashboardProductQuantityBanyakHilang: false,
-    errorDashboardProductQuantityBanyakHilang: false
+    errorDashboardProductQuantityBanyakHilang: false,
+
+
+    // DASHBOARD SUMMARY CUSTOMER
+    dataDashboardSummaryCustomer: [],
+    loadingDashboardSummaryCustomer: false,
+    errorDashboardSummaryCustomer: false,
   },
   reducers: {},
   extraReducers: builder => {
@@ -323,6 +347,19 @@ export const appMasterRankSlice = createSlice({
       .addCase(fetchDashboardProductQuantityBanyakHilang.rejected, (state, action) => {
         state.loadingDashboardProductQuantityBanyakHilang = false
         state.errorDashboardProductQuantityBanyakHilang = true
+      })
+      // DATA DASHBOARD SUMMARY CUSTOMER
+      .addCase(fetchDashboardSummaryCustomer.fulfilled, (state, action) => {
+        state.loadingDashboardSummaryCustomer = false
+        state.dataDashboardSummaryCustomer = action.payload
+      })
+      .addCase(fetchDashboardSummaryCustomer.pending, (state, action) => {
+        state.dataDashboardSummaryCustomer = []
+        state.loadingDashboardSummaryCustomer = true
+      })
+      .addCase(fetchDashboardSummaryCustomer.rejected, (state, action) => {
+        state.loadingDashboardSummaryCustomer = false
+        state.errorDashboardSummaryCustomer = true
       })
   }
 })

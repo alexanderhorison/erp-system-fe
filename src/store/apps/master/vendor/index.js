@@ -2,14 +2,14 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
 import { swalConfirmationAdd, swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
-const label = 'customer'
+const label = 'vendor'
 
-// GET ALL CUSTOMER
-export const fetchMasterDataCustomer = createAsyncThunk('appMasterCustomer/fetchData', async (params, { rejectWithValue }) => {
+// GET ALL VENDOR
+export const fetchMasterDataVendor = createAsyncThunk('appMasterVendor/fetchData', async (params, { rejectWithValue }) => {
   try {
     const response = await axios({
       method: 'GET',
-      url: '/master/customer/all'
+      url: '/master/vendor/all'
     })
     return response.data
   } catch (error) {
@@ -18,14 +18,14 @@ export const fetchMasterDataCustomer = createAsyncThunk('appMasterCustomer/fetch
   }
 })
 
-// GET DETAIL CUSTOMER
-export const fetchMasterDataCustomerDetail = createAsyncThunk(
-  'appMasterCustomer/fetchDataDetail',
+// GET DETAIL VENDOR
+export const fetchMasterDataVendorDetail = createAsyncThunk(
+  'appMasterVendor/fetchDataDetail',
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
-        url: '/master/customer/' + id
+        url: '/master/vendor/' + id
       })
       return response.data
     } catch (error) {
@@ -35,25 +35,25 @@ export const fetchMasterDataCustomerDetail = createAsyncThunk(
   }
 )
 
-// ADD CUSTOMER
-export const addMasterDataCustomer = createAsyncThunk(
-  'appMasterCustomer/addCustomer',
+// ADD VENDOR
+export const addMasterDataVendor = createAsyncThunk(
+  'appMasterVendor/addVendor',
   async ({ data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
       await swalConfirmationAdd({
-        label: 'Customer',
-        name: 'Customer',
-        title: 'Anda akan menambahkan customer?',
+        label: 'Vendor',
+        name: 'Vendor',
+        title: 'Anda akan menambahkan vendor?',
         axiosRequest: () => {
           return axios({
             method: 'POST',
-            url: '/master/customer/create',
+            url: '/master/vendor/create',
             data
           })
         },
         dispatchRequest: () => {
           setOpen(false)
-          dispatch(fetchMasterDataCustomer())
+          dispatch(fetchMasterDataVendor())
         }
       })
     } catch (error) {
@@ -63,26 +63,26 @@ export const addMasterDataCustomer = createAsyncThunk(
   }
 )
 
-// EDIT CUSTOMER
-export const editMasterDataCustomer = createAsyncThunk(
-  'appMasterCustomer/editCustomer',
+// EDIT VENDOR
+export const editMasterDataVendor = createAsyncThunk(
+  'appMasterVendor/editVendor',
   async ({ id, data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
       await swalConfirmationAdd({
-        label: 'Customer',
-        name: 'Customer',
-        title: 'Anda akan mengubah customer?',
+        label: 'Vendor',
+        name: 'Vendor',
+        title: 'Anda akan mengubah vendor?',
         axiosRequest: () => {
           return axios({
             method: 'PUT',
-            url: '/master/customer/' + id,
+            url: '/master/vendor/' + id,
             data
           })
         },
         dispatchRequest: () => {
           setOpen(false)
-          dispatch(fetchMasterDataCustomer())
-          dispatch(fetchMasterDataCustomerDetail(id))
+          dispatch(fetchMasterDataVendor())
+          dispatch(fetchMasterDataVendorDetail(id))
         }
       })
     } catch (error) {
@@ -92,9 +92,9 @@ export const editMasterDataCustomer = createAsyncThunk(
   }
 )
 
-// DELETE CUSTOMER
-export const deleteMasterDataCustomer = createAsyncThunk(
-  'appCustomer/deleteCustomer',
+// DELETE VENDOR
+export const deleteMasterDataVendor = createAsyncThunk(
+  'appVendor/deleteVendor',
   async ({ id, name }, { dispatch, rejectWithValue }) => {
     try {
       await swalConfirmationDelete({
@@ -103,11 +103,11 @@ export const deleteMasterDataCustomer = createAsyncThunk(
         axiosRequest: () => {
           return axios({
             method: 'DELETE',
-            url: '/master/customer/' + id
+            url: '/master/vendor/' + id
           })
         },
         dispatchRequest: () => {
-          return dispatch(fetchMasterDataCustomer())
+          return dispatch(fetchMasterDataVendor())
         }
       })
     } catch (error) {
@@ -116,9 +116,9 @@ export const deleteMasterDataCustomer = createAsyncThunk(
   }
 )
 
-// REDUCER MASTER CUSTOMER
-export const appMasterCustomerSlice = createSlice({
-  name: 'appMasterCustomer',
+// REDUCER MASTER VENDOR
+export const appMasterVendorSlice = createSlice({
+  name: 'appMasterVendor',
   initialState: {
     data: [],
     loading: false,
@@ -132,6 +132,11 @@ export const appMasterCustomerSlice = createSlice({
     defaultValue: {
       id: '',
       name: '',
+      address: '',
+      phoneNumber: '',
+      email: '',
+      gender: '',
+      notes: '',
       description: '',
       level: '',
     },
@@ -143,31 +148,31 @@ export const appMasterCustomerSlice = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-      .addCase(fetchMasterDataCustomer.pending, (state, action) => {
+      .addCase(fetchMasterDataVendor.pending, (state, action) => {
         state.loading = true
       })
-      .addCase(fetchMasterDataCustomer.fulfilled, (state, action) => {
+      .addCase(fetchMasterDataVendor.fulfilled, (state, action) => {
         state.data = action.payload.data
         state.loading = false
         state.error = false
       })
-      .addCase(fetchMasterDataCustomer.rejected, (state, action) => {
+      .addCase(fetchMasterDataVendor.rejected, (state, action) => {
         state.loading = false
         state.error = action.error.message
       })
-      .addCase(fetchMasterDataCustomerDetail.pending, (state, action) => {
+      .addCase(fetchMasterDataVendorDetail.pending, (state, action) => {
         state.loadingDetail = true
       })
-      .addCase(fetchMasterDataCustomerDetail.fulfilled, (state, action) => {
+      .addCase(fetchMasterDataVendorDetail.fulfilled, (state, action) => {
         state.detail = action.payload.data
         state.loadingDetail = false
         state.error = false
       })
-      .addCase(fetchMasterDataCustomerDetail.rejected, (state, action) => {
+      .addCase(fetchMasterDataVendorDetail.rejected, (state, action) => {
         state.loadingDetail = false
         state.error = action.error.message
       })
   }
 })
 
-export default appMasterCustomerSlice.reducer
+export default appMasterVendorSlice.reducer

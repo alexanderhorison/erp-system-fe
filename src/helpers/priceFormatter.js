@@ -7,6 +7,18 @@ const priceFormat = value => {
   return numberFormatter.format(value)
 }
 
+const priceFormatWIthCurrency = value => {
+
+  const numberFormatter = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    currencyDisplay: 'symbol'
+  })
+
+  return `Rp.${numberFormatter.format(value).replace('Rp', '')}`
+}
+
 module.exports = {
-  priceFormat
+  priceFormat,
+  priceFormatWIthCurrency,
 }

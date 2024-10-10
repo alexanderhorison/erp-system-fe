@@ -7,9 +7,9 @@ import Icon from 'src/@core/components/icon'
 
 import HandleSearh from 'src/helpers/handleSearch'
 
-import { deleteMasterDataCustomer, fetchMasterDataCustomer, fetchMasterDataCustomerDetail } from 'src/store/apps/master/customer'
-import ModalAddMasterCustomer from './ModalAddMasterCustomer'
-import TableHeaderMasterCustomer from './TableHeaderMasterCustomer'
+import { deleteMasterDataVendor, fetchMasterDataVendor, fetchMasterDataVendorDetail } from 'src/store/apps/master/vendor'
+import ModalAddMasterVendor from './ModalAddMasterVendor'
+import TableHeaderMasterVendor from './TableHeaderMasterVendor'
 import { useRouter } from 'next/router'
 
 const RowOptions = ({ id, name, router }) => {
@@ -18,16 +18,16 @@ const RowOptions = ({ id, name, router }) => {
   const [openModalView, setOpenModalView] = useState(false)
 
   const handleDelete = () => {
-    dispatch(deleteMasterDataCustomer({ id, name }))
+    dispatch(deleteMasterDataVendor({ id, name }))
   }
 
   const handleEdit = () => {
-    dispatch(fetchMasterDataCustomerDetail(id))
+    dispatch(fetchMasterDataVendorDetail(id))
     setOpenModalEdit(true)
   }
 
   const handleView = () => {
-    router.push(`/master/customer/${id}`)
+    router.push(`/master/vendor/${id}`)
   }
 
   return (
@@ -44,16 +44,16 @@ const RowOptions = ({ id, name, router }) => {
         </IconButton>
       </Box>
       {openModalEdit && (
-        <ModalAddMasterCustomer open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
+        <ModalAddMasterVendor open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
       )}
       {openModalView && (
-        <ModalAddMasterCustomer open={openModalView} setOpen={setOpenModalView} typeModal={'VIEW'} id={id} />
+        <ModalAddMasterVendor open={openModalView} setOpen={setOpenModalView} typeModal={'VIEW'} id={id} />
       )}
     </>
   )
 }
 
-export default function TableMasterCustomer({ }) {
+export default function TableMasterVendor({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
   const [openModalAdd, setOpenModalAdd] = useState(false)
@@ -62,7 +62,7 @@ export default function TableMasterCustomer({ }) {
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
 
-  const { data } = useSelector(state => state.masterCustomer)
+  const { data } = useSelector(state => state.masterVendor)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
@@ -70,7 +70,7 @@ export default function TableMasterCustomer({ }) {
   }
 
   useEffect(() => {
-    dispatch(fetchMasterDataCustomer())
+    dispatch(fetchMasterDataVendor())
   }, [dispatch])
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function TableMasterCustomer({ }) {
 
   return (
     <Card>
-      {openModalAdd && <ModalAddMasterCustomer open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
+      {openModalAdd && <ModalAddMasterVendor open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
       <DataGrid
         autoHeight
         columns={[
@@ -100,7 +100,7 @@ export default function TableMasterCustomer({ }) {
             flex: 0.12,
             minWidth: 100,
             field: 'name',
-            headerName: 'Nama Customer',
+            headerName: 'Nama Vendor',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -175,9 +175,9 @@ export default function TableMasterCustomer({ }) {
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
         onRowClick={params => {
-          router.push(`/master/customer/${params.id}`)
+          router.push(`/master/vendor/${params.id}`)
         }}
-        slots={{ toolbar: TableHeaderMasterCustomer }}
+        slots={{ toolbar: TableHeaderMasterVendor }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
         sx={{
@@ -192,7 +192,7 @@ export default function TableMasterCustomer({ }) {
           },
           toolbar: {
             value: searchText,
-            placeholder: 'Cari nama customer',
+            placeholder: 'Cari nama vendor',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
             openModalAdd: setOpenModalAdd,

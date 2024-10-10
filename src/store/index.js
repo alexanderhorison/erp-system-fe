@@ -32,6 +32,7 @@ import masterRank from './apps/master/rank'
 import dashboard from './apps/dashboard'
 import salesOrder from './apps/sales-order'
 import salesOrderPayment from './apps/sales-order-payment'
+import masterVendor from './apps/master/vendor'
 
 export const store = configureStore({
   reducer: {
@@ -63,7 +64,8 @@ export const store = configureStore({
     dashboard,
     salesOrder,
     masterProductPrice,
-    salesOrderPayment
+    salesOrderPayment,
+    masterVendor
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

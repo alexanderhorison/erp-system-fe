@@ -27,7 +27,7 @@ import * as yup from 'yup'
 import { useEffect } from 'react'
 import { fetchMasterDataRank } from 'src/store/apps/master/rank'
 import FormSelectSimple from 'src/views/common/Form/FormSelectSimple'
-import { addMasterDataCustomer, editMasterDataCustomer } from 'src/store/apps/master/customer'
+import { addMasterDataVendor, editMasterDataVendor } from 'src/store/apps/master/vendor'
 import FormInputText from 'src/views/common/Form/FormInputText'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
@@ -45,9 +45,9 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   }
 }))
 
-export default function ModalAddMasterCustomer({ open, setOpen, typeModal, id }) {
+export default function ModalAddMasterVendor({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
-  const { defaultValue, detail: detailCustomer } = useSelector(state => state.masterCustomer)
+  const { defaultValue, detail: detailVendor } = useSelector(state => state.masterVendor)
   const { data: dataRank } = useSelector(state => state.masterRank)
 
   // SHCEMA YUP VALIDATION
@@ -68,7 +68,7 @@ export default function ModalAddMasterCustomer({ open, setOpen, typeModal, id })
     handleSubmit,
     formState: { errors }
   } = useForm({
-    values: typeModal === 'ADD' ? defaultValue : detailCustomer,
+    values: typeModal === 'ADD' ? defaultValue : detailVendor,
     mode: 'onChange',
     resolver: yupResolver(schema)
   })
@@ -76,9 +76,9 @@ export default function ModalAddMasterCustomer({ open, setOpen, typeModal, id })
   // ON SUBMIT
   const onSubmit = data => {
     if (typeModal === 'ADD') {
-      dispatch(addMasterDataCustomer({ data, setOpen }))
+      dispatch(addMasterDataVendor({ data, setOpen }))
     } else {
-      dispatch(editMasterDataCustomer({ id, data, setOpen }))
+      dispatch(editMasterDataVendor({ id, data, setOpen }))
     }
   }
 
@@ -115,10 +115,10 @@ export default function ModalAddMasterCustomer({ open, setOpen, typeModal, id })
             <Box sx={{ mb: 4, textAlign: 'center' }}>
               <Typography variant='h3' sx={{ mb: 3 }}>
                 {typeModal === 'ADD'
-                  ? 'Tambahkan Customer Baru'
+                  ? 'Tambahkan Vendor Baru'
                   : typeModal === 'VIEW'
-                    ? 'Detail Customer'
-                    : 'Ubah Customer'}
+                    ? 'Detail Vendor'
+                    : 'Ubah Vendor'}
               </Typography>
             </Box>
             <Grid container spacing={6}>
@@ -126,22 +126,22 @@ export default function ModalAddMasterCustomer({ open, setOpen, typeModal, id })
                 <Grid container spacing={6}>
                   <Grid item xs={12} sm={12}>
                     <FormInputText
-                      label={'Name Customer'}
+                      label={'Name Vendor'}
                       name={'name'}
                       control={control}
                       errors={errors}
                       disabled={typeModal === 'VIEW'}
-                      placeholder='Masukkan Name Customer'
+                      placeholder='Masukkan Name Vendor'
                     />
                   </Grid>
                   <Grid item xs={12} sm={12}>
                     <FormInputText
-                      label={'Alamat Customer'}
+                      label={'Alamat Vendor'}
                       name={'address'}
                       control={control}
                       errors={errors}
                       disabled={typeModal === 'VIEW'}
-                      placeholder='Masukkan Alamat Customer'
+                      placeholder='Masukkan Alamat Vendor'
                       multiline={true}
                       rows={3}
                     />
