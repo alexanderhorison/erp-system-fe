@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector, redu } from 'react-redux'
 
 import Link from 'next/link'
 
@@ -11,19 +11,35 @@ import ButtonBack from 'src/views/common/ButtonBack'
 import { fetchDetailSalesOrder } from 'src/store/apps/sales-order'
 import ToolbarSalesOrder from 'src/views/sales-order/ToolbarSalesOrder'
 import DetailPageSalesOrder from 'src/views/sales-order/DetailPageSalesOrder'
+import { fetchAllSalesOrderPayment, resetSalesOrderPayments } from 'src/store/apps/sales-order-payment'
+import TablePayment from 'src/views/sales-order-payment/TablePayment'
+import { Card, CardContent, CardHeader, Typography } from '@mui/material'
+import CustomChip from 'src/@core/components/mui/chip'
+import { priceFormat } from 'src/helpers/priceFormatter'
 
 export default function DetailSalesOrder({}) {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id
 
-  const { detailSalesOrder: data, errorDetailSalesOrder } = useSelector(state => state.salesOrder)
+  const {
+    detailSalesOrder: data,
+    errorDetailSalesOrder,
+    loadingDetailSalesOrder
+  } = useSelector(state => state.salesOrder)
 
   useEffect(() => {
     if (id) {
+      dispatch(resetSalesOrderPayments())
       dispatch(fetchDetailSalesOrder(id))
     }
   }, [id, dispatch])
+
+  useEffect(() => {
+    if (!loadingDetailSalesOrder && data?.status === 'APPROVED' && data?.id) {
+      dispatch(fetchAllSalesOrderPayment(data.id))
+    }
+  }, [loadingDetailSalesOrder])
 
   if (errorDetailSalesOrder) {
     return (
@@ -48,6 +64,44 @@ export default function DetailSalesOrder({}) {
             <ToolbarSalesOrder id={id} status={data?.status} />
           </Grid>
         </Grid>
+        {data?.status === 'APPROVED' && data?.id && (
+          <Grid container spacing={6} sx={{ mt: 2, mb: 2 }}>
+            <Grid item xl={9} md={12} xs={12}>
+              <TablePayment salesOrderData={data} />
+            </Grid>
+            <Grid item xl={3} md={12} xs={12}>
+              <Card sx={{ maxWidth: 345 }}>
+                <CardHeader
+                  title='Status Pembayaran'
+                  action={
+                    <CustomChip
+                      rounded
+                      label={
+                        data?.amountDebt == 0
+                          ? 'LUNAS'
+                          : data?.grandTotal === data?.amountDebt
+                          ? 'BELUM LUNAS'
+                          : 'SEBAGIAN LUNAS'
+                      }
+                      skin='light'
+                      color={
+                        data?.amountDebt == 0 ? 'success' : data?.grandTotal === data?.amountDebt ? 'error' : 'warning'
+                      }
+                    />
+                  }
+                />
+                <CardContent>
+                  <Typography variant='body2' color='text.secondary'>
+                    Total yang sudah dibayar: Rp. {priceFormat(data?.amountPaid)}
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary'>
+                    Total yang belum dibayar: Rp. {priceFormat(data?.amountDebt)}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        )}
       </>
     )
   } else {
