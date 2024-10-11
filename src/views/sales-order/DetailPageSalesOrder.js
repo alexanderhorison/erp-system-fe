@@ -43,9 +43,6 @@ const DetailPageSalesOrder = ({ data }) => {
   // ** Hook
   const theme = useTheme()
 
-  console.log(data);
-
-
   if (data) {
     return (
       <Card>
