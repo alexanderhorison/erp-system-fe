@@ -43,6 +43,9 @@ const DetailPageSalesOrder = ({ data }) => {
   // ** Hook
   const theme = useTheme()
 
+  console.log(data);
+
+
   if (data) {
     return (
       <Card>
@@ -106,8 +109,8 @@ const DetailPageSalesOrder = ({ data }) => {
                 <Typography variant='h6' sx={{ mb: 2 }}>
                   Tagihan Kepada
                 </Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.name.toUpperCase() || ''}</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.address.toUpperCase() || ''}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.name?.toUpperCase() || ''}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.address?.toUpperCase() || ''}</Typography>
               </div>
             </Grid>
           </Grid>
