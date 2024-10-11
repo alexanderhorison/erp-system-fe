@@ -49,7 +49,7 @@ export default function TableHeaderPayment(props) {
           }}
         />
         {/**To handle Payment if user has debt to be paid */}
-        {props?.data?.amountDebt && bigprops?.data?.amountDebt != 0 && props?.data?.status === 'APPROVED' && (
+        {props?.data?.amountDebt && props?.data?.amountDebt != 0 && props?.data?.status === 'APPROVED' && (
           <Button
             onClick={() => props.openModalAdd(true)}
             variant='contained'
