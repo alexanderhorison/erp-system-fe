@@ -61,44 +61,13 @@ export default function DetailSalesOrder({}) {
             <DetailPageSalesOrder data={data} />
           </Grid>
           <Grid item xl={3} md={4} xs={12}>
-            <ToolbarSalesOrder id={id} status={data?.status} />
+            <ToolbarSalesOrder id={id} data={data} />
           </Grid>
         </Grid>
         {data?.status === 'APPROVED' && data?.id && (
           <Grid container spacing={6} sx={{ mt: 2, mb: 2 }}>
             <Grid item xl={9} md={12} xs={12}>
               <TablePayment salesOrderData={data} />
-            </Grid>
-            <Grid item xl={3} md={12} xs={12}>
-              <Card sx={{ maxWidth: 345 }}>
-                <CardHeader
-                  title='Status Pembayaran'
-                  action={
-                    <CustomChip
-                      rounded
-                      label={
-                        data?.amountDebt == 0
-                          ? 'LUNAS'
-                          : data?.grandTotal === data?.amountDebt
-                          ? 'BELUM LUNAS'
-                          : 'SEBAGIAN LUNAS'
-                      }
-                      skin='light'
-                      color={
-                        data?.amountDebt == 0 ? 'success' : data?.grandTotal === data?.amountDebt ? 'error' : 'warning'
-                      }
-                    />
-                  }
-                />
-                <CardContent>
-                  <Typography variant='body2' color='text.secondary'>
-                    Total yang sudah dibayar: Rp. {priceFormat(data?.amountPaid)}
-                  </Typography>
-                  <Typography variant='body2' color='text.secondary'>
-                    Total yang belum dibayar: Rp. {priceFormat(data?.amountDebt)}
-                  </Typography>
-                </CardContent>
-              </Card>
             </Grid>
           </Grid>
         )}

@@ -68,7 +68,7 @@ const ToolbarGoodsIn = ({ id, status }) => {
           ) : null}
         </CardContent>
       </Card>
-      <Card sx={{ marginTop: '1rem', maxWidth: 345 }}>
+      <Card sx={{ marginTop: '1rem' }}>
         <CardHeader
           title='Informasi Tambahan'
           action={<CustomChip rounded label={`Important!`} skin='light' color={`warning`} />}
