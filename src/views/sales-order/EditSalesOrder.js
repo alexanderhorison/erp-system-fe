@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid, useTheme } from '@mui/material'
+import { Button, Card, CardContent, Divider, Grid, Typography, useTheme } from '@mui/material'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
@@ -54,7 +54,8 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
     formState: { errors },
     setValue,
     setError,
-    watch
+    watch,
+    getValues
   } = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema)
@@ -206,62 +207,27 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                           name={`data[${index}].productName`}
                           control={control}
                           render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Produk'
-                              disabled
-                              value={value}
-                              sx={{ display: 'block', zIndex: 0 }}
-                            />
+                            <div>
+                              <CustomTextField
+                                fullWidth
+                                label='Produk'
+                                disabled
+                                value={value}
+                                sx={{ display: 'block', zIndex: 0 }}
+                              />
+                              <Typography
+                                variant='body2' // Adjusts the size (you can change this to 'body1' or 'subtitle2' for larger text)
+                                color='textSecondary' // This can be customized to another color, like 'primary', 'secondary', etc.
+                                sx={{ marginTop: '4px' }} // Adds some spacing between the input and the text
+                              >
+                                Rack: {getValues(`data[${index}].rackName`) || '-'} | Qty:{' '}
+                                {getValues(`data[${index}].qty`) || '0'}
+                              </Typography>
+                            </div>
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={1}>
-                        <Controller
-                          name={`data[${index}].rackName`}
-                          control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Rak'
-                              disabled
-                              value={value}
-                              onChange={e => {
-                                onChange(e.target.value)
-                              }}
-                              sx={{ display: 'block' }}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={5} md={1}>
-                        <Controller
-                          name={`data[${index}].qty`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Stok Tersedia'
-                              value={value}
-                              disabled
-                              onChange={e => {
-                                const newValue = parseInt(e.target.value, 10)
-                                if (!isNaN(newValue) && newValue >= 0) {
-                                  onChange(+newValue)
-                                }
-                              }}
-                              type='number'
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors?.data?.[index]?.qty)}
-                              {...(errors?.data?.[index]?.qty && {
-                                helperText: errors?.data?.[index]?.qty.message
-                              })}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={5} md={1}>
+                      <Grid item xs={5} md={2}>
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}
@@ -338,7 +304,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={2}>
+                      <Grid item xs={5} md={3}>
                         <Controller
                           name={`data[${index}].subTotal`}
                           control={control}

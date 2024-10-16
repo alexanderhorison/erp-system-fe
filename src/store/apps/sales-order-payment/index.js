@@ -67,7 +67,8 @@ export const appMasterProductSlice = createSlice({
     },
     dataTypePayment: [
       { id: 1, value: 'TRANSFER', name: 'TRANSFER' },
-      { id: 2, value: 'CASH', name: 'CASH' }
+      { id: 2, value: 'CASH', name: 'CASH' },
+      { id: 3, value: 'GIRO', name: 'GIRO' }
     ]
   },
   reducers: {},

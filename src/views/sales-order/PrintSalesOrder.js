@@ -97,11 +97,6 @@ const PrintSalesOrder = ({ id }) => {
                         <Typography variant='h6'>{`${data.dueDate}`}</Typography>
                       </MUITableCell>
                     </TableRow>
-                    <TableRow>
-                      <MUITableCell>
-                        <Status status={data?.status} color={'secondary'} />
-                      </MUITableCell>
-                    </TableRow>
                   </TableBody>
                 </Table>
               </Box>
@@ -113,20 +108,12 @@ const PrintSalesOrder = ({ id }) => {
           <Grid container>
             <Grid item xs={6} sm={5} sx={{ mb: { lg: 0, xs: 4 } }}>
               <Typography variant='h6' sx={{ mb: 2 }}>
-                Gudang Asal
+                Tagihan Kepada
               </Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseName}</Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseLocation}</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.name.toUpperCase() || ''}</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.address.toUpperCase() || ''}</Typography>
             </Grid>
-            <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
-              <div>
-                <Typography variant='h6' sx={{ mb: 2 }}>
-                  Tagihan Kepada
-                </Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.name.toUpperCase() || ''}</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.address.toUpperCase() || ''}</Typography>
-              </div>
-            </Grid>
+            <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}></Grid>
           </Grid>
         </CardContent>
 
@@ -137,7 +124,6 @@ const PrintSalesOrder = ({ id }) => {
             <TableHead>
               <TableRow>
                 <TableCell align='left'>Produk</TableCell>
-                <TableCell align='left'>Rak</TableCell>
                 <TableCell align='left'>Unit</TableCell>
                 <TableCell align='left'>Kuantiti</TableCell>
                 <TableCell align='left'>Harga</TableCell>
@@ -156,7 +142,6 @@ const PrintSalesOrder = ({ id }) => {
                 return (
                   <TableRow key={index}>
                     <TableCell>{data?.productName}</TableCell>
-                    <TableCell>{data?.rackName}</TableCell>
                     <TableCell>{data?.unitName || ''}</TableCell>
                     <TableCell>{data?.quantity || ''}</TableCell>
                     <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
@@ -189,20 +174,25 @@ const PrintSalesOrder = ({ id }) => {
             </Grid>
           </Grid> */}
           <Grid container>
-            <Grid item xs={8} sm={7} lg={9}>
-              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, color: 'text.secondary' }}>CATATAN :</Typography>
+            <Grid item xs={12} lg={7} md={7}></Grid>
+            <Grid item xs={12} lg={2} md={2} sx={{ ml: 5 }}>
+              <Typography sx={{ color: 'text.secondary' }}>Grand Total:</Typography>
+            </Grid>
+            <Grid item xs={12} lg={2} md={2}>
+              <Box sx={{ mb: 2, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
+                <Typography sx={{ color: 'text.secondary'}}>Rp.</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{priceFormat(data?.grandTotal)}</Typography>
               </Box>
+            </Grid>
+            {/* <Grid item xs={12} md={1}>
+              <Typography sx={{ color: 'text.secondary', ml: 2 }}>{priceFormat(data?.grandTotal)}</Typography>
+            </Grid> */}
 
-              <Typography sx={{ color: 'text.secondary', mt: 3 }}>{data?.notes}</Typography>
-            </Grid>
-            <Grid item xs={4} sm={5} lg={4}>
-              <Box sx={{ mb: 2, display: 'flex', alignItems: 'right' }}>
-                <Typography sx={{ color: 'text.secondary' }}>Grand Total:</Typography>
-                <Typography sx={{ color: 'text.secondary', ml: 10 }}>Rp.</Typography>
-                <Typography sx={{ color: 'text.secondary', ml: 2 }}>{priceFormat(data?.grandTotal)}</Typography>
-              </Box>
-            </Grid>
+            {/* <Box sx={{ mb: 2, mr: 12, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
+              <Typography sx={{ color: 'text.secondary' }}>Grand Total:</Typography>
+              <Typography sx={{ color: 'text.secondary', ml: 10 }}>Rp.</Typography>
+              <Typography sx={{ color: 'text.secondary', ml: 2 }}>{priceFormat(data?.grandTotal)}</Typography>
+            </Box> */}
           </Grid>
         </CardContent>
 

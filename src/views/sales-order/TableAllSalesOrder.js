@@ -201,8 +201,10 @@ export default function TableAllSalesOrder({ timeFilter }) {
             field: 'actions',
             headerName: 'Actions',
             renderCell: ({ row }) => (
-              <RowOptions handleView={() => handleRowClick(row)} handleEdit={() => handleRowEdit(row)} data={row} />
-            )
+              <div onClick={(e) => e.stopPropagation()}>
+                <RowOptions handleView={() => handleRowClick(row)} handleEdit={() => handleRowEdit(row)} data={row} />
+              </div>
+            )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
