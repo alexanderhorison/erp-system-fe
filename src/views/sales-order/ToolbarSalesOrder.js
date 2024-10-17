@@ -15,11 +15,27 @@ import { CardHeader, Typography } from '@mui/material'
 import CustomChip from 'src/@core/components/mui/chip'
 import { updateSalesOrder } from 'src/store/apps/sales-order'
 import { priceFormat } from 'src/helpers/priceFormatter'
+import { isValidEmail } from 'src/helpers/checkEmail'
+import swal from 'src/pages/sweetalert'
+
 
 const ToolbarSalesOrder = ({ id, data }) => {
   const auth = UseAuth()
   const dispatch = useDispatch()
   const router = useRouter()
+
+  const handleClick = () => {
+    if (!isValidEmail(data?.customer?.email)) {
+      swal.fire({
+        icon: 'error',
+        title: 'Email Customer tidak valid',
+        timer: 2000,
+        confirmButtonColor: '#6F4E37'
+      })
+    } else {
+      window.open(`/sales-order/send-email/${id}`, '_blank')
+    }
+  }
 
   const onUpdateSalesOrder = (code, type, e) => {
     dispatch(updateSalesOrder({ code, type, router }))
@@ -43,10 +59,12 @@ const ToolbarSalesOrder = ({ id, data }) => {
             <Icon fontSize='1.125rem' icon='tabler:printer' />
             Cetak / Print
           </Button>
-          {/* <Button fullWidth sx={{ mb: 2, '& svg': { mr: 2 } }} variant='contained' component={Link} href={``}>
-            <Icon fontSize='1.125rem' icon='tabler:mail' />
-            Kirim Email
-          </Button> */}
+          {data?.status == 'APPROVED' ? (
+            <Button fullWidth sx={{ mb: 2, '& svg': { mr: 2 } }} variant='contained' onClick={handleClick}>
+              <Icon fontSize='1.125rem' icon='tabler:mail' />
+              Kirim Email
+            </Button>
+          ) : null}
           {[1, 3].includes(auth?.user?.roleId) && data?.status == 'PENDING' ? (
             <>
               <Button

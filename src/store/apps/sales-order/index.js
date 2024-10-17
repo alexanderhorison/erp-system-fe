@@ -87,6 +87,24 @@ export const updateFormSalesOrder = createAsyncThunk(
   }
 )
 
+export const sendEmail = createAsyncThunk('salesOrder/sendEmail', async (formData, { rejectWithValue }) => {
+  try {    
+    // Prepare form data
+    const response = await axios({
+      method: 'POST',
+      url: '/send-email/',
+      data: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data', // Set the correct header for file uploads
+      },
+    })
+    return response.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
 // TERIMA / TOLAK SALES ORDER
 export const updateSalesOrder = createAsyncThunk(
   'salesOrder/updateSalesOrder',
@@ -133,18 +151,21 @@ export const fetchListProductSalesOrder = createAsyncThunk(
 )
 
 // GET ALL SALES ORDER CUSTOMER
-export const fetchAllSalesOrderCustomer = createAsyncThunk('salesOrder/fetchAllSalesOrderCustomer', async ({ id }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/sales-order/customer/' + id,
-    })
-    return response.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchAllSalesOrderCustomer = createAsyncThunk(
+  'salesOrder/fetchAllSalesOrderCustomer',
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/sales-order/customer/' + id
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 export const appMasterProductSlice = createSlice({
   name: 'salesOrder',
@@ -166,7 +187,7 @@ export const appMasterProductSlice = createSlice({
 
     dataSalesOrderCustomer: [],
     loadingDataSalesOrderCustomer: true,
-    errorDataSalesOrderCustomer: false,
+    errorDataSalesOrderCustomer: false
   },
   reducers: {},
   extraReducers: builder => {
