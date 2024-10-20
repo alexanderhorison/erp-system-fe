@@ -97,7 +97,6 @@ const GeneratePdfSalesOrder = ({ id }) => {
     const pdfBlob = await pdf.output('blob')
     const formData = new FormData()
     formData.append('pdf', pdfBlob, 'sales-order.pdf')
-    formData.append('email', data?.customer?.email);
     dispatch(sendEmail(formData))
   }
 
@@ -202,7 +201,7 @@ const GeneratePdfSalesOrder = ({ id }) => {
             <Grid item xs={12} lg={2} md={2} sx={{ml: 6}}>
               <Box sx={{ mb: 2, display: 'flex', flexDirection: 'row', ml: 10 }}>
                 <Typography sx={{ color: 'text.secondary' }}>Rp.</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{priceFormat(data?.grandTotal)}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{priceFormat(data?.grandTotalCustomer)}</Typography>
               </Box>
             </Grid>
           </Grid>

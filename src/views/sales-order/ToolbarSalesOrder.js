@@ -15,9 +15,6 @@ import { CardHeader, Typography } from '@mui/material'
 import CustomChip from 'src/@core/components/mui/chip'
 import { updateSalesOrder } from 'src/store/apps/sales-order'
 import { priceFormat } from 'src/helpers/priceFormatter'
-import { isValidEmail } from 'src/helpers/checkEmail'
-import swal from 'src/pages/sweetalert'
-
 
 const ToolbarSalesOrder = ({ id, data }) => {
   const auth = UseAuth()
@@ -25,16 +22,7 @@ const ToolbarSalesOrder = ({ id, data }) => {
   const router = useRouter()
 
   const handleClick = () => {
-    if (!isValidEmail(data?.customer?.email)) {
-      swal.fire({
-        icon: 'error',
-        title: 'Email Customer tidak valid',
-        timer: 2000,
-        confirmButtonColor: '#6F4E37'
-      })
-    } else {
-      window.open(`/sales-order/send-email/${id}`, '_blank')
-    }
+    window.open(`/sales-order/send-email/${id}`, '_blank')
   }
 
   const onUpdateSalesOrder = (code, type, e) => {

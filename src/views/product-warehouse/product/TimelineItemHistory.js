@@ -15,16 +15,10 @@ export default function TimelineItemHistory(props) {
   return (
     <TimelineItem>
       <TimelineSeparator>
-        <TimelineDot color={
-          props?.adjustmentType === "MINUS" ? "error" :
-            props?.adjustmentType === "PLUS" ? "success" :
-              "info"
-        } />
-        {
-          props?.index !== props?.length - 1 && (
-            <TimelineConnector />
-          )
-        }
+        <TimelineDot
+          color={props?.adjustmentType === 'MINUS' ? 'error' : props?.adjustmentType === 'PLUS' ? 'success' : 'info'}
+        />
+        {props?.index !== props?.length - 1 && <TimelineConnector />}
       </TimelineSeparator>
       <TimelineContent sx={{ mt: 0, mb: theme => `${theme.spacing(4)} !important` }}>
         <Box
@@ -41,13 +35,13 @@ export default function TimelineItemHistory(props) {
               mb: 0.5,
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'flex-start',
+              alignItems: 'flex-start'
             }}
           >
             <Typography variant='h6' fontWeight={700} sx={{ mr: 2 }}>
-              {props?.title || "-"}
+              {props?.title || '-'}
             </Typography>
-            <Typography variant="body2" mb={2} fontSize={12}>
+            <Typography variant='body2' mb={2} fontSize={12}>
               Dibuat Oleh: {props?.createdBy}
             </Typography>
           </Box>
@@ -56,7 +50,7 @@ export default function TimelineItemHistory(props) {
               mb: 0.5,
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'flex-end',
+              alignItems: 'flex-end'
             }}
           >
             <Typography variant='caption' sx={{ color: 'text.disabled', textAlign: 'right' }}>
@@ -70,32 +64,43 @@ export default function TimelineItemHistory(props) {
         <Box sx={{ display: 'flex-column', flexWrap: 'wrap', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'warning.main' } }}>
             <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
-              {props?.infoType || "-"} Sebanyak {props?.quantity} {`${props?.product?.unitName.toLowerCase()}`} {props?.titleInfo ? "dari" : ""} {props?.titleInfo}
+              {props?.infoType || '-'} Sebanyak {props?.quantity} {`${props?.product?.unitName.toLowerCase()}`}{' '}
+              {props?.titleInfo ? 'dari' : ''} {props?.titleInfo}
             </Typography>
           </Box>
+          {props?.description && (
+            <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'success.main' } }}>
+              <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+                Deskripsi : {props?.description}
+              </Typography>
+            </Box>
+          )}
           <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'success.main' } }}>
             <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
               Stock Akhir : {props?.lastQuantity} {props?.product?.unitName.toLowerCase()}
             </Typography>
           </Box>
-          <BoxCode value={props?.outstanding} isClickable url={`/receipt-order-outstanding/${props?.outstandingCode}`} />
+          <BoxCode
+            value={props?.outstanding}
+            isClickable
+            url={`/receipt-order-outstanding/${props?.outstandingCode}`}
+          />
           <BoxCode value={props?.formula} />
           <BoxCode value={props?.goodsIn} />
           <BoxCode value={props?.deliveryOrder} isClickable url={`/delivery-order/${props?.deliveryOrderCode}`} />
           <BoxCode value={props?.stockOpname} isClickable url={`/stock-opname/${props?.stockOpnameCode}`} />
-          <BoxCode value={props?.deliveryOrderReceipt} isClickable url={`/receive-order/${props?.deliveryOrderReceiptCode}`} />
+          <BoxCode
+            value={props?.deliveryOrderReceipt}
+            isClickable
+            url={`/receive-order/${props?.deliveryOrderReceiptCode}`}
+          />
           <BoxCode value={props?.goodsOut} isClickable url={`/adjustment/goods-out/${props?.goodsOutCode}`} />
           <BoxCode value={props?.salesOrder} isClickable url={`/sales-order/${props?.salesOrderCode}`} />
-          {
-            props?.notes && (
-              <Grid xs={12} md={5} mt={2}>
-                <CustomSimpleAccordion
-                  title="Catatan"
-                  content={props?.notes}
-                />
-              </Grid>
-            )
-          }
+          {props?.notes && (
+            <Grid xs={12} md={5} mt={2}>
+              <CustomSimpleAccordion title='Catatan' content={props?.notes} />
+            </Grid>
+          )}
         </Box>
       </TimelineContent>
     </TimelineItem>

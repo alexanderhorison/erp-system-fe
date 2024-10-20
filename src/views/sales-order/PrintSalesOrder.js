@@ -162,7 +162,7 @@ const PrintSalesOrder = ({ id }) => {
             <Grid item xs={12} lg={2} md={2}>
               <Box sx={{ mb: 2, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
                 <Typography sx={{ color: 'text.secondary'}}>Rp.</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{priceFormat(data?.grandTotal)}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{priceFormat(data?.grandTotalCustomer)}</Typography>
               </Box>
             </Grid>
             {/* <Grid item xs={12} md={1}>

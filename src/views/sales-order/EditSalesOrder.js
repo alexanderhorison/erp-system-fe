@@ -27,6 +27,8 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
     customerId: yup.string().required('Customer harus diisi'),
     warehouseId: yup.string().required('Gudang asal harus diisi'),
     grandTotal: yup.number().typeError('Grand Total harus ada'),
+    grandTotalCustomer: yup.number().typeError('Total Sales order harus ada'),
+    grandTotalBarter: yup.number().typeError('Total Barter harus ada'),
     notes: yup.string().optional(),
     data: yup.array().of(
       yup.object({
@@ -45,7 +47,41 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
           }),
         subTotal: yup.number().typeError('Sub Total Product harus diisi')
       })
-    )
+    ),
+    barterProduct: yup.lazy(value => {
+      // If there are items in the barterProduct array, require all fields within the objects
+      if (value && value.length > 0) {
+        return yup.array().of(
+          yup.object({
+            warehouseProductId: yup
+              .number()
+              .typeError('Id product warehouse harus diisi')
+              .required('Id product warehouse harus diisi'),
+            price: yup.number().typeError('Price product harus diisi').required('Harga barter harus diisi'),
+            quantity: yup
+              .number()
+              .typeError('Kuantiti harus diisi')
+              .required('Kuantiti barter harus diisi')
+              .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
+                return Number(value) >= 0
+              }),
+            subTotal: yup.number().typeError('Sub Total Product harus diisi').required('Sub Total barter harus diisi')
+          })
+        )
+      }
+      // If no barter products, make it optional
+      return yup
+        .array()
+        .of(
+          yup.object({
+            warehouseProductId: yup.number(),
+            price: yup.number(),
+            quantity: yup.number(),
+            subTotal: yup.number()
+          })
+        )
+        .optional()
+    })
   })
 
   const {
@@ -61,14 +97,29 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
     resolver: yupResolver(schema)
   })
 
+  // Barang Sales Order
   const { fields, remove, append } = useFieldArray({
     control,
     name: 'data'
   })
   const formField = watch('data') // Watch for changes in 'data' to update totals
 
+  // Barang Barter
+  const {
+    fields: barterFields,
+    remove: removeBarterProduct,
+    append: appendBarterProduct
+  } = useFieldArray({
+    control,
+    name: 'barterProduct'
+  })
+  const formBarter = watch('barterProduct')
+
   const onSubmit = data => {
     const listItems = data.data
+    const listBarter = data.barterProduct
+
+    // Map Barang Sales order
     const lastIndexMap = new Map()
     let duplicate = true
     let lastIndex = -1
@@ -87,14 +138,38 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
       message: `Produk dan Satuan sudah dipilih`
     })
 
+    // Map Barang Barang Barter
+    if (listBarter.length > 0) {
+      const lastIndexMap = new Map()
+      duplicate = true
+      let lastIndex = -1
+      for (let i = 0; i < listBarter.length; i++) {
+        const { warehouseProductId } = listBarter[i]
+        const key = `${warehouseProductId}`
+        if (lastIndexMap.has(key)) {
+          lastIndex = lastIndexMap.get(key)
+        }
+        lastIndexMap.set(key, i)
+      }
+      // Check duplicate index
+      lastIndex !== -1 ? lastIndex : (duplicate = false)
+      setError(`barterProduct[${lastIndex}].warehouseProductId`, {
+        type: 'duplicate',
+        message: `Produk dan Satuan sudah dipilih`
+      })
+    }
+
     if (!duplicate) {
       let sendData = {
         warehouseId: +data.warehouseId,
         customerId: +data.customerId,
         grandTotal: data.grandTotal,
+        grandTotalCustomer: data.grandTotalCustomer,
+        grandTotalBarter: data.grandTotalBarter,
         dueDate: date.toLocaleDateString('en-GB'),
         notes: data.notes,
-        listProduct: listItems
+        listProduct: listItems,
+        listBarterProduct: listBarter
       }
       dispatch(updateFormSalesOrder({ data: sendData, code: salesOrderCode, router }))
     }
@@ -109,6 +184,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
 
   useEffect(() => {
     remove()
+    removeBarterProduct()
     data?.listProducts.forEach(product => {
       append({
         id: product.id,
@@ -122,25 +198,50 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
         qty: product.qty
       })
     })
+    if (data?.listBarterProducts.length > 0) {
+      data?.listBarterProducts.forEach(product => {
+        appendBarterProduct({
+          id: product.id,
+          productName: `${product?.productName} - ${product.unitName}`,
+          warehouseProductId: product.warehouseProductId,
+          rackName: product.rackName,
+          unitName: product.unitName,
+          quantity: product.quantity,
+          price: product.price,
+          subTotal: product.subTotal,
+          qty: product.qty
+        })
+      })
+    }
     setDate(formatDate(data?.dueDate))
     setValue('customerId', data?.customer?.id)
     setValue('warehouseId', data?.warehouseId)
     setValue('grandTotal', data?.grandTotal)
     setValue('notes', data?.notes)
+    setValue('grandTotalCustomer', data?.grandTotalCustomer) // Update total sales order
+    setValue('grandTotalBarter', data?.grandTotalBarter)
   }, [dispatch, append])
 
-  // Calculate grand total when subTotals change
-  const calculateGrandTotal = useCallback(
-    index => {
-      if (index || index === 0) {
-        setValue('grandTotal', control._formValues.grandTotal - formField[index].subTotal) // Update grand total
-      } else {
-        const calculatedGrandTotal = formField?.reduce((acc, item) => acc + (item.quantity * item.price || 0), 0)
-        setValue('grandTotal', calculatedGrandTotal) // Update grand total
-      }
-    },
-    [formField, setValue]
-  )
+  useEffect(() => {
+    calculateTotals()
+  }, [formField, formBarter])
+
+  const calculateTotals = () => {
+    // Calculate Sales Order total
+    const salesOrderTotal = formField?.reduce((acc, item) => {
+      return acc + Number(item.quantity) * Number(item.price)
+    }, 0)
+
+    // Calculate Barter Product total
+    const barterTotal = formBarter?.reduce((acc, item) => {
+      return acc + Number(item.quantity) * Number(item.price)
+    }, 0)
+
+    // Calculate grand total
+    setValue('grandTotal', salesOrderTotal - barterTotal) // Update grand total
+    setValue('grandTotalCustomer', salesOrderTotal) // Update total sales order
+    setValue('grandTotalBarter', barterTotal) // Update total barter
+  }
 
   return (
     <>
@@ -198,6 +299,9 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
           </Grid>
           <Grid item xs={12}>
             <Card>
+              <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
+                Barang Sales Order
+              </Typography>
               {fields.map((item, index) => (
                 <React.Fragment key={item.id}>
                   <CardContent>
@@ -252,7 +356,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                                   formField[index].price &&
                                   parseInt(formField[index].quantity, 10) > 0
                                 ) {
-                                  calculateGrandTotal()
+                                  calculateTotals()
                                 }
                               }}
                               type='number'
@@ -291,7 +395,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                                   formField[index].price &&
                                   parseInt(formField[index].quantity, 10) > 0
                                 ) {
-                                  calculateGrandTotal()
+                                  calculateTotals()
                                 }
                               }}
                               type='text'
@@ -335,6 +439,199 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                   <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}></Grid>
                   <Grid item xs={12} md={2}>
                     <Controller
+                      name={`grandTotalCustomer`}
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomTextField
+                          fullWidth
+                          label='Total Sales Order'
+                          value={value ? priceFormat(value) : '0'}
+                          type='text'
+                          disabled
+                          sx={{ display: 'block' }}
+                          error={Boolean(errors?.grandTotalCustomer)}
+                          {...(errors?.grandTotalCustomer && {
+                            helperText: errors?.grandTotalCustomer.message
+                          })}
+                        />
+                      )}
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+          {barterFields.length > 0 && (
+            <Grid item xs={12}>
+              <Card>
+                <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
+                  Barang Barter
+                </Typography>
+                {barterFields.map((item, index) => (
+                  <React.Fragment key={item.id}>
+                    <CardContent>
+                      <Grid container spacing={6}>
+                        <Grid item xs={12} md={4}>
+                          <Controller
+                            name={`barterProduct[${index}].productName`}
+                            control={control}
+                            render={({ field: { value, onChange } }) => (
+                              <div>
+                                <CustomTextField
+                                  fullWidth
+                                  label='Produk'
+                                  disabled
+                                  value={value}
+                                  sx={{ display: 'block', zIndex: 0 }}
+                                />
+                                <Typography
+                                  variant='body2' // Adjusts the size (you can change this to 'body1' or 'subtitle2' for larger text)
+                                  color='textSecondary' // This can be customized to another color, like 'primary', 'secondary', etc.
+                                  sx={{ marginTop: '4px' }} // Adds some spacing between the input and the text
+                                >
+                                  Rack: {getValues(`barterProduct[${index}].rackName`) || '-'} | Qty:{' '}
+                                  {getValues(`barterProduct[${index}].qty`) || '0'}
+                                </Typography>
+                              </div>
+                            )}
+                          />
+                        </Grid>
+                        <Grid item xs={5} md={2}>
+                          <Controller
+                            name={`barterProduct[${index}].quantity`}
+                            control={control}
+                            render={({ field: { value, onChange } }) => (
+                              <CustomTextField
+                                fullWidth
+                                label='Kuantiti'
+                                value={value}
+                                onChange={e => {
+                                  const newQuantity = +e.target.value
+                                  const currentPrice = formBarter[index].price || 0
+                                  const newSubTotal = newQuantity * currentPrice
+
+                                  // Update the quantity and the subtotal
+                                  onChange(newQuantity || '')
+                                  if (parseInt(newSubTotal, 10) > 0) {
+                                    setValue(`barterProduct[${index}].subTotal`, newSubTotal)
+                                  }
+                                  if (
+                                    formBarter[index].quantity &&
+                                    formBarter[index].price &&
+                                    parseInt(formBarter[index].quantity, 10) > 0
+                                  ) {
+                                    calculateTotals()
+                                  }
+                                }}
+                                type='number'
+                                sx={{ display: 'block' }}
+                                error={Boolean(errors?.barterProduct?.[index]?.quantity)}
+                                {...(errors?.barterProduct?.[index]?.quantity && {
+                                  helperText: errors?.barterProduct?.[index]?.quantity.message
+                                })}
+                              />
+                            )}
+                          />
+                        </Grid>
+                        <Grid item xs={5} md={2}>
+                          <Controller
+                            name={`barterProduct[${index}].price`}
+                            control={control}
+                            render={({ field: { value, onChange } }) => (
+                              <CustomTextField
+                                fullWidth
+                                label='Price'
+                                value={value ? priceFormat(value) : ''}
+                                onChange={e => {
+                                  const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
+                                  const newPrice = +rawValue
+                                  const currentQuantity = formBarter[index].quantity || 0
+                                  const newSubTotal = currentQuantity * newPrice
+
+                                  // Update the price and the subtotal
+                                  onChange(rawValue)
+                                  if (parseInt(newSubTotal, 10) > 0) {
+                                    setValue(`barterProduct[${index}].subTotal`, newSubTotal)
+                                  }
+                                  if (
+                                    formBarter[index].quantity &&
+                                    formBarter[index].price &&
+                                    parseInt(formBarter[index].quantity, 10) > 0
+                                  ) {
+                                    calculateTotals()
+                                  }
+                                }}
+                                type='text'
+                                sx={{ display: 'block' }}
+                                error={Boolean(errors?.barterProduct?.[index]?.price)}
+                                {...(errors?.barterProduct?.[index]?.price && {
+                                  helperText: errors?.barterProduct?.[index]?.price.message
+                                })}
+                              />
+                            )}
+                          />
+                        </Grid>
+                        <Grid item xs={5} md={3}>
+                          <Controller
+                            name={`barterProduct[${index}].subTotal`}
+                            control={control}
+                            render={({ field: { value, onChange } }) => (
+                              <CustomTextField
+                                fullWidth
+                                label='Sub Total'
+                                value={priceFormat(value || 0)}
+                                disabled
+                                type='text'
+                                sx={{ display: 'block' }}
+                                error={Boolean(errors?.barterProduct?.[index]?.subTotal)}
+                                {...(errors?.barterProduct?.[index]?.subTotal && {
+                                  helperText: errors?.barterProduct?.[index]?.subTotal.message
+                                })}
+                              />
+                            )}
+                          />
+                        </Grid>
+                      </Grid>
+                    </CardContent>
+                    <Divider />
+                  </React.Fragment>
+                ))}
+                <CardContent>
+                  <Grid container spacing={6}>
+                    <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}></Grid>
+                    <Grid item xs={12} md={2}>
+                      <Controller
+                        name={`grandTotalBarter`}
+                        control={control}
+                        render={({ field: { value, onChange } }) => (
+                          <CustomTextField
+                            fullWidth
+                            label='Total Barter'
+                            value={value ? priceFormat(value) : '0'}
+                            type='text'
+                            disabled
+                            sx={{ display: 'block' }}
+                            error={Boolean(errors?.grandTotalBarter)}
+                            {...(errors?.grandTotalBarter && {
+                              helperText: errors?.grandTotalBarter.message
+                            })}
+                          />
+                        )}
+                      />
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <Grid container spacing={6}>
+                  <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}></Grid>
+                  <Grid item xs={12} md={2}>
+                    <Controller
                       name={`grandTotal`}
                       control={control}
                       rules={{ required: true }}
@@ -355,12 +652,6 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                     />
                   </Grid>
                 </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
                 <Grid item xs={12}>
                   <Controller
                     name={`notes`}

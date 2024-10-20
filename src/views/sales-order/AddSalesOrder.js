@@ -1,14 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import {
-  Button,
-  Card,
-  CardContent,
-  Divider,
-  Grid,
-  IconButton,
-  Typography,
-  useTheme
-} from '@mui/material'
+import { Button, Card, CardContent, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -48,6 +39,8 @@ export default function AddSalesOrder({ warehouse }) {
     customerId: yup.string().required('Customer harus diisi'),
     warehouseId: yup.string().required('Gudang asal harus diisi'),
     grandTotal: yup.number().typeError('Grand Total harus ada'),
+    grandTotalCustomer: yup.number().typeError('Total Sales order harus ada'),
+    grandTotalBarter: yup.number().typeError('Total Barter harus ada'),
     notes: yup.string().optional(),
     data: yup.array().of(
       yup.object({
@@ -66,7 +59,41 @@ export default function AddSalesOrder({ warehouse }) {
           }),
         subTotal: yup.number().typeError('Sub Total Product harus diisi')
       })
-    )
+    ),
+    barterProduct: yup.lazy(value => {
+      // If there are items in the barterProduct array, require all fields within the objects
+      if (value && value.length > 0) {
+        return yup.array().of(
+          yup.object({
+            warehouseProductId: yup
+              .number()
+              .typeError('Id product warehouse harus diisi')
+              .required('Id product warehouse harus diisi'),
+            price: yup.number().typeError('Price product harus diisi').required('Harga barter harus diisi'),
+            quantity: yup
+              .number()
+              .typeError('Kuantiti harus diisi')
+              .required('Kuantiti barter harus diisi')
+              .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
+                return Number(value) >= 0
+              }),
+            subTotal: yup.number().typeError('Sub Total Product harus diisi').required('Sub Total barter harus diisi')
+          })
+        )
+      }
+      // If no barter products, make it optional
+      return yup
+        .array()
+        .of(
+          yup.object({
+            warehouseProductId: yup.number(),
+            price: yup.number(),
+            quantity: yup.number(),
+            subTotal: yup.number()
+          })
+        )
+        .optional()
+    })
   })
 
   const {
@@ -82,14 +109,29 @@ export default function AddSalesOrder({ warehouse }) {
     resolver: yupResolver(schema)
   })
 
+  // Barang Sales Order
   const { fields, remove, append } = useFieldArray({
     control,
     name: 'data'
   })
   const formField = watch('data') // Watch for changes in 'data' to update totals
 
+  // Barang Barter
+  const {
+    fields: barterFields,
+    remove: removeBarterProduct,
+    append: appendBarterProduct
+  } = useFieldArray({
+    control,
+    name: 'barterProduct'
+  })
+  const formBarter = watch('barterProduct') 
+
   const onSubmit = data => {
     const listItems = data.data
+    const listBarter = data.barterProduct
+
+    // Map Barang Sales order
     const lastIndexMap = new Map()
     let duplicate = true
     let lastIndex = -1
@@ -108,14 +150,38 @@ export default function AddSalesOrder({ warehouse }) {
       message: `Produk dan Satuan sudah dipilih`
     })
 
+    // Map Barang Barang Barter
+    if (listBarter.length > 0) {
+      const lastIndexMap = new Map()
+      duplicate = true
+      let lastIndex = -1
+      for (let i = 0; i < listBarter.length; i++) {
+        const { warehouseProductId } = listBarter[i]
+        const key = `${warehouseProductId}`
+        if (lastIndexMap.has(key)) {
+          lastIndex = lastIndexMap.get(key)
+        }
+        lastIndexMap.set(key, i)
+      }
+      // Check duplicate index
+      lastIndex !== -1 ? lastIndex : (duplicate = false)
+      setError(`barterProduct[${lastIndex}].warehouseProductId`, {
+        type: 'duplicate',
+        message: `Produk dan Satuan sudah dipilih`
+      })
+    }
+
     if (!duplicate) {
       let sendData = {
         warehouseId: +data.warehouseId,
         customerId: +data.customerId,
         grandTotal: data.grandTotal,
+        grandTotalCustomer: data.grandTotalCustomer,
+        grandTotalBarter: data.grandTotalBarter,
         dueDate: date.toLocaleDateString('en-GB'),
         notes: data.notes,
-        listProduct: listItems
+        listProduct: listItems,
+        listBarterProduct: listBarter
       }
       dispatch(createSalesOrder({ data: sendData, router }))
     }
@@ -127,21 +193,28 @@ export default function AddSalesOrder({ warehouse }) {
 
   const deleteItem = itemIndex => {
     remove(itemIndex)
-    calculateGrandTotal(itemIndex)
   }
 
-  // Calculate grand total when subTotals change
-  const calculateGrandTotal = useCallback(
-    index => {
-      if (index || index === 0) {
-        setValue('grandTotal', control._formValues.grandTotal - formField[index].subTotal) // Update grand total
-      } else {
-        const calculatedGrandTotal = formField?.reduce((acc, item) => acc + (item.quantity * item.price || 0), 0)
-        setValue('grandTotal', calculatedGrandTotal) // Update grand total
-      }
-    },
-    [formField, setValue]
-  )
+  useEffect(() => {
+    calculateTotals()
+  }, [formField, formBarter])
+
+  const calculateTotals = () => {
+    // Calculate Sales Order total
+    const salesOrderTotal = formField?.reduce((acc, item) => {
+      return acc + Number(item.quantity) * Number(item.price)
+    }, 0)
+
+    // Calculate Barter Product total
+    const barterTotal = formBarter?.reduce((acc, item) => {
+      return acc + Number(item.quantity) * Number(item.price)
+    }, 0)
+
+    // Calculate grand total
+    setValue('grandTotal', salesOrderTotal - barterTotal) // Update grand total
+    setValue('grandTotalCustomer', salesOrderTotal) // Update total sales order
+    setValue('grandTotalBarter', barterTotal) // Update total barter
+  }
 
   useEffect(() => {
     if (fields.length === 0) {
@@ -178,6 +251,7 @@ export default function AddSalesOrder({ warehouse }) {
                             onChange(+newValue?.id)
                             dispatch(fetchInvoiceListProductByWarehouseId(+newValue?.id))
                             remove()
+                            removeBarterProduct()
                           }}
                           renderInput={params => (
                             <CustomTextField
@@ -249,6 +323,9 @@ export default function AddSalesOrder({ warehouse }) {
           </Grid>
           <Grid item xs={12}>
             <Card>
+              <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
+                Barang Sales Order
+              </Typography>
               {fields.map((item, index) => (
                 <React.Fragment key={item.id}>
                   <CardContent>
@@ -345,7 +422,7 @@ export default function AddSalesOrder({ warehouse }) {
                                   formField[index].price &&
                                   parseInt(formField[index].quantity, 10) > 0
                                 ) {
-                                  calculateGrandTotal()
+                                  calculateTotals()
                                 }
                               }}
                               type='number'
@@ -384,7 +461,7 @@ export default function AddSalesOrder({ warehouse }) {
                                   formField[index].price &&
                                   parseInt(formField[index].quantity, 10) > 0
                                 ) {
-                                  calculateGrandTotal()
+                                  calculateTotals()
                                 }
                               }}
                               type='text'
@@ -439,6 +516,256 @@ export default function AddSalesOrder({ warehouse }) {
                   </Grid>
                   <Grid item xs={12} md={2}>
                     <Controller
+                      name={`grandTotalCustomer`}
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomTextField
+                          fullWidth
+                          label='Total Sales Order'
+                          value={value ? priceFormat(value) : '0'}
+                          type='text'
+                          disabled
+                          sx={{ display: 'block' }}
+                          error={Boolean(errors?.grandTotalCustomer)}
+                          {...(errors?.grandTotalCustomer && {
+                            helperText: errors?.grandTotalCustomer.message
+                          })}
+                        />
+                      )}
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12}>
+            <Card>
+              <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
+                Barang Barter
+              </Typography>
+              {barterFields.map((item, index) => (
+                <React.Fragment key={item.id}>
+                  <CardContent>
+                    <Grid container spacing={6}>
+                      <Grid item xs={12} md={4}>
+                        <Controller
+                          name={`barterProduct[${index}].warehouseProductId`}
+                          control={control}
+                          // rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <div>
+                              <CustomAutocomplete
+                                key={item.id}
+                                options={OptionsGroup(listProduct, 'categoryName')}
+                                groupBy={option => option.categoryName}
+                                id='autocomplete-grouped'
+                                getOptionLabel={option => option.productName || ''}
+                                onChange={(event, newValue) => {
+                                  onChange(+newValue?.productWarehouseId)
+                                  const selectedProduct = listProduct.find(
+                                    product => product.productWarehouseId === +newValue?.productWarehouseId
+                                  )
+                                  if (selectedProduct) {
+                                    setValue(`barterProduct[${index}].qty`, selectedProduct.quantity)
+                                    setValue(`barterProduct[${index}].masterProductId`, selectedProduct.masterProductId)
+                                    setValue(`barterProduct[${index}].rackName`, selectedProduct.rackName)
+
+                                    // Fetch price base on selected product
+                                    dispatch(
+                                      fetchOneMasterDataProductPrice({
+                                        productId: selectedProduct.masterProductId,
+                                        unitId: selectedProduct.masterUnitId
+                                      })
+                                    ).then(({ payload }) => {
+                                      // if price exist then switch to replace
+                                      if (payload.data) {
+                                        setValue(`barterProduct[${index}].price`, payload.data.basePrice)
+                                      }
+                                    })
+                                  } else {
+                                    setValue(`barterProduct[${index}].qty`, '')
+                                    setValue(`barterProduct[${index}].masterProductId`, '')
+                                    setValue(`barterProduct[${index}].rackName`, '')
+                                  }
+                                }}
+                                renderInput={params => (
+                                  <CustomTextField
+                                    value={item.warehouseProductId}
+                                    {...params}
+                                    sx={{ zIndex: 0 }}
+                                    error={Boolean(errors?.barterProduct?.[index]?.warehouseProductId)}
+                                    {...(errors?.barterProduct?.[index]?.warehouseProductId && {
+                                      helperText: errors?.barterProduct?.[index]?.warehouseProductId.message
+                                    })}
+                                    label='Produk'
+                                  />
+                                )}
+                              />
+                              <Typography
+                                variant='body2' // Adjusts the size (you can change this to 'body1' or 'subtitle2' for larger text)
+                                color='textSecondary' // This can be customized to another color, like 'primary', 'secondary', etc.
+                                sx={{ marginTop: '4px' }} // Adds some spacing between the input and the text
+                              >
+                                Rack: {getValues(`barterProduct[${index}].rackName`) || '-'} | Qty:{' '}
+                                {getValues(`barterProduct[${index}].qty`) || '0'}
+                              </Typography>
+                            </div>
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={5} md={2}>
+                        <Controller
+                          name={`barterProduct[${index}].quantity`}
+                          control={control}
+                          // rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomTextField
+                              fullWidth
+                              label='Kuantiti'
+                              value={value}
+                              onChange={e => {
+                                const newQuantity = +e.target.value
+                                const currentPrice = formBarter[index].price || 0
+                                const newSubTotal = newQuantity * currentPrice
+
+                                // Update the quantity and the subtotal
+                                onChange(newQuantity || '')
+                                if (parseInt(newSubTotal, 10) > 0) {
+                                  setValue(`barterProduct[${index}].subTotal`, newSubTotal)
+                                }
+                                if (
+                                  formBarter[index].quantity &&
+                                  formBarter[index].price &&
+                                  parseInt(formBarter[index].quantity, 10) > 0
+                                ) {
+                                  calculateTotals()
+                                }
+                              }}
+                              type='number'
+                              sx={{ display: 'block' }}
+                              error={Boolean(errors?.barterProduct?.[index]?.quantity)}
+                              {...(errors?.barterProduct?.[index]?.quantity && {
+                                helperText: errors?.barterProduct?.[index]?.quantity.message
+                              })}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={5} md={2}>
+                        <Controller
+                          name={`barterProduct[${index}].price`}
+                          control={control}
+                          // rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomTextField
+                              fullWidth
+                              label='Price'
+                              value={value ? priceFormat(value) : ''}
+                              onChange={e => {
+                                const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
+                                const newPrice = +rawValue
+                                const currentQuantity = formBarter[index].quantity || 0
+                                const newSubTotal = currentQuantity * newPrice
+
+                                // Update the price and the subtotal
+                                onChange(rawValue)
+                                if (parseInt(newSubTotal, 10) > 0) {
+                                  setValue(`barterProduct[${index}].subTotal`, newSubTotal)
+                                }
+                                if (
+                                  formBarter[index].quantity &&
+                                  formBarter[index].price &&
+                                  parseInt(formBarter[index].quantity, 10) > 0
+                                ) {
+                                  calculateTotals()
+                                }
+                              }}
+                              type='text'
+                              sx={{ display: 'block' }}
+                              error={Boolean(errors?.barterProduct?.[index]?.price)}
+                              {...(errors?.barterProduct?.[index]?.price && {
+                                helperText: errors?.barterProduct?.[index]?.price.message
+                              })}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={5} md={3}>
+                        <Controller
+                          name={`barterProduct[${index}].subTotal`}
+                          control={control}
+                          // rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomTextField
+                              fullWidth
+                              label='Sub Total'
+                              value={priceFormat(value || 0)}
+                              disabled
+                              type='text'
+                              sx={{ display: 'block' }}
+                              error={Boolean(errors?.barterProduct?.[index]?.subTotal)}
+                              {...(errors?.barterProduct?.[index]?.subTotal && {
+                                helperText: errors?.barterProduct?.[index]?.subTotal.message
+                              })}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={1} md={1} sx={{ marginTop: '1.2rem' }}>
+                        <IconButton onClick={() => removeBarterProduct(index)} sx={{ color: 'text.primary' }}>
+                          <Icon icon='tabler:trash' />
+                        </IconButton>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                  <Divider />
+                </React.Fragment>
+              ))}
+              <CardContent>
+                <Grid container spacing={6}>
+                  <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}>
+                    <Button
+                      onClick={() =>
+                        appendBarterProduct({ warehouseProductId: '', price: '', quantity: '', subTotal: '' })
+                      }
+                      startIcon={<Icon icon='tabler:plus' />}
+                    >
+                      Tambahkan produk
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} md={2}>
+                    <Controller
+                      name={`grandTotalBarter`}
+                      control={control}
+                      // rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomTextField
+                          fullWidth
+                          label='Total Barter'
+                          value={value ? priceFormat(value) : '0'}
+                          type='text'
+                          disabled
+                          sx={{ display: 'block' }}
+                          error={Boolean(errors?.grandTotalBarter)}
+                          {...(errors?.grandTotalBarter && {
+                            helperText: errors?.grandTotalBarter.message
+                          })}
+                        />
+                      )}
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <Grid container spacing={6}>
+                  <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}></Grid>
+                  <Grid item xs={12} md={2}>
+                    <Controller
                       name={`grandTotal`}
                       control={control}
                       rules={{ required: true }}
@@ -459,12 +786,6 @@ export default function AddSalesOrder({ warehouse }) {
                     />
                   </Grid>
                 </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
                 <Grid item xs={12}>
                   <Controller
                     name={`notes`}
