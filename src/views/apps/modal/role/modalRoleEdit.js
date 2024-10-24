@@ -44,7 +44,6 @@ export default function ModalRoleEdit({ data, isOpen, closePress, isView }) {
   //   const handleChange = event => {
   //     setRoles(event.target.value)
   //   }
-  //   //   console.log(menus)
 
   //   const handleChangeMultipleNative = event => {
   //     const { options } = event.target

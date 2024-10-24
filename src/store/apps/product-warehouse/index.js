@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
 import toast from 'react-hot-toast'
 import { swalConfirmationAdd, swalConfirmationEdit, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { fetchInvoiceListProductByWarehouseId } from '../delivery-order'
 
 const label = 'produk'
 // GET ALL WAREHOUSE
@@ -176,6 +177,47 @@ export const fetchHistoryProduct = createAsyncThunk(
     } catch (error) {
       swalToastError({ label, error })
       return rejectWithValue([])
+    }
+  }
+)
+
+// TRANSFORMATION PRODUCT FROM SALES ORDER
+export const transformProductFromSalesOrder = createAsyncThunk(
+  'appMasterProduct/transformProductFromSalesOrder',
+  async ({ id, data, warehouseId, setOpen, setValue, getValues, indexForm, update }, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await swalConfirmationEdit({
+        label: 'Produk',
+        name: 'Produk',
+        title: 'Anda akan melakukan transformasi produk',
+        axiosRequest: () => {
+          return axios({
+            method: 'POST',
+            url: '/product-warehouse/transformation/' + id,
+            data: data,
+          })
+        },
+        dispatchRequest: () => {
+          dispatch(fetchInvoiceListProductByWarehouseId(warehouseId))
+          setOpen(false)
+        }
+      })
+
+      const { warehouseProductId, quantity, qty, masterProductId, rackName, unitName } = response.data.data
+
+      update(indexForm, {
+        warehouseProductId: warehouseProductId,
+        quantity: quantity,
+        qty: qty,
+        masterProductId: masterProductId,
+        rackName: rackName,
+        unitName: unitName
+      })
+
+      return response
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue({})
     }
   }
 )

@@ -204,7 +204,7 @@ export default function TableAllSalesOrder({ timeFilter }) {
               <div onClick={(e) => e.stopPropagation()}>
                 <RowOptions handleView={() => handleRowClick(row)} handleEdit={() => handleRowEdit(row)} data={row} />
               </div>
-            )
+            )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}

@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Card, CardContent, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
@@ -20,8 +20,9 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
 import { Box } from '@mui/system'
+import ModalTransformProductSalesOrder from './ModalTransformProductSalesOrder'
 
-export default function AddSalesOrder({ warehouse }) {
+export default function AddSalesOrder({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -30,6 +31,9 @@ export default function AddSalesOrder({ warehouse }) {
   const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
   const [date, setDate] = useState(new Date())
   const [customerData, setCustomerData] = useState({})
+  const [openModalTransformation, setOpenModalTransformation] = useState(false)
+  const [transformationData, setTransformationData] = useState({})
+  const [warehouseId, setWarehouseId] = useState()
 
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
   const { data: masterCustomer } = useSelector(state => state.masterCustomer)
@@ -103,18 +107,20 @@ export default function AddSalesOrder({ warehouse }) {
     setValue,
     setError,
     getValues,
-    watch
+    watch,
   } = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema)
   })
 
   // Barang Sales Order
-  const { fields, remove, append } = useFieldArray({
+  const { fields, remove, append, update } = useFieldArray({
     control,
     name: 'data'
   })
   const formField = watch('data') // Watch for changes in 'data' to update totals
+
+  console.log(fields, formField);
 
   // Barang Barter
   const {
@@ -125,7 +131,7 @@ export default function AddSalesOrder({ warehouse }) {
     control,
     name: 'barterProduct'
   })
-  const formBarter = watch('barterProduct') 
+  const formBarter = watch('barterProduct')
 
   const onSubmit = data => {
     const listItems = data.data
@@ -195,6 +201,12 @@ export default function AddSalesOrder({ warehouse }) {
     remove(itemIndex)
   }
 
+  const onSelectTransform = (itemIndex) => {
+    let temp = getValues(`data.${itemIndex}`)
+    setTransformationData({ ...temp, indexForm: itemIndex })
+    setOpenModalTransformation(true)
+  }
+
   useEffect(() => {
     calculateTotals()
   }, [formField, formBarter])
@@ -229,6 +241,14 @@ export default function AddSalesOrder({ warehouse }) {
     dispatch(fetchMasterDataCustomer())
   }, [dispatch, listProduct])
 
+  // const titleInfo = useMemo((index) => {
+  //   return `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Qty:${' '} ${getValues(`data[${index}].qty`) || '0'} | Unit: ${getValues(`data[${index}].unitName`) || '-'}`
+  // })
+
+  const titleInfo = (index) => {
+    return `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Qty:${' '} ${getValues(`data[${index}].qty`) || '0'} | Unit: ${getValues(`data[${index}].unitName`) || '-'}`
+  }
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -249,6 +269,7 @@ export default function AddSalesOrder({ warehouse }) {
                           getOptionLabel={option => option.name || ''}
                           onChange={(event, newValue) => {
                             onChange(+newValue?.id)
+                            setWarehouseId(+newValue?.id)
                             dispatch(fetchInvoiceListProductByWarehouseId(+newValue?.id))
                             remove()
                             removeBarterProduct()
@@ -343,6 +364,7 @@ export default function AddSalesOrder({ warehouse }) {
                                 groupBy={option => option.categoryName}
                                 id='autocomplete-grouped'
                                 getOptionLabel={option => option.productName || ''}
+                                value={listProduct.find(product => product.productWarehouseId === value) || null}
                                 onChange={(event, newValue) => {
                                   onChange(+newValue?.productWarehouseId)
                                   const selectedProduct = listProduct.find(
@@ -352,7 +374,7 @@ export default function AddSalesOrder({ warehouse }) {
                                     setValue(`data[${index}].qty`, selectedProduct.quantity)
                                     setValue(`data[${index}].masterProductId`, selectedProduct.masterProductId)
                                     setValue(`data[${index}].rackName`, selectedProduct.rackName)
-
+                                    setValue(`data[${index}].unitName`, selectedProduct.unitName)
                                     // Fetch price base on selected product
                                     dispatch(
                                       fetchOneMasterDataProductPrice({
@@ -390,8 +412,7 @@ export default function AddSalesOrder({ warehouse }) {
                                 color='textSecondary' // This can be customized to another color, like 'primary', 'secondary', etc.
                                 sx={{ marginTop: '4px' }} // Adds some spacing between the input and the text
                               >
-                                Rack: {getValues(`data[${index}].rackName`) || '-'} | Qty:{' '}
-                                {getValues(`data[${index}].qty`) || '0'}
+                                {titleInfo(index)}
                               </Typography>
                             </div>
                           )}
@@ -403,35 +424,49 @@ export default function AddSalesOrder({ warehouse }) {
                           control={control}
                           rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Kuantiti'
-                              value={value}
-                              onChange={e => {
-                                const newQuantity = +e.target.value
-                                const currentPrice = formField[index].price || 0
-                                const newSubTotal = newQuantity * currentPrice
+                            <div>
+                              <CustomTextField
+                                fullWidth
+                                label='Kuantiti'
+                                value={value}
+                                onChange={e => {
+                                  const newQuantity = +e.target.value
+                                  const currentPrice = formField[index].price || 0
+                                  const newSubTotal = newQuantity * currentPrice
 
-                                // Update the quantity and the subtotal
-                                onChange(newQuantity || '')
-                                if (parseInt(newSubTotal, 10) > 0) {
-                                  setValue(`data[${index}].subTotal`, newSubTotal)
-                                }
-                                if (
-                                  formField[index].quantity &&
-                                  formField[index].price &&
-                                  parseInt(formField[index].quantity, 10) > 0
-                                ) {
-                                  calculateTotals()
-                                }
-                              }}
-                              type='number'
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors?.data?.[index]?.quantity)}
-                              {...(errors?.data?.[index]?.quantity && {
-                                helperText: errors?.data?.[index]?.quantity.message
-                              })}
-                            />
+                                  // Update the quantity and the subtotal
+                                  onChange(newQuantity || '')
+                                  if (parseInt(newSubTotal, 10) > 0) {
+                                    setValue(`data[${index}].subTotal`, newSubTotal)
+                                  }
+                                  if (
+                                    formField[index].quantity &&
+                                    formField[index].price &&
+                                    parseInt(formField[index].quantity, 10) > 0
+                                  ) {
+                                    calculateTotals()
+                                  }
+                                }}
+                                type='number'
+                                sx={{ display: 'block' }}
+                                error={Boolean(errors?.data?.[index]?.quantity)}
+                                {...(errors?.data?.[index]?.quantity && {
+                                  helperText: errors?.data?.[index]?.quantity.message
+                                })}
+                              />
+                              {
+                                getValues(`data[${index}].quantity`) > 0 &&
+                                <Typography
+                                  variant='body2'
+                                  color='textSecondary'
+                                  sx={{ marginTop: '4px', cursor: 'pointer', ":hover": { color: 'blue' } }}
+                                  onClick={() => onSelectTransform(index)
+                                  }
+                                >
+                                  Transformasi Produk
+                                </Typography>
+                              }
+                            </div>
                           )}
                         />
                       </Grid>
@@ -832,6 +867,20 @@ export default function AddSalesOrder({ warehouse }) {
           </Grid>
         </Grid>
       </form>
+      {
+        openModalTransformation &&
+        <ModalTransformProductSalesOrder
+          open={openModalTransformation}
+          setOpen={setOpenModalTransformation}
+          warehouseProductId={transformationData?.warehouseProductId}
+          quantity={transformationData?.quantity}
+          setValue={setValue}
+          getValues={getValues}
+          indexForm={transformationData?.indexForm}
+          update={update}
+          warehouseId={warehouseId}
+        />
+      }
     </>
   )
 }
