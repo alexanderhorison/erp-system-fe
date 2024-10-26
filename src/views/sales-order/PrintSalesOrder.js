@@ -155,15 +155,25 @@ const PrintSalesOrder = ({ id }) => {
 
         <CardContent sx={{ p: 5 }}>
           <Grid container sx={{ ml: 'auto', justifyContent: 'flex-end' }}>
-            <Grid item xs={12} lg={2} md={2} sx={{ textAlign: 'center' }}>
+            <Grid item xs={3} lg={3} md={2} sx={{ textAlign: 'center' }}></Grid>
+            <Grid item xs={3} lg={3} md={2} sx={{ textAlign: 'center' }}>
               <Typography sx={{ color: 'text.secondary' }}>Grand Total:</Typography>
             </Grid>
-            <Grid item xs={12} lg={2} md={2}>
+            <Grid item xs={2} lg={3} md={2}>
               <Box
-                sx={{ mb: 2, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', textAlign: 'right', mr: 1.5 }}
+                sx={{
+                  mb: 2,
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'flex-end',
+                  textAlign: 'right',
+                  mr: 1.5
+                }}
               >
                 <Typography sx={{ color: 'text.secondary' }}>Rp.</Typography>
-                <Typography sx={{ color: 'text.secondary', textIndent: 3 }}>{priceFormat(data?.grandTotalCustomer)}</Typography>
+                <Typography sx={{ color: 'text.secondary', textIndent: 3 }}>
+                  {priceFormat(data?.grandTotalCustomer)}
+                </Typography>
               </Box>
             </Grid>
           </Grid>
