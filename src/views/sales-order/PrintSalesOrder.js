@@ -127,7 +127,7 @@ const PrintSalesOrder = ({ id }) => {
                 <TableCell align='left'>Unit</TableCell>
                 <TableCell align='left'>Kuantiti</TableCell>
                 <TableCell align='left'>Harga</TableCell>
-                <TableCell align='left'>Jumlah</TableCell>
+                <TableCell align='center'>Jumlah</TableCell>
               </TableRow>
             </TableHead>
             <TableBody
@@ -145,7 +145,7 @@ const PrintSalesOrder = ({ id }) => {
                     <TableCell>{data?.unitName || ''}</TableCell>
                     <TableCell>{data?.quantity || ''}</TableCell>
                     <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
-                    <TableCell>Rp. {priceFormat(data?.subTotal)}</TableCell>
+                    <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
                   </TableRow>
                 )
               })}
@@ -153,27 +153,19 @@ const PrintSalesOrder = ({ id }) => {
           </Table>
         </TableContainer>
 
-        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
-          <Grid container>
-            <Grid item xs={12} lg={7} md={7}></Grid>
-            <Grid item xs={12} lg={2} md={2} sx={{ ml: 5 }}>
+        <CardContent sx={{ p: 5 }}>
+          <Grid container sx={{ ml: 'auto', justifyContent: 'flex-end' }}>
+            <Grid item xs={12} lg={2} md={2} sx={{ textAlign: 'center' }}>
               <Typography sx={{ color: 'text.secondary' }}>Grand Total:</Typography>
             </Grid>
             <Grid item xs={12} lg={2} md={2}>
-              <Box sx={{ mb: 2, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                <Typography sx={{ color: 'text.secondary'}}>Rp.</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{priceFormat(data?.grandTotalCustomer)}</Typography>
+              <Box
+                sx={{ mb: 2, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', textAlign: 'right', mr: 1.5 }}
+              >
+                <Typography sx={{ color: 'text.secondary' }}>Rp.</Typography>
+                <Typography sx={{ color: 'text.secondary', textIndent: 3 }}>{priceFormat(data?.grandTotalCustomer)}</Typography>
               </Box>
             </Grid>
-            {/* <Grid item xs={12} md={1}>
-              <Typography sx={{ color: 'text.secondary', ml: 2 }}>{priceFormat(data?.grandTotal)}</Typography>
-            </Grid> */}
-
-            {/* <Box sx={{ mb: 2, mr: 12, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-              <Typography sx={{ color: 'text.secondary' }}>Grand Total:</Typography>
-              <Typography sx={{ color: 'text.secondary', ml: 10 }}>Rp.</Typography>
-              <Typography sx={{ color: 'text.secondary', ml: 2 }}>{priceFormat(data?.grandTotal)}</Typography>
-            </Box> */}
           </Grid>
         </CardContent>
 

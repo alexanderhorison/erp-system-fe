@@ -1,5 +1,5 @@
 // ** React Imports
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** Next Import
 import Link from 'next/link'
@@ -41,6 +41,7 @@ const GeneratePdfSalesOrder = ({ id }) => {
   // ** Hooks
   const theme = useTheme()
   const dispatch = useDispatch()
+  const [sending, setIsSending] = useState(false)
 
   const {
     detailSalesOrder: data,
@@ -61,50 +62,55 @@ const GeneratePdfSalesOrder = ({ id }) => {
   }, [id, dispatch])
 
   const sendPdf = async () => {
-    const element = document.getElementById('sales-order')
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      width: element.scrollWidth,
-      height: element.scrollHeight
-    })
+    if (!sending) {
+      const element = document.getElementById('sales-order')
+      element.style.width = '210mm' // A4 width
+      element.style.height = 'auto' // Allow height to auto to fit content
+      element.style.overflow = 'visible' // Ensure all content is visible
 
-    const imgData = canvas.toDataURL('image/png', 0.8)
+      const canvas = await html2canvas(element, {
+        scale: 2.5, // Higher scale for better quality
+        width: element.scrollWidth,
+        height: element.scrollHeight,
+        useCORS: true, // Enable CORS if loading images from different origins
+        allowTaint: true // Allow cross-origin images to be rendered
+      })
 
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'pt',
-      format: 'a4',
-      putOnlyUsedFonts: true,
-      floatPrecision: 16
-    })
+      const imgData = canvas.toDataURL('image/png', 0.8)
+      const pdf = new jsPDF('p', 'mm', 'a4') // A4 format
 
-    const pageWidth = pdf.internal.pageSize.getWidth()
-    const pageHeight = pdf.internal.pageSize.getHeight()
-    const imgWidth = pageWidth
-    const imgHeight = (canvas.height * imgWidth) / canvas.width
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      const imgWidth = pageWidth - 30 // Leave some margin (10mm on each side)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
 
-    let position = 0
+      let position = 20 // Start position from top with margin
+      const maxHeight = pageHeight - 40 // Leave some margin from bottom
 
-    const maxHeight = pageHeight - 40 // Leave some margin
-    const scaledHeight = Math.min(imgHeight, maxHeight)
-    while (position < imgHeight) {
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, scaledHeight, undefined, 'SLOW')
-      position += scaledHeight // Move to the next page with the scaled height
-      if (position < imgHeight) pdf.addPage() // Add another page if content overflows
+      while (position < imgHeight) {
+        const scaledHeight = Math.min(imgHeight - position, maxHeight)
+        pdf.addImage(imgData, 'PNG', 15, position, imgWidth, scaledHeight, undefined, 'SLOW')
+        position += scaledHeight // Move to the next page with the scaled height
+        if (position < imgHeight) pdf.addPage() // Add another page if content overflows
+      }
+
+      // Convert PDF to Blob and then to Base64
+      const pdfBlob = await pdf.output('blob')
+      const formData = new FormData()
+      formData.append('pdf', pdfBlob, 'sales-order.pdf')
+      const code = id
+      formData.append('filename', code)
+      formData.append('module', 'Sales Order')
+      dispatch(sendEmail(formData))
+      setIsSending(true);
     }
-
-    // Convert PDF to Blob and then to Base64
-    const pdfBlob = await pdf.output('blob')
-    const formData = new FormData()
-    formData.append('pdf', pdfBlob, 'sales-order.pdf')
-    dispatch(sendEmail(formData))
   }
 
   if (data) {
     return (
       <Card id='sales-order'>
         <CardContent sx={{ p: [`${theme.spacing(4)} !important`, `${theme.spacing(4)} !important`] }}>
-          <Grid container sx={{ mt: 5 }}>
+          <Grid container sx={{ mt: 7 }}>
             <Grid item sm={6} xs={12}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -168,7 +174,7 @@ const GeneratePdfSalesOrder = ({ id }) => {
                 <TableCell align='left'>Unit</TableCell>
                 <TableCell align='left'>Kuantiti</TableCell>
                 <TableCell align='left'>Harga</TableCell>
-                <TableCell align='left'>Jumlah</TableCell>
+                <TableCell align='center'>Jumlah</TableCell>
               </TableRow>
             </TableHead>
             <TableBody
@@ -185,23 +191,33 @@ const GeneratePdfSalesOrder = ({ id }) => {
                   <TableCell>{data?.unitName || ''}</TableCell>
                   <TableCell>{data?.quantity || ''}</TableCell>
                   <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
-                  <TableCell>Rp. {priceFormat(data?.subTotal)}</TableCell>
+                  <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
 
-        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
-          <Grid container>
-            <Grid item xs={12} lg={7} md={7}></Grid>
-            <Grid item xs={12} lg={2} md={3} sx={{ ml: 9 }}>
+        <CardContent sx={{ p: 5 }}>
+          <Grid container sx={{ ml: 'auto', justifyContent: 'flex-end' }}>
+            <Grid item xs={12} lg={2} md={2} sx={{ textAlign: 'center' }}>
               <Typography sx={{ color: 'text.secondary' }}>Grand Total:</Typography>
             </Grid>
-            <Grid item xs={12} lg={2} md={2} sx={{ml: 6}}>
-              <Box sx={{ mb: 2, display: 'flex', flexDirection: 'row', ml: 10 }}>
+            <Grid item xs={12} lg={2} md={2}>
+              <Box
+                sx={{
+                  mb: 2,
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'flex-end',
+                  textAlign: 'right',
+                  mr: 1.5
+                }}
+              >
                 <Typography sx={{ color: 'text.secondary' }}>Rp.</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{priceFormat(data?.grandTotalCustomer)}</Typography>
+                <Typography sx={{ color: 'text.secondary', textIndent: 3 }}>
+                  {priceFormat(data?.grandTotalCustomer)}
+                </Typography>
               </Box>
             </Grid>
           </Grid>
