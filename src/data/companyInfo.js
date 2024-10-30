@@ -5,5 +5,6 @@ export const companyInfo = {
   phoneNumber: "081807922555",
   ownerName: "Michael Santoso",
   ownerTitle: "Finance Dept",
-  bank: "248 882 2298 BCA a/n PT TJAHAYA BERKAT ABADI"
+  bank: "248 882 2298 BCA a/n PT TJAHAYA BERKAT ABADI",
+  ptName: "PT TJAHAYA BERKAT ABADI"
 }

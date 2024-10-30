@@ -64,7 +64,7 @@ const GeneratePdfSalesOrder = ({ id }) => {
   const sendPdf = async () => {
     if (!sending) {
       const element = document.getElementById('sales-order')
-      element.style.width = '210mm' // A4 width
+      element.style.width = '250mm' // A4 width
       element.style.height = 'auto' // Allow height to auto to fit content
       element.style.overflow = 'visible' // Ensure all content is visible
 
@@ -102,7 +102,7 @@ const GeneratePdfSalesOrder = ({ id }) => {
       formData.append('filename', code)
       formData.append('module', 'Sales Order')
       dispatch(sendEmail(formData))
-      setIsSending(true);
+      setIsSending(true)
     }
   }
 
@@ -166,6 +166,9 @@ const GeneratePdfSalesOrder = ({ id }) => {
 
         <Divider />
 
+        <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
+          Barang Sales Order
+        </Typography>
         <TableContainer>
           <Table>
             <TableHead>
@@ -196,7 +199,57 @@ const GeneratePdfSalesOrder = ({ id }) => {
               ))}
             </TableBody>
           </Table>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
+            <Typography sx={{ paddingTop: 2, mr: 5 }}>Total Sales Order:</Typography>
+            <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalCustomer)}</Typography>
+          </Box>
         </TableContainer>
+
+        {data?.listBarterProducts?.length > 0 && (
+          <>
+            <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
+              Barang Barter
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell align='left'>Produk</TableCell>
+                    <TableCell align='left'>Unit</TableCell>
+                    <TableCell align='left'>Kuantiti</TableCell>
+                    <TableCell align='left'>Harga</TableCell>
+                    <TableCell align='center'>Jumlah</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody
+                  sx={{
+                    '& .MuiTableCell-root': {
+                      py: `${theme.spacing(2.5)} !important`,
+                      fontSize: theme.typography.body1.fontSize
+                    }
+                  }}
+                >
+                  {data?.listBarterProducts?.map((data, index) => {
+                    return (
+                      <TableRow key={index}>
+                        <TableCell>{data?.productName}</TableCell>
+                        <TableCell>{data?.unitName || ''}</TableCell>
+                        <TableCell>{data?.quantity || ''}</TableCell>
+                        <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
+                        <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
+              <Typography sx={{ paddingTop: 2, mr: 5 }}>Total Barang Barter:</Typography>
+              <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalBarter)}</Typography>
+            </Box>
+            <Divider sx={{ mt: 8 }} />
+          </>
+        )}
 
         <CardContent sx={{ p: 5 }}>
           <Grid container sx={{ ml: 'auto', justifyContent: 'flex-end' }}>
@@ -215,15 +268,29 @@ const GeneratePdfSalesOrder = ({ id }) => {
                 }}
               >
                 <Typography sx={{ color: 'text.secondary' }}>Rp.</Typography>
-                <Typography sx={{ color: 'text.secondary', textIndent: 3 }}>
-                  {priceFormat(data?.grandTotalCustomer)}
-                </Typography>
+                <Typography sx={{ color: 'text.secondary', textIndent: 3 }}>{priceFormat(data?.grandTotal)}</Typography>
               </Box>
             </Grid>
           </Grid>
         </CardContent>
 
         <Divider sx={{ mt: 5 }} />
+
+        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
+          <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
+            <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
+              {data?.grandTotal < 0
+                ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
+                    data?.grandTotal
+                  ).toLocaleString()}`
+                : `Customer ${
+                    data?.customer?.name?.toUpperCase() || ''
+                  } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
+            </Typography>
+          </Box>
+        </CardContent>
+
+        <Divider />
 
         <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
           <Box sx={{ display: 'flex-column', alignItems: 'center' }}>

@@ -115,17 +115,15 @@ const DetailPageSalesOrder = ({ data }) => {
 
         <Divider />
 
-        <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
-          Barang Sales Order
-        </Typography>
         <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
+          <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
+            Barang Sales Order
+          </Typography>
           <TableContainer>
             <Table>
               <TableHead>
                 <TableRow>
                   <TableCell align='left'>Produk</TableCell>
-                  <TableCell align='left'>Rak</TableCell>
-                  <TableCell align='left'>Unit</TableCell>
                   <TableCell align='left'>Kuantiti</TableCell>
                   <TableCell align='left'>Harga</TableCell>
                   <TableCell align='center'>Jumlah</TableCell>
@@ -142,9 +140,12 @@ const DetailPageSalesOrder = ({ data }) => {
                 {data?.listProducts?.map((data, index) => {
                   return (
                     <TableRow key={index}>
-                      <TableCell>{data?.productName}</TableCell>
-                      <TableCell>{data?.rackName}</TableCell>
-                      <TableCell>{data?.unitName || ''}</TableCell>
+                      <TableCell>
+                        <Typography variant='body1'>{data?.productName}</Typography>
+                        <Typography variant='body2' color='textSecondary' sx={{ mt: 0.5 }}>
+                          Rack: {data?.rackName} | Unit: {data?.unitName}
+                        </Typography>
+                      </TableCell>
                       <TableCell>{data?.quantity || ''}</TableCell>
                       <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
                       <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
@@ -171,8 +172,6 @@ const DetailPageSalesOrder = ({ data }) => {
                   <TableHead>
                     <TableRow>
                       <TableCell align='left'>Produk</TableCell>
-                      <TableCell align='left'>Rak</TableCell>
-                      <TableCell align='left'>Unit</TableCell>
                       <TableCell align='left'>Kuantiti</TableCell>
                       <TableCell align='left'>Harga</TableCell>
                       <TableCell align='center'>Jumlah</TableCell>
@@ -189,9 +188,12 @@ const DetailPageSalesOrder = ({ data }) => {
                     {data?.listBarterProducts?.map((data, index) => {
                       return (
                         <TableRow key={index}>
-                          <TableCell>{data?.productName}</TableCell>
-                          <TableCell>{data?.rackName}</TableCell>
-                          <TableCell>{data?.unitName || ''}</TableCell>
+                          <TableCell>
+                            <Typography variant='body1'>{data?.productName}</Typography>
+                            <Typography variant='body2' color='textSecondary' sx={{ mt: 0.5 }}>
+                              Rack: {data?.rackName || '-'} | Unit: {data?.unitName || '-'}
+                            </Typography>
+                          </TableCell>
                           <TableCell>{data?.quantity || ''}</TableCell>
                           <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
                           <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
@@ -205,10 +207,9 @@ const DetailPageSalesOrder = ({ data }) => {
                 <Typography sx={{ paddingTop: 2, mr: 5 }}>Total Barang Barter:</Typography>
                 <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalBarter)}</Typography>
               </Box>
+              <Divider sx={{ mt: 8 }} />
             </>
           )}
-
-          <Divider sx={{ mt: 6 }} />
 
           <CardContent sx={{ p: 5 }}>
             <Grid container>
@@ -255,7 +256,23 @@ const DetailPageSalesOrder = ({ data }) => {
             </Typography>
           </CardContent>
         </CardContent>
-        
+
+        <Divider />
+
+        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
+          <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
+            <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
+              {data?.grandTotal < 0
+                ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
+                    data?.grandTotal
+                  ).toLocaleString()}`
+                : `Customer ${
+                    data?.customer?.name?.toUpperCase() || ''
+                  } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
+            </Typography>
+          </Box>
+        </CardContent>
+
         <Divider />
 
         <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
