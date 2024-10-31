@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Card, CardContent, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
@@ -34,6 +34,7 @@ export default function AddSalesOrder({ }) {
   const [openModalTransformation, setOpenModalTransformation] = useState(false)
   const [transformationData, setTransformationData] = useState({})
   const [warehouseId, setWarehouseId] = useState()
+  const [helperTextChanges, setHelperTextChanges] = useState(false)
 
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
   const { data: masterCustomer } = useSelector(state => state.masterCustomer)
@@ -119,8 +120,6 @@ export default function AddSalesOrder({ }) {
     name: 'data'
   })
   const formField = watch('data') // Watch for changes in 'data' to update totals
-
-  console.log(fields, formField);
 
   // Barang Barter
   const {
@@ -241,13 +240,18 @@ export default function AddSalesOrder({ }) {
     dispatch(fetchMasterDataCustomer())
   }, [dispatch, listProduct])
 
-  // const titleInfo = useMemo((index) => {
-  //   return `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Qty:${' '} ${getValues(`data[${index}].qty`) || '0'} | Unit: ${getValues(`data[${index}].unitName`) || '-'}`
-  // })
-
-  const titleInfo = (index) => {
-    return `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Qty:${' '} ${getValues(`data[${index}].qty`) || '0'} | Unit: ${getValues(`data[${index}].unitName`) || '-'}`
+  const titleProductInfo = (index) => {
+    const infos = {
+      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${getValues(`data[${index}].unitName`) || '-'}`,
+      titleQuantity: `QTY: ${getValues(`data[${index}].qty`) || '-'}`,
+      titleTransformation: getValues(`data[${index}].quantity`) > 0 ? '| Transformasi Produk' : ''
+    }
+    return infos
   }
+
+  useEffect(() => {
+    // For transformation product
+  }, [helperTextChanges])
 
   return (
     <>
@@ -375,6 +379,7 @@ export default function AddSalesOrder({ }) {
                                     setValue(`data[${index}].masterProductId`, selectedProduct.masterProductId)
                                     setValue(`data[${index}].rackName`, selectedProduct.rackName)
                                     setValue(`data[${index}].unitName`, selectedProduct.unitName)
+                                    setHelperTextChanges(!helperTextChanges)
                                     // Fetch price base on selected product
                                     dispatch(
                                       fetchOneMasterDataProductPrice({
@@ -385,6 +390,8 @@ export default function AddSalesOrder({ }) {
                                       // if price exist then switch to replace
                                       if (payload.data) {
                                         setValue(`data[${index}].price`, payload.data.basePrice)
+                                      } else {
+                                        setValue(`data[${index}].price`, 0)
                                       }
                                     })
                                   } else {
@@ -394,31 +401,54 @@ export default function AddSalesOrder({ }) {
                                   }
                                 }}
                                 renderInput={params => (
-                                  <CustomTextField
-                                    value={item.warehouseProductId}
-                                    {...params}
-                                    sx={{ zIndex: 0 }}
-                                    error={Boolean(errors?.data?.[index]?.warehouseProductId)}
-                                    {...(errors?.data?.[index]?.warehouseProductId && {
-                                      helperText: errors?.data?.[index]?.warehouseProductId.message
-                                    })}
-                                    // {...}
-                                    label='Produk'
-                                  />
+                                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    <Box display="flex" alignItems="center" mb={0}>
+                                      <Box
+                                        component="span"
+                                        sx={{
+                                          fontWeight: '',
+                                          fontSize: '0.85rem',
+                                          mr: 1
+                                        }}>
+                                        {`Produk `}
+                                      </Box>
+                                      <Box
+                                        component="span"
+                                        sx={{ fontSize: '0.85rem', marginTop: '', cursor: 'pointer', ":hover": { color: 'blue' } }}
+                                        onClick={() => onSelectTransform(index)}
+                                      >
+                                        {/* {getValues(`data[${index}].quantity`) > 0 ? '| Transformasi Produk' : ''} */}
+                                        {titleProductInfo(index).titleTransformation}
+                                      </Box>
+                                    </Box>
+                                    <CustomTextField
+                                      value={item.warehouseProductId}
+                                      {...params}
+                                      sx={{ zIndex: 0 }}
+                                      error={Boolean(errors?.data?.[index]?.warehouseProductId)}
+                                      {...(errors?.data?.[index]?.warehouseProductId && {
+                                        helperText: errors?.data?.[index]?.warehouseProductId.message
+                                      })}
+                                    />
+                                  </Box>
                                 )}
                               />
                               <Typography
-                                variant='body2' // Adjusts the size (you can change this to 'body1' or 'subtitle2' for larger text)
-                                color='textSecondary' // This can be customized to another color, like 'primary', 'secondary', etc.
-                                sx={{ marginTop: '4px' }} // Adds some spacing between the input and the text
+                                variant='body2'
+                                color='textSecondary'
+                                sx={{ marginTop: '4px' }}
                               >
-                                {titleInfo(index)}
+                                {titleProductInfo(index).titleProduct}
                               </Typography>
                             </div>
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={2}>
+                      <Grid
+                        key={getValues(`data[${index}].warehouseProductId`)}
+                        item xs={5}
+                        md={2}
+                      >
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}
@@ -433,10 +463,9 @@ export default function AddSalesOrder({ }) {
                                   const newQuantity = +e.target.value
                                   const currentPrice = formField[index].price || 0
                                   const newSubTotal = newQuantity * currentPrice
-
-                                  // Update the quantity and the subtotal
                                   onChange(newQuantity || '')
                                   if (parseInt(newSubTotal, 10) > 0) {
+                                    setHelperTextChanges(!helperTextChanges)
                                     setValue(`data[${index}].subTotal`, newSubTotal)
                                   }
                                   if (
@@ -454,18 +483,12 @@ export default function AddSalesOrder({ }) {
                                   helperText: errors?.data?.[index]?.quantity.message
                                 })}
                               />
-                              {
-                                getValues(`data[${index}].quantity`) > 0 &&
-                                <Typography
-                                  variant='body2'
-                                  color='textSecondary'
-                                  sx={{ marginTop: '4px', cursor: 'pointer', ":hover": { color: 'blue' } }}
-                                  onClick={() => onSelectTransform(index)
-                                  }
-                                >
-                                  Transformasi Produk
-                                </Typography>
-                              }
+                              <Typography
+                                variant='body2'
+                                color='textSecondary'
+                              >
+                                {titleProductInfo(index).titleQuantity}
+                              </Typography>
                             </div>
                           )}
                         />
