@@ -12,34 +12,37 @@ import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
 import renderClient from 'src/helpers/renderClient'
-import { fetchAllPurchaseOrder, fetchAllPurchaseOrderVendor } from 'src/store/apps/purchase-order'
-import TableHeaderPurchaseOrderVendor from './TableHeaderPurchaseOrderVendor'
+import { fetchAllPurchaseOrder } from 'src/store/apps/purchase-order'
+import TableHeaderPurchaseOrder from './TableHeaderPurchaseOrder'
 
-const RowOptions = ({ handleView, handleEdit }) => {
+const RowOptions = ({ handleView, handleEdit, data }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <IconButton onClick={handleView}>
           <Icon icon='tabler:eye' />
         </IconButton>
-        {/* <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton> */}
+        {
+          data?.status === "PENDING" && (
+            <IconButton onClick={handleEdit}>
+              <Icon icon='tabler:edit' />
+            </IconButton>
+          )
+        }
       </Box>
     </>
   )
 }
 
-export default function TablePurchaseOrderVendor() {
+export default function TableAllPurchaseOrder({ timeFilter }) {
   const dispatch = useDispatch()
   const router = useRouter()
-  const id = router.query.id
+
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  const { dataPurchaseOrderVendor: data, loadingDataPurchaseOrderVendor: loading } = useSelector(state => state.purchaseOrder)
+  const { dataPurchaseOrder: data } = useSelector(state => state.purchaseOrder)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
@@ -47,7 +50,8 @@ export default function TablePurchaseOrderVendor() {
       data,
       keys: ['code'],
       searchValue,
-      setData: setFilteredData
+      setData: setFilteredData,
+      timeFilter: timeFilter
     })
   }
 
@@ -61,20 +65,36 @@ export default function TablePurchaseOrderVendor() {
     router.push(`/purchase-order/edit/${id}`)
   }
 
-  useEffect(() => {
-    dispatch(fetchAllPurchaseOrderVendor({
-      id
-    }))
-  }, [id])
+  const handleAdd = () => {
+    router.push(`/purchase-order/add`)
+  }
 
   useEffect(() => {
-    setFilteredData(data) // If no year filter, show all data
-  }, [data])
+    dispatch(fetchAllPurchaseOrder())
+  }, [dispatch])
+
+  useEffect(() => {
+    if (timeFilter && timeFilter.year) {
+      const filtered = data.filter(item => {
+        const itemDate = new Date(item.createdAt)
+        const itemYear = itemDate.getFullYear() // Get the year from createdAt
+        const itemMonth = itemDate.getMonth() // Get the month from createdAt (0-based index)
+
+        // Compare it with timeFilter.year and timeFilter.month (if provided)
+        const matchesYear = itemYear === parseInt(timeFilter.year)
+        const matchesMonth = timeFilter.month ? itemMonth === parseInt(timeFilter.month - 1) : true
+
+        return matchesYear && matchesMonth
+      })
+      setFilteredData(filtered)
+    } else {
+      setFilteredData(data) // If no year filter, show all data
+    }
+  }, [data, timeFilter])
 
   return (
     <Card>
       <DataGrid
-        loading={loading}
         autoHeight
         columns={[
           {
@@ -181,14 +201,16 @@ export default function TablePurchaseOrderVendor() {
             field: 'actions',
             headerName: 'Actions',
             renderCell: ({ row }) => (
-              <RowOptions handleView={() => handleRowClick(row)} handleEdit={() => handleRowEdit(row)} />
+              <div onClick={(e) => e.stopPropagation()}>
+                <RowOptions handleView={() => handleRowClick(row)} handleEdit={() => handleRowEdit(row)} data={row} />
+              </div>
             )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
-        onCellClick={handleRowClick}
+        onCellClick={(e) => handleRowClick(e)}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderPurchaseOrderVendor }}
+        slots={{ toolbar: TableHeaderPurchaseOrder }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
         sx={{
@@ -209,6 +231,7 @@ export default function TablePurchaseOrderVendor() {
             placeholder: 'Cari purchase order',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
+            handleAdd: handleAdd
           }
         }}
       />

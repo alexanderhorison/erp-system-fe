@@ -1,5 +1,5 @@
 // ** React Imports
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** Next Import
 import Link from 'next/link'
@@ -22,10 +22,12 @@ import themeConfig from 'src/configs/themeConfig'
 import { useDispatch, useSelector } from 'react-redux'
 import { Card, CardContent, Box, CircularProgress } from '@mui/material'
 import { companyInfo } from 'src/data/companyInfo'
-import { fetchDetailSalesOrder } from 'src/store/apps/sales-order'
-import { Status } from 'src/@core/components/common'
+import { fetchDetailPurchaseOrder, sendEmail } from 'src/store/apps/purchase-order'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { CompanySvg } from 'src/data/companySvg'
+
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 
 const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
@@ -35,35 +37,79 @@ const MUITableCell = styled(TableCell)(({ theme }) => ({
   paddingBottom: `${theme.spacing(1)} !important`
 }))
 
-const PrintSalesOrder = ({ id }) => {
+const GeneratePdfPurchaseOrder = ({ id }) => {
   // ** Hooks
   const theme = useTheme()
   const dispatch = useDispatch()
+  const [sending, setIsSending] = useState(false)
 
   const {
-    detailSalesOrder: data,
-    errorDetailSalesOrder,
-    loadingDetailSalesOrder
-  } = useSelector(state => state.salesOrder)
+    detailPurchaseOrder: data,
+    errorDetailPurchaseOrder,
+    loadingDetailPurchaseOrder
+  } = useSelector(state => state.purchaseOrder)
 
   useEffect(() => {
     if (data?.code === id) {
-      setTimeout(() => {
-        window.print()
-      }, 200)
+      sendPdf()
     }
-  }, [loadingDetailSalesOrder])
+  }, [loadingDetailPurchaseOrder])
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchDetailSalesOrder(id))
+      dispatch(fetchDetailPurchaseOrder(id))
     }
   }, [id, dispatch])
 
+  const sendPdf = async () => {
+    if (!sending) {
+      const element = document.getElementById('purchase-order')
+      element.style.width = '250mm' // A4 width
+      element.style.height = 'auto' // Allow height to auto to fit content
+      element.style.overflow = 'visible' // Ensure all content is visible
+
+      const canvas = await html2canvas(element, {
+        scale: 2.5, // Higher scale for better quality
+        width: element.scrollWidth,
+        height: element.scrollHeight,
+        useCORS: true, // Enable CORS if loading images from different origins
+        allowTaint: true // Allow cross-origin images to be rendered
+      })
+
+      const imgData = canvas.toDataURL('image/png', 0.8)
+      const pdf = new jsPDF('p', 'mm', 'a4') // A4 format
+
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      const imgWidth = pageWidth - 30 // Leave some margin (10mm on each side)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+      let position = 20 // Start position from top with margin
+      const maxHeight = pageHeight - 40 // Leave some margin from bottom
+
+      while (position < imgHeight) {
+        const scaledHeight = Math.min(imgHeight - position, maxHeight)
+        pdf.addImage(imgData, 'PNG', 15, position, imgWidth, scaledHeight, undefined, 'SLOW')
+        position += scaledHeight // Move to the next page with the scaled height
+        if (position < imgHeight) pdf.addPage() // Add another page if content overflows
+      }
+
+      // Convert PDF to Blob and then to Base64
+      const pdfBlob = await pdf.output('blob')
+      const formData = new FormData()
+      formData.append('pdf', pdfBlob, 'purchase-order.pdf')
+      const code = id
+      formData.append('filename', code)
+      formData.append('module', 'Purchase Order')
+      dispatch(sendEmail(formData))
+      setIsSending(true)
+    }
+  }
+
   if (data) {
     return (
-      <Card>
-        <CardContent sx={{ p: [`${theme.spacing(4)} !important`, `${theme.spacing(6)} !important`] }}>
+      <Card id='purchase-order'>
+        <CardContent sx={{ p: [`${theme.spacing(4)} !important`, `${theme.spacing(4)} !important`] }}>
           <Grid container sx={{ mt: 7 }}>
             <Grid item sm={6} xs={12}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -73,11 +119,11 @@ const PrintSalesOrder = ({ id }) => {
                     {themeConfig.templateName}
                   </Typography>
                 </Box>
-                <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
+                <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 4 }}>
                   <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.companyName}</Typography>
                   <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.address}</Typography>
                   <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.city}</Typography>
-                  <Typography sx={{ color: `'text.secondary'` }}>{companyInfo.phoneNumber}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{companyInfo.phoneNumber}</Typography>
                 </Box>
               </Box>
             </Grid>
@@ -87,7 +133,7 @@ const PrintSalesOrder = ({ id }) => {
                   <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
                     <TableRow>
                       <MUITableCell>
-                        <Typography variant='h6'>Sales Order</Typography>
+                        <Typography variant='h6'>Purchase Order</Typography>
                         <Typography variant='h6'>{`#${data.code}`}</Typography>
                       </MUITableCell>
                     </TableRow>
@@ -103,26 +149,36 @@ const PrintSalesOrder = ({ id }) => {
             </Grid>
           </Grid>
         </CardContent>
+
         <Divider />
-        <CardContent sx={{ p: [`${theme.spacing(6)} !important`, `${theme.spacing(10)} !important`] }}>
+
+        <CardContent >
           <Grid container>
-            <Grid item xs={6} sm={5} sx={{ mb: { lg: 0, xs: 4 } }}>
+            {/* <Grid item xs={12} sx={{ mb: { lg: 0, xs: 4 } }}>
               <Typography variant='h6' sx={{ mb: 2 }}>
-                Tagihan Kepada
+                Gudang Tujuan
               </Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.name.toUpperCase() || ''}</Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.address.toUpperCase() || ''}</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseName?.toUpperCase() || ''}</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseLocation?.toUpperCase() || ''}</Typography>
+            </Grid> */}
+            <Grid item xs={12} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
+              <div>
+                <Typography variant='h6' sx={{ mb: 2 }}>
+                  Vendor
+                </Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.name?.toUpperCase() || ''}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.address?.toUpperCase() || ''}</Typography>
+              </div>
             </Grid>
-            <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}></Grid>
           </Grid>
         </CardContent>
 
         <Divider />
 
-        <TableContainer >
-          <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
-            Barang Sales Order
-          </Typography>
+        <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
+          Barang Purchase Order
+        </Typography>
+        <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
@@ -141,27 +197,26 @@ const PrintSalesOrder = ({ id }) => {
                 }
               }}
             >
-              {data?.listProducts?.map((data, index) => {
-                return (
-                  <TableRow key={index}>
-                    <TableCell>{data?.productName}</TableCell>
-                    <TableCell>{data?.unitName || ''}</TableCell>
-                    <TableCell>{data?.quantity || ''}</TableCell>
-                    <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
-                    <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
-                  </TableRow>
-                )
-              })}
+              {data?.listProducts?.map((data, index) => (
+                <TableRow key={index}>
+                  <TableCell>{data?.productName}</TableCell>
+                  <TableCell>{data?.unitName || ''}</TableCell>
+                  <TableCell>{data?.quantity || ''}</TableCell>
+                  <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
+                  <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
-            <Typography sx={{ paddingTop: 2, mr: 5 }}>Total Sales Order:</Typography>
-            <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalCustomer)}</Typography>
+            <Typography sx={{ paddingTop: 2, mr: 5 }}>Total Purchase Order:</Typography>
+            <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalVendor)}</Typography>
           </Box>
         </TableContainer>
+
         {data?.listBarterProducts?.length > 0 && (
           <>
-            <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 5 }}>
+            <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
               Barang Barter
             </Typography>
             <TableContainer>
@@ -207,11 +262,10 @@ const PrintSalesOrder = ({ id }) => {
 
         <CardContent sx={{ p: 5 }}>
           <Grid container sx={{ ml: 'auto', justifyContent: 'flex-end' }}>
-            <Grid item xs={3} lg={3} md={2} sx={{ textAlign: 'center' }}></Grid>
-            <Grid item xs={3} lg={3} md={2} sx={{ textAlign: 'center' }}>
+            <Grid item xs={12} lg={2} md={2} sx={{ textAlign: 'center' }}>
               <Typography sx={{ color: 'text.secondary' }}>Grand Total:</Typography>
             </Grid>
-            <Grid item xs={2} lg={3} md={2}>
+            <Grid item xs={12} lg={2} md={2}>
               <Box
                 sx={{
                   mb: 2,
@@ -229,7 +283,7 @@ const PrintSalesOrder = ({ id }) => {
           </Grid>
         </CardContent>
 
-        <Divider sx={{ mt: 7 }} />
+        <Divider sx={{ mt: 5 }} />
 
         <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
           <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
@@ -238,20 +292,9 @@ const PrintSalesOrder = ({ id }) => {
                 ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
                   data?.grandTotal
                 ).toLocaleString()}`
-                : `Customer ${data?.customer?.name?.toUpperCase() || ''
+                : `Vendor ${data?.customer?.name?.toUpperCase() || ''
                 } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
             </Typography>
-          </Box>
-        </CardContent>
-
-        <Divider />
-
-        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`], mt: 5 }}>
-          <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
-            <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
-              Silahkan transfer ke rekening:
-            </Typography>
-            <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>{companyInfo.bank}</Typography>
           </Box>
         </CardContent>
 
@@ -273,7 +316,7 @@ const PrintSalesOrder = ({ id }) => {
                 <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Dengan Hormat,</Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={12} lg={12} sx={{}}>
+            <Grid item xs={12} sm={12} lg={12}>
               <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box sx={{ mb: 2, ml: 5, display: 'flex-column', alignItems: 'center', textAlign: 'center' }}>
                   <Typography sx={{ color: 'text.secondary' }}>( ................... )</Typography>
@@ -288,20 +331,20 @@ const PrintSalesOrder = ({ id }) => {
         </CardContent>
       </Card>
     )
-  } else if (errorDetailSalesOrder) {
+  } else if (errorDetailPurchaseOrder) {
     return (
       <Box sx={{ p: 5 }}>
         <Grid container spacing={6}>
           <Grid item xs={12}>
             <Alert severity='error'>
-              Sales Order: {id} Tidak Ditemukan. Mohon cek list sales order:{' '}
-              <Link href='/sales-order'>Sales Order</Link>
+              Purchase Order: {id} Tidak Ditemukan. Mohon cek list purchase order:{' '}
+              <Link href='/purchase-order'>Purchase Order</Link>
             </Alert>
           </Grid>
         </Grid>
       </Box>
     )
-  } else if (loadingDetailSalesOrder) {
+  } else if (loadingDetailPurchaseOrder) {
     return (
       <Box sx={{ mt: 11, width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
         <CircularProgress sx={{ mb: 4 }} />
@@ -311,4 +354,4 @@ const PrintSalesOrder = ({ id }) => {
   }
 }
 
-export default PrintSalesOrder
+export default GeneratePdfPurchaseOrder

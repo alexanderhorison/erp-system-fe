@@ -6,8 +6,8 @@ import { fetchMasterDataVendorDetail } from "src/store/apps/master/vendor";
 import ButtonBack from "src/views/common/ButtonBack";
 import CustomTab from "src/views/common/CustomTab";
 import DetailVendor from "src/views/master/vendor/DetailVendor";
-// import SummaryVendor from "src/views/master/vendor/SummaryVendor";
-// import TableSalesOrderVendor from "src/views/master/vendor/TableSalesOrderVendor";
+import SummaryVendor from "src/views/master/vendor/SummaryVendor";
+import TablePurchaseOrderVendor from "src/views/master/vendor/TablePurchaseOrderVendor";
 
 export default function DetailMasterVendor() {
   const dispatch = useDispatch()
@@ -22,16 +22,16 @@ export default function DetailMasterVendor() {
   }, [query.id])
 
   const tabList = [
-    // {
-    //   label: 'Summary',
-    //   value: 'summary',
-    //   icon: 'tabler:wallet',
-    // },
-    // {
-    //   label: 'Sales Order',
-    //   value: 'sales-order',
-    //   icon: 'tabler:truck-delivery',
-    // }
+    {
+      label: 'Summary',
+      value: 'summary',
+      icon: 'tabler:wallet',
+    },
+    {
+      label: 'Sales Order',
+      value: 'sales-order',
+      icon: 'tabler:truck-delivery',
+    }
   ]
 
   return (
@@ -50,7 +50,7 @@ export default function DetailMasterVendor() {
         />
       </Grid>
       {/* FOR PURCHASE ORDER */}
-      {/* {
+      {
         activeTab === 'summary' && (
           <Grid item xs={12}>
             <SummaryVendor />
@@ -60,10 +60,10 @@ export default function DetailMasterVendor() {
       {
         activeTab === 'sales-order' && (
           <Grid item xs={12}>
-            <TableSalesOrderVendor />
+            <TablePurchaseOrderVendor />
           </Grid>
         )
-      } */}
+      }
     </Grid>
   )
 }

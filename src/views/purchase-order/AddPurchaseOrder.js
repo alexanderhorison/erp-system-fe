@@ -1,67 +1,71 @@
-import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material'
-import React, { useEffect, useState } from 'react'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useDispatch, useSelector } from 'react-redux'
-import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
-import CustomTextField from 'src/@core/components/mui/text-field'
-
-import Icon from 'src/@core/components/icon'
-import * as yup from 'yup'
-import { useRouter } from 'next/router'
-import { fetchInvoiceListProductByWarehouseId } from 'src/store/apps/delivery-order'
-import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
-import OptionsGroup from 'src/helpers/groupedInput'
-import { fetchMasterDataCustomer } from 'src/store/apps/master/customer'
-import { createSalesOrder } from 'src/store/apps/sales-order'
-import PickersComponent from '../forms/form-elements/pickers/PickersCustomInput'
+import { useTheme } from "@emotion/react"
+import { yupResolver } from "@hookform/resolvers/yup"
+import { Button, Card, CardContent, IconButton, Grid, Typography, Divider } from "@mui/material"
+import { useRouter } from "next/router"
+import React, { useEffect, useState } from "react"
+import { Controller, useFieldArray, useForm } from "react-hook-form"
+import { useDispatch, useSelector } from "react-redux"
+import CustomAutocomplete from "src/@core/components/mui/autocomplete"
+import CustomTextField from "src/@core/components/mui/text-field"
+import { fetchInvoiceListProductByWarehouseId } from "src/store/apps/delivery-order"
+import { fetchMasterDataProduct } from "src/store/apps/master/product"
+import { fetchMasterDataVendor } from "src/store/apps/master/vendor"
+import { fetchMasterDataWarehouse } from "src/store/apps/master/warehouse"
+import PickersComponent from "../forms/form-elements/pickers/PickersCustomInput"
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { priceFormat } from 'src/helpers/priceFormatter'
-import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
-import { Box } from '@mui/system'
-import ModalTransformProductSalesOrder from './ModalTransformProductSalesOrder'
+import { Box } from "@mui/system"
+import * as yup from 'yup'
+import Icon from 'src/@core/components/icon'
+import OptionsGroup from "src/helpers/groupedInput"
+import { priceFormat } from "src/helpers/priceFormatter"
+import { fetchMasterDataUnit } from "src/store/apps/master/unit"
+import { fetchOneMasterDataProductPrice } from "src/store/apps/master/product-price"
+import ModalTransformProductSalesOrder from "../sales-order/ModalTransformProductSalesOrder"
+import { createPurchaseOrder } from "src/store/apps/purchase-order"
 
-export default function AddSalesOrder({ }) {
+
+
+
+export default function AddPurchaseOrder({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
-
   const theme = useTheme()
   const { direction } = theme
   const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
+
+  // ** States
   const [date, setDate] = useState(new Date())
-  const [customerData, setCustomerData] = useState({})
-  const [openModalTransformation, setOpenModalTransformation] = useState(false)
-  const [transformationData, setTransformationData] = useState({})
+  const [vendorData, setVendorData] = useState({})
   const [warehouseId, setWarehouseId] = useState()
+  const [openModalTransformation, setOpenModalTransformation] = useState(false)
   const [helperTextChanges, setHelperTextChanges] = useState(false)
+  const [transformationData, setTransformationData] = useState({})
 
+  // ** Redux
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
-  const { data: masterCustomer } = useSelector(state => state.masterCustomer)
-  const { dataListProductWarehouse: listProduct } = useSelector(state => state.deliveryOrder)
+  const { data: masterVendor } = useSelector(state => state.masterVendor)
+  const { data: listMasterProduct } = useSelector(state => state.masterProduct)
+  const { dataListProductWarehouse: listProductBarter } = useSelector(state => state.deliveryOrder)
+  const { data: listMasterUnit } = useSelector(state => state.unit)
 
+  // ** Validation
   const schema = yup.object({
-    customerId: yup.string().required('Customer harus diisi'),
-    warehouseId: yup.string().required('Gudang asal harus diisi'),
+    vendorId: yup.string().required('Vendor harus diisi'),
+    warehouseId: yup.string().required('Gudang tujuan harus diisi'),
     grandTotal: yup.number().typeError('Grand Total harus ada'),
-    grandTotalCustomer: yup.number().typeError('Total Sales order harus ada'),
+    grandTotalVendor: yup.number().typeError('Total Purchase order harus ada'),
     grandTotalBarter: yup.number().typeError('Total Barter harus ada'),
     notes: yup.string().optional(),
     data: yup.array().of(
       yup.object({
-        warehouseProductId: yup.number().typeError('Id product warehouse harus diisi'),
-        price: yup.number().typeError('Price product harus diisi'),
+        masterProductId: yup.number().typeError('Produk harus diisi'),
+        unitId: yup.number().typeError('Satuan harus diisi').nonNullable('Satuan harus diisi'),
+        price: yup.number().typeError('Price product harus diisi').nonNullable('Price product harus diisi'),
         quantity: yup
           .number()
-          .typeError('Kuantiti harus diisi')
-          .test('max', 'Kuantiti tidak boleh lebih besar dari stock tersedia', function (value) {
-            const { qty } = this.parent
-            return value <= qty
-          })
-          .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
-            const num = Number(value)
-            return num >= 0
-          }),
+          .min(0, "Kuantiti tidak boleh minus")
+          .typeError('Kuantiti harus diisi'),
         subTotal: yup.number().typeError('Sub Total Product harus diisi')
       })
     ),
@@ -79,6 +83,10 @@ export default function AddSalesOrder({ }) {
               .number()
               .typeError('Kuantiti harus diisi')
               .required('Kuantiti barter harus diisi')
+              .test('max', 'Kuantiti tidak boleh lebih besar dari stock tersedia', function (value) {
+                const { qty } = this.parent
+                return value <= qty
+              })
               .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
                 return Number(value) >= 0
               }),
@@ -101,6 +109,7 @@ export default function AddSalesOrder({ }) {
     })
   })
 
+  // ** Forms
   const {
     control,
     handleSubmit,
@@ -114,14 +123,14 @@ export default function AddSalesOrder({ }) {
     resolver: yupResolver(schema)
   })
 
-  // Barang Sales Order
+  // ** Barang Purchase Order
   const { fields, remove, append, update } = useFieldArray({
     control,
     name: 'data'
   })
-  const formField = watch('data') // Watch for changes in 'data' to update totals
+  const formField = watch('data')
 
-  // Barang Barter
+  // ** Barang Barter
   const {
     fields: barterFields,
     remove: removeBarterProduct,
@@ -132,17 +141,45 @@ export default function AddSalesOrder({ }) {
   })
   const formBarter = watch('barterProduct')
 
-  const onSubmit = data => {
+  const addMore = () => {
+    append({ masterProductId: '', unitId: '', price: '', quantity: '', subTotal: '' })
+  }
+
+  const deleteItem = itemIndex => {
+    remove(itemIndex)
+  }
+
+  // ** Calculate Totals
+  const calculateTotals = () => {
+    // Calculate Purchase Order total
+    const purchaseOrderTotal = formField?.reduce((acc, item) => {
+      return acc + Number(item.quantity) * Number(item.price)
+    }, 0)
+
+    // Calculate Barter Product total
+    const barterTotal = formBarter?.reduce((acc, item) => {
+      return acc + Number(item.quantity) * Number(item.price)
+    }, 0)
+
+    // Calculate grand total
+    setValue('grandTotal', purchaseOrderTotal - barterTotal) // Update grand total
+    setValue('grandTotalVendor', purchaseOrderTotal) // Update total purchase order
+    setValue('grandTotalBarter', barterTotal) // Update total barter
+  }
+
+  // ** Handle Submit
+  const onSubmit = (data) => {
+
     const listItems = data.data
     const listBarter = data.barterProduct
 
-    // Map Barang Sales order
+    // Map Barang Purchase order
     const lastIndexMap = new Map()
     let duplicate = true
     let lastIndex = -1
     for (let i = 0; i < listItems.length; i++) {
-      const { warehouseProductId } = listItems[i]
-      const key = `${warehouseProductId}`
+      const { masterProductId, unitId } = listItems[i]
+      const key = `${masterProductId}-${unitId}`
       if (lastIndexMap.has(key)) {
         lastIndex = lastIndexMap.get(key)
       }
@@ -150,11 +187,10 @@ export default function AddSalesOrder({ }) {
     }
     // Check duplicate index
     lastIndex !== -1 ? lastIndex : (duplicate = false)
-    setError(`data[${lastIndex}].warehouseProductId`, {
+    setError(`data[${lastIndex}].masterProductId`, {
       type: 'duplicate',
       message: `Produk dan Satuan sudah dipilih`
     })
-
     // Map Barang Barang Barter
     if (listBarter.length > 0) {
       const lastIndexMap = new Map()
@@ -179,29 +215,22 @@ export default function AddSalesOrder({ }) {
     if (!duplicate) {
       let sendData = {
         warehouseId: +data.warehouseId,
-        customerId: +data.customerId,
+        vendorId: +data.vendorId,
         grandTotal: data.grandTotal,
-        grandTotalCustomer: data.grandTotalCustomer,
+        grandTotalVendor: data.grandTotalVendor,
         grandTotalBarter: data.grandTotalBarter,
         dueDate: date.toLocaleDateString('en-GB'),
         notes: data.notes,
         listProduct: listItems,
         listBarterProduct: listBarter
       }
-      dispatch(createSalesOrder({ data: sendData, router }))
+      dispatch(createPurchaseOrder({ data: sendData, router }))
     }
   }
 
-  const addMore = () => {
-    append({ warehouseProductId: '', price: '', quantity: '', subTotal: '' })
-  }
-
-  const deleteItem = itemIndex => {
-    remove(itemIndex)
-  }
-
+  // ** Handle Transform
   const onSelectTransform = (itemIndex) => {
-    let temp = getValues(`data.${itemIndex}`)
+    let temp = getValues(`barterProduct.${itemIndex}`)
     setTransformationData({ ...temp, indexForm: itemIndex })
     setOpenModalTransformation(true)
   }
@@ -210,53 +239,35 @@ export default function AddSalesOrder({ }) {
     calculateTotals()
   }, [formField, formBarter])
 
-  const calculateTotals = () => {
-    // Calculate Sales Order total
-    const salesOrderTotal = formField?.reduce((acc, item) => {
-      return acc + Number(item.quantity) * Number(item.price)
-    }, 0)
-
-    // Calculate Barter Product total
-    const barterTotal = formBarter?.reduce((acc, item) => {
-      return acc + Number(item.quantity) * Number(item.price)
-    }, 0)
-
-    // Calculate grand total
-    setValue('grandTotal', salesOrderTotal - barterTotal) // Update grand total
-    setValue('grandTotalCustomer', salesOrderTotal) // Update total sales order
-    setValue('grandTotalBarter', barterTotal) // Update total barter
-  }
-
   useEffect(() => {
     if (fields.length === 0) {
-      append({
-        warehouseProductId: '',
-        price: '',
-        quantity: '',
-        subTotal: ''
-      })
+      append({ masterProductId: '', unitId: '', price: '', quantity: '', subTotal: '' })
     }
     dispatch(fetchMasterDataWarehouse())
-    dispatch(fetchMasterDataCustomer())
-  }, [dispatch, listProduct])
-
-  const titleProductInfo = (index) => {
-    const infos = {
-      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${getValues(`data[${index}].unitName`) || '-'}`,
-      titleQuantity: `QTY: ${getValues(`data[${index}].qty`) || '-'}`,
-      titleTransformation: getValues(`data[${index}].quantity`) > 0 ? '| Transformasi Produk' : ''
-    }
-    return infos
-  }
+    dispatch(fetchMasterDataVendor())
+    dispatch(fetchMasterDataProduct())
+    dispatch(fetchMasterDataUnit())
+  }, [dispatch])
 
   useEffect(() => {
     // For transformation product
   }, [helperTextChanges])
 
+  const titleProductInfo = (index) => {
+    const infos = {
+      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${getValues(`barterProduct[${index}].unitName`) || '-'}`,
+      titleQuantity: `QTY: ${getValues(`barterProduct[${index}].qty`) || '-'}`,
+      titleTransformation: getValues(`barterProduct[${index}].quantity`) > 0 ? '| Transformasi Produk' : ''
+    }
+    return infos
+  }
+
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={6}>
+          {/* HEADER */}
           <Grid item xs={12}>
             <Card>
               <CardContent>
@@ -275,7 +286,6 @@ export default function AddSalesOrder({ }) {
                             onChange(+newValue?.id)
                             setWarehouseId(+newValue?.id)
                             dispatch(fetchInvoiceListProductByWarehouseId(+newValue?.id))
-                            remove()
                             removeBarterProduct()
                           }}
                           renderInput={params => (
@@ -286,7 +296,7 @@ export default function AddSalesOrder({ }) {
                               {...(errors?.warehouseId && {
                                 helperText: errors?.warehouseId.message
                               })}
-                              label='Gudang Sumber'
+                              label='Gudang Tujuan'
                             />
                           )}
                         />
@@ -295,27 +305,27 @@ export default function AddSalesOrder({ }) {
                   </Grid>
                   <Grid item xs={12} md={4}>
                     <Controller
-                      name={`customerId`}
+                      name={`vendorId`}
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
                         <CustomAutocomplete
-                          options={masterCustomer}
+                          options={masterVendor}
                           id='autocomplete-custom'
                           getOptionLabel={option => option.name || ''}
                           onChange={(event, newValue) => {
                             onChange(+newValue?.id || '')
-                            setCustomerData(newValue)
+                            setVendorData(newValue)
                           }}
                           renderInput={params => (
                             <CustomTextField
                               value={value}
                               {...params}
-                              error={Boolean(errors?.customerId)}
-                              {...(errors?.customerId && {
-                                helperText: errors?.customerId.message
+                              error={Boolean(errors?.vendorId)}
+                              {...(errors?.vendorId && {
+                                helperText: errors?.vendorId.message
                               })}
-                              label='Customer'
+                              label='Vendor'
                             />
                           )}
                         />
@@ -336,117 +346,133 @@ export default function AddSalesOrder({ }) {
                   </Grid>
                   <Grid item xs={12} md={4}>
                     <Box sx={{ display: 'flex-column', alignItems: 'left', textAlign: 'right' }}>
-                      <Typography sx={{ color: 'text.secondary' }}>{customerData?.email}</Typography>
-                      <Typography sx={{ color: 'text.secondary' }}>{customerData?.address}</Typography>
-                      <Typography sx={{ color: 'text.secondary' }}>{customerData?.phoneNumber}</Typography>
-                      <Typography sx={{ color: 'text.secondary' }}>{customerData?.rankName}</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>{vendorData?.email}</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>{vendorData?.address}</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>{vendorData?.phoneNumber}</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>{vendorData?.rankName}</Typography>
                     </Box>
                   </Grid>
                 </Grid>
               </CardContent>
             </Card>
           </Grid>
+          {/* BODY PURCHASE ORDER */}
           <Grid item xs={12}>
             <Card>
               <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
-                Barang Sales Order
+                Barang Purchase Order
               </Typography>
               {fields.map((item, index) => (
                 <React.Fragment key={item.id}>
                   <CardContent>
                     <Grid container spacing={6}>
-                      <Grid item xs={12} md={4}>
+                      <Grid item xs={12} md={3}>
                         <Controller
-                          name={`data[${index}].warehouseProductId`}
+                          name={`data[${index}].masterProductId`}
                           control={control}
                           rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
-                            <div>
-                              <CustomAutocomplete
-                                key={item.id}
-                                options={OptionsGroup(listProduct, 'categoryName')}
-                                groupBy={option => option.categoryName}
-                                id='autocomplete-grouped'
-                                getOptionLabel={option => option.productName || ''}
-                                value={listProduct.find(product => product.productWarehouseId === value) || null}
-                                onChange={(event, newValue) => {
-                                  onChange(+newValue?.productWarehouseId)
-                                  const selectedProduct = listProduct.find(
-                                    product => product.productWarehouseId === +newValue?.productWarehouseId
-                                  )
-                                  if (selectedProduct) {
-                                    setValue(`data[${index}].qty`, selectedProduct.quantity)
-                                    setValue(`data[${index}].masterProductId`, selectedProduct.masterProductId)
-                                    setValue(`data[${index}].rackName`, selectedProduct.rackName)
-                                    setValue(`data[${index}].unitName`, selectedProduct.unitName)
-                                    setHelperTextChanges(!helperTextChanges)
-                                    // Fetch price base on selected product
-                                    dispatch(
-                                      fetchOneMasterDataProductPrice({
-                                        productId: selectedProduct.masterProductId,
-                                        unitId: selectedProduct.masterUnitId
-                                      })
-                                    ).then(({ payload }) => {
-                                      // if price exist then switch to replace
-                                      if (payload.data) {
-                                        setValue(`data[${index}].price`, payload.data.basePrice)
-                                      } else {
-                                        setValue(`data[${index}].price`, 0)
-                                      }
-                                    })
-                                  } else {
-                                    setValue(`data[${index}].qty`, '')
-                                    setValue(`data[${index}].masterProductId`, '')
-                                    setValue(`data[${index}].rackName`, '')
-                                  }
-                                }}
-                                renderInput={params => (
-                                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                    <Box display="flex" alignItems="center" mb={0}>
-                                      <Box
-                                        component="span"
-                                        sx={{
-                                          fontWeight: '',
-                                          fontSize: '0.85rem',
-                                          mr: 1
-                                        }}>
-                                        {`Produk `}
-                                      </Box>
-                                      <Box
-                                        component="span"
-                                        sx={{ fontSize: '0.85rem', marginTop: '', cursor: 'pointer', ":hover": { color: 'blue' } }}
-                                        onClick={() => onSelectTransform(index)}
-                                      >
-                                        {titleProductInfo(index).titleTransformation}
-                                      </Box>
+                            <CustomAutocomplete
+                              key={item.id}
+                              options={OptionsGroup(listMasterProduct, 'category')}
+                              groupBy={option => option.category}
+                              id='autocomplete-grouped'
+                              getOptionLabel={option => option.name || ''}
+                              value={listMasterProduct.find(product => product.id === value) || null}
+                              onChange={(event, newValue) => {
+                                onChange(+newValue?.id)
+                                setValue(`data[${index}].unitId`, null)
+                              }}
+                              renderInput={params => (
+                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                  <Box display="flex" alignItems="center" mb={0}>
+                                    <Box
+                                      component="span"
+                                      sx={{
+                                        fontWeight: '',
+                                        fontSize: '0.85rem',
+                                        mr: 1
+                                      }}>
+                                      {`Produk `}
                                     </Box>
-                                    <CustomTextField
-                                      value={item.warehouseProductId}
-                                      {...params}
-                                      sx={{ zIndex: 0 }}
-                                      error={Boolean(errors?.data?.[index]?.warehouseProductId)}
-                                      {...(errors?.data?.[index]?.warehouseProductId && {
-                                        helperText: errors?.data?.[index]?.warehouseProductId.message
-                                      })}
-                                    />
                                   </Box>
-                                )}
-                              />
-                              <Typography
-                                variant='body2'
-                                color='textSecondary'
-                                sx={{ marginTop: '4px' }}
-                              >
-                                {titleProductInfo(index).titleProduct}
-                              </Typography>
-                            </div>
+                                  <CustomTextField
+                                    value={item.masterProductId}
+                                    {...params}
+                                    sx={{ zIndex: 0 }}
+                                    error={Boolean(errors?.data?.[index]?.masterProductId)}
+                                    {...(errors?.data?.[index]?.masterProductId && {
+                                      helperText: errors?.data?.[index]?.masterProductId.message
+                                    })}
+                                  />
+                                </Box>
+                              )}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={2}>
+                        <Controller
+                          name={`data[${index}].unitId`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomAutocomplete
+                              key={item.id}
+                              options={listMasterUnit}
+                              id='autocomplete-grouped'
+                              getOptionLabel={option => option.name || ''}
+                              value={listMasterUnit.find(unit => unit.id === value) || null}
+                              onChange={(event, newValue) => {
+                                onChange(+newValue?.id)
+                                const selectedProduct = getValues(`data[${index}].masterProductId`)
+                                if (selectedProduct && newValue) {
+                                  dispatch(
+                                    fetchOneMasterDataProductPrice({
+                                      productId: selectedProduct,
+                                      unitId: newValue?.id
+                                    })
+                                  ).then(({ payload }) => {
+                                    if (payload.data) {
+                                      setValue(`data[${index}].price`, payload.data.basePrice)
+                                    } else {
+                                      setValue(`data[${index}].price`, null)
+                                    }
+                                  })
+                                }
+                              }}
+                              renderInput={params => (
+                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                  <Box display="flex" alignItems="center" mb={0}>
+                                    <Box
+                                      component="span"
+                                      sx={{
+                                        fontWeight: '',
+                                        fontSize: '0.85rem',
+                                        mr: 1
+                                      }}>
+                                      {`Unit `}
+                                    </Box>
+                                  </Box>
+                                  <CustomTextField
+                                    value={item.unitId}
+                                    {...params}
+                                    sx={{ zIndex: 0 }}
+                                    error={Boolean(errors?.data?.[index]?.unitId)}
+                                    {...(errors?.data?.[index]?.unitId && {
+                                      helperText: errors?.data?.[index]?.unitId.message
+                                    })}
+                                  />
+                                </Box>
+                              )}
+                            />
                           )}
                         />
                       </Grid>
                       <Grid
                         key={getValues(`data[${index}].warehouseProductId`)}
-                        item xs={5}
-                        md={2}
+                        item xs={3}
+                        md={1.5}
                       >
                         <Controller
                           name={`data[${index}].quantity`}
@@ -464,7 +490,6 @@ export default function AddSalesOrder({ }) {
                                   const newSubTotal = newQuantity * currentPrice
                                   onChange(newQuantity || '')
                                   if (parseInt(newSubTotal, 10) > 0) {
-                                    setHelperTextChanges(!helperTextChanges)
                                     setValue(`data[${index}].subTotal`, newSubTotal)
                                   }
                                   if (
@@ -482,12 +507,6 @@ export default function AddSalesOrder({ }) {
                                   helperText: errors?.data?.[index]?.quantity.message
                                 })}
                               />
-                              <Typography
-                                variant='body2'
-                                color='textSecondary'
-                              >
-                                {titleProductInfo(index).titleQuantity}
-                              </Typography>
                             </div>
                           )}
                         />
@@ -531,7 +550,7 @@ export default function AddSalesOrder({ }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={3}>
+                      <Grid item xs={5} md={2.5}>
                         <Controller
                           name={`data[${index}].subTotal`}
                           control={control}
@@ -573,20 +592,20 @@ export default function AddSalesOrder({ }) {
                   </Grid>
                   <Grid item xs={12} md={2}>
                     <Controller
-                      name={`grandTotalCustomer`}
+                      name={`grandTotalVendor`}
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange } }) => (
                         <CustomTextField
                           fullWidth
-                          label='Total Sales Order'
+                          label='Total Purchase Order'
                           value={value ? priceFormat(value) : '0'}
                           type='text'
                           disabled
                           sx={{ display: 'block' }}
-                          error={Boolean(errors?.grandTotalCustomer)}
-                          {...(errors?.grandTotalCustomer && {
-                            helperText: errors?.grandTotalCustomer.message
+                          error={Boolean(errors?.grandTotalVendor)}
+                          {...(errors?.grandTotalVendor && {
+                            helperText: errors?.grandTotalVendor.message
                           })}
                         />
                       )}
@@ -596,6 +615,7 @@ export default function AddSalesOrder({ }) {
               </CardContent>
             </Card>
           </Grid>
+          {/* BODY PURCHASE ORDER BARTER */}
           <Grid item xs={12}>
             <Card>
               <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
@@ -609,25 +629,26 @@ export default function AddSalesOrder({ }) {
                         <Controller
                           name={`barterProduct[${index}].warehouseProductId`}
                           control={control}
-                          // rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
                             <div>
                               <CustomAutocomplete
                                 key={item.id}
-                                options={OptionsGroup(listProduct, 'categoryName')}
+                                options={OptionsGroup(listProductBarter, 'categoryName')}
                                 groupBy={option => option.categoryName}
                                 id='autocomplete-grouped'
                                 getOptionLabel={option => option.productName || ''}
+                                value={listProductBarter.find(product => product.productWarehouseId === value) || null}
                                 onChange={(event, newValue) => {
                                   onChange(+newValue?.productWarehouseId)
-                                  const selectedProduct = listProduct.find(
+                                  const selectedProduct = listProductBarter.find(
                                     product => product.productWarehouseId === +newValue?.productWarehouseId
                                   )
                                   if (selectedProduct) {
                                     setValue(`barterProduct[${index}].qty`, selectedProduct.quantity)
                                     setValue(`barterProduct[${index}].masterProductId`, selectedProduct.masterProductId)
                                     setValue(`barterProduct[${index}].rackName`, selectedProduct.rackName)
-
+                                    setValue(`barterProduct[${index}].unitName`, selectedProduct.unitName)
+                                    setHelperTextChanges(!helperTextChanges)
                                     // Fetch price base on selected product
                                     dispatch(
                                       fetchOneMasterDataProductPrice({
@@ -638,6 +659,8 @@ export default function AddSalesOrder({ }) {
                                       // if price exist then switch to replace
                                       if (payload.data) {
                                         setValue(`barterProduct[${index}].price`, payload.data.basePrice)
+                                      } else {
+                                        setValue(`barterProduct[${index}].price`, 0)
                                       }
                                     })
                                   } else {
@@ -647,65 +670,96 @@ export default function AddSalesOrder({ }) {
                                   }
                                 }}
                                 renderInput={params => (
-                                  <CustomTextField
-                                    value={item.warehouseProductId}
-                                    {...params}
-                                    sx={{ zIndex: 0 }}
-                                    error={Boolean(errors?.barterProduct?.[index]?.warehouseProductId)}
-                                    {...(errors?.barterProduct?.[index]?.warehouseProductId && {
-                                      helperText: errors?.barterProduct?.[index]?.warehouseProductId.message
-                                    })}
-                                    label='Produk'
-                                  />
+                                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    <Box display="flex" alignItems="center" mb={0}>
+                                      <Box
+                                        component="span"
+                                        sx={{
+                                          fontWeight: '',
+                                          fontSize: '0.85rem',
+                                          mr: 1
+                                        }}>
+                                        {`Produk `}
+                                      </Box>
+                                      <Box
+                                        component="span"
+                                        sx={{ fontSize: '0.85rem', marginTop: '', cursor: 'pointer', ":hover": { color: 'blue' } }}
+                                        onClick={() => onSelectTransform(index)}
+                                      >
+                                        {titleProductInfo(index).titleTransformation}
+                                      </Box>
+                                    </Box>
+                                    <CustomTextField
+                                      value={item.warehouseProductId}
+                                      {...params}
+                                      sx={{ zIndex: 0 }}
+                                      error={Boolean(errors?.barterProduct?.[index]?.warehouseProductId)}
+                                      {...(errors?.barterProduct?.[index]?.warehouseProductId && {
+                                        helperText: errors?.barterProduct?.[index]?.warehouseProductId.message
+                                      })}
+                                    />
+                                  </Box>
                                 )}
                               />
                               <Typography
-                                variant='body2' // Adjusts the size (you can change this to 'body1' or 'subtitle2' for larger text)
-                                color='textSecondary' // This can be customized to another color, like 'primary', 'secondary', etc.
-                                sx={{ marginTop: '4px' }} // Adds some spacing between the input and the text
+                                variant='body2'
+                                color='textSecondary'
+                                sx={{ marginTop: '4px' }}
                               >
-                                Rack: {getValues(`barterProduct[${index}].rackName`) || '-'} | Qty:{' '}
-                                {getValues(`barterProduct[${index}].qty`) || '0'}
+                                {titleProductInfo(index).titleProduct}
                               </Typography>
                             </div>
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={2}>
+                      <Grid
+                        key={getValues(`barterProduct[${index}].warehouseProductId`)}
+                        item xs={5}
+                        md={2}
+                      >
                         <Controller
                           name={`barterProduct[${index}].quantity`}
                           control={control}
-                          // rules={{ required: true }}
+                          rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Kuantiti'
-                              value={value}
-                              onChange={e => {
-                                const newQuantity = +e.target.value
-                                const currentPrice = formBarter[index].price || 0
-                                const newSubTotal = newQuantity * currentPrice
+                            <div>
+                              <CustomTextField
+                                fullWidth
+                                label='Kuantiti'
+                                value={value}
+                                onChange={e => {
+                                  const newQuantity = +e.target.value
+                                  const currentPrice = formBarter[index]?.price || 0
+                                  const newSubTotal = newQuantity * currentPrice
+                                  console.log(newQuantity, currentPrice, newSubTotal);
 
-                                // Update the quantity and the subtotal
-                                onChange(newQuantity || '')
-                                if (parseInt(newSubTotal, 10) > 0) {
-                                  setValue(`barterProduct[${index}].subTotal`, newSubTotal)
-                                }
-                                if (
-                                  formBarter[index].quantity &&
-                                  formBarter[index].price &&
-                                  parseInt(formBarter[index].quantity, 10) > 0
-                                ) {
-                                  calculateTotals()
-                                }
-                              }}
-                              type='number'
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors?.barterProduct?.[index]?.quantity)}
-                              {...(errors?.barterProduct?.[index]?.quantity && {
-                                helperText: errors?.barterProduct?.[index]?.quantity.message
-                              })}
-                            />
+                                  onChange(newQuantity || '')
+                                  if (parseInt(newSubTotal, 10) > 0) {
+                                    setHelperTextChanges(!helperTextChanges)
+                                    setValue(`barterProduct[${index}].subTotal`, newSubTotal)
+                                  }
+                                  if (
+                                    formBarter[index]?.quantity &&
+                                    formBarter[index]?.price &&
+                                    parseInt(formBarter[index]?.quantity, 10) > 0
+                                  ) {
+                                    calculateTotals()
+                                  }
+                                }}
+                                type='number'
+                                sx={{ display: 'block' }}
+                                error={Boolean(errors?.barterProduct?.[index]?.quantity)}
+                                {...(errors?.barterProduct?.[index]?.quantity && {
+                                  helperText: errors?.barterProduct?.[index]?.quantity.message
+                                })}
+                              />
+                              <Typography
+                                variant='body2'
+                                color='textSecondary'
+                              >
+                                {titleProductInfo(index).titleQuantity}
+                              </Typography>
+                            </div>
                           )}
                         />
                       </Grid>
@@ -816,6 +870,7 @@ export default function AddSalesOrder({ }) {
               </CardContent>
             </Card>
           </Grid>
+          {/* GRAND TOTAL */}
           <Grid item xs={12}>
             <Card>
               <CardContent>
@@ -868,6 +923,7 @@ export default function AddSalesOrder({ }) {
               </CardContent>
             </Card>
           </Grid>
+          {/* BUTTON SUBMIT */}
           <Grid
             container
             sx={{ paddingLeft: '25px', marginTop: '20px' }}
@@ -904,5 +960,6 @@ export default function AddSalesOrder({ }) {
         />
       }
     </>
+
   )
 }

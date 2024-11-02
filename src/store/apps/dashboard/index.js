@@ -181,6 +181,19 @@ export const fetchDashboardSummaryCustomer = createAsyncThunk('appDashboard/fetc
   }
 })
 
+export const fetchDashboardSummaryVendor = createAsyncThunk('appDashboard/fetchDashboardSummaryVendor', async ({ id }, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/summary-vendor/' + id,
+    })
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
 // REDUCER DASHBOARD
 export const appMasterRankSlice = createSlice({
   name: 'appDashboard',
@@ -227,6 +240,11 @@ export const appMasterRankSlice = createSlice({
     dataDashboardSummaryCustomer: [],
     loadingDashboardSummaryCustomer: false,
     errorDashboardSummaryCustomer: false,
+
+    // DASHBOARD SUMMARY VENDOR
+    dataDashboardSummaryVendor: [],
+    loadingDashboardSummaryVendor: false,
+    errorDashboardSummaryVendor: false,
   },
   reducers: {},
   extraReducers: builder => {
@@ -360,6 +378,19 @@ export const appMasterRankSlice = createSlice({
       .addCase(fetchDashboardSummaryCustomer.rejected, (state, action) => {
         state.loadingDashboardSummaryCustomer = false
         state.errorDashboardSummaryCustomer = true
+      })
+      // DATA DASHBOARD SUMMARY VENDOR
+      .addCase(fetchDashboardSummaryVendor.fulfilled, (state, action) => {
+        state.loadingDashboardSummaryVendor = false
+        state.dataDashboardSummaryVendor = action.payload
+      })
+      .addCase(fetchDashboardSummaryVendor.pending, (state, action) => {
+        state.dataDashboardSummaryVendor = []
+        state.loadingDashboardSummaryVendor = true
+      })
+      .addCase(fetchDashboardSummaryVendor.rejected, (state, action) => {
+        state.loadingDashboardSummaryVendor = false
+        state.errorDashboardSummaryVendor = true
       })
   }
 })

@@ -33,6 +33,8 @@ import dashboard from './apps/dashboard'
 import salesOrder from './apps/sales-order'
 import salesOrderPayment from './apps/sales-order-payment'
 import masterVendor from './apps/master/vendor'
+import purchaseOrder from './apps/purchase-order'
+import purchaseOrderPayment from './apps/purchase-order-payment'
 
 export const store = configureStore({
   reducer: {
@@ -65,7 +67,9 @@ export const store = configureStore({
     salesOrder,
     masterProductPrice,
     salesOrderPayment,
-    masterVendor
+    masterVendor,
+    purchaseOrder,
+    purchaseOrderPayment,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

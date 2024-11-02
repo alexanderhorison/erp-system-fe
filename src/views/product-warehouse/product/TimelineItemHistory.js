@@ -12,6 +12,8 @@ import BoxCode from "./BoxCode";
 
 
 export default function TimelineItemHistory(props) {
+  console.log(props);
+
   return (
     <TimelineItem>
       <TimelineSeparator>
@@ -96,11 +98,13 @@ export default function TimelineItemHistory(props) {
           />
           <BoxCode value={props?.goodsOut} isClickable url={`/adjustment/goods-out/${props?.goodsOutCode}`} />
           <BoxCode value={props?.salesOrder} isClickable url={`/sales-order/${props?.salesOrderCode}`} />
+          <BoxCode value={props?.purchaseOrder} isClickable url={`/purchase-order/${props?.purchaseOrderCode}`} />
           {props?.notes && (
             <Grid xs={12} md={5} mt={2}>
               <CustomSimpleAccordion title='Catatan' content={props?.notes} />
             </Grid>
           )}
+
         </Box>
       </TimelineContent>
     </TimelineItem>

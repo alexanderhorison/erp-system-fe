@@ -22,7 +22,7 @@ import themeConfig from 'src/configs/themeConfig'
 import { useDispatch, useSelector } from 'react-redux'
 import { Card, CardContent, Box, CircularProgress } from '@mui/material'
 import { companyInfo } from 'src/data/companyInfo'
-import { fetchDetailSalesOrder } from 'src/store/apps/sales-order'
+import { fetchDetailPurchaseOrder } from 'src/store/apps/purchase-order'
 import { Status } from 'src/@core/components/common'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { CompanySvg } from 'src/data/companySvg'
@@ -35,16 +35,16 @@ const MUITableCell = styled(TableCell)(({ theme }) => ({
   paddingBottom: `${theme.spacing(1)} !important`
 }))
 
-const PrintSalesOrder = ({ id }) => {
+const PrintPurchaseOrder = ({ id }) => {
   // ** Hooks
   const theme = useTheme()
   const dispatch = useDispatch()
 
   const {
-    detailSalesOrder: data,
-    errorDetailSalesOrder,
-    loadingDetailSalesOrder
-  } = useSelector(state => state.salesOrder)
+    detailPurchaseOrder: data,
+    errorDetailPurchaseOrder,
+    loadingDetailPurchaseOrder
+  } = useSelector(state => state.purchaseOrder)
 
   useEffect(() => {
     if (data?.code === id) {
@@ -52,13 +52,16 @@ const PrintSalesOrder = ({ id }) => {
         window.print()
       }, 200)
     }
-  }, [loadingDetailSalesOrder])
+  }, [loadingDetailPurchaseOrder])
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchDetailSalesOrder(id))
+      dispatch(fetchDetailPurchaseOrder(id))
     }
   }, [id, dispatch])
+
+  console.log(data);
+
 
   if (data) {
     return (
@@ -87,7 +90,7 @@ const PrintSalesOrder = ({ id }) => {
                   <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
                     <TableRow>
                       <MUITableCell>
-                        <Typography variant='h6'>Sales Order</Typography>
+                        <Typography variant='h6'>Purchase Order</Typography>
                         <Typography variant='h6'>{`#${data.code}`}</Typography>
                       </MUITableCell>
                     </TableRow>
@@ -104,24 +107,32 @@ const PrintSalesOrder = ({ id }) => {
           </Grid>
         </CardContent>
         <Divider />
-        <CardContent sx={{ p: [`${theme.spacing(6)} !important`, `${theme.spacing(10)} !important`] }}>
+        <CardContent >
           <Grid container>
-            <Grid item xs={6} sm={5} sx={{ mb: { lg: 0, xs: 4 } }}>
+            {/* <Grid item xs={12} sx={{ mb: { lg: 0, xs: 4 } }}>
               <Typography variant='h6' sx={{ mb: 2 }}>
-                Tagihan Kepada
+                Gudang Tujuan
               </Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.name.toUpperCase() || ''}</Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.address.toUpperCase() || ''}</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseName?.toUpperCase() || ''}</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseLocation?.toUpperCase() || ''}</Typography>
+            </Grid> */}
+            <Grid item xs={12} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
+              <div>
+                <Typography variant='h6' sx={{ mb: 2 }}>
+                  Vendor
+                </Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.name?.toUpperCase() || ''}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.address?.toUpperCase() || ''}</Typography>
+              </div>
             </Grid>
-            <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}></Grid>
           </Grid>
         </CardContent>
 
         <Divider />
 
-        <TableContainer >
+        <TableContainer>
           <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
-            Barang Sales Order
+            Barang Purchase Order
           </Typography>
           <Table>
             <TableHead>
@@ -155,8 +166,8 @@ const PrintSalesOrder = ({ id }) => {
             </TableBody>
           </Table>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
-            <Typography sx={{ paddingTop: 2, mr: 5 }}>Total Sales Order:</Typography>
-            <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalCustomer)}</Typography>
+            <Typography sx={{ paddingTop: 2, mr: 5 }}>Total Purchase Order:</Typography>
+            <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalVendor)}</Typography>
           </Box>
         </TableContainer>
         {data?.listBarterProducts?.length > 0 && (
@@ -234,26 +245,26 @@ const PrintSalesOrder = ({ id }) => {
         <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
           <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
             <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
-              {data?.grandTotal < 0
+              {data?.grandTotal > 0
                 ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
                   data?.grandTotal
                 ).toLocaleString()}`
-                : `Customer ${data?.customer?.name?.toUpperCase() || ''
+                : `Vendor ${data?.vendor?.name?.toUpperCase() || ''
                 } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
             </Typography>
           </Box>
         </CardContent>
 
-        <Divider />
+        {/* <Divider /> */}
 
-        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`], mt: 5 }}>
+        {/* <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`], mt: 5 }}>
           <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
             <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
               Silahkan transfer ke rekening:
             </Typography>
             <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>{companyInfo.bank}</Typography>
           </Box>
-        </CardContent>
+        </CardContent> */}
 
         <Divider />
 
@@ -288,20 +299,20 @@ const PrintSalesOrder = ({ id }) => {
         </CardContent>
       </Card>
     )
-  } else if (errorDetailSalesOrder) {
+  } else if (errorDetailPurchaseOrder) {
     return (
       <Box sx={{ p: 5 }}>
         <Grid container spacing={6}>
           <Grid item xs={12}>
             <Alert severity='error'>
-              Sales Order: {id} Tidak Ditemukan. Mohon cek list sales order:{' '}
-              <Link href='/sales-order'>Sales Order</Link>
+              Purchase Order: {id} Tidak Ditemukan. Mohon cek list purchase order:{' '}
+              <Link href='/purchase-order'>Purchase Order</Link>
             </Alert>
           </Grid>
         </Grid>
       </Box>
     )
-  } else if (loadingDetailSalesOrder) {
+  } else if (loadingDetailPurchaseOrder) {
     return (
       <Box sx={{ mt: 11, width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
         <CircularProgress sx={{ mb: 4 }} />
@@ -311,4 +322,4 @@ const PrintSalesOrder = ({ id }) => {
   }
 }
 
-export default PrintSalesOrder
+export default PrintPurchaseOrder

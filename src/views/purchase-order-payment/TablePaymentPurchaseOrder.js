@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import { Box, Card, IconButton, Typography } from '@mui/material'
 
@@ -10,85 +9,105 @@ import { DataGrid } from '@mui/x-data-grid'
 
 import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
-import { Status } from 'src/@core/components/common'
 import renderClient from 'src/helpers/renderClient'
-import { fetchAllPurchaseOrder, fetchAllPurchaseOrderVendor } from 'src/store/apps/purchase-order'
-import TableHeaderPurchaseOrderVendor from './TableHeaderPurchaseOrderVendor'
+import { priceFormat } from 'src/helpers/priceFormatter'
+import TableHeaderPayment from './TableHeaderPaymentPurchaseOrder'
+import ModalAddPayment from './ModalAddPaymentPurchaseOrder'
 
-const RowOptions = ({ handleView, handleEdit }) => {
+const RowOptions = ({ handleView }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <IconButton onClick={handleView}>
           <Icon icon='tabler:eye' />
         </IconButton>
-        {/* <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton> */}
       </Box>
     </>
   )
 }
 
-export default function TablePurchaseOrderVendor() {
-  const dispatch = useDispatch()
-  const router = useRouter()
-  const id = router.query.id
+export default function TablePaymentPurchaseOrder({ purchaseOrderData }) {
+  const [openModalAdd, setOpenModalAdd] = useState(false)
+  const [openModalView, setOpenModalView] = useState(false)
+  const [detailPayment, setDetailPayment] = useState({})
+
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  const { dataPurchaseOrderVendor: data, loadingDataPurchaseOrderVendor: loading } = useSelector(state => state.purchaseOrder)
+  const { dataPurchaseOrderPayment: data } = useSelector(state => state.purchaseOrderPayment)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
     HandleSearh({
       data,
-      keys: ['code'],
+      keys: ['typePayment', 'dateCreated'],
       searchValue,
       setData: setFilteredData
     })
   }
 
   const handleRowClick = params => {
-    const id = params?.code || params?.row?.code
-    router.push(`/purchase-order/${id}`)
-  }
-
-  const handleRowEdit = params => {
-    const id = params?.code || params?.row?.code
-    router.push(`/purchase-order/edit/${id}`)
+    setDetailPayment(params?.row)
+    setOpenModalView(true)
   }
 
   useEffect(() => {
-    dispatch(fetchAllPurchaseOrderVendor({
-      id
-    }))
-  }, [id])
-
-  useEffect(() => {
-    setFilteredData(data) // If no year filter, show all data
+    setFilteredData(data)
   }, [data])
 
   return (
     <Card>
+      {openModalAdd && (
+        <ModalAddPayment
+          open={openModalAdd}
+          setOpen={setOpenModalAdd}
+          typeModal={'ADD'}
+          purchaseOrderId={purchaseOrderData?.id}
+          amountDebt={purchaseOrderData?.amountDebt}
+          purchaseOrderCode={purchaseOrderData?.code}
+        />
+      )}
+      {openModalView && (
+        <ModalAddPayment
+          open={openModalView}
+          setOpen={setOpenModalView}
+          typeModal={'VIEW'}
+          purchaseOrderId={purchaseOrderData?.id}
+          detailPayment={detailPayment}
+        />
+      )}
       <DataGrid
-        loading={loading}
         autoHeight
         columns={[
           {
             flex: 0.1,
-            minWidth: 100,
-            field: 'code',
-            headerName: 'Kode',
+            minWidth: 200,
+            field: 'typePayment',
+            headerName: 'Tipe Pembayaran',
             cellClassName: {
               cursor: 'pointer'
             },
             renderCell: params => {
               return (
                 <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.code}
+                  {params.row.typePayment}
+                </Typography>
+              )
+            }
+          },
+          {
+            flex: 0.15,
+            minWidth: 120,
+            field: 'amount',
+            headerName: 'Jumlah Pembayaran',
+            cellClassName: {
+              cursor: 'pointer'
+            },
+            renderCell: params => {
+              return (
+                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
+                  Rp. {priceFormat(params.row.amount)}
                 </Typography>
               )
             }
@@ -97,7 +116,7 @@ export default function TablePurchaseOrderVendor() {
             flex: 0.15,
             minWidth: 120,
             field: 'createdAt',
-            headerName: 'Tanggal Dibuat',
+            headerName: 'Tanggal Dibayar',
             renderCell: params => {
               return (
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -106,24 +125,6 @@ export default function TablePurchaseOrderVendor() {
                   </Typography>
                   <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
                     {returnFormatTime(params.row.createdAt)}
-                  </Typography>
-                </Box>
-              )
-            }
-          },
-          {
-            flex: 0.15,
-            minWidth: 120,
-            field: 'approvedAt',
-            headerName: 'Tanggal Diterima',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.dateApproved}
-                  </Typography>
-                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.approvedAt)}
                   </Typography>
                 </Box>
               )
@@ -143,52 +144,24 @@ export default function TablePurchaseOrderVendor() {
                     <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
                       {row.createdBy.name}
                     </Typography>
-                    <Typography noWrap variant='caption'>
-                      {row.createdBy.roleName}
-                    </Typography>
                   </Box>
                 </Box>
               )
             }
           },
           {
-            flex: 0.16,
-            minWidth: 120,
-            field: 'warehouseName',
-            headerName: 'Gudang',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.warehouseName}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.07,
-            minWidth: 120,
-            field: 'status',
-            headerName: 'Status',
-            renderCell: params => {
-              const { row } = params
-              return <Status status={row.status} />
-            }
-          },
-          {
-            flex: 0.01,
+            flex: 0.1,
             minWidth: 100,
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => (
-              <RowOptions handleView={() => handleRowClick(row)} handleEdit={() => handleRowEdit(row)} />
-            )
+            renderCell: params => <RowOptions handleView={() => handleRowClick(params)} />
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         onCellClick={handleRowClick}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderPurchaseOrderVendor }}
+        slots={{ toolbar: TableHeaderPayment }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
         sx={{
@@ -206,9 +179,11 @@ export default function TablePurchaseOrderVendor() {
           },
           toolbar: {
             value: searchText,
-            placeholder: 'Cari purchase order',
+            placeholder: 'Cari Payment',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
+            openModalAdd: setOpenModalAdd,
+            data: purchaseOrderData
           }
         }}
       />
