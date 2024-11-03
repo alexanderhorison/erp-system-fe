@@ -44,7 +44,7 @@ export default function SummaryVendor() {
             <Icon icon={icon[item.name]} fontSize='1.5rem' />
           </CustomAvatar>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography variant='h5'>{item.name !== "totalSalesOrder" ? priceFormatWIthCurrency(item.value) : item.value}</Typography>
+            <Typography variant='h5'>{item.name !== "totalPurchaseOrder" ? priceFormatWIthCurrency(item.value) : item.value}</Typography>
             <Typography variant='body2'>{item.title}</Typography>
           </Box>
         </Box>
