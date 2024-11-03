@@ -11,17 +11,17 @@ import { fetchDashboardSummaryVendor } from "src/store/apps/dashboard";
 import { priceFormatWIthCurrency } from "src/helpers/priceFormatter";
 
 const icon = {
-  'totalSalesOrder': 'tabler:shopping-cart',
-  'totalAmountSalesOrder': 'tabler:moneybag',
-  'totalAmountPaymentSalesOrder': 'tabler:currency-dollar',
-  'totalAmountDebtSalesOrder': 'tabler:file-dollar',
+  'totalPurchaseOrder': 'tabler:shopping-cart',
+  'totalAmountPurchaseOrder': 'tabler:moneybag',
+  'totalAmountPaymentPurchaseOrder': 'tabler:currency-dollar',
+  'totalAmountDebtPurchaseOrder': 'tabler:file-dollar',
 }
 
 const color = {
-  'totalSalesOrder': 'primary',
-  'totalAmountSalesOrder': 'info',
-  'totalAmountPaymentSalesOrder': 'success',
-  'totalAmountDebtSalesOrder': 'error',
+  'totalPurchaseOrder': 'primary',
+  'totalAmountPurchaseOrder': 'info',
+  'totalAmountPaymentPurchaseOrder': 'success',
+  'totalAmountDebtPurchaseOrder': 'error',
 }
 
 export default function SummaryVendor() {
