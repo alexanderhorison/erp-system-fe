@@ -28,8 +28,8 @@ export default function DetailMasterVendor() {
       icon: 'tabler:wallet',
     },
     {
-      label: 'Sales Order',
-      value: 'sales-order',
+      label: 'Purchase Order',
+      value: 'purchase-order',
       icon: 'tabler:truck-delivery',
     }
   ]
@@ -58,7 +58,7 @@ export default function DetailMasterVendor() {
         )
       }
       {
-        activeTab === 'sales-order' && (
+        activeTab === 'purchase-order' && (
           <Grid item xs={12}>
             <TablePurchaseOrderVendor />
           </Grid>
