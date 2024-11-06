@@ -18,7 +18,9 @@ export default function DetailMasterVendor() {
   const { loadingDetail, detail: detailVendor } = useSelector(state => state.masterVendor)
 
   useEffect(() => {
-    dispatch(fetchMasterDataVendorDetail(query.id))
+    if (query?.id){
+      dispatch(fetchMasterDataVendorDetail(query?.id))
+    }
   }, [query.id])
 
   const tabList = [

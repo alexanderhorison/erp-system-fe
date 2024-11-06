@@ -18,7 +18,9 @@ export default function DetailMasterCustomer() {
   const { loadingDetail, detail: detailCustomer } = useSelector(state => state.masterCustomer)
 
   useEffect(() => {
-    dispatch(fetchMasterDataCustomerDetail(query.id))
+    if (query?.id){
+      dispatch(fetchMasterDataCustomerDetail(query.id))
+    }
   }, [query.id])
 
   const tabList = [

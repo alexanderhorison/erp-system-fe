@@ -14,6 +14,7 @@ const icon = {
   'totalSalesOrder': 'tabler:shopping-cart',
   'totalAmountSalesOrder': 'tabler:moneybag',
   'totalAmountPaymentSalesOrder': 'tabler:currency-dollar',
+  'totalAmountBarterSalesOrder': 'tabler:arrows-exchange',
   'totalAmountDebtSalesOrder': 'tabler:file-dollar',
 }
 
@@ -21,6 +22,7 @@ const color = {
   'totalSalesOrder': 'primary',
   'totalAmountSalesOrder': 'info',
   'totalAmountPaymentSalesOrder': 'success',
+  'totalAmountBarterSalesOrder': 'primary',
   'totalAmountDebtSalesOrder': 'error',
 }
 
@@ -33,12 +35,14 @@ export default function SummaryCustomer() {
   const { dataDashboardSummaryCustomer: data, loadingDashboardSummaryCustomer: loading } = useSelector(state => state.dashboard)
 
   useEffect(() => {
-    dispatch(fetchDashboardSummaryCustomer({ id }))
+    if (id){
+      dispatch(fetchDashboardSummaryCustomer({ id }))
+    }
   }, [id])
 
   const renderStats = () => {
     return data.map((item, index) => (
-      <Grid item xs={6} md={3} key={index}>
+      <Grid item xs={12} md={2.3} key={index}>
         <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
           <CustomAvatar skin='light' color={color[item.name]} sx={{ mr: 4, width: 42, height: 42 }}>
             <Icon icon={icon[item.name]} fontSize='1.5rem' />

@@ -15,6 +15,7 @@ const icon = {
   'totalAmountPurchaseOrder': 'tabler:moneybag',
   'totalAmountPaymentPurchaseOrder': 'tabler:currency-dollar',
   'totalAmountDebtPurchaseOrder': 'tabler:file-dollar',
+  'totalAmountBarterPurchaseOrder': 'tabler:arrows-exchange',
 }
 
 const color = {
@@ -22,6 +23,7 @@ const color = {
   'totalAmountPurchaseOrder': 'info',
   'totalAmountPaymentPurchaseOrder': 'success',
   'totalAmountDebtPurchaseOrder': 'error',
+  'totalAmountBarterPurchaseOrder': 'primary',
 }
 
 export default function SummaryVendor() {
@@ -33,12 +35,14 @@ export default function SummaryVendor() {
   const { dataDashboardSummaryVendor: data, loadingDashboardSummaryVendor: loading } = useSelector(state => state.dashboard)
 
   useEffect(() => {
-    dispatch(fetchDashboardSummaryVendor({ id }))
+    if (id){
+      dispatch(fetchDashboardSummaryVendor({ id }))
+    }
   }, [id])
 
   const renderStats = () => {
     return data.map((item, index) => (
-      <Grid item xs={6} md={3} key={index}>
+      <Grid item xs={12} md={2.3} key={index}>
         <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
           <CustomAvatar skin='light' color={color[item.name]} sx={{ mr: 4, width: 42, height: 42 }}>
             <Icon icon={icon[item.name]} fontSize='1.5rem' />
