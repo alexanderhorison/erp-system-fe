@@ -34,6 +34,7 @@ import salesOrder from './apps/sales-order'
 import salesOrderPayment from './apps/sales-order-payment'
 import masterVendor from './apps/master/vendor'
 import purchaseOrder from './apps/purchase-order'
+import termsOfPayment from './apps/purchase-order/terms-of-payment'
 import purchaseOrderPayment from './apps/purchase-order-payment'
 
 export const store = configureStore({
@@ -70,6 +71,7 @@ export const store = configureStore({
     masterVendor,
     purchaseOrder,
     purchaseOrderPayment,
+    termsOfPayment,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

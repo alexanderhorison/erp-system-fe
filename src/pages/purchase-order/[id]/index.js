@@ -14,6 +14,8 @@ import DetailPagePurchaseOrder from 'src/views/purchase-order/DetailPagePurchase
 import { fetchAllPurchaseOrderPayment, resetPurchaseOrderPayments } from 'src/store/apps/purchase-order-payment'
 
 import TablePaymentPurchaseOrder from 'src/views/purchase-order-payment/TablePaymentPurchaseOrder'
+import TableTermsOfPayment from 'src/views/purchase-order/terms-of-payment/TableTermsOfPayment'
+import { fetchAllTermsOfPaymentByCode } from 'src/store/apps/purchase-order/terms-of-payment'
 
 export default function DetailPurchaseOrder({ }) {
   const dispatch = useDispatch()
@@ -36,6 +38,7 @@ export default function DetailPurchaseOrder({ }) {
   useEffect(() => {
     if (!loadingDetailPurchaseOrder && data?.status === 'APPROVED' && data?.id) {
       dispatch(fetchAllPurchaseOrderPayment(data.id))
+      dispatch(fetchAllTermsOfPaymentByCode({ purchaseOrderCode: data.code }))
     }
   }, [loadingDetailPurchaseOrder])
 
@@ -69,6 +72,15 @@ export default function DetailPurchaseOrder({ }) {
             </Grid>
           </Grid>
         )}
+        {
+          data?.status === 'APPROVED' && data?.id && (
+            <Grid container spacing={6} sx={{ mt: 2, mb: 2 }}>
+              <Grid item xl={9} md={12} xs={12}>
+                <TableTermsOfPayment purchaseOrderData={data} />
+              </Grid>
+            </Grid>
+          )
+        }
       </>
     )
   } else {
