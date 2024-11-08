@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalNotifSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Sales Order'
 
@@ -88,17 +88,17 @@ export const updateFormSalesOrder = createAsyncThunk(
 )
 
 export const sendEmail = createAsyncThunk('salesOrder/sendEmail', async (formData, { rejectWithValue }) => {
-  try {    
+  try {
     // Prepare form data
     const response = await axios({
       method: 'POST',
       url: '/send-email/',
       data: formData,
       headers: {
-        'Content-Type': 'multipart/form-data', // Set the correct header for file uploads
-      },
+        'Content-Type': 'multipart/form-data' // Set the correct header for file uploads
+      }
     })
-    return response.data
+    swalNotifSuccess({ message: response?.data?.message })
   } catch (error) {
     swalToastError({ label, error })
     return rejectWithValue([])

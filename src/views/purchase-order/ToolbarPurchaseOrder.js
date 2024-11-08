@@ -15,15 +15,51 @@ import { CardHeader, Typography } from '@mui/material'
 import CustomChip from 'src/@core/components/mui/chip'
 import { updatePurchaseOrder } from 'src/store/apps/purchase-order'
 import { priceFormat } from 'src/helpers/priceFormatter'
+import { useEffect, useRef, useState } from 'react'
+import { swalInfo, swalNotifError, swalNotifSuccess } from 'src/helpers/swalFunction'
+import { pdfFormData } from 'src/helpers/generatePdfFormData'
+import { sendEmail } from 'src/store/apps/sales-order'
+import GeneratePdfPurchaseOrder from './GeneratePdfPurchaseOrder'
 
 const ToolbarPurchaseOrder = ({ id, data }) => {
   const auth = UseAuth()
   const dispatch = useDispatch()
   const router = useRouter()
+  const [sending, setIsSending] = useState(false)
+  const [isShow, setIsShow] = useState(false)
+  const cardRef = useRef(null) // Create a ref for the element
 
   const handleClick = () => {
-    window.open(`/purchase-order/send-email/${id}`, '_blank')
+    setIsShow(true)
   }
+
+  const generatePdf = async cardElement => {
+    if (!sending && cardElement) {
+      console.log('Generating PDF...')
+      const generatePdf = await pdfFormData(cardElement, 'Purchase Order', id, 'purchase-order')
+      dispatch(sendEmail(generatePdf))
+      setIsSending(true)
+    }
+    setIsShow(false) // Hide the component after capture
+    if (sending) {
+      swalInfo() // info that email has been sent
+    }
+  }
+
+  useEffect(() => {
+    if (isShow) {
+      const timer = setTimeout(() => {
+        if (cardRef.current) {
+          swalNotifSuccess({ message: 'Generating PDF...' })
+          generatePdf(cardRef.current)
+        } else {
+          swalNotifError({ message: 'Gagal generate pdf' })
+        }
+      }, 300) // Delay to allow rendering, adjust if necessary
+
+      return () => clearTimeout(timer)
+    }
+  }, [isShow]) // Run this effect when isShow changes
 
   const onUpdatePurchaseOrder = (code, type, e) => {
     dispatch(updatePurchaseOrder({ code, type, router }))
@@ -86,7 +122,8 @@ const ToolbarPurchaseOrder = ({ id, data }) => {
         />
         <CardContent>
           <Typography variant='body2' color='text.secondary'>
-            Jika purchase order diterima, maka barang akan langsung masuk ke gudang. Jika barang tidak ada, maka barang akan di inisialisasi.
+            Jika purchase order diterima, maka barang akan langsung masuk ke gudang. Jika barang tidak ada, maka barang
+            akan di inisialisasi.
           </Typography>
         </CardContent>
       </Card>
@@ -101,8 +138,8 @@ const ToolbarPurchaseOrder = ({ id, data }) => {
                   data?.amountDebt == 0
                     ? 'LUNAS'
                     : data?.grandTotal === data?.amountDebt
-                      ? 'BELUM LUNAS'
-                      : 'SEBAGIAN LUNAS'
+                    ? 'BELUM LUNAS'
+                    : 'SEBAGIAN LUNAS'
                 }
                 skin='light'
                 color={data?.amountDebt == 0 ? 'success' : data?.grandTotal === data?.amountDebt ? 'error' : 'warning'}
@@ -118,6 +155,11 @@ const ToolbarPurchaseOrder = ({ id, data }) => {
             </Typography>
           </CardContent>
         </Card>
+      )}
+      {isShow && (
+        <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+          <GeneratePdfPurchaseOrder id='print-purchase-order' data={data} ref={cardRef} />
+        </div>
       )}
     </>
   )

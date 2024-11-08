@@ -27,7 +27,7 @@ import { Status } from 'src/@core/components/common'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { CompanySvg } from 'src/data/companySvg'
 
-const MUITableCell = styled(TableCell)(({ theme }) => ({
+export const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
   paddingLeft: '0 !important',
   paddingRight: '0 !important',

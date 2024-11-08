@@ -10,14 +10,14 @@ export async function swalConfirmationDelete({ label, name = 'Data', axiosReques
       confirmButtonText: 'Iya',
       cancelButtonText: 'Tidak',
       reverseButtons: true,
-      confirmButtonColor: '#6F4E37',
+      confirmButtonColor: '#6F4E37'
     })
     if (result.dismiss === swal.DismissReason.cancel) {
       swal.fire({
         title: `"${name}" batal dihapus`,
         icon: 'error',
         showConfirmButton: false,
-        timer: 2000,
+        timer: 2000
       })
     } else {
       const response = await axiosRequest()
@@ -27,7 +27,7 @@ export async function swalConfirmationDelete({ label, name = 'Data', axiosReques
       swal.fire({
         title: response?.data?.message || `"${name}" berhasil dihapus`,
         icon: 'success',
-        confirmButtonColor: '#6F4E37',
+        confirmButtonColor: '#6F4E37'
       })
     }
   } catch (error) {
@@ -76,7 +76,7 @@ export async function swalConfirmationEdit({ label, name = 'Data', axiosRequest,
       confirmButtonText: 'Iya',
       cancelButtonText: 'Tidak',
       reverseButtons: true,
-      confirmButtonColor: '#6F4E37',
+      confirmButtonColor: '#6F4E37'
     })
     if (result.dismiss) {
     } else {
@@ -123,5 +123,32 @@ export function swalToastError({ error, label }) {
     title: error?.response?.data?.message || `Gagal melakukan aksi pada ${label}`,
     timer: 2000,
     confirmButtonColor: '#6F4E37'
+  })
+}
+
+export function swalNotifSuccess({ message }) {
+  return swal.fire({
+    title: message || `berhasil`,
+    icon: 'success',
+    confirmButtonColor: '#6F4E37',
+    timer: 1500,
+  })
+}
+
+export function swalNotifError({ message }) {
+  return swal.fire({
+    icon: 'error',
+    title: message || `Gagal`,
+    timer: 1500,
+    confirmButtonColor: '#6F4E37',
+  })
+}
+
+export function swalInfo(message) {
+  return swal.fire({
+    icon: 'info',
+    title: message || `Email Telah Dikirim`,
+    timer: 1000,
+    confirmButtonColor: '#6F4E37',
   })
 }

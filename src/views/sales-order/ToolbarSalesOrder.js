@@ -13,17 +13,52 @@ import { useDispatch } from 'react-redux'
 import { UseAuth } from 'src/hooks/useAuth'
 import { CardHeader, Typography } from '@mui/material'
 import CustomChip from 'src/@core/components/mui/chip'
-import { updateSalesOrder } from 'src/store/apps/sales-order'
+import { sendEmail, updateSalesOrder } from 'src/store/apps/sales-order'
 import { priceFormat } from 'src/helpers/priceFormatter'
+import { useEffect, useRef, useState } from 'react'
+import GeneratePdfSalesOrder from './GeneratePdfSalesOrder'
+import { swalInfo, swalNotifError, swalNotifSuccess } from 'src/helpers/swalFunction'
+import { pdfFormData } from 'src/helpers/generatePdfFormData'
 
 const ToolbarSalesOrder = ({ id, data }) => {
   const auth = UseAuth()
   const dispatch = useDispatch()
   const router = useRouter()
+  const [sending, setIsSending] = useState(false)
+  const [isShow, setIsShow] = useState(false)
+  const cardRef = useRef(null) // Create a ref for the element
 
-  const handleClick = () => {
-    window.open(`/sales-order/send-email/${id}`, '_blank')
+  const handleClick = async () => {
+    setIsShow(true)
   }
+
+  const generatePdf = async cardElement => {
+    if (!sending && cardElement) {
+      console.log('Generating PDF...')
+      const generatePdf = await pdfFormData(cardElement, 'Sales Order', id, 'sales-order')
+      dispatch(sendEmail(generatePdf))
+      setIsSending(true)
+    }
+    setIsShow(false) // Hide the component after capture
+    if (sending) {
+      swalInfo() // info that email has been sent
+    }
+  }
+
+  useEffect(() => {
+    if (isShow) {
+      const timer = setTimeout(() => {
+        if (cardRef.current) {
+          swalNotifSuccess({ message: 'Generating PDF...' })
+          generatePdf(cardRef.current)
+        } else {
+          swalNotifError({ message: 'Gagal generate pdf' })
+        }
+      }, 300) // Delay to allow rendering, adjust if necessary
+
+      return () => clearTimeout(timer)
+    }
+  }, [isShow]) // Run this effect when isShow changes
 
   const onUpdateSalesOrder = (code, type, e) => {
     dispatch(updateSalesOrder({ code, type, router }))
@@ -119,6 +154,11 @@ const ToolbarSalesOrder = ({ id, data }) => {
             </Typography>
           </CardContent>
         </Card>
+      )}
+      {isShow && (
+        <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+          <GeneratePdfSalesOrder id='print-sales-order' data={data} ref={cardRef} />
+        </div>
       )}
     </>
   )
