@@ -12,13 +12,12 @@ import BoxCode from "./BoxCode";
 
 
 export default function TimelineItemHistory(props) {
-  console.log(props);
 
   return (
     <TimelineItem>
       <TimelineSeparator>
         <TimelineDot
-          color={props?.adjustmentType === 'MINUS' ? 'error' : props?.adjustmentType === 'PLUS' ? 'success' : 'info'}
+          color={props?.adjustmentType === 'MINUS' || props?.deleted ? 'error' : props?.adjustmentType === 'PLUS' ? 'success' : 'info'}
         />
         {props?.index !== props?.length - 1 && <TimelineConnector />}
       </TimelineSeparator>
@@ -65,10 +64,21 @@ export default function TimelineItemHistory(props) {
         </Box>
         <Box sx={{ display: 'flex-column', flexWrap: 'wrap', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'warning.main' } }}>
-            <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
-              {props?.infoType || '-'} Sebanyak {props?.quantity} {`${props?.product?.unitName.toLowerCase()}`}{' '}
-              {props?.titleInfo ? 'dari' : ''} {props?.titleInfo}
-            </Typography>
+            {
+              props?.deleted && (
+                <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+                  {props?.infoType || '-'}
+                </Typography>
+              )
+            }
+            {
+              !props?.deleted && (
+                <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+                  {props?.infoType || '-'} {`${props?.product?.unitName.toLowerCase()}`}{' '}
+                  {props?.titleInfo ? 'dari' : ''} {props?.titleInfo}
+                </Typography>
+              )
+            }
           </Box>
           {props?.description && (
             <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'success.main' } }}>
