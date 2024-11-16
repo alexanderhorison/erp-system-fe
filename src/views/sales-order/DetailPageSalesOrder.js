@@ -95,13 +95,6 @@ const DetailPageSalesOrder = ({ data }) => {
         <CardContent sx={{ p: [`${theme.spacing(6)} !important`, `${theme.spacing(10)} !important`] }}>
           <Grid container>
             <Grid item xs={6} sm={5} sx={{ mb: { lg: 0, xs: 4 } }}>
-              <Typography variant='h6' sx={{ mb: 2 }}>
-                Gudang Asal
-              </Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseName}</Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseLocation}</Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
               <div>
                 <Typography variant='h6' sx={{ mb: 2 }}>
                   Tagihan Kepada
@@ -123,6 +116,7 @@ const DetailPageSalesOrder = ({ data }) => {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell align='left'>Gudang</TableCell>
                   <TableCell align='left'>Produk</TableCell>
                   <TableCell align='left'>Kuantiti</TableCell>
                   <TableCell align='left'>Harga</TableCell>
@@ -137,18 +131,21 @@ const DetailPageSalesOrder = ({ data }) => {
                   }
                 }}
               >
-                {data?.listProducts?.map((data, index) => {
+                {data?.listProducts?.map((item, index) => {
                   return (
                     <TableRow key={index}>
                       <TableCell>
-                        <Typography variant='body1'>{data?.productName}</Typography>
+                        <Typography variant='body1'>{item?.warehouseName}</Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant='body1'>{item?.productName}</Typography>
                         <Typography variant='body2' color='textSecondary' sx={{ mt: 0.5 }}>
-                          Rack: {data?.rackName} | Unit: {data?.unitName}
+                          Rack: {item?.rackName} | Unit: {item?.unitName}
                         </Typography>
                       </TableCell>
-                      <TableCell>{data?.quantity || ''}</TableCell>
-                      <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
-                      <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
+                      <TableCell>{item?.quantity || ''}</TableCell>
+                      <TableCell>Rp. {priceFormat(item?.price)}</TableCell>
+                      <TableCell align='right'>Rp. {priceFormat(item?.subTotal)}</TableCell>
                     </TableRow>
                   )
                 })}
@@ -171,6 +168,7 @@ const DetailPageSalesOrder = ({ data }) => {
                 <Table>
                   <TableHead>
                     <TableRow>
+                      <TableCell align='left'>Gudang</TableCell>
                       <TableCell align='left'>Produk</TableCell>
                       <TableCell align='left'>Kuantiti</TableCell>
                       <TableCell align='left'>Harga</TableCell>
@@ -185,18 +183,21 @@ const DetailPageSalesOrder = ({ data }) => {
                       }
                     }}
                   >
-                    {data?.listBarterProducts?.map((data, index) => {
+                    {data?.listBarterProducts?.map((item, index) => {
                       return (
                         <TableRow key={index}>
                           <TableCell>
-                            <Typography variant='body1'>{data?.productName}</Typography>
+                            <Typography variant='body1'>{item?.warehouseName}</Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant='body1'>{item?.productName}</Typography>
                             <Typography variant='body2' color='textSecondary' sx={{ mt: 0.5 }}>
-                              Rack: {data?.rackName || '-'} | Unit: {data?.unitName || '-'}
+                              Rack: {item?.rackName || '-'} | Unit: {item?.unitName || '-'}
                             </Typography>
                           </TableCell>
-                          <TableCell>{data?.quantity || ''}</TableCell>
-                          <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
-                          <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
+                          <TableCell>{item?.quantity || ''}</TableCell>
+                          <TableCell>Rp. {priceFormat(item?.price)}</TableCell>
+                          <TableCell align='right'>Rp. {priceFormat(item?.subTotal)}</TableCell>
                         </TableRow>
                       )
                     })}

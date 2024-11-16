@@ -171,21 +171,21 @@ export default function TableAllSalesOrder({ timeFilter }) {
               )
             }
           },
+          // {
+          //   flex: 0.16,
+          //   minWidth: 120,
+          //   field: 'warehouseName',
+          //   headerName: 'Gudang',
+          //   renderCell: params => {
+          //     return (
+          //       <Typography variant='body2' sx={{ color: 'text.primary' }}>
+          //         {params.row.warehouseName}
+          //       </Typography>
+          //     )
+          //   }
+          // },
           {
-            flex: 0.16,
-            minWidth: 120,
-            field: 'warehouseName',
-            headerName: 'Gudang',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.warehouseName}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.07,
+            flex: 0.1,
             minWidth: 120,
             field: 'status',
             headerName: 'Status',

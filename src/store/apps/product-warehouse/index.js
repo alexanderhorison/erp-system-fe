@@ -151,7 +151,7 @@ export const transformProduct = createAsyncThunk(
           return axios({
             method: 'POST',
             url: '/product-warehouse/transformation/' + id,
-            data: data,
+            data: data
           })
         },
         dispatchRequest: () => {
@@ -184,7 +184,10 @@ export const fetchHistoryProduct = createAsyncThunk(
 // TRANSFORMATION PRODUCT FROM SALES ORDER
 export const transformProductFromSalesOrder = createAsyncThunk(
   'appMasterProduct/transformProductFromSalesOrder',
-  async ({ id, data, warehouseId, setOpen, setValue, getValues, indexForm, update }, { dispatch, rejectWithValue }) => {
+  async (
+    { id, data, warehouseId, setOpen, setValue, getValues, indexForm, update, handleTransformProductUpdate },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       const response = await swalConfirmationEdit({
         label: 'Produk',
@@ -194,18 +197,39 @@ export const transformProductFromSalesOrder = createAsyncThunk(
           return axios({
             method: 'POST',
             url: '/product-warehouse/transformation/' + id,
-            data: data,
+            data: data
           })
         },
         dispatchRequest: () => {
-          dispatch(fetchInvoiceListProductByWarehouseId(warehouseId))
           setOpen(false)
         }
       })
 
-      const { warehouseProductId, quantity, qty, masterProductId, rackName, unitName } = response.data.data
+      const {
+        warehouseProductId,
+        quantity,
+        qty,
+        masterProductId,
+        rackName,
+        unitName,
+        productWarehouseId,
+        masterUnitId,
+        productName,
+        categoryName
+      } = response?.data?.data
 
+      handleTransformProductUpdate(warehouseId, indexForm, {
+        productWarehouseId: productWarehouseId,
+        productName: productName,
+        categoryName: categoryName,
+        masterUnitId: masterUnitId,
+        quantity: quantity,
+        masterProductId: masterProductId,
+        rackName: rackName,
+        unitName: unitName
+      })
       update(indexForm, {
+        warehouseId: +warehouseId,
         warehouseProductId: warehouseProductId,
         quantity: quantity,
         qty: qty,
@@ -216,7 +240,6 @@ export const transformProductFromSalesOrder = createAsyncThunk(
 
       return response
     } catch (error) {
-      console.log(error);
       return rejectWithValue({})
     }
   }
@@ -247,11 +270,10 @@ export const appMasterProductSlice = createSlice({
     // HISTORY
     listHistory: {
       history: [],
-      product: {},
+      product: {}
     },
     loadingListHistory: true,
-    errorListHistory: false,
-
+    errorListHistory: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -335,7 +357,7 @@ export const appMasterProductSlice = createSlice({
         state.errorListHistory = action.error.message
         state.listHistory = {
           history: [],
-          product: {},
+          product: {}
         }
       })
   }
