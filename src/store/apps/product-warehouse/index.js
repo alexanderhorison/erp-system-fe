@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
 import toast from 'react-hot-toast'
-import { swalConfirmationAdd, swalConfirmationEdit, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalConfirmationDelete, swalConfirmationEdit, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 import { fetchInvoiceListProductByWarehouseId } from '../delivery-order'
 
 const label = 'produk'
@@ -240,6 +240,32 @@ export const transformProductFromSalesOrder = createAsyncThunk(
 
       return response
     } catch (error) {
+      return rejectWithValue({})
+    }
+  }
+)
+
+// DELETE
+export const fetchDeleteProductWarehouse = createAsyncThunk(
+  'appMasterProduct/deleteWarehouseProduct',
+  async ({ id, name, warehouseId }, { dispatch, rejectWithValue }) => {
+    try {
+      await swalConfirmationDelete({
+        label,
+        name,
+        axiosRequest: () => {
+          return axios({
+            method: 'DELETE',
+            url: '/product-warehouse/' + id
+          })
+        },
+        dispatchRequest: () => {
+          // return dispatch(fetchListStockOpname())
+          dispatch(fetchListProductByWarehouse({ warehouseId }))
+        }
+      })
+    } catch (error) {
+      swalError({ error, label })
       return rejectWithValue({})
     }
   }

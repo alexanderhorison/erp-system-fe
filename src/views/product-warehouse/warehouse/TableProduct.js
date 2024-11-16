@@ -7,7 +7,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 
 import TableHeaderProduct from './TableHeaderProduct'
-import { fetchListProductByWarehouse, fetchListProductTransformation, fetchProductWarehouseDetail } from 'src/store/apps/product-warehouse'
+import { fetchDeleteProductWarehouse, fetchListProductByWarehouse, fetchListProductTransformation, fetchProductWarehouseDetail } from 'src/store/apps/product-warehouse'
 import ModalAdjustProduct from './ModalAdjustProduct'
 import HandleSearh from 'src/helpers/handleSearch'
 import ModalTransformationProduct from './ModalTransformationProduct'
@@ -31,6 +31,10 @@ const RowOptions = ({ id, name, warehouseId }) => {
     setOpenModalEdit(true)
   }
 
+  const handleDelete = () => {
+    dispatch(fetchDeleteProductWarehouse({ id, name, warehouseId }))
+  }
+
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -45,6 +49,9 @@ const RowOptions = ({ id, name, warehouseId }) => {
         </IconButton>
         <IconButton onClick={() => handleEdit('MINIMUM_STOCK')}>
           <Icon icon='tabler:edit' />
+        </IconButton>
+        <IconButton onClick={() => handleDelete()}>
+          <Icon icon='tabler:trash' />
         </IconButton>
       </Box>
       {openModalEdit && (
@@ -216,8 +223,8 @@ export default function TableProduct({ data, warehouseId }) {
             }
           },
           {
-            flex: 0.10,
-            minWidth: 180,
+            flex: 0.1,
+            minWidth: 210,
             sortable: false,
             field: 'actions',
             headerAlign: 'center',
