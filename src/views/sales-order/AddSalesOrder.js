@@ -1024,6 +1024,7 @@ export default function AddSalesOrder({}) {
           update={update}
           warehouseId={warehouseId}
           handleTransformProductUpdate={handleTransformProductUpdate}
+          setDataWarehouseIds={setDataWarehouseIds}
         />
       )}
     </>

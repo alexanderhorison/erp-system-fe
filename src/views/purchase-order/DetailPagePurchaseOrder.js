@@ -93,14 +93,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
         <Divider />
         <CardContent sx={{ p: [`${theme.spacing(6)} !important`, `${theme.spacing(10)} !important`] }}>
           <Grid container>
-            <Grid item xs={6} sm={5} sx={{ mb: { lg: 0, xs: 4 } }}>
-              <Typography variant='h6' sx={{ mb: 2 }}>
-                Gudang Tujuan
-              </Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseName}</Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseLocation}</Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
+            <Grid item xs={12} sm={6} sx={{ mb: { lg: 0, xs: 4 } }}>
               <div>
                 <Typography variant='h6' sx={{ mb: 2 }}>
                   Vendor
@@ -122,6 +115,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell align='left'>Gudang</TableCell>
                   <TableCell align='left'>Produk</TableCell>
                   <TableCell align='left'>Kuantiti</TableCell>
                   <TableCell align='left'>Harga</TableCell>
@@ -139,6 +133,9 @@ const DetailPagePurchaseOrder = ({ data }) => {
                 {data?.listProducts?.map((data, index) => {
                   return (
                     <TableRow key={index}>
+                      <TableCell>
+                        <Typography variant='body1'>{data?.warehouseName}</Typography>
+                      </TableCell>
                       <TableCell>
                         <Typography variant='body1'>{data?.productName}</Typography>
                         <Typography variant='body2' color='textSecondary' sx={{ mt: 0.5 }}>
@@ -170,6 +167,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
                 <Table>
                   <TableHead>
                     <TableRow>
+                      <TableCell align='left'>Gudang</TableCell>
                       <TableCell align='left'>Produk</TableCell>
                       <TableCell align='left'>Kuantiti</TableCell>
                       <TableCell align='left'>Harga</TableCell>
@@ -187,6 +185,9 @@ const DetailPagePurchaseOrder = ({ data }) => {
                     {data?.listBarterProducts?.map((data, index) => {
                       return (
                         <TableRow key={index}>
+                          <TableCell>
+                            <Typography variant='body1'>{data?.warehouseName}</Typography>
+                          </TableCell>
                           <TableCell>
                             <Typography variant='body1'>{data?.productName}</Typography>
                             <Typography variant='body2' color='textSecondary' sx={{ mt: 0.5 }}>
@@ -263,8 +264,9 @@ const DetailPagePurchaseOrder = ({ data }) => {
             <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
               {data?.grandTotal > 0
                 ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`
-                : `Vendor ${data?.vendor?.name?.toUpperCase() || ''
-                } harus melakukan pembayaran sebesar Rp. ${Math.abs(data?.grandTotal).toLocaleString()}`}
+                : `Vendor ${data?.vendor?.name?.toUpperCase() || ''} harus melakukan pembayaran sebesar Rp. ${Math.abs(
+                    data?.grandTotal
+                  ).toLocaleString()}`}
             </Typography>
           </Box>
         </CardContent>

@@ -260,8 +260,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
       titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${
         getValues(`data[${index}].unitName`) || '-'
       }`,
-      titleQuantity: `QTY: ${getValues(`data[${index}].qty`) || '-'}`,
-      titleTransformation: getValues(`data[${index}].quantity`) > 0 ? '| Transformasi Produk' : ''
+      titleQuantity: `QTY: ${getValues(`data[${index}].qty`) || '-'}`
     }
     return infos
   }

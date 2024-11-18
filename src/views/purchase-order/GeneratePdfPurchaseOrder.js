@@ -81,21 +81,12 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
 
       <CardContent>
         <Grid container>
-          {/* <Grid item xs={12} sx={{ mb: { lg: 0, xs: 4 } }}>
-              <Typography variant='h6' sx={{ mb: 2 }}>
-                Gudang Tujuan
-              </Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseName?.toUpperCase() || ''}</Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseLocation?.toUpperCase() || ''}</Typography>
-            </Grid> */}
-          <Grid item xs={12} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
-            <div>
-              <Typography variant='h6' sx={{ mb: 2 }}>
-                Vendor
-              </Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.name?.toUpperCase() || ''}</Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.address?.toUpperCase() || ''}</Typography>
-            </div>
+          <Grid item xs={12} sx={{ mb: { lg: 0, xs: 4 } }}>
+            <Typography variant='h6' sx={{ mb: 2 }}>
+              Vendor
+            </Typography>
+            <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.name?.toUpperCase() || ''}</Typography>
+            <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.address?.toUpperCase() || ''}</Typography>
           </Grid>
         </Grid>
       </CardContent>

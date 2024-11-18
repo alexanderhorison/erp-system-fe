@@ -1,7 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
 import toast from 'react-hot-toast'
-import { swalConfirmationAdd, swalConfirmationDelete, swalConfirmationEdit, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import {
+  swalConfirmationAdd,
+  swalConfirmationDelete,
+  swalConfirmationEdit,
+  swalToastError
+} from 'src/helpers/swalFunction'
 import { fetchInvoiceListProductByWarehouseId } from '../delivery-order'
 
 const label = 'produk'
@@ -185,7 +190,18 @@ export const fetchHistoryProduct = createAsyncThunk(
 export const transformProductFromSalesOrder = createAsyncThunk(
   'appMasterProduct/transformProductFromSalesOrder',
   async (
-    { id, data, warehouseId, setOpen, setValue, getValues, indexForm, update, handleTransformProductUpdate },
+    {
+      id,
+      data,
+      warehouseId,
+      setOpen,
+      setValue,
+      getValues,
+      indexForm,
+      update,
+      handleTransformProductUpdate,
+      setDataWarehouseIds
+    },
     { dispatch, rejectWithValue }
   ) => {
     try {
@@ -201,6 +217,14 @@ export const transformProductFromSalesOrder = createAsyncThunk(
           })
         },
         dispatchRequest: () => {
+          dispatch(fetchInvoiceListProductByWarehouseId(warehouseId))
+            .then(response => {
+              setDataWarehouseIds(prevState => ({
+                ...prevState,
+                [warehouseId]: response.payload.data // Store the fetched data by warehouseId
+              }))
+            })
+            .catch(error => console.error('Failed to fetch data:', error))
           setOpen(false)
         }
       })

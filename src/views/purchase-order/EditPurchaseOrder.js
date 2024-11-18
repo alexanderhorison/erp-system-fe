@@ -13,6 +13,7 @@ import PickersComponent from '../forms/form-elements/pickers/PickersCustomInput'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from 'src/helpers/priceFormatter'
+import { Box } from '@mui/system'
 
 export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
   const dispatch = useDispatch()
@@ -22,16 +23,17 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
   const { direction } = theme
   const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
   const [date, setDate] = useState(new Date())
+  const [vendor, setVendor] = useState({})
 
   const schema = yup.object({
     vendorId: yup.string().required('Vendor harus diisi'),
-    warehouseId: yup.string().required('Gudang asal harus diisi'),
     grandTotal: yup.number().typeError('Grand Total harus ada'),
     grandTotalVendor: yup.number().typeError('Total Purchase order harus ada'),
     grandTotalBarter: yup.number().typeError('Total Barter harus ada'),
     notes: yup.string().optional(),
     data: yup.array().of(
       yup.object({
+        warehouseId: yup.number().typeError('Gudang asal harus ada'),
         warehouseProductId: yup.number().typeError('Id product warehouse harus diisi'),
         price: yup.number().typeError('Price product harus diisi'),
         quantity: yup
@@ -48,6 +50,7 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
       if (value && value.length > 0) {
         return yup.array().of(
           yup.object({
+            warehouseId: yup.number().typeError('Gudang Asal harus ada'),
             warehouseProductId: yup
               .number()
               .typeError('Id product warehouse harus diisi')
@@ -76,7 +79,8 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
             warehouseProductId: yup.number(),
             price: yup.number(),
             quantity: yup.number(),
-            subTotal: yup.number()
+            subTotal: yup.number(),
+            warehouseId: yup.number()
           })
         )
         .optional()
@@ -160,7 +164,6 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
 
     if (!duplicate) {
       let sendData = {
-        warehouseId: +data.warehouseId,
         vendorId: +data.vendorId,
         grandTotal: data.grandTotal,
         grandTotalVendor: data.grandTotalVendor,
@@ -194,7 +197,9 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
         quantity: product.quantity,
         price: product.price,
         subTotal: product.subTotal,
-        qty: product.qty
+        qty: product.qty,
+        warehouseId: product.warehouseId,
+        warehouseName: product.warehouseName
       })
     })
     if (data?.listBarterProducts.length > 0) {
@@ -208,17 +213,24 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
           quantity: product.quantity,
           price: product.price,
           subTotal: product.subTotal,
-          qty: product.qty
+          qty: product.qty,
+          warehouseId: product.warehouseId,
+          warehouseName: product.warehouseName
         })
       })
     }
     setDate(formatDate(data?.dueDate))
     setValue('vendorId', data?.vendor?.id)
-    setValue('warehouseId', data?.warehouseId)
     setValue('grandTotal', data?.grandTotal)
     setValue('notes', data?.notes)
     setValue('grandTotalVendor', data?.grandTotalVendor) // Update total purchase order
     setValue('grandTotalBarter', data?.grandTotalBarter)
+    setVendor({
+      email: data?.vendor?.email,
+      address: data?.vendor?.address,
+      phoneNumber: data?.vendor?.phoneNumber,
+      rankName: data?.vendor?.rankName
+    })
   }, [dispatch, append])
 
   useEffect(() => {
@@ -242,6 +254,26 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
     setValue('grandTotalBarter', barterTotal) // Update total barter
   }
 
+  const titleProductInfo = index => {
+    const infos = {
+      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${
+        getValues(`data[${index}].unitName`) || '-'
+      }`,
+      titleQuantity: `QTY: ${getValues(`data[${index}].qty`) || '-'}`
+    }
+    return infos
+  }
+
+  const titleBarterInfo = index => {
+    const infos = {
+      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${
+        getValues(`barterProduct[${index}].unitName`) || '-'
+      }`,
+      titleQuantity: `QTY: ${getValues(`barterProduct[${index}].qty`) || '-'}`
+    }
+    return infos
+  }
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -250,21 +282,6 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
             <Card>
               <CardContent>
                 <Grid container display='flex' gap={4} justifyContent='space-between'>
-                  <Grid item xs={12} md={4}>
-                    <Controller
-                      name={`warehouseId`}
-                      control={control}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          label='Gudang Sumber'
-                          disabled
-                          value={data?.warehouseName}
-                          sx={{ display: 'block' }}
-                        />
-                      )}
-                    />
-                  </Grid>
                   <Grid item xs={12} md={4}>
                     <Controller
                       name={`vendorId`}
@@ -280,9 +297,7 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
                       )}
                     />
                   </Grid>
-                </Grid>
-                <Grid container display='flex' gap={4} justifyContent='flex-start' sx={{ marginTop: '1rem' }}>
-                  <Grid item xs={12} md={4}>
+                  <Grid item xs={12} md={2}>
                     <DatePicker
                       selected={date}
                       id='basic'
@@ -291,6 +306,16 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
                       fullWidth
                       customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
                     />
+                  </Grid>
+                </Grid>
+                <Grid container display='flex' gap={3} sx={{ marginTop: '1rem' }}>
+                  <Grid item xs={12} md={4}>
+                    <Box sx={{ display: 'flex-column', alignItems: 'left', textAlign: 'left' }}>
+                      <Typography sx={{ color: 'text.secondary' }}>{vendor?.email}</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>{vendor?.address}</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>{vendor?.phoneNumber}</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>{vendor?.rankName}</Typography>
+                    </Box>
                   </Grid>
                 </Grid>
               </CardContent>
@@ -305,6 +330,23 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
                 <React.Fragment key={item.id}>
                   <CardContent>
                     <Grid container spacing={6}>
+                      <Grid item xs={12} md={4}>
+                        <Controller
+                          name={`data[${index}].warehouseName`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomTextField
+                              value={value}
+                              disabled
+                              label='Gudang Tujuan'
+                              sx={{ zIndex: 0, display: 'block' }}
+                            />
+                          )}
+                        />
+                      </Grid>
+                    </Grid>
+                    <Grid container spacing={6} sx={{ marginTop: 1 }}>
                       <Grid item xs={12} md={4}>
                         <Controller
                           name={`data[${index}].productName`}
@@ -323,7 +365,7 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
                                 color='textSecondary' // This can be customized to another color, like 'primary', 'secondary', etc.
                                 sx={{ marginTop: '4px' }} // Adds some spacing between the input and the text
                               >
-                                Rack: {getValues(`data[${index}].rackName`) || '-'}
+                                {titleProductInfo(index).titleProduct}
                               </Typography>
                             </div>
                           )}
@@ -472,6 +514,23 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
                       <Grid container spacing={6}>
                         <Grid item xs={12} md={4}>
                           <Controller
+                            name={`barterProduct[${index}].warehouseName`}
+                            control={control}
+                            rules={{ required: true }}
+                            render={({ field: { value, onChange } }) => (
+                              <CustomTextField
+                                value={value}
+                                disabled
+                                label='Gudang Sumber'
+                                sx={{ zIndex: 0, display: 'block' }}
+                              />
+                            )}
+                          />
+                        </Grid>
+                      </Grid>
+                      <Grid container spacing={6} sx={{ marginTop: 1 }}>
+                        <Grid item xs={12} md={4}>
+                          <Controller
                             name={`barterProduct[${index}].productName`}
                             control={control}
                             render={({ field: { value, onChange } }) => (
@@ -488,8 +547,7 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
                                   color='textSecondary' // This can be customized to another color, like 'primary', 'secondary', etc.
                                   sx={{ marginTop: '4px' }} // Adds some spacing between the input and the text
                                 >
-                                  Rack: {getValues(`barterProduct[${index}].rackName`) || '-'} | Qty:{' '}
-                                  {getValues(`barterProduct[${index}].qty`) || '0'}
+                                  {titleBarterInfo(index).titleProduct}
                                 </Typography>
                               </div>
                             )}
@@ -500,35 +558,40 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
                             name={`barterProduct[${index}].quantity`}
                             control={control}
                             render={({ field: { value, onChange } }) => (
-                              <CustomTextField
-                                fullWidth
-                                label='Kuantiti'
-                                value={value}
-                                onChange={e => {
-                                  const newQuantity = +e.target.value
-                                  const currentPrice = formBarter[index].price || 0
-                                  const newSubTotal = newQuantity * currentPrice
+                              <div>
+                                <CustomTextField
+                                  fullWidth
+                                  label='Kuantiti'
+                                  value={value}
+                                  onChange={e => {
+                                    const newQuantity = +e.target.value
+                                    const currentPrice = formBarter[index].price || 0
+                                    const newSubTotal = newQuantity * currentPrice
 
-                                  // Update the quantity and the subtotal
-                                  onChange(newQuantity || '')
-                                  if (parseInt(newSubTotal, 10) > 0) {
-                                    setValue(`barterProduct[${index}].subTotal`, newSubTotal)
-                                  }
-                                  if (
-                                    formBarter[index].quantity &&
-                                    formBarter[index].price &&
-                                    parseInt(formBarter[index].quantity, 10) > 0
-                                  ) {
-                                    calculateTotals()
-                                  }
-                                }}
-                                type='number'
-                                sx={{ display: 'block' }}
-                                error={Boolean(errors?.barterProduct?.[index]?.quantity)}
-                                {...(errors?.barterProduct?.[index]?.quantity && {
-                                  helperText: errors?.barterProduct?.[index]?.quantity.message
-                                })}
-                              />
+                                    // Update the quantity and the subtotal
+                                    onChange(newQuantity || '')
+                                    if (parseInt(newSubTotal, 10) > 0) {
+                                      setValue(`barterProduct[${index}].subTotal`, newSubTotal)
+                                    }
+                                    if (
+                                      formBarter[index].quantity &&
+                                      formBarter[index].price &&
+                                      parseInt(formBarter[index].quantity, 10) > 0
+                                    ) {
+                                      calculateTotals()
+                                    }
+                                  }}
+                                  type='number'
+                                  sx={{ display: 'block' }}
+                                  error={Boolean(errors?.barterProduct?.[index]?.quantity)}
+                                  {...(errors?.barterProduct?.[index]?.quantity && {
+                                    helperText: errors?.barterProduct?.[index]?.quantity.message
+                                  })}
+                                />
+                                <Typography variant='body2' color='textSecondary'>
+                                  {titleBarterInfo(index).titleQuantity}
+                                </Typography>
+                              </div>
                             )}
                           />
                         </Grid>

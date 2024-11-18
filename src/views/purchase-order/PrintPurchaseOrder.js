@@ -60,9 +60,6 @@ const PrintPurchaseOrder = ({ id }) => {
     }
   }, [id, dispatch])
 
-  console.log(data);
-
-
   if (data) {
     return (
       <Card>
@@ -107,23 +104,14 @@ const PrintPurchaseOrder = ({ id }) => {
           </Grid>
         </CardContent>
         <Divider />
-        <CardContent >
+        <CardContent>
           <Grid container>
-            {/* <Grid item xs={12} sx={{ mb: { lg: 0, xs: 4 } }}>
+            <Grid item xs={12} sx={{ mb: { lg: 0, xs: 4 } }}>
               <Typography variant='h6' sx={{ mb: 2 }}>
-                Gudang Tujuan
+                Vendor
               </Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseName?.toUpperCase() || ''}</Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseLocation?.toUpperCase() || ''}</Typography>
-            </Grid> */}
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
-              <div>
-                <Typography variant='h6' sx={{ mb: 2 }}>
-                  Vendor
-                </Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.name?.toUpperCase() || ''}</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.address?.toUpperCase() || ''}</Typography>
-              </div>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.name?.toUpperCase() || ''}</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.address?.toUpperCase() || ''}</Typography>
             </Grid>
           </Grid>
         </CardContent>
@@ -247,24 +235,14 @@ const PrintPurchaseOrder = ({ id }) => {
             <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
               {data?.grandTotal > 0
                 ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
-                  data?.grandTotal
-                ).toLocaleString()}`
-                : `Vendor ${data?.vendor?.name?.toUpperCase() || ''
-                } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
+                    data?.grandTotal
+                  ).toLocaleString()}`
+                : `Vendor ${
+                    data?.vendor?.name?.toUpperCase() || ''
+                  } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
             </Typography>
           </Box>
         </CardContent>
-
-        {/* <Divider /> */}
-
-        {/* <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`], mt: 5 }}>
-          <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
-            <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
-              Silahkan transfer ke rekening:
-            </Typography>
-            <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>{companyInfo.bank}</Typography>
-          </Box>
-        </CardContent> */}
 
         <Divider />
 

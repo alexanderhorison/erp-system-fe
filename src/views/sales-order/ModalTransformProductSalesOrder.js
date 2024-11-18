@@ -23,7 +23,8 @@ export default function ModalTransformProductSalesOrder({
   update,
   listProduct,
   warehouseId,
-  handleTransformProductUpdate
+  handleTransformProductUpdate,
+  setDataWarehouseIds
 }) {
   const dispatch = useDispatch()
 
@@ -115,6 +116,7 @@ export default function ModalTransformProductSalesOrder({
           listProduct: listProduct,
           warehouseId: warehouseId,
           handleTransformProductUpdate: handleTransformProductUpdate,
+          setDataWarehouseIds: setDataWarehouseIds
         }))
       }
     }
