@@ -139,12 +139,14 @@ const DetailPagePurchaseOrder = ({ data }) => {
                       <TableCell>
                         <Typography variant='body1'>{data?.productName}</Typography>
                         <Typography variant='body2' color='textSecondary' sx={{ mt: 0.5 }}>
-                          Rack: {data?.rackName} | Unit: {data?.unitName}
+                          Rack: {data?.rackName} | {data?.unitName}
                         </Typography>
                       </TableCell>
                       <TableCell>{data?.quantity || ''}</TableCell>
-                      <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
-                      <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.price)}</TableCell>
+                      <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>
+                        Rp. {priceFormat(data?.subTotal)}
+                      </TableCell>
                     </TableRow>
                   )
                 })}
@@ -154,7 +156,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
           {data?.listBarterProducts?.length > 0 && (
             <>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
-                <Typography sx={{ paddingTop: 2, mr: 5 }}>Total Purchase Order:</Typography>
+                <Typography sx={{ paddingTop: 2, mr: 5 }}>Total :</Typography>
                 <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalVendor)}</Typography>
               </Box>
 
@@ -191,12 +193,14 @@ const DetailPagePurchaseOrder = ({ data }) => {
                           <TableCell>
                             <Typography variant='body1'>{data?.productName}</Typography>
                             <Typography variant='body2' color='textSecondary' sx={{ mt: 0.5 }}>
-                              Rack: {data?.rackName || '-'} | Unit: {data?.unitName || '-'}
+                              Rack: {data?.rackName || '-'} | {data?.unitName || '-'}
                             </Typography>
                           </TableCell>
                           <TableCell>{data?.quantity || ''}</TableCell>
-                          <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
-                          <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.price)}</TableCell>
+                          <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>
+                            Rp. {priceFormat(data?.subTotal)}
+                          </TableCell>
                         </TableRow>
                       )
                     })}
@@ -204,7 +208,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
                 </Table>
               </TableContainer>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
-                <Typography sx={{ paddingTop: 2, mr: 5 }}>Total Barang Barter:</Typography>
+                <Typography sx={{ paddingTop: 2, mr: 5 }}>Total :</Typography>
                 <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalBarter)}</Typography>
               </Box>
               <Divider sx={{ mt: 8 }} />
@@ -239,7 +243,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
                 lg={2}
                 sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 1, xs: 2 }, ml: 'auto', textAlign: 'right' }}
               >
-                <Typography sx={{ color: 'text.secondary', mr: 1 }}>Rp. {priceFormat(data?.grandTotal)}</Typography>
+                <Typography sx={{ color: 'text.secondary', mr: 1, whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.grandTotal)}</Typography>
               </Grid>
             </Grid>
             <Typography

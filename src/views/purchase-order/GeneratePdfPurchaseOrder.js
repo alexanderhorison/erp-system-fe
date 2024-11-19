@@ -127,7 +127,7 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
           </TableBody>
         </Table>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
-          <Typography sx={{ paddingTop: 2, mr: 5 }}>Total Purchase Order:</Typography>
+          <Typography sx={{ paddingTop: 2, mr: 5 }}>Total :</Typography>
           <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalVendor)}</Typography>
         </Box>
       </TableContainer>
@@ -171,7 +171,7 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
             </Table>
           </TableContainer>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
-            <Typography sx={{ paddingTop: 2, mr: 5 }}>Total Barang Barter:</Typography>
+            <Typography sx={{ paddingTop: 2, mr: 5 }}>Total :</Typography>
             <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalBarter)}</Typography>
           </Box>
           <Divider sx={{ mt: 8 }} />
