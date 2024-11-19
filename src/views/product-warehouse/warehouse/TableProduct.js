@@ -13,7 +13,8 @@ import HandleSearh from 'src/helpers/handleSearch'
 import ModalTransformationProduct from './ModalTransformationProduct'
 import FilterGlobal from 'src/pages/components/filter/FilterGlobal'
 
-const RowOptions = ({ id, name, warehouseId }) => {
+const RowOptions = ({ id, name, warehouseId, query }) => {
+
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
   const [openModalTransformation, setOpenModalTransformation] = useState(false)
@@ -32,7 +33,7 @@ const RowOptions = ({ id, name, warehouseId }) => {
   }
 
   const handleDelete = () => {
-    dispatch(fetchDeleteProductWarehouse({ id, name, warehouseId }))
+    dispatch(fetchDeleteProductWarehouse({ id, name, warehouseId, query }))
   }
 
   return (
@@ -83,6 +84,7 @@ export default function TableProduct({ data, warehouseId }) {
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const [dataFilter, setDataFilter] = useState({})
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
@@ -113,7 +115,10 @@ export default function TableProduct({ data, warehouseId }) {
     <Card>
       <FilterGlobal
         listFilter={["company", "type", "unit", "category", "rack"]}
-        submitFilter={submitFilter}
+        submitFilter={(e) => {
+          setDataFilter(e)
+          submitFilter(e)
+        }}
         handleClear={() => dispatch(fetchListProductByWarehouse({ warehouseId }))}
         warehouseId={warehouseId}
       />
@@ -230,7 +235,7 @@ export default function TableProduct({ data, warehouseId }) {
             headerAlign: 'center',
             headerName: 'Actions',
             renderCell: ({ row }) => (
-              <RowOptions id={row.productWarehouseId} name={row.productName} warehouseId={warehouseId} />
+              <RowOptions id={row.productWarehouseId} name={row.productName} warehouseId={warehouseId} query={dataFilter} />
             )
           }
         ]}

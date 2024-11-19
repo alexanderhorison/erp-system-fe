@@ -272,7 +272,7 @@ export const transformProductFromSalesOrder = createAsyncThunk(
 // DELETE
 export const fetchDeleteProductWarehouse = createAsyncThunk(
   'appMasterProduct/deleteWarehouseProduct',
-  async ({ id, name, warehouseId }, { dispatch, rejectWithValue }) => {
+  async ({ id, name, warehouseId, query }, { dispatch, rejectWithValue }) => {
     try {
       await swalConfirmationDelete({
         label,
@@ -285,7 +285,7 @@ export const fetchDeleteProductWarehouse = createAsyncThunk(
         },
         dispatchRequest: () => {
           // return dispatch(fetchListStockOpname())
-          dispatch(fetchListProductByWarehouse({ warehouseId }))
+          dispatch(fetchListProductByWarehouse({ warehouseId, query }))
         }
       })
     } catch (error) {
