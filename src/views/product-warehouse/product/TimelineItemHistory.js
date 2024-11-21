@@ -31,20 +31,23 @@ export default function TimelineItemHistory(props) {
             justifyContent: 'space-between'
           }}
         >
-          <Box
-            sx={{
-              mb: 0.5,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-start'
-            }}
-          >
-            <Typography variant='h6' fontWeight={700} sx={{ mr: 2 }}>
-              {props?.title || '-'}
-            </Typography>
-            <Typography variant='body2' mb={2} fontSize={12}>
-              Dibuat Oleh: {props?.createdBy}
-            </Typography>
+          <Box display={'flex'} gap={3}>
+            <Box
+              sx={{
+                mb: 0.5,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start'
+              }}
+            >
+              <Typography variant='h6' fontWeight={700} sx={{ mr: 2 }}>
+                {props?.title || '-'}
+              </Typography>
+              <Typography variant='body2' mb={2} fontSize={12}>
+                Dibuat Oleh: {props?.createdBy}
+              </Typography>
+            </Box>
+            <AdjustmentBox adjustmentType={props?.adjustmentType} quantity={props?.quantity} />
           </Box>
           <Box
             sx={{
@@ -120,3 +123,29 @@ export default function TimelineItemHistory(props) {
     </TimelineItem>
   )
 }
+
+const AdjustmentBox = ({ adjustmentType, quantity }) => {
+  const adjustmentSign = adjustmentType === 'MINUS' ? '-' : adjustmentType === 'PLUS' ? '+' : '';
+  const adjustmentColor = adjustmentType === 'MINUS' ? '#EA5455' : adjustmentType === 'PLUS' ? '#28C76F' : '#00CFE8';
+
+  return (
+    <Box
+      border={1}
+      // bgcolor={adjustmentColor}
+      alignContent='center'
+      px={1}
+      minWidth={40}
+      height={35}
+      borderRadius={1}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: adjustmentColor,
+        fontWeight: 500,
+      }}
+    >
+      <Typography variant='h6' color={adjustmentColor}>{`${adjustmentSign} ${quantity}`}</Typography>
+    </Box>
+  );
+};
