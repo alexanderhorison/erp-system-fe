@@ -15,11 +15,14 @@ import { useDispatch } from 'react-redux'
 import { CardHeader, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { approveOutstandingProduct, saveToDraftOutstandingProduct } from 'src/store/apps/receipt-order-outstanding'
+import DownloadButton from 'src/views/components/buttons/ButtonDownload'
+import { useState } from 'react'
 
 const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, status, data }) => {
   const auth = UseAuth()
   const dispatch = useDispatch()
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSave = () => {
     const product = data.productOutstandings.map(product => {
@@ -30,7 +33,7 @@ const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAdd
     })
     const sendData = {
       notes: data.notes,
-      product,
+      product
     }
     dispatch(saveToDraftOutstandingProduct({ data: sendData, code: data.code, router }))
   }
@@ -53,9 +56,7 @@ const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAdd
     <>
       <Card>
         <CardContent>
-          <Button fullWidth sx={{ mb: 2 }} color='secondary' variant='tonal'>
-            Unduh
-          </Button>
+          <DownloadButton url={'receipt-order-outstanding'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
           <Button
             fullWidth
             sx={{ mb: 2, '& svg': { mr: 2 } }}
@@ -104,19 +105,21 @@ const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAdd
         />
         <CardContent>
           <Typography variant='body2' color='text.secondary'>
-            1. Anda dapat mengubah kolom status untuk memasukkan produk yang sedang dalam status outstanding, sehingga memudahkan pengelolaan stok.
+            1. Anda dapat mengubah kolom status untuk memasukkan produk yang sedang dalam status outstanding, sehingga
+            memudahkan pengelolaan stok.
           </Typography>
           <Box sx={{ marginBottom: 2 }} />
           <Typography variant='body2' color='text.secondary'>
-            2. Tombol "Save" memungkinkan Anda menyimpan data sementara, sehingga Anda dapat mengeditnya lagi nanti jika diperlukan.
+            2. Tombol "Save" memungkinkan Anda menyimpan data sementara, sehingga Anda dapat mengeditnya lagi nanti jika
+            diperlukan.
           </Typography>
           <Box sx={{ marginBottom: 2 }} />
           <Typography variant='body2' color='text.secondary'>
-            3. Dengan menekan tombol "Selesaikan", surat outstanding akan ditutup dan produk tidak dapat diubah lagi, sehingga memastikan keakuratan dan integritas data.
+            3. Dengan menekan tombol "Selesaikan", surat outstanding akan ditutup dan produk tidak dapat diubah lagi,
+            sehingga memastikan keakuratan dan integritas data.
           </Typography>
         </CardContent>
       </Card>
-
     </>
   )
 }

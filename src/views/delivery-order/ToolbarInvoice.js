@@ -12,11 +12,14 @@ import { useRouter } from 'next/router'
 import { useDispatch } from 'react-redux'
 import { UseAuth } from 'src/hooks/useAuth'
 import { updateReceiveOrder } from 'src/store/apps/receive-order'
+import DownloadButton from 'src/views/components/buttons/ButtonDownload'
+import { useState } from 'react'
 
 const ToolbarInvoice = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, status }) => {
   const auth = UseAuth()
   const dispatch = useDispatch()
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
 
   const onUpdateSuratJalan = (deliveryOrderId, e) => {
     dispatch(updateReceiveOrder({ deliveryOrderId, router }))
@@ -29,9 +32,7 @@ const ToolbarInvoice = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
           <Icon fontSize='1.125rem' icon='tabler:send' />
           Kirim Invoice
         </Button> */}
-        <Button fullWidth sx={{ mb: 2 }} color='secondary' variant='tonal'>
-          Unduh
-        </Button>
+        <DownloadButton url={'delivery-order'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
         <Button
           fullWidth
           sx={{ mb: 2, '& svg': { mr: 2 } }}

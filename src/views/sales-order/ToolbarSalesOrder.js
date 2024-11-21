@@ -19,6 +19,7 @@ import { useEffect, useRef, useState } from 'react'
 import GeneratePdfSalesOrder from './GeneratePdfSalesOrder'
 import { swalInfo, swalNotifError, swalNotifSuccess } from 'src/helpers/swalFunction'
 import { pdfFormData } from 'src/helpers/generatePdfFormData'
+import DownloadButton from 'src/views/components/buttons/ButtonDownload'
 
 const ToolbarSalesOrder = ({ id, data }) => {
   const auth = UseAuth()
@@ -27,10 +28,23 @@ const ToolbarSalesOrder = ({ id, data }) => {
   const [sending, setIsSending] = useState(false)
   const [isShow, setIsShow] = useState(false)
   const cardRef = useRef(null) // Create a ref for the element
+  // const [isDownload, setIsDownload] = useState(false)
+  // const [isDownloading, setIsDownloading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleClick = async () => {
     setIsShow(true)
   }
+
+  // const handleClickDownload = () => {
+  //   setIsDownload(true)
+  //   setIsDownloading(true)
+  //   setIsShow(true)
+  // }
+
+  // const handleDownload = async cardElement => {
+  //   downloadPdf(cardElement, id, setIsShow, setIsDownload, setIsDownloading)
+  // }
 
   const generatePdf = async cardElement => {
     if (!sending && cardElement) {
@@ -58,6 +72,16 @@ const ToolbarSalesOrder = ({ id, data }) => {
 
       return () => clearTimeout(timer)
     }
+    // else if (isShow && isDownload) {
+    //   const timer = setTimeout(() => {
+    //     if (cardRef.current) {
+    //       handleDownload(cardRef.current)
+    //     } else {
+    //       swalNotifError({ message: 'Gagal generate pdf' })
+    //     }
+    //   }, 300) // Delay to allow rendering, adjust if necessary
+    //   return () => clearTimeout(timer)
+    // }
   }, [isShow]) // Run this effect when isShow changes
 
   const onUpdateSalesOrder = (code, type, e) => {
@@ -68,9 +92,18 @@ const ToolbarSalesOrder = ({ id, data }) => {
     <>
       <Card>
         <CardContent>
-          <Button fullWidth sx={{ mb: 2 }} color='secondary' variant='tonal'>
+          {/* <Button
+            fullWidth
+            sx={{ mb: 2 }}
+            variant='contained'
+            onClick={() => {
+              handlePrintDownload('sales-order', id)
+            }}
+          >
+            <Icon fontSize='1.125rem' icon='tabler:download' />
             Unduh
-          </Button>
+          </Button> */}
+          <DownloadButton url={'sales-order'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
           <Button
             fullWidth
             sx={{ mb: 2, '& svg': { mr: 2 } }}

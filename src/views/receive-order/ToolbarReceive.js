@@ -8,6 +8,8 @@ import CardContent from '@mui/material/CardContent'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
+import DownloadButton from 'src/views/components/buttons/ButtonDownload'
+import { useState } from 'react'
 
 const ToolbarReceive = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, status }) => {
   // const auth = UseAuth()
@@ -18,6 +20,8 @@ const ToolbarReceive = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
   //   // e.preventDefault()
   //   dispatch(updateReceiveOrder({ deliveryOrderId, router }))
   // }
+  const [isLoading, setIsLoading] = useState(false)
+
   return (
     <Card>
       <CardContent>
@@ -26,9 +30,7 @@ const ToolbarReceive = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
           Kirim Invoice
         </Button>
         */}
-        <Button fullWidth sx={{ mb: 2 }} color='secondary' variant='tonal'>
-          Unduh
-        </Button>
+        <DownloadButton url={'receive-order'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
         <Button
           fullWidth
           sx={{ mb: 2, '& svg': { mr: 2 } }}

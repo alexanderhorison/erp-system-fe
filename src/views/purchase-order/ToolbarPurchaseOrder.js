@@ -20,6 +20,7 @@ import { swalInfo, swalNotifError, swalNotifSuccess } from 'src/helpers/swalFunc
 import { pdfFormData } from 'src/helpers/generatePdfFormData'
 import { sendEmail } from 'src/store/apps/sales-order'
 import GeneratePdfPurchaseOrder from './GeneratePdfPurchaseOrder'
+import DownloadButton from 'src/views/components/buttons/ButtonDownload'
 
 const ToolbarPurchaseOrder = ({ id, data }) => {
   const auth = UseAuth()
@@ -28,6 +29,7 @@ const ToolbarPurchaseOrder = ({ id, data }) => {
   const [sending, setIsSending] = useState(false)
   const [isShow, setIsShow] = useState(false)
   const cardRef = useRef(null) // Create a ref for the element
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleClick = () => {
     setIsShow(true)
@@ -69,9 +71,7 @@ const ToolbarPurchaseOrder = ({ id, data }) => {
     <>
       <Card>
         <CardContent>
-          <Button fullWidth sx={{ mb: 2 }} color='secondary' variant='tonal'>
-            Unduh
-          </Button>
+          <DownloadButton url={'purchase-order'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
           <Button
             fullWidth
             sx={{ mb: 2, '& svg': { mr: 2 } }}
