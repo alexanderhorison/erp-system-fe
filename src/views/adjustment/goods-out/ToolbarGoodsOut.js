@@ -12,6 +12,8 @@ import { useRouter } from 'next/router'
 import { useDispatch } from 'react-redux'
 import { UseAuth } from 'src/hooks/useAuth'
 import { updateAdjustmentGoodsOut } from 'src/store/apps/adjustment/goods-out'
+import DownloadButton from 'src/views/components/buttons/ButtonDownload'
+import { useState } from 'react'
 
 const ToolbarGoodsOut = ({ id, status }) => {
   const auth = UseAuth()
@@ -21,13 +23,12 @@ const ToolbarGoodsOut = ({ id, status }) => {
   const onUpdateSuratBarangKeluar = (code, type, e) => {
     dispatch(updateAdjustmentGoodsOut({ code, type, router }))
   }
+  const [isLoading, setIsLoading] = useState(false)
 
   return (
     <Card>
       <CardContent>
-        <Button fullWidth sx={{ mb: 2 }} color='secondary' variant='tonal'>
-          Unduh
-        </Button>
+        <DownloadButton url={'adjustment/goods-out'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
         <Button
           fullWidth
           sx={{ mb: 2, '& svg': { mr: 2 } }}

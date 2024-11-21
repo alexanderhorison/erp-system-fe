@@ -14,6 +14,8 @@ import { UseAuth } from 'src/hooks/useAuth'
 import { CardHeader, Typography } from '@mui/material'
 import CustomChip from 'src/@core/components/mui/chip'
 import { updateInternalTransfer } from 'src/store/apps/internal-transfer'
+import DownloadButton from 'src/views/components/buttons/ButtonDownload'
+import { useState } from 'react'
 
 const ToolbarInternalTransfer = ({ id, status }) => {
   const auth = UseAuth()
@@ -23,14 +25,13 @@ const ToolbarInternalTransfer = ({ id, status }) => {
   const onUpdateInternalTransfer = (code, type, e) => {
     dispatch(updateInternalTransfer({ code, type, router }))
   }
+  const [isLoading, setIsLoading] = useState(false)
 
   return (
     <>
       <Card>
         <CardContent>
-          <Button fullWidth sx={{ mb: 2 }} color='secondary' variant='tonal'>
-            Unduh
-          </Button>
+          <DownloadButton url={'internal-transfer'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
           <Button
             fullWidth
             sx={{ mb: 2, '& svg': { mr: 2 } }}

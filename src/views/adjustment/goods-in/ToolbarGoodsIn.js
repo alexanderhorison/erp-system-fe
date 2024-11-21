@@ -14,11 +14,14 @@ import { UseAuth } from 'src/hooks/useAuth'
 import { updateAdjustmentGoodsIn } from 'src/store/apps/adjustment/goods-in'
 import { CardHeader, Typography } from '@mui/material'
 import CustomChip from 'src/@core/components/mui/chip'
+import { useState } from 'react'
+import DownloadButton from 'src/views/components/buttons/ButtonDownload'
 
 const ToolbarGoodsIn = ({ id, status }) => {
   const auth = UseAuth()
   const dispatch = useDispatch()
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
 
   const onUpdateSuratBarangMasuk = (code, type, e) => {
     dispatch(updateAdjustmentGoodsIn({ code, type, router }))
@@ -28,9 +31,7 @@ const ToolbarGoodsIn = ({ id, status }) => {
     <>
       <Card>
         <CardContent>
-          <Button fullWidth sx={{ mb: 2 }} color='secondary' variant='tonal'>
-            Unduh
-          </Button>
+          <DownloadButton url={'adjustment/goods-in'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
           <Button
             fullWidth
             sx={{ mb: 2, '& svg': { mr: 2 } }}
