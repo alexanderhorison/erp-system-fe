@@ -36,6 +36,7 @@ import masterVendor from './apps/master/vendor'
 import purchaseOrder from './apps/purchase-order'
 import termsOfPayment from './apps/purchase-order/terms-of-payment'
 import purchaseOrderPayment from './apps/purchase-order-payment'
+import deletedProductWarehouse from './apps/deleted-product-warehouse'
 
 export const store = configureStore({
   reducer: {
@@ -72,6 +73,7 @@ export const store = configureStore({
     purchaseOrder,
     purchaseOrderPayment,
     termsOfPayment,
+    deletedProductWarehouse,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

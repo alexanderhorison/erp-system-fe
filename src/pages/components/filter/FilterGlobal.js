@@ -7,6 +7,7 @@ import { fetchDataMasterCategory } from 'src/store/apps/master/category'
 import { fetchMasterDataCompany } from 'src/store/apps/master/company'
 import { fetchMasterDataType } from 'src/store/apps/master/type'
 import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
+import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
 import { fetchMasterDataWarehouseRack } from 'src/store/apps/master/warehouse-rack'
 
 export default function FilterGlobal({
@@ -24,6 +25,7 @@ export default function FilterGlobal({
     companyId: '',
     unitId: '',
     warehouseRackId: '',
+    warehouseId: '',
   }
   const [filterInput, setFilterInput] = useState(defaultValueFilter)
 
@@ -32,6 +34,7 @@ export default function FilterGlobal({
   const { data: company } = useSelector(state => state.company)
   const { data: unit } = useSelector(state => state.unit)
   const { data: rack } = useSelector(state => state.masterWarehouseRack)
+  const { data: warehouse } = useSelector(state => state.warehouse)
 
   // RESET FIELDS
   const clearAllFilter = useCallback(() => {
@@ -47,7 +50,7 @@ export default function FilterGlobal({
 
   // FETCH NEEDED DATA
   useEffect(() => {
-    if (warehouseId){
+    if (warehouseId) {
       listFilter.includes('rack') && dispatch(fetchMasterDataWarehouseRack(warehouseId))
     }
   }, [warehouseId])
@@ -57,6 +60,7 @@ export default function FilterGlobal({
     listFilter.includes('type') && dispatch(fetchMasterDataType())
     listFilter.includes('company') && dispatch(fetchMasterDataCompany())
     listFilter.includes('unit') && dispatch(fetchMasterDataUnit())
+    listFilter.includes('warehouse') && dispatch(fetchMasterDataWarehouse())
   }, [])
 
   return (
@@ -64,6 +68,26 @@ export default function FilterGlobal({
       <CardHeader title='Pencarian' />
       <CardContent>
         <Grid container spacing={6}>
+          {
+            listFilter.includes('warehouse') &&
+            <Grid item sm={4} xs={12}>
+              <CustomAutocomplete
+                ref={el => (autocompleteRefs.current.warehouse = el)}
+                id="autocomplete-custom-warehouse"
+                options={warehouse}
+                getOptionLabel={option => option?.name || ''}
+                onChange={(event, newValue) => {
+                  setFilterInput({ ...filterInput, warehouseId: newValue?.id || "" })
+                }}
+                renderInput={params => (
+                  <CustomTextField
+                    {...params}
+                    placeholder='Pilih Gudang'
+                  />
+                )}
+              />
+            </Grid>
+          }
           {
             listFilter.includes('category') &&
             <Grid item sm={4} xs={12}>
@@ -78,7 +102,7 @@ export default function FilterGlobal({
                 renderInput={params => (
                   <CustomTextField
                     {...params}
-                    placeholder='Pilih category'
+                    placeholder='Pilih Kategori'
                   />
                 )}
               />
@@ -98,7 +122,7 @@ export default function FilterGlobal({
                 renderInput={params => (
                   <CustomTextField
                     {...params}
-                    placeholder='Pilih type'
+                    placeholder='Pilih Tipe'
                   />
                 )}
               />
@@ -118,7 +142,7 @@ export default function FilterGlobal({
                 renderInput={params => (
                   <CustomTextField
                     {...params}
-                    placeholder='Pilih company'
+                    placeholder='Pilih Company'
                   />
                 )}
               />
@@ -138,7 +162,7 @@ export default function FilterGlobal({
                 renderInput={params => (
                   <CustomTextField
                     {...params}
-                    placeholder='Pilih Unit'
+                    placeholder='Pilih Satuan'
                   />
                 )}
               />
@@ -158,7 +182,7 @@ export default function FilterGlobal({
                 renderInput={params => (
                   <CustomTextField
                     {...params}
-                    placeholder='Pilih rack'
+                    placeholder='Pilih Rack'
                   />
                 )}
               />

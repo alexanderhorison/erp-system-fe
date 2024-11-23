@@ -49,7 +49,7 @@ export const listMenu = [
   {
     title: "Manajemen Stok",
     icon: 'tabler:stack',
-    menuId: [8, 9, 16, 17, 18],
+    menuId: [8, 9, 16, 17, 18, 26],
     children: [
       {
         title: 'List Produk Gudang',
@@ -81,6 +81,12 @@ export const listMenu = [
         menuId: 18,
         icon: 'tabler:arrow-autofit-left'
       },
+      {
+        title: 'Barang Terhapus',
+        path: '/deleted-product-warehouse',
+        menuId: 26,
+        icon: 'tabler:trash'
+      }
     ]
   },
   {

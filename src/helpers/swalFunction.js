@@ -97,6 +97,36 @@ export async function swalConfirmationEdit({ label, name = 'Data', axiosRequest,
   }
 }
 
+// ONLY FOR RESTORE
+export async function swalConfirmationRestore({ label, name = 'Data', axiosRequest, dispatchRequest, title }) {
+  try {
+    const result = await swal.fire({
+      title: title ? title : `Anda akan mengembalikan produk?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Iya',
+      cancelButtonText: 'Tidak',
+      reverseButtons: true,
+      confirmButtonColor: '#6F4E37'
+    })
+    if (result.dismiss) {
+    } else {
+      const response = await axiosRequest()
+      if (dispatchRequest) {
+        dispatchRequest()
+      }
+      swal.fire({
+        title: response?.data?.message || `${name} berhasil dikembalikan`,
+        icon: 'success',
+        confirmButtonColor: '#6F4E37'
+      })
+      return response
+    }
+  } catch (error) {
+    swalError({ error, label })
+    throw error
+  }
+}
 // DEFAULT SWAL SUCCESS
 export function swalSuccess({ name, response }) {
   return swal.fire({
