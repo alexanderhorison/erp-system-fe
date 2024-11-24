@@ -108,8 +108,8 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
                   <TableCell>{data?.productName}</TableCell>
                   <TableCell>{data?.unitName || ''}</TableCell>
                   <TableCell>{data?.quantity || ''}</TableCell>
-                  <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
-                  <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.price)}</TableCell>
+                  <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.subTotal)}</TableCell>
                 </TableRow>
               )
             })}
@@ -117,7 +117,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
         </Table>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
           <Typography sx={{ paddingTop: 2, mr: 5 }}>Total :</Typography>
-          <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalCustomer)}</Typography>
+          <Typography sx={{ paddingTop: 2, mr: 2, whiteSpace: 'nowrap'}}>Rp. {priceFormat(data?.grandTotalCustomer)}</Typography>
         </Box>
       </TableContainer>
       {data?.listBarterProducts?.length > 0 && (
@@ -150,8 +150,8 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
                       <TableCell>{data?.productName}</TableCell>
                       <TableCell>{data?.unitName || ''}</TableCell>
                       <TableCell>{data?.quantity || ''}</TableCell>
-                      <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
-                      <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.price)}</TableCell>
+                      <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.subTotal)}</TableCell>
                     </TableRow>
                   )
                 })}

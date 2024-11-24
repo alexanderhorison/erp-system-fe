@@ -119,7 +119,7 @@ const PrintSalesOrder = ({ id }) => {
 
         <Divider />
 
-        <TableContainer >
+        <TableContainer>
           <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
             Barang Sales Order
           </Typography>
@@ -147,8 +147,10 @@ const PrintSalesOrder = ({ id }) => {
                     <TableCell>{data?.productName}</TableCell>
                     <TableCell>{data?.unitName || ''}</TableCell>
                     <TableCell>{data?.quantity || ''}</TableCell>
-                    <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
-                    <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.price)}</TableCell>
+                    <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>
+                      Rp. {priceFormat(data?.subTotal)}
+                    </TableCell>
                   </TableRow>
                 )
               })}
@@ -156,7 +158,9 @@ const PrintSalesOrder = ({ id }) => {
           </Table>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
             <Typography sx={{ paddingTop: 2, mr: 5 }}>Total :</Typography>
-            <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalCustomer)}</Typography>
+            <Typography sx={{ paddingTop: 2, mr: 2, whiteSpace: 'nowrap' }}>
+              Rp. {priceFormat(data?.grandTotalCustomer)}
+            </Typography>
           </Box>
         </TableContainer>
         {data?.listBarterProducts?.length > 0 && (
@@ -189,8 +193,10 @@ const PrintSalesOrder = ({ id }) => {
                         <TableCell>{data?.productName}</TableCell>
                         <TableCell>{data?.unitName || ''}</TableCell>
                         <TableCell>{data?.quantity || ''}</TableCell>
-                        <TableCell>Rp. {priceFormat(data?.price)}</TableCell>
-                        <TableCell align='right'>Rp. {priceFormat(data?.subTotal)}</TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.price)}</TableCell>
+                        <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>
+                          Rp. {priceFormat(data?.subTotal)}
+                        </TableCell>
                       </TableRow>
                     )
                   })}
@@ -199,7 +205,9 @@ const PrintSalesOrder = ({ id }) => {
             </TableContainer>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
               <Typography sx={{ paddingTop: 2, mr: 5 }}>Total :</Typography>
-              <Typography sx={{ paddingTop: 2, mr: 2 }}>Rp. {priceFormat(data?.grandTotalBarter)}</Typography>
+              <Typography sx={{ paddingTop: 2, mr: 2, whiteSpace: 'nowrap' }}>
+                Rp. {priceFormat(data?.grandTotalBarter)}
+              </Typography>
             </Box>
             <Divider sx={{ mt: 8 }} />
           </>
@@ -236,10 +244,11 @@ const PrintSalesOrder = ({ id }) => {
             <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
               {data?.grandTotal < 0
                 ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
-                  data?.grandTotal
-                ).toLocaleString()}`
-                : `Customer ${data?.customer?.name?.toUpperCase() || ''
-                } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
+                    data?.grandTotal
+                  ).toLocaleString()}`
+                : `Customer ${
+                    data?.customer?.name?.toUpperCase() || ''
+                  } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
             </Typography>
           </Box>
         </CardContent>
