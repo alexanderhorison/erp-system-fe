@@ -47,7 +47,11 @@ export default function TimelineItemHistory(props) {
                 Dibuat Oleh: {props?.createdBy}
               </Typography>
             </Box>
-            <AdjustmentBox adjustmentType={props?.adjustmentType} quantity={props?.quantity} />
+            {
+              !props?.deleted && (
+                <AdjustmentBox adjustmentType={props?.adjustmentType} quantity={props?.quantity} />
+              )
+            }
           </Box>
           <Box
             sx={{
