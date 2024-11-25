@@ -2,7 +2,9 @@ import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import { swalNotifError } from './swalFunction'
 
-const pdfFormData = async (cardElement, module, code, namePdf) => {
+const pdfFormData = async (cardElement, module, code, namePdf, additionSubjectText = '') => {
+  // Addition Subject Text for add on email subject
+  // Currently being used sales order and purchase order for (Customer A or Vendor A)
   cardElement.style.width = '250mm' // A4 width
   cardElement.style.height = 'auto' // Allow height to auto to fit content
   cardElement.style.overflow = 'visible' // Ensure all content is visible
@@ -36,6 +38,7 @@ const pdfFormData = async (cardElement, module, code, namePdf) => {
   formData.append('pdf', pdfBlob, `${namePdf}.pdf`)
   formData.append('filename', code)
   formData.append('module', module)
+  formData.append('additionSubjectText', additionSubjectText)
   return formData
 }
 
@@ -90,6 +93,8 @@ const handlePrintDownload = (url, id, setIsLoading) => {
   // Id for the code surat
   // url where is the page (delivery-order, sales-order) -> based on page print
   setIsLoading(true)
+  const originalTitle = document.title // Store the original title
+  document.title = id
   const iframe = document.createElement('iframe')
   iframe.style.position = 'absolute'
   iframe.style.width = '0'
@@ -100,7 +105,8 @@ const handlePrintDownload = (url, id, setIsLoading) => {
   iframe.onload = () => {
     setIsLoading(false) // Stop loading when the download starts
     setTimeout(() => {
-      document.body.removeChild(iframe) // Clean up the iframe
+      document.title = originalTitle // Restore the original title after some time
+      document.body.removeChild(iframe)
     }, 2000) // Remove iframe after 2 seconds
   }
 
@@ -114,6 +120,9 @@ const handlePrintDownload = (url, id, setIsLoading) => {
   // document.body.appendChild(link)
   // link.click()
   // document.body.removeChild(link)
+  // setTimeout(() => {
+  //   setIsLoading(false)
+  // }, 1000)
 }
 
 module.exports = {

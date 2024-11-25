@@ -49,7 +49,8 @@ const ToolbarSalesOrder = ({ id, data }) => {
   const generatePdf = async cardElement => {
     if (!sending && cardElement) {
       console.log('Generating PDF...')
-      const generatePdf = await pdfFormData(cardElement, 'Sales Order', id, 'sales-order')
+      const additionSubjectText = `Customer ${data?.customer?.name}`
+      const generatePdf = await pdfFormData(cardElement, 'Sales Order', id, 'sales-order', additionSubjectText)
       dispatch(sendEmail(generatePdf))
       setIsSending(true)
     }
