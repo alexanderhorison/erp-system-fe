@@ -18,7 +18,7 @@ export const listMenu = [
         title: 'Tipe Produk',
         path: '/master/types',
         menuId: 4,
-        icon: 'tabler:boxes'
+        icon: 'tabler:packages'
       },
       {
         title: 'Satuan Produk',
