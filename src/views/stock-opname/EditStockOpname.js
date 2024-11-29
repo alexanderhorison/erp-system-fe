@@ -34,7 +34,10 @@ export default function EditStockOpname({ }) {
 
   const onSubmit = (status) => {
     const mapData = fields.map(item => {
-      let different = item.systemStock - item.actualStock
+      let different = null
+      if (item.actualStock !== null) {
+        different = item.systemStock - item.actualStock
+      }
       let actualStock = item.actualStock
       if (isNaN(different)) {
         different = null

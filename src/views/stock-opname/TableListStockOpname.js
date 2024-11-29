@@ -20,7 +20,7 @@ const RowOptions = props => {
   }
 
   const handleEdit = () => {
-    props.router.push(`/stock-opname/${props.id}/edit`)
+    props.router.push(`/stock-opname/${props.code}/edit`)
   }
 
   const handleClickDetail = () => {
@@ -83,7 +83,7 @@ export default function TableListStockOpname({ timeFilter }) {
         // Compare it with timeFilter.year and timeFilter.month (if provided)
         const matchesYear = itemYear === parseInt(timeFilter.year);
         const matchesMonth = timeFilter.month ? itemMonth === parseInt(timeFilter.month - 1) : true;
-  
+
         return matchesYear && matchesMonth;
       });
       setFilteredData(filtered);
@@ -94,6 +94,11 @@ export default function TableListStockOpname({ timeFilter }) {
 
   const handleAddStockOpname = () => {
     router.push('/stock-opname/add')
+  }
+
+  const handleRowClick = params => {
+    const code = params?.code || params?.row?.code
+    router.push(`/stock-opname/${code}`)
   }
 
   return (
@@ -157,20 +162,22 @@ export default function TableListStockOpname({ timeFilter }) {
             field: 'actions',
             headerName: 'Actions',
             renderCell: ({ row }) => (
-              <RowOptions
-                id={row.id}
-                date={returnFormatDate(row.createdAt)}
-                warehouseName={row.warehouseName}
-                code={row.code}
-                router={router}
-                status={row.status}
-              />
+              <div onClick={(e) => e.stopPropagation()}>
+                <RowOptions
+                  id={row.id}
+                  date={returnFormatDate(row.createdAt)}
+                  warehouseName={row.warehouseName}
+                  code={row.code}
+                  router={router}
+                  status={row.status}
+                />
+              </div>
             )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
-        onRowClick={row => router.push(`/stock-opname/${row.id}`)}
+        onRowClick={params => { handleRowClick(params) }}
         slots={{ toolbar: TableHeaderStockOpname }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}

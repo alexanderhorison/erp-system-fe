@@ -59,8 +59,8 @@ export default function AddStockOpname({ warehouse }) {
       return {
         warehouseProductId: item.productWarehouseId,
         systemStock: item.quantity,
-        actualStock: item?.actualStock || null,
-        diff: item?.actualStock ? Math.abs(different) : null
+        actualStock: isNaN(item.actualStock) ? null : item.actualStock === 0 ? 0 : item.actualStock,
+        diff: item.actualStock !== null && item.actualStock !== 0 ? Math.abs(different) : null
       }
     })
     let sendData = {
@@ -96,7 +96,7 @@ export default function AddStockOpname({ warehouse }) {
       const updatedFields = [...data]
       updatedFields[index] = {
         ...updatedFields[index],
-        actualStock: +actualStock || null
+        actualStock: isNaN(actualStock) ? null : +actualStock === 0 ? 0 : +actualStock
       }
       setFields(updatedFields)
     }
