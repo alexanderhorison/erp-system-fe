@@ -21,6 +21,7 @@ import { priceFormat } from 'src/helpers/priceFormatter'
 import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
 import { Box } from '@mui/system'
 import ModalTransformProductSalesOrder from './ModalTransformProductSalesOrder'
+import ModalAddMasterCustomer from '../master/customer/ModalAddMasterCustomer'
 
 export default function AddSalesOrder({}) {
   const dispatch = useDispatch()
@@ -32,6 +33,7 @@ export default function AddSalesOrder({}) {
   const [date, setDate] = useState(new Date())
   const [customerData, setCustomerData] = useState({})
   const [openModalTransformation, setOpenModalTransformation] = useState(false)
+  const [openModalCustomer, setOpenModalCustomer] = useState(false)
   const [transformationData, setTransformationData] = useState({})
   const [warehouseId, setWarehouseId] = useState()
   const [helperTextChanges, setHelperTextChanges] = useState(false)
@@ -316,6 +318,10 @@ export default function AddSalesOrder({}) {
     return infos
   }
 
+  const handleAddCustomer = () => {
+    setOpenModalCustomer(true)
+  }
+
   useEffect(() => {
     // For transformation product
   }, [helperTextChanges, dataWarehouseIds])
@@ -329,33 +335,52 @@ export default function AddSalesOrder({}) {
               <CardContent>
                 <Grid container display='flex' gap={4} justifyContent='space-between'>
                   <Grid item xs={12} md={4}>
-                    <Controller
-                      name={`customerId`}
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomAutocomplete
-                          options={masterCustomer}
-                          id='autocomplete-custom'
-                          getOptionLabel={option => option.name || ''}
-                          onChange={(event, newValue) => {
-                            onChange(+newValue?.id || '')
-                            setCustomerData(newValue)
-                          }}
-                          renderInput={params => (
-                            <CustomTextField
-                              value={value}
-                              {...params}
-                              error={Boolean(errors?.customerId)}
-                              {...(errors?.customerId && {
-                                helperText: errors?.customerId.message
-                              })}
-                              label='Customer'
-                            />
-                          )}
-                        />
-                      )}
-                    />
+                    <Box display='flex' alignItems={'center'} width={'100%'}>
+                      <Controller
+                        name={`customerId`}
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                          <CustomAutocomplete
+                            options={masterCustomer}
+                            id='autocomplete-custom'
+                            sx={{ flexGrow: 1 }}
+                            getOptionLabel={option => option.name || ''}
+                            onChange={(event, newValue) => {
+                              onChange(+newValue?.id || '')
+                              setCustomerData(newValue)
+                            }}
+                            renderInput={params => (
+                              <CustomTextField
+                                value={value}
+                                {...params}
+                                error={Boolean(errors?.customerId)}
+                                {...(errors?.customerId && {
+                                  helperText: errors?.customerId.message
+                                })}
+                                label='Customer'
+                                sx={{ flexGrow: 1 }}
+                              />
+                            )}
+                          />
+                        )}
+                      />
+                      <Button
+                        onClick={handleAddCustomer}
+                        variant='contained'
+                        sx={{
+                          ml: 2,
+                          mt: 4,
+                          width: '100%',
+                          '@media (min-width: 600px)': {
+                            width: 'auto'
+                          }
+                        }}
+                      >
+                        <Icon fontSize='1.125rem' icon='tabler:plus' />
+                        Tambah Customer
+                      </Button>
+                    </Box>
                   </Grid>
                   <Grid item xs={12} md={2}>
                     <DatePicker
@@ -1026,6 +1051,9 @@ export default function AddSalesOrder({}) {
           handleTransformProductUpdate={handleTransformProductUpdate}
           setDataWarehouseIds={setDataWarehouseIds}
         />
+      )}
+      {openModalCustomer && (
+        <ModalAddMasterCustomer open={openModalCustomer} setOpen={setOpenModalCustomer} typeModal={'ADD'} />
       )}
     </>
   )

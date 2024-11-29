@@ -23,6 +23,7 @@ import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
 import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
 import ModalTransformProductSalesOrder from '../sales-order/ModalTransformProductSalesOrder'
 import { createPurchaseOrder } from 'src/store/apps/purchase-order'
+import ModalAddMasterVendor from '../master/vendor/ModalAddMasterVendor'
 
 export default function AddPurchaseOrder({}) {
   const dispatch = useDispatch()
@@ -36,6 +37,7 @@ export default function AddPurchaseOrder({}) {
   const [vendorData, setVendorData] = useState({})
   const [warehouseId, setWarehouseId] = useState()
   const [openModalTransformation, setOpenModalTransformation] = useState(false)
+  const [openModalVendor, setOpenModalVendor] = useState(false)
   const [helperTextChanges, setHelperTextChanges] = useState(false)
   const [transformationData, setTransformationData] = useState({})
   const [dataWarehouseIds, setDataWarehouseIds] = useState({})
@@ -312,6 +314,10 @@ export default function AddPurchaseOrder({}) {
     setValue(`barterProduct[${indexForm}].warehouseProductId`, transformedProduct.productWarehouseId)
   }
 
+  const handleAddVendor = () => {
+    setOpenModalVendor(true)
+  }
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -322,33 +328,51 @@ export default function AddPurchaseOrder({}) {
               <CardContent>
                 <Grid container display='flex' gap={4} justifyContent='space-between'>
                   <Grid item xs={12} md={4}>
-                    <Controller
-                      name={`vendorId`}
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomAutocomplete
-                          options={masterVendor}
-                          id='autocomplete-custom'
-                          getOptionLabel={option => option.name || ''}
-                          onChange={(event, newValue) => {
-                            onChange(+newValue?.id || '')
-                            setVendorData(newValue)
-                          }}
-                          renderInput={params => (
-                            <CustomTextField
-                              value={value}
-                              {...params}
-                              error={Boolean(errors?.vendorId)}
-                              {...(errors?.vendorId && {
-                                helperText: errors?.vendorId.message
-                              })}
-                              label='Vendor'
-                            />
-                          )}
-                        />
-                      )}
-                    />
+                    <Box display='flex' alignItems={'center'} width={'100%'}>
+                      <Controller
+                        name={`vendorId`}
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                          <CustomAutocomplete
+                            options={masterVendor}
+                            id='autocomplete-custom'
+                            getOptionLabel={option => option.name || ''}
+                            onChange={(event, newValue) => {
+                              onChange(+newValue?.id || '')
+                              setVendorData(newValue)
+                            }}
+                            sx={{ flexGrow: 1 }}
+                            renderInput={params => (
+                              <CustomTextField
+                                value={value}
+                                {...params}
+                                error={Boolean(errors?.vendorId)}
+                                {...(errors?.vendorId && {
+                                  helperText: errors?.vendorId.message
+                                })}
+                                label='Vendor'
+                              />
+                            )}
+                          />
+                        )}
+                      />
+                      <Button
+                        onClick={handleAddVendor}
+                        variant='contained'
+                        sx={{
+                          ml: 2,
+                          mt: 4,
+                          width: '100%',
+                          '@media (min-width: 600px)': {
+                            width: 'auto'
+                          }
+                        }}
+                      >
+                        <Icon fontSize='1.125rem' icon='tabler:plus' />
+                        Tambah Vendor
+                      </Button>
+                    </Box>
                   </Grid>
                   <Grid item xs={12} md={2}>
                     <DatePicker
@@ -1054,6 +1078,9 @@ export default function AddPurchaseOrder({}) {
           handleTransformProductUpdate={handleTransformProductUpdate}
           setDataWarehouseIds={setDataWarehouseIds}
         />
+      )}
+      {openModalVendor && (
+        <ModalAddMasterVendor open={openModalVendor} setOpen={setOpenModalVendor} typeModal={'ADD'} />
       )}
     </>
   )
