@@ -330,7 +330,80 @@ export default function AddSalesOrder({}) {
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          {/* left Card */}
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Box display='flex' alignItems='center' flexDirection='column'>
+                  <Box display='flex' alignItems='center' width='100%' mb={2}>
+                    <Controller
+                      name={`customerId`}
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomAutocomplete
+                          options={masterCustomer}
+                          id='autocomplete-custom'
+                          sx={{ flexGrow: 1 }}
+                          getOptionLabel={option => option.name || ''}
+                          onChange={(event, newValue) => {
+                            onChange(+newValue?.id || '')
+                            setCustomerData(newValue)
+                          }}
+                          renderInput={params => (
+                            <CustomTextField
+                              value={value}
+                              {...params}
+                              error={Boolean(errors?.customerId)}
+                              {...(errors?.customerId && {
+                                helperText: errors?.customerId.message
+                              })}
+                              label='Customer'
+                            />
+                          )}
+                        />
+                      )}
+                    />
+                    <Button
+                      onClick={handleAddCustomer}
+                      variant='contained'
+                      sx={{
+                        ml: 2,
+                        mt: errors?.customerId ? 0.5 : 4.5
+                      }}
+                    >
+                      <Icon fontSize='1.125rem' icon='tabler:plus' />
+                    </Button>
+                  </Box>
+
+                  {/* Customer Data Info */}
+                  <Box sx={{ textAlign: 'left', width: '100%', mt: 2 }}>
+                    <Typography sx={{ color: 'text.secondary' }}>{customerData?.email}</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>{customerData?.address}</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>{customerData?.phoneNumber}</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>{customerData?.rankName}</Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Right Card */}
+          <Grid item xs={12} md={6} sx={{ textAlign: 'left' }}>
+            <Card sx={{ height: '100%' }}>
+              <CardContent>
+                <DatePicker
+                  selected={date}
+                  id='basic'
+                  popperPlacement={popperPlacement}
+                  onChange={date => setDate(date)}
+                  fullWidth
+                  customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
+                />
+              </CardContent>
+            </Card>
+          </Grid>
+          {/* <Grid item xs={12}>
             <Card>
               <CardContent>
                 <Grid container display='flex' gap={4} justifyContent='space-between'>
@@ -405,7 +478,7 @@ export default function AddSalesOrder({}) {
                 </Grid>
               </CardContent>
             </Card>
-          </Grid>
+          </Grid> */}
           <Grid item xs={12}>
             <Card>
               <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>

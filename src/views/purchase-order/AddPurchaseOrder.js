@@ -322,8 +322,77 @@ export default function AddPurchaseOrder({}) {
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={6}>
-          {/* HEADER */}
-          <Grid item xs={12}>
+          {/* left Card */}
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Box display='flex' alignItems='center' flexDirection='column'>
+                  <Box display='flex' alignItems='center' width='100%' mb={2}>
+                    <Controller
+                      name={`vendorId`}
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomAutocomplete
+                          options={masterVendor}
+                          id='autocomplete-custom'
+                          getOptionLabel={option => option.name || ''}
+                          onChange={(event, newValue) => {
+                            onChange(+newValue?.id || '')
+                            setVendorData(newValue)
+                          }}
+                          sx={{ flexGrow: 1 }}
+                          renderInput={params => (
+                            <CustomTextField
+                              value={value}
+                              {...params}
+                              error={Boolean(errors?.vendorId)}
+                              {...(errors?.vendorId && {
+                                helperText: errors?.vendorId.message
+                              })}
+                              label='Vendor'
+                            />
+                          )}
+                        />
+                      )}
+                    />
+                    <Button
+                      onClick={handleAddVendor}
+                      variant='contained'
+                      sx={{
+                        ml: 2,
+                        mt: errors?.vendorId ? 0.5 : 4.5
+                      }}
+                    >
+                      <Icon fontSize='1.125rem' icon='tabler:plus' />
+                    </Button>
+                  </Box>
+                  <Box sx={{ textAlign: 'left', width: '100%', mt: 2 }}>
+                    <Typography sx={{ color: 'text.secondary' }}>{vendorData?.email}</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>{vendorData?.address}</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>{vendorData?.phoneNumber}</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>{vendorData?.rankName}</Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          {/* Right Card */}
+          <Grid item xs={12} md={6} sx={{ textAlign: 'left' }}>
+            <Card sx={{ height: '100%' }}>
+              <CardContent>
+                <DatePicker
+                  selected={date}
+                  id='basic'
+                  popperPlacement={popperPlacement}
+                  onChange={date => setDate(date)}
+                  fullWidth
+                  customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
+                />
+              </CardContent>
+            </Card>
+          </Grid>
+          {/* <Grid item xs={12}>
             <Card>
               <CardContent>
                 <Grid container display='flex' gap={4} justifyContent='space-between'>
@@ -397,7 +466,7 @@ export default function AddPurchaseOrder({}) {
                 </Grid>
               </CardContent>
             </Card>
-          </Grid>
+          </Grid> */}
           {/* BODY PURCHASE ORDER */}
           <Grid item xs={12}>
             <Card>
