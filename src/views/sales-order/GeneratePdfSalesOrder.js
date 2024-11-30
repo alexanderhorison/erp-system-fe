@@ -30,7 +30,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CompanySvg />
-                <Typography variant='h3' sx={{ ml: 2.5, fontWeight: 500, lineHeight: '18px' }}>
+                <Typography variant='h3' sx={{ ml: 2.5, fontWeight: 500, lineHeight: '18px', textWrap: 'nowrap' }}>
                   {themeConfig.templateName}
                 </Typography>
               </Box>
