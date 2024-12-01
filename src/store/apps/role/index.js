@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationDelete, swalError, swalSuccess } from 'src/helpers/swalFunction'
+import { swalConfirmationDelete, swalConfirmationEdit, swalError, swalSuccess } from 'src/helpers/swalFunction'
 
 const label = 'otoritas'
 
@@ -16,6 +16,20 @@ export const fetchRoles = createAsyncThunk('appRoles/fetchRoles', async params =
     swalError({ label, error })
   }
 })
+
+// Fetch Roles
+export const fetchOneRole = createAsyncThunk('appRoles/fetchOneRole', async params => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/role/' + params
+    })
+    return response.data
+  } catch (error) {
+    swalError({ label, error })
+  }
+})
+
 
 // ** Add Role
 export const addRole = createAsyncThunk('appUsers/addRole', async (data, { getState, dispatch }) => {
@@ -34,17 +48,28 @@ export const addRole = createAsyncThunk('appUsers/addRole', async (data, { getSt
 })
 
 // Edit Role
-export const editRole = createAsyncThunk('appUsers/editRole', async (data, { getState, dispatch }) => {
+export const editRole = createAsyncThunk('appUsers/editRole', async ({ id, data, router }, { getState, dispatch }) => {
   try {
-    const response = await axios({
-      method: 'PUT',
-      url: `/role/${data.id}`,
-      data: data
+    await swalConfirmationEdit({
+      label: 'Role',
+      name: 'Role',
+      title: 'Anda akan melakukan perubahan akses menu',
+      axiosRequest: () => {
+        return axios({
+          method: 'PUT',
+          url: '/role/' + id,
+          data: data
+        })
+      },
+      dispatchRequest: () => {
+        dispatch(fetchRoles())
+        router.push('/settings/roles')
+      }
     })
-    swalSuccess({ label, name: 'Otoritas', response })
-    dispatch(fetchRoles())
     return
   } catch (error) {
+    console.log(error);
+
     swalError({ label, error })
   }
 })
@@ -73,12 +98,27 @@ export const deleteRole = createAsyncThunk('appUsers/deleteRole', async ({ id, n
 export const appRolesSlice = createSlice({
   name: 'appRoles',
   initialState: {
-    dataRoles: []
+    dataRoles: [],
+
+    detailRole: {},
+    loadingDetail: false,
+    errorDetail: false
   },
   reducers: {},
   extraReducers: builder => {
     builder.addCase(fetchRoles.fulfilled, (state, action) => {
       state.dataRoles = action.payload.data
+    })
+    builder.addCase(fetchOneRole.pending, (state, action) => {
+      state.loadingDetail = true
+    })
+    builder.addCase(fetchOneRole.fulfilled, (state, action) => {
+      state.loadingDetail = false
+      state.detailRole = action.payload.data
+    })
+    builder.addCase(fetchOneRole.rejected, (state, action) => {
+      state.loadingDetail = false
+      state.errorDetail = action.error.message
     })
   }
 })

@@ -20,8 +20,9 @@ import TableHeader from 'src/views/settings/roles/TableHeader'
 
 // ** Actions Imports
 import { deleteRole, fetchRoles } from 'src/store/apps/role'
-import ModalRoleEdit from 'src/views/settings/roles/modalRoleEdit'
+// import ModalRoleEdit from 'src/views/settings/roles/modalRoleEdit'
 import { fetchMenus } from 'src/store/apps/menu'
+import { useRouter } from 'next/router'
 
 const colors = {
   support: 'info',
@@ -34,26 +35,22 @@ const colors = {
 const RowOptions = ({ id, data }) => {
   // ** Hooks
   const dispatch = useDispatch()
-
-  // State Modal View
-  const [isView, setIsView] = useState(false)
+  const router = useRouter()
 
   // State Modal Edit
-  const [isModalEditRole, setIsModalEditRole] = useState(false)
+  // const [isModalEditRole, setIsModalEditRole] = useState(false)
   // state data for edit
-  const [dataRole, setDataRole] = useState(null)
+  // const [dataRole, setDataRole] = useState(null)
   // state on Close modal
-  const modalEditRoleClosePress = useCallback(() => {
-    setIsModalEditRole(false)
-  }, [])
+  // const modalEditRoleClosePress = useCallback(() => {
+  //   setIsModalEditRole(false)
+  // }, [])
 
   // Action Open Modal
   const modalOpenPress = useCallback(
     (data, isView = false) =>
       () => {
-        setDataRole(data)
-        setIsView(isView)
-        setIsModalEditRole(true)
+        router.push(`/settings/roles/${data.id}`)
       },
     []
   )
@@ -73,9 +70,10 @@ const RowOptions = ({ id, data }) => {
           <Icon icon='tabler:trash' onClick={handleDelete} />
         </IconButton>
       </Box>
-      {isModalEditRole && (
+      {/* DEPRECATED SINCE MOVE TO PAGE MODE INSTEAD MODAL */}
+      {/* {isModalEditRole && (
         <ModalRoleEdit data={dataRole} isOpen={isModalEditRole} closePress={modalEditRoleClosePress} />
-      )}
+      )} */}
     </>
   )
 }
