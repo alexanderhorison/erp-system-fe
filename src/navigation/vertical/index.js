@@ -29,12 +29,12 @@ const navigation = () => {
       },
       {
         title: "Sales Order",
-        path: "/dashboard-sales-order",
+        path: "/dashboards/sales-order",
         menuId: 1,
       },
       {
         title: "Purchase Order",
-        path: "/dashboard-purchase-order",
+        path: "/dashboards/purchase-order",
         menuId: 1,
       }
     ]

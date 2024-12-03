@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Dashboard'
 
@@ -194,6 +194,35 @@ export const fetchDashboardSummaryVendor = createAsyncThunk('appDashboard/fetchD
   }
 })
 
+// DASHBOARD SALES ORDER 1 - 4
+export const fetchDashboardSalesOrder = createAsyncThunk('appDashboard/fetchDashboardSalesOrder', async ({ query }, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/sales-order/so1',
+    })
+    return response?.data?.data || {}
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
+// DASHBOARD SALES ORDER OVER DUE DATE
+export const fetchDashboardSalesOrderOverDueDate = createAsyncThunk('appDashboard/fetchDashboardSalesOrderOverDueDate', async (query, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/sales-order/so6',
+      query: query
+    })
+
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+  }
+})
+
 // REDUCER DASHBOARD
 export const appMasterRankSlice = createSlice({
   name: 'appDashboard',
@@ -245,6 +274,45 @@ export const appMasterRankSlice = createSlice({
     dataDashboardSummaryVendor: [],
     loadingDashboardSummaryVendor: false,
     errorDashboardSummaryVendor: false,
+
+    // DASHBOARD SALES ORDER
+    dataDashboardSalesOrder: {
+      dashboard1: [],
+      dashboard2: [],
+      dashboard3: [],
+      dashboard4: [],
+    },
+    loadingDashboardSalesOrder: false,
+    errorDashboardSalesOrder: false,
+    // OVER DUE DATE SO
+    dataDashboardSalesOrderOverDueDate: {
+      data: [],
+      totalPage: 0,
+      totalData: 0,
+    },
+    loadingDashboardSalesOrderOverDueDate: false,
+    errorDashboardSalesOrderOverDueDate: false,
+
+
+    // DASHBOARD PURCHASE ORDER
+    dataDashboardPurchaseOrder: {
+      dashboard1: [],
+      dashboard2: [],
+      dashboard3: [],
+      dashboard4: [],
+    },
+    loadingDashboardPurchaseOrder: false,
+    errorDashboardPurchaseOrder: false,
+    // OVER DUE DATE PO
+    dataDashboardPurchaseOrderOverDueDate: {
+      data: [],
+      totalPage: 0,
+      totalData: 0,
+    },
+    loadingDashboardPurchaseOrderOverDueDate: false,
+    errorDashboardPurchaseOrderOverDueDate: false,
+
+
   },
   reducers: {},
   extraReducers: builder => {
@@ -392,6 +460,54 @@ export const appMasterRankSlice = createSlice({
         state.loadingDashboardSummaryVendor = false
         state.errorDashboardSummaryVendor = true
       })
+
+      // DATA DASHBOARD SALES ORDER 1 - 4
+      .addCase(fetchDashboardSalesOrder.pending, (state, action) => {
+        state.loadingDashboardSalesOrder = true
+      })
+      .addCase(fetchDashboardSalesOrder.fulfilled, (state, action) => {
+        state.loadingDashboardSalesOrder = false
+        state.dataDashboardSalesOrder = action.payload
+      })
+      .addCase(fetchDashboardSalesOrder.rejected, (state, action) => {
+        state.loadingDashboardSalesOrder = false
+        state.errorDashboardSalesOrder = true
+      })
+      // DATA DASHBOARD SALES ORDER OVER DUE DATE
+      .addCase(fetchDashboardSalesOrderOverDueDate.pending, (state, action) => {
+        state.loadingDashboardSalesOrderOverDueDate = true
+      })
+      .addCase(fetchDashboardSalesOrderOverDueDate.fulfilled, (state, action) => {
+        state.loadingDashboardSalesOrderOverDueDate = false
+        state.dataDashboardSalesOrderOverDueDate = action.payload
+      })
+      .addCase(fetchDashboardSalesOrderOverDueDate.rejected, (state, action) => {
+        state.loadingDashboardSalesOrderOverDueDate = false
+        state.errorDashboardSalesOrderOverDueDate = true
+      })
+
+    // // DATA DASHBOARD PURCHASE ORDER 1 - 4
+    // .addCase(fetchDashboardPurchaseOrder.fulfilled, (state, action) => {
+    //   state.loadingDashboardPurchaseOrder = false
+    //   state.dataDashboardPurchaseOrder = action.payload
+    // })
+    // .addCase(fetchDashboardPurchaseOrder.pending, (state, action) => {
+    //   state.dataDashboardPurchaseOrder = []
+    //   state.loadingDashboardPurchaseOrder = true
+    // })
+    // .addCase(fetchDashboardPurchaseOrder.rejected, (state, action) => {
+    //   state.loadingDashboardPurchaseOrder = false
+    //   state.errorDashboardPurchaseOrder = true
+    // })
+    // // DATA DASHBOARD PURCHASE ORDER OVER DUE DATE
+    // .addCase(fetchDashboardPurchaseOrderOverDueDate.fulfilled, (state, action) => {
+    //   state.loadingDashboardPurchaseOrderOverDueDate = false
+    //   state.dataDashboardPurchaseOrderOverDueDate = action.payload
+    // })
+    // .addCase(fetchDashboardPurchaseOrderOverDueDate.pending, (state, action) => {
+    //   state.dataDashboardPurchaseOrderOverDueDate = []
+    //   state.loadingDashboardPurchaseOrderOverDueDate = true
+    // })
   }
 })
 
