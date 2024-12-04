@@ -44,7 +44,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
               </Box>
             </Box>
           </Grid>
-          <Grid item sm={3} xs={12}>
+          <Grid item sm={4} xs={12}>
             <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
               <Table sx={{ maxWidth: '9rem' }}>
                 <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
@@ -74,7 +74,6 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
               </Table>
             </Box>
           </Grid>
-          <Grid item sm={1}></Grid>
           <Grid item sm={4} xs={12}>
             <Box sx={{ display: 'flex', flexDirection: 'column', py: 1.5 }}>
               <Typography variant='h6' sx={{ mb: 2, fontWeight: 800 }}>
