@@ -171,7 +171,6 @@ export default function AddPurchaseOrder({}) {
   const onSubmit = data => {
     const listItems = data.data
     const listBarter = data.barterProduct
-    console.log(data)
 
     // Map Barang Purchase order
     const lastIndexMap = new Map()
@@ -316,6 +315,36 @@ export default function AddPurchaseOrder({}) {
 
   const handleAddVendor = () => {
     setOpenModalVendor(true)
+  }
+
+  const handlePriceChange = ({ event, index, fieldName, setValue, formStateField, onChange }) => {
+    const input = event.target
+    const cursorPosition = input.selectionStart // Save cursor position
+    const rawValue = input.value.replace(/\D/g, '') // Remove non-digit characters
+    const formattedValue = priceFormat(+rawValue)
+
+    onChange(rawValue)
+
+    setTimeout(() => {
+      input.value = formattedValue // Set formatted value in the input
+      input.setSelectionRange(cursorPosition, cursorPosition) // Restore cursor position
+    }, 0)
+
+    const newPrice = +rawValue
+    const currentQuantity = formStateField[index]?.quantity || 0
+    const newSubTotal = currentQuantity * newPrice
+
+    if (parseInt(newSubTotal, 10) > 0) {
+      setValue(`${fieldName}[${index}].subTotal`, newSubTotal)
+    }
+
+    if (
+      formStateField[index].quantity &&
+      formStateField[index].price &&
+      parseInt(formStateField[index].quantity, 10) > 0
+    ) {
+      calculateTotals()
+    }
   }
 
   return (
@@ -665,23 +694,31 @@ export default function AddPurchaseOrder({}) {
                               label='Price'
                               value={value ? priceFormat(value) : ''}
                               onChange={e => {
-                                const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
-                                const newPrice = +rawValue
-                                const currentQuantity = formField[index].quantity || 0
-                                const newSubTotal = currentQuantity * newPrice
+                                handlePriceChange({
+                                  event: e,
+                                  index,
+                                  fieldName: 'data',
+                                  setValue,
+                                  formStateField: formField,
+                                  onChange
+                                })
+                                // const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
+                                // const newPrice = +rawValue
+                                // const currentQuantity = formField[index].quantity || 0
+                                // const newSubTotal = currentQuantity * newPrice
 
-                                // Update the price and the subtotal
-                                onChange(rawValue)
-                                if (parseInt(newSubTotal, 10) > 0) {
-                                  setValue(`data[${index}].subTotal`, newSubTotal)
-                                }
-                                if (
-                                  formField[index].quantity &&
-                                  formField[index].price &&
-                                  parseInt(formField[index].quantity, 10) > 0
-                                ) {
-                                  calculateTotals()
-                                }
+                                // // Update the price and the subtotal
+                                // onChange(rawValue)
+                                // if (parseInt(newSubTotal, 10) > 0) {
+                                //   setValue(`data[${index}].subTotal`, newSubTotal)
+                                // }
+                                // if (
+                                //   formField[index].quantity &&
+                                //   formField[index].price &&
+                                //   parseInt(formField[index].quantity, 10) > 0
+                                // ) {
+                                //   calculateTotals()
+                                // }
                               }}
                               type='text'
                               sx={{ display: 'block' }}
@@ -956,23 +993,31 @@ export default function AddPurchaseOrder({}) {
                               label='Price'
                               value={value ? priceFormat(value) : ''}
                               onChange={e => {
-                                const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
-                                const newPrice = +rawValue
-                                const currentQuantity = formBarter[index].quantity || 0
-                                const newSubTotal = currentQuantity * newPrice
+                                handlePriceChange({
+                                  event: e,
+                                  index,
+                                  fieldName: 'barterProduct',
+                                  setValue,
+                                  formStateField: formBarter,
+                                  onChange
+                                })
+                                // const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
+                                // const newPrice = +rawValue
+                                // const currentQuantity = formBarter[index].quantity || 0
+                                // const newSubTotal = currentQuantity * newPrice
 
-                                // Update the price and the subtotal
-                                onChange(rawValue)
-                                if (parseInt(newSubTotal, 10) > 0) {
-                                  setValue(`barterProduct[${index}].subTotal`, newSubTotal)
-                                }
-                                if (
-                                  formBarter[index].quantity &&
-                                  formBarter[index].price &&
-                                  parseInt(formBarter[index].quantity, 10) > 0
-                                ) {
-                                  calculateTotals()
-                                }
+                                // // Update the price and the subtotal
+                                // onChange(rawValue)
+                                // if (parseInt(newSubTotal, 10) > 0) {
+                                //   setValue(`barterProduct[${index}].subTotal`, newSubTotal)
+                                // }
+                                // if (
+                                //   formBarter[index].quantity &&
+                                //   formBarter[index].price &&
+                                //   parseInt(formBarter[index].quantity, 10) > 0
+                                // ) {
+                                //   calculateTotals()
+                                // }
                               }}
                               type='text'
                               sx={{ display: 'block' }}
