@@ -311,6 +311,12 @@ export default function AddPurchaseOrder({}) {
     })
     setValue(`barterProduct[${indexForm}].warehouseId`, +warehouseId)
     setValue(`barterProduct[${indexForm}].warehouseProductId`, transformedProduct.productWarehouseId)
+    handleFetchDefaultBasePrice({
+      productId: transformedProduct.masterProductId,
+      unitId: transformedProduct?.masterUnitId,
+      index: indexForm,
+      fieldName: 'barterProduct'
+    })
   }
 
   const handleAddVendor = () => {
@@ -345,6 +351,22 @@ export default function AddPurchaseOrder({}) {
     ) {
       calculateTotals()
     }
+  }
+
+  const handleFetchDefaultBasePrice = ({ productId, unitId, index, fieldName }) => {
+    dispatch(
+      fetchOneMasterDataProductPrice({
+        productId,
+        unitId
+      })
+    ).then(({ payload }) => {
+      // if price exist then switch to replace
+      if (payload.data) {
+        setValue(`${fieldName}[${index}].price`, payload.data.basePrice)
+      } else {
+        setValue(`${fieldName}[${index}].price`, '')
+      }
+    })
   }
 
   return (
@@ -602,17 +624,11 @@ export default function AddPurchaseOrder({}) {
                                 onChange(+newValue?.id)
                                 const selectedProduct = getValues(`data[${index}].masterProductId`)
                                 if (selectedProduct && newValue) {
-                                  dispatch(
-                                    fetchOneMasterDataProductPrice({
-                                      productId: selectedProduct,
-                                      unitId: newValue?.id
-                                    })
-                                  ).then(({ payload }) => {
-                                    if (payload.data) {
-                                      setValue(`data[${index}].price`, payload.data.basePrice)
-                                    } else {
-                                      setValue(`data[${index}].price`, null)
-                                    }
+                                  handleFetchDefaultBasePrice({
+                                    productId: selectedProduct,
+                                    unitId: newValue?.id,
+                                    index,
+                                    fieldName: 'data'
                                   })
                                 }
                               }}
@@ -874,18 +890,11 @@ export default function AddPurchaseOrder({}) {
                                       setValue(`barterProduct[${index}].unitName`, selectedProduct.unitName)
                                       setHelperTextChanges(!helperTextChanges)
                                       // Fetch price base on selected product
-                                      dispatch(
-                                        fetchOneMasterDataProductPrice({
-                                          productId: selectedProduct.masterProductId,
-                                          unitId: selectedProduct.masterUnitId
-                                        })
-                                      ).then(({ payload }) => {
-                                        // if price exist then switch to replace
-                                        if (payload.data) {
-                                          setValue(`barterProduct[${index}].price`, payload.data.basePrice)
-                                        } else {
-                                          setValue(`barterProduct[${index}].price`, 0)
-                                        }
+                                      handleFetchDefaultBasePrice({
+                                        productId: selectedProduct.masterProductId,
+                                        unitId: selectedProduct?.masterUnitId,
+                                        index,
+                                        fieldName: 'barterProduct'
                                       })
                                     } else {
                                       setValue(`barterProduct[${index}].qty`, '')

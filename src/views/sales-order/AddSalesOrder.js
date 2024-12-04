@@ -295,6 +295,13 @@ export default function AddSalesOrder({}) {
     })
     setValue(`data[${indexForm}].warehouseId`, +warehouseId)
     setValue(`data[${indexForm}].warehouseProductId`, transformedProduct.productWarehouseId)
+    // fetch default base price after transformation
+    handleFetchDefaultBasePrice({
+      productId: transformedProduct.masterProductId,
+      unitId: transformedProduct.masterUnitId,
+      index: indexForm,
+      fieldName: 'data'
+    })
   }
 
   const titleProductInfo = index => {
@@ -354,6 +361,22 @@ export default function AddSalesOrder({}) {
     ) {
       calculateTotals()
     }
+  }
+
+  const handleFetchDefaultBasePrice = ({ productId, unitId, index, fieldName }) => {
+    dispatch(
+      fetchOneMasterDataProductPrice({
+        productId,
+        unitId
+      })
+    ).then(({ payload }) => {
+      // if price exist then switch to replace
+      if (payload.data) {
+        setValue(`${fieldName}[${index}].price`, payload.data.basePrice)
+      } else {
+        setValue(`${fieldName}[${index}].price`, '')
+      }
+    })
   }
 
   return (
@@ -586,18 +609,11 @@ export default function AddSalesOrder({}) {
                                       setValue(`data[${index}].unitName`, selectedProduct.unitName)
                                       setHelperTextChanges(!helperTextChanges)
                                       // Fetch price base on selected product
-                                      dispatch(
-                                        fetchOneMasterDataProductPrice({
-                                          productId: selectedProduct.masterProductId,
-                                          unitId: selectedProduct.masterUnitId
-                                        })
-                                      ).then(({ payload }) => {
-                                        // if price exist then switch to replace
-                                        if (payload.data) {
-                                          setValue(`data[${index}].price`, payload.data.basePrice)
-                                        } else {
-                                          setValue(`data[${index}].price`, '')
-                                        }
+                                      handleFetchDefaultBasePrice({
+                                        productId: selectedProduct.masterProductId,
+                                        unitId: selectedProduct.masterUnitId,
+                                        index,
+                                        fieldName: 'data'
                                       })
                                     } else {
                                       setValue(`data[${index}].qty`, '')
@@ -887,16 +903,11 @@ export default function AddSalesOrder({}) {
                                       setValue(`barterProduct[${index}].unitName`, selectedProduct.unitName)
 
                                       // Fetch price base on selected product
-                                      dispatch(
-                                        fetchOneMasterDataProductPrice({
-                                          productId: selectedProduct.masterProductId,
-                                          unitId: selectedProduct.masterUnitId
-                                        })
-                                      ).then(({ payload }) => {
-                                        // if price exist then switch to replace
-                                        if (payload.data) {
-                                          setValue(`barterProduct[${index}].price`, payload.data.basePrice)
-                                        }
+                                      handleFetchDefaultBasePrice({
+                                        productId: selectedProduct.masterProductId,
+                                        unitId: selectedProduct.masterUnitId,
+                                        index,
+                                        fieldName: 'barterProduct'
                                       })
                                     } else {
                                       setValue(`barterProduct[${index}].qty`, '')
