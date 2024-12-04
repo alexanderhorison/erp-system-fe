@@ -26,7 +26,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
     <Card id={id} ref={ref}>
       <CardContent sx={{ p: [`${theme.spacing(4)} !important`, `${theme.spacing(6)} !important`] }}>
         <Grid container sx={{ mt: 7 }}>
-          <Grid item sm={6} xs={12}>
+          <Grid item sm={4} xs={12}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CompanySvg />
@@ -44,7 +44,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
               </Box>
             </Box>
           </Grid>
-          <Grid item sm={6} xs={12}>
+          <Grid item sm={3} xs={12}>
             <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
               <Table sx={{ maxWidth: '9rem' }}>
                 <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
@@ -74,9 +74,37 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
               </Table>
             </Box>
           </Grid>
+          <Grid item sm={1}></Grid>
+          <Grid item sm={4} xs={12}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', py: 1.5 }}>
+              <Typography variant='h6' sx={{ mb: 2, fontWeight: 800 }}>
+                Tagihan Kepada
+              </Typography>
+              <Typography sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                {data?.customer?.name.toUpperCase() || ''}
+              </Typography>
+              <Typography sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                {data?.customer?.address.toUpperCase() || ''}
+              </Typography>
+              {/* <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <CompanySvg />
+                <Typography variant='h4' sx={{ ml: 2.5, fontWeight: 800, lineHeight: '18px', textWrap: 'nowrap' }}>
+                  {themeConfig.templateName}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
+                <Typography sx={{ mb: 2, fontWeight: 800, color: 'text.secondary' }}>
+                  {companyInfo.companyName}
+                </Typography>
+                <Typography sx={{ mb: 2, fontWeight: 800, color: 'text.secondary' }}>{companyInfo.address}</Typography>
+                <Typography sx={{ mb: 2, fontWeight: 800, color: 'text.secondary' }}>{companyInfo.city}</Typography>
+                <Typography sx={{ fontWeight: 800, color: `'text.secondary'` }}>{companyInfo.phoneNumber}</Typography>
+              </Box> */}
+            </Box>
+          </Grid>
         </Grid>
       </CardContent>
-      <Divider />
+      {/* <Divider />
       <CardContent sx={{ p: [`${theme.spacing(6)} !important`, `${theme.spacing(10)} !important`] }}>
         <Grid container>
           <Grid item xs={6} sm={5} sx={{ mb: { lg: 0, xs: 4 } }}>
@@ -92,7 +120,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
           </Grid>
           <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}></Grid>
         </Grid>
-      </CardContent>
+      </CardContent> */}
 
       <Divider />
 
@@ -104,7 +132,8 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
           <TableHead
             sx={{
               '& .MuiTableCell-root': {
-                fontWeight: 700
+                fontWeight: 700,
+                maxWidth: '200px'
               }
             }}
           >
@@ -120,14 +149,24 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
             sx={{
               '& .MuiTableCell-root': {
                 py: `${theme.spacing(2.5)} !important`,
-                fontWeight: 700
+                fontWeight: 700,
               }
             }}
           >
             {data?.listProducts?.map((data, index) => {
               return (
                 <TableRow key={index}>
-                  <TableCell>{data?.productName}</TableCell>
+                  <TableCell
+                    sx={{
+                      width: '320px', // Fixed width for all rows and columns
+                      maxWidth: '320px', // Prevent exceeding this width
+                      overflow: 'hidden', // Hide overflow
+                      textOverflow: 'ellipsis', // Show ellipsis for truncated text
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {data?.productName}
+                  </TableCell>
                   <TableCell>{data?.unitName || ''}</TableCell>
                   <TableCell>{data?.quantity || ''}</TableCell>
                   <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.price)}</TableCell>
@@ -148,10 +187,10 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
       </TableContainer>
       {data?.listBarterProducts?.length > 0 && (
         <>
-          <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 5, fontWeight: 800 }}>
-            Barang Barter
-          </Typography>
           <TableContainer>
+            <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 5, fontWeight: 800 }}>
+              Barang Barter
+            </Typography>
             <Table>
               <TableHead
                 sx={{
@@ -179,7 +218,17 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
                 {data?.listBarterProducts?.map((data, index) => {
                   return (
                     <TableRow key={index}>
-                      <TableCell>{data?.productName}</TableCell>
+                      <TableCell
+                        sx={{
+                          width: '320px', // Fixed width for all rows and columns
+                          maxWidth: '320px', // Prevent exceeding this width
+                          overflow: 'hidden', // Hide overflow
+                          textOverflow: 'ellipsis', // Show ellipsis for truncated text
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {data?.productName}
+                      </TableCell>
                       <TableCell>{data?.unitName || ''}</TableCell>
                       <TableCell>{data?.quantity || ''}</TableCell>
                       <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.price)}</TableCell>
