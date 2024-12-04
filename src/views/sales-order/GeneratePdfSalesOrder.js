@@ -30,23 +30,17 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CompanySvg />
-                <Typography variant='h3' sx={{ ml: 2.5, fontWeight: 500, lineHeight: '18px', textWrap: 'nowrap' }}>
+                <Typography variant='h4' sx={{ ml: 2.5, fontWeight: 800, lineHeight: '18px', textWrap: 'nowrap' }}>
                   {themeConfig.templateName}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
-                <Typography sx={{ mb: 2, color: 'text.secondary' }} variant='h5'>
+                <Typography sx={{ mb: 2, fontWeight: 800, color: 'text.secondary' }}>
                   {companyInfo.companyName}
                 </Typography>
-                <Typography sx={{ mb: 2, color: 'text.secondary' }} variant='h5'>
-                  {companyInfo.address}
-                </Typography>
-                <Typography sx={{ mb: 2, color: 'text.secondary' }} variant='h5'>
-                  {companyInfo.city}
-                </Typography>
-                <Typography sx={{ color: `'text.secondary'` }} variant='h5'>
-                  {companyInfo.phoneNumber}
-                </Typography>
+                <Typography sx={{ mb: 2, fontWeight: 800, color: 'text.secondary' }}>{companyInfo.address}</Typography>
+                <Typography sx={{ mb: 2, fontWeight: 800, color: 'text.secondary' }}>{companyInfo.city}</Typography>
+                <Typography sx={{ fontWeight: 800, color: `'text.secondary'` }}>{companyInfo.phoneNumber}</Typography>
               </Box>
             </Box>
           </Grid>
@@ -56,18 +50,24 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
                 <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
                   <TableRow>
                     <MUITableCell>
-                      <Typography variant='h5' sx={{ textWrap: 'nowrap' }}>
+                      <Typography variant='h6' sx={{ textWrap: 'nowrap', fontWeight: 800 }}>
                         Sales Order
                       </Typography>
-                      <Typography variant='h5' sx={{ textWrap: 'nowrap' }}>{`#${data.code}`}</Typography>
+                      <Typography
+                        variant='h6'
+                        sx={{ textWrap: 'nowrap', fontWeight: 800 }}
+                      >{`#${data.code}`}</Typography>
                     </MUITableCell>
                   </TableRow>
                   <TableRow>
                     <MUITableCell>
-                      <Typography variant='h5' sx={{ textWrap: 'nowrap' }}>
+                      <Typography variant='h6' sx={{ textWrap: 'nowrap', fontWeight: 800 }}>
                         Tgl. Jatuh Tempo
                       </Typography>
-                      <Typography variant='h5' sx={{ textWrap: 'nowrap' }}>{`${data.dueDate}`}</Typography>
+                      <Typography
+                        variant='h6'
+                        sx={{ textWrap: 'nowrap', fontWeight: 800 }}
+                      >{`${data.dueDate}`}</Typography>
                     </MUITableCell>
                   </TableRow>
                 </TableBody>
@@ -80,13 +80,13 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
       <CardContent sx={{ p: [`${theme.spacing(6)} !important`, `${theme.spacing(10)} !important`] }}>
         <Grid container>
           <Grid item xs={6} sm={5} sx={{ mb: { lg: 0, xs: 4 } }}>
-            <Typography variant='h4' sx={{ mb: 2 }}>
+            <Typography variant='h6' sx={{ mb: 2, fontWeight: 800 }}>
               Tagihan Kepada
             </Typography>
-            <Typography sx={{ color: 'text.secondary' }} variant='h5'>
+            <Typography sx={{ color: 'text.secondary', fontWeight: 700 }}>
               {data?.customer?.name.toUpperCase() || ''}
             </Typography>
-            <Typography sx={{ color: 'text.secondary' }} variant='h5'>
+            <Typography sx={{ color: 'text.secondary', fontWeight: 700 }}>
               {data?.customer?.address.toUpperCase() || ''}
             </Typography>
           </Grid>
@@ -97,14 +97,14 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
       <Divider />
 
       <TableContainer>
-        <Typography variant='h4' sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
+        <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3, fontWeight: 800 }}>
           Barang Sales Order
         </Typography>
         <Table>
           <TableHead
             sx={{
               '& .MuiTableCell-root': {
-                fontSize: '1.125rem'
+                fontWeight: 700
               }
             }}
           >
@@ -120,7 +120,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
             sx={{
               '& .MuiTableCell-root': {
                 py: `${theme.spacing(2.5)} !important`,
-                fontSize: '1.125rem'
+                fontWeight: 700
               }
             }}
           >
@@ -140,17 +140,15 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
           </TableBody>
         </Table>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
-          <Typography sx={{ paddingTop: 2, mr: 5 }} variant='h5'>
-            Total :
-          </Typography>
-          <Typography sx={{ paddingTop: 2, mr: 2, whiteSpace: 'nowrap' }} variant='h5'>
+          <Typography sx={{ paddingTop: 2, mr: 5, fontWeight: 700 }}>Total :</Typography>
+          <Typography sx={{ paddingTop: 2, mr: 2, fontWeight: 700, whiteSpace: 'nowrap' }}>
             Rp. {priceFormat(data?.grandTotalCustomer)}
           </Typography>
         </Box>
       </TableContainer>
       {data?.listBarterProducts?.length > 0 && (
         <>
-          <Typography variant='h4' sx={{ paddingTop: 2, ml: 5, mt: 5 }}>
+          <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 5, fontWeight: 800 }}>
             Barang Barter
           </Typography>
           <TableContainer>
@@ -158,7 +156,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
               <TableHead
                 sx={{
                   '& .MuiTableCell-root': {
-                    fontSize: '1.125rem'
+                    fontWeight: 700
                   }
                 }}
               >
@@ -174,7 +172,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
                 sx={{
                   '& .MuiTableCell-root': {
                     py: `${theme.spacing(2.5)} !important`,
-                    fontSize: '1.125rem'
+                    fontWeight: 700
                   }
                 }}
               >
@@ -195,10 +193,8 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
             </Table>
           </TableContainer>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
-            <Typography sx={{ paddingTop: 2, mr: 5 }} variant='h5'>
-              Total :
-            </Typography>
-            <Typography sx={{ paddingTop: 2, mr: 2, whiteSpace: 'nowrap' }} variant='h5'>
+            <Typography sx={{ paddingTop: 2, mr: 5, fontWeight: 700 }}>Total :</Typography>
+            <Typography sx={{ paddingTop: 2, mr: 2, whiteSpace: 'nowrap', fontWeight: 700 }}>
               Rp. {priceFormat(data?.grandTotalBarter)}
             </Typography>
           </Box>
@@ -210,9 +206,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
         <Grid container sx={{ ml: 'auto', justifyContent: 'flex-end' }}>
           <Grid item xs={3} lg={3} md={2} sx={{ textAlign: 'center' }}></Grid>
           <Grid item xs={3} lg={3} md={2} sx={{ textAlign: 'center' }}>
-            <Typography sx={{ color: 'text.secondary' }} variant='h5'>
-              Grand Total:
-            </Typography>
+            <Typography sx={{ color: 'text.secondary', fontWeight: 700 }}>Grand Total:</Typography>
           </Grid>
           <Grid item xs={2} lg={3} md={2}>
             <Box
@@ -225,10 +219,8 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
                 mr: 1.5
               }}
             >
-              <Typography sx={{ color: 'text.secondary' }} variant='h5'>
-                Rp.
-              </Typography>
-              <Typography sx={{ color: 'text.secondary', textIndent: 3 }} variant='h5'>
+              <Typography sx={{ color: 'text.secondary', fontWeight: 700 }}>Rp.</Typography>
+              <Typography sx={{ color: 'text.secondary', textIndent: 3, fontWeight: 700 }}>
                 {priceFormat(data?.grandTotal)}
               </Typography>
             </Box>
@@ -240,7 +232,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
 
       <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
         <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
-          <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }} variant='h5'>
+          <Typography sx={{ fontWeight: 700, color: 'text.secondary', textAlign: 'left' }}>
             {data?.grandTotal < 0
               ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
                   data?.grandTotal
@@ -256,12 +248,10 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
 
       <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`], mt: 5 }}>
         <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
-          <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }} variant='h5'>
+          <Typography sx={{ fontWeight: 700, color: 'text.secondary', textAlign: 'left' }}>
             Silahkan transfer ke rekening:
           </Typography>
-          <Typography sx={{ fontWeight: 500, color: 'text.secondary' }} variant='h5'>
-            {companyInfo.bank}
-          </Typography>
+          <Typography sx={{ fontWeight: 700, color: 'text.secondary' }}>{companyInfo.bank}</Typography>
         </Box>
       </CardContent>
 
@@ -279,28 +269,18 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
                 textAlign: 'center'
               }}
             >
-              <Typography sx={{ fontWeight: 500, color: 'text.secondary' }} variant='h5'>
-                Penerima
-              </Typography>
-              <Typography sx={{ fontWeight: 500, color: 'text.secondary' }} variant='h5'>
-                Dengan Hormat,
-              </Typography>
+              <Typography sx={{ fontWeight: 700, color: 'text.secondary' }}>Penerima</Typography>
+              <Typography sx={{ fontWeight: 700, color: 'text.secondary' }}>Dengan Hormat,</Typography>
             </Box>
           </Grid>
           <Grid item xs={12} sm={12} lg={12} sx={{}}>
             <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Box sx={{ mb: 2, ml: 5, display: 'flex-column', alignItems: 'center', textAlign: 'center' }}>
-                <Typography sx={{ color: 'text.secondary' }} variant='h5'>
-                  ( ................... )
-                </Typography>
+                <Typography sx={{ color: 'text.secondary', fontWeight: 700 }}>( ................... )</Typography>
               </Box>
               <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                <Typography sx={{ color: 'text.secondary' }} variant='h5'>
-                  {companyInfo.ownerName}
-                </Typography>
-                <Typography sx={{ color: 'text.secondary' }} variant='h5'>
-                  {companyInfo.ownerTitle}
-                </Typography>
+                <Typography sx={{ color: 'text.secondary', fontWeight: 700 }}>{companyInfo.ownerName}</Typography>
+                <Typography sx={{ color: 'text.secondary', fontWeight: 700 }}>{companyInfo.ownerTitle}</Typography>
               </Box>
             </Box>
           </Grid>

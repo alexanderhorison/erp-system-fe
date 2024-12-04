@@ -116,12 +116,10 @@ const ToolbarSalesOrder = ({ id, data }) => {
             <Icon fontSize='1.125rem' icon='tabler:printer' />
             Cetak / Print
           </Button>
-          {data?.status == 'APPROVED' ? (
-            <Button fullWidth sx={{ mb: 2, '& svg': { mr: 2 } }} variant='contained' onClick={handleClick}>
-              <Icon fontSize='1.125rem' icon='tabler:mail' />
-              Kirim Email
-            </Button>
-          ) : null}
+          <Button fullWidth sx={{ mb: 2, '& svg': { mr: 2 } }} variant='contained' onClick={handleClick}>
+            <Icon fontSize='1.125rem' icon='tabler:mail' />
+            Kirim Email
+          </Button>
           {[1, 3].includes(auth?.user?.roleId) && data?.status == 'PENDING' ? (
             <>
               <Button
