@@ -103,15 +103,16 @@ const handlePrintDownload = (url, id, setIsLoading) => {
   iframe.src = `/${url}/print/${id}` // URL to trigger the download
   // Listen for the iframe load event
   iframe.onload = () => {
-    setIsLoading(false) // Stop loading when the download starts
     setTimeout(() => {
       document.title = originalTitle // Restore the original title after some time
       document.body.removeChild(iframe)
-    }, 2000) // Remove iframe after 2 seconds
+    }, 3000) // Remove iframe after 3 seconds
   }
 
   // Append the iframe to the body
   document.body.appendChild(iframe)
+  setIsLoading(false) // Stop loading when the download starts
+
 
   // Cara 2 open dan langsung download
   // const link = document.createElement('a')
