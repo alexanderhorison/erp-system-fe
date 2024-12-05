@@ -13,7 +13,6 @@ export default function DetailRole() {
   const id = useRouter().query.id
   const [checkedMenuIds, setCheckedMenuIds] = useState([]);
 
-  const menuList = useSelector(state => state.menu.dataMenus)
   const { detailRole, loadingDetail, errorDetail } = useSelector(state => state.role)
 
   const handleSubmit = async (event) => {
@@ -36,7 +35,7 @@ export default function DetailRole() {
   }, [loadingDetail, detailRole])
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', padding: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <ButtonBack name='Role Details' />
       <Card sx={{ padding: 2, marginBottom: 2 }}>
         <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -48,56 +47,170 @@ export default function DetailRole() {
           </Typography>
         </CardContent>
       </Card>
-      <Card sx={{ padding: 2 }}>
+      <Card>
         <CardContent>
-          <Typography variant="h6" component="h2">
+          <Typography variant="h4" component="h2" p={2} borderRadius={2} textAlign={'center'} bgcolor={'#f5f5f5'}>
             Menu Access
           </Typography>
           <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid item md={4} xs={12}>
               <List sx={{ padding: '1px' }}>
-                {menuList.slice(0, Math.ceil(menuList.length / 2)).map((menu, index) => (
-                  <ListItem key={index}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={checkedMenuIds?.includes(menu.menuId)}
-                          value={menu.menuId}
-                          onChange={(event) => {
-                            if (event.target.checked) {
-                              setCheckedMenuIds([...checkedMenuIds, menu.menuId]);
-                            } else {
-                              setCheckedMenuIds(checkedMenuIds.filter((id) => id !== menu.menuId));
-                            }
-                          }}
-                        />
-                      }
-                      label={menu.name}
-                    />
-                  </ListItem>
-                ))}
+                <MenuTitle name={"Inventory"} />
+                <MenuSubTitle name={"Data Inventory"} />
+                <MenuItem
+                  name={"Produk"}
+                  menuId={5}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Tipe Produk"}
+                  menuId={4}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Satuan Produk"}
+                  menuId={12}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Kategori Produk"}
+                  menuId={3}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Gudang"}
+                  menuId={6}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Company"}
+                  menuId={13}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuSubTitle name={"Manajemen Stock"} />
+                <MenuItem
+                  name={"List Produk Gudang"}
+                  menuId={8}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Penyesuaian Stock Produk"}
+                  menuId={9}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Barang Masuk"}
+                  menuId={16}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Barang Keluar"}
+                  menuId={17}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Internal Transfer"}
+                  menuId={18}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Barang Terhapus"}
+                  menuId={26}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Stock Opname"}
+                  menuId={15}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuSubTitle name={"Surat Jalan"} />
+                <MenuItem
+                  name={"Surat Jalan"}
+                  menuId={10}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Penerimaan Surat Jalan"}
+                  menuId={11}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Produk Outstanding"}
+                  menuId={19}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
               </List>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item md={4} xs={12}>
               <List sx={{ padding: '1px' }}>
-                {menuList.slice(Math.ceil(menuList.length / 2)).map((menu, index) => (
-                  <ListItem key={index}>
-                    <FormControlLabel
-                      control={<Checkbox
-                        checked={checkedMenuIds?.includes(menu.menuId)}
-                        value={menu.menuId}
-                        onChange={(event) => {
-                          if (event.target.checked) {
-                            setCheckedMenuIds([...checkedMenuIds, menu.menuId]);
-                          } else {
-                            setCheckedMenuIds(checkedMenuIds.filter((id) => id !== menu.menuId));
-                          }
-                        }}
-                      />}
-                      label={menu.name}
-                    />
-                  </ListItem>
-                ))}
+                <MenuTitle name={"Sales Order & Purchase Order"} />
+                <MenuSubTitle name={"Data Customer"} />
+                <MenuItem
+                  name={"Customer"}
+                  menuId={21}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Rank"}
+                  menuId={22}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuSubTitle name={"Sales Order"} />
+                <MenuItem
+                  name={"Sales Order"}
+                  menuId={23}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuSubTitle name={"Data Vendor"} />
+                <MenuItem
+                  name={"Vendor"}
+                  menuId={24}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuSubTitle name={"Purchase Order"} />
+                <MenuItem
+                  name={"Purchase Order"}
+                  menuId={25}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+              </List>
+            </Grid>
+            <Grid item md={4} xs={12}>
+              <List sx={{ padding: '1px' }}>
+                <MenuTitle name={"Pengguna & Otoritas"} />
+                <MenuItem
+                  name={"Pengguna"}
+                  menuId={1}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={"Otoritas"}
+                  menuId={2}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
               </List>
             </Grid>
           </Grid>
@@ -124,4 +237,46 @@ export default function DetailRole() {
       </Grid>
     </Box>
   );
+}
+
+const MenuItem = ({
+  name,
+  menuId,
+  setCheckedMenuIds,
+  checkedMenuIds,
+}) => {
+  return (
+    <ListItem sx={{ padding: '5px' }}>
+      <FormControlLabel
+        control={<Checkbox
+          checked={checkedMenuIds?.includes(menuId)}
+          value={menuId}
+          onChange={(event) => {
+            if (event.target.checked) {
+              setCheckedMenuIds([...checkedMenuIds, menuId]);
+            } else {
+              setCheckedMenuIds(checkedMenuIds.filter((id) => id !== menuId));
+            }
+          }}
+        />}
+        label={name}
+      />
+    </ListItem>
+  )
+}
+
+const MenuTitle = ({ name }) => {
+  return (
+    <Typography variant="h5" component="h2" py={2}>
+      {name}
+    </Typography>
+  )
+}
+
+const MenuSubTitle = ({ name }) => {
+  return (
+    <Typography variant="h6" component="h2" py={2}>
+      {name}
+    </Typography>
+  )
 }
