@@ -281,12 +281,25 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
     const rawValue = input.value.replace(/\D/g, '') // Remove non-digit characters
     const formattedValue = priceFormat(+rawValue)
 
-    onChange(rawValue)
+    // Determine the new cursor position after formatting
+    const unformattedBeforeCursor = input.value.slice(0, cursorPosition).replace(/\D/g, '') // Remove formatting before the cursor
+    const newCursorIndex = unformattedBeforeCursor.length
 
-    setTimeout(() => {
-      input.value = formattedValue // Set formatted value in the input
-      input.setSelectionRange(cursorPosition, cursorPosition) // Restore cursor position
-    }, 0)
+    onChange(rawValue)
+    input.value = formattedValue
+
+    // Calculate where the cursor should be in the formatted string
+    let cursorIndexInFormatted = 0
+    for (let i = 0, digitsCount = 0; i < formattedValue.length; i++) {
+      if (/\d/.test(formattedValue[i])) {
+        digitsCount++
+      }
+      if (digitsCount === newCursorIndex) {
+        cursorIndexInFormatted = i + 1
+        break
+      }
+    }
+    input.setSelectionRange(cursorIndexInFormatted, cursorIndexInFormatted)
 
     const newPrice = +rawValue
     const currentQuantity = formStateField[index]?.quantity || 0
