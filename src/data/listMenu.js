@@ -1,5 +1,11 @@
 export const listMenu = [
   {
+    title: 'Point of Sale',
+    path: '/point-of-sale/',
+    icon: 'tabler:clipboard-check',
+    menuId: 27
+  },
+  {
     sectionTitle: 'Inventory',
     menuId: [4, 5, 12, 3, 6, 13],
   },

@@ -1,4 +1,5 @@
 import useMediaQuery from '@mui/material/useMediaQuery'
+import { useRouter } from 'next/router'
 
 // ** Layout Imports
 // !Do not remove this Layout import
@@ -18,10 +19,12 @@ import HorizontalAppBarContent from './components/horizontal/AppBarContent'
 
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
+import { useEffect } from 'react'
 
 const UserLayout = ({ children, contentHeightFixed }) => {
   // ** Hooks
   const { settings, saveSettings } = useSettings()
+  const router = useRouter()
 
   // ** Vars for server side navigation
   // const { menuItems: verticalMenuItems } = ServerSideVerticalNavItems()
@@ -38,6 +41,14 @@ const UserLayout = ({ children, contentHeightFixed }) => {
   if (hidden && settings.layout === 'horizontal') {
     settings.layout = 'vertical'
   }
+
+  useEffect(() => {
+    if (router.pathname.includes('point-of-sale')) {
+      saveSettings({ ...settings, navHidden: true })
+    } else {
+      saveSettings({ ...settings, navHidden: false })
+    }
+  }, [router.pathname])
 
   return (
     <Layout
@@ -78,7 +89,6 @@ const UserLayout = ({ children, contentHeightFixed }) => {
       })}
     >
       {children}
-      
     </Layout>
   )
 }
