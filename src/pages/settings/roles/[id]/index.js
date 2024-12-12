@@ -211,6 +211,13 @@ export default function DetailRole() {
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
                 />
+                <MenuTitle name={"Point Of Sale"} />
+                <MenuItem
+                  name={"Point Of Sale"}
+                  menuId={27}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
               </List>
             </Grid>
           </Grid>
