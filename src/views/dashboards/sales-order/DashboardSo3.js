@@ -18,7 +18,7 @@ export default function DashboardSo3({ data }) {
       sx={{ height: '100%' }}
     >
       <CardHeader
-        title='Top 5 Customer dengan Total Nominal SO Tertinggi'
+        title='Top 5 Customer dengan Total Hutang SO Tertinggi'
         sx={{ '& .MuiCardHeader-action': { m: 0, alignSelf: 'center' } }}
       />
       <CardContent>
