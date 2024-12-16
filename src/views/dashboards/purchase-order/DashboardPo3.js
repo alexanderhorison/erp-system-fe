@@ -18,7 +18,7 @@ export default function DashboardPo3({ data }) {
       sx={{ height: '100%' }}
     >
       <CardHeader
-        title='Top 5 Vendor dengan Total Nominal PO Tertinggi'
+        title='Top 5 Vendor dengan Total Hutang PO Tertinggi'
         sx={{ '& .MuiCardHeader-action': { m: 0, alignSelf: 'center' } }}
       />
       <CardContent>
