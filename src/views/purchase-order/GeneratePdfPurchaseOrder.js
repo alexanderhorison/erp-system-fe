@@ -36,69 +36,87 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
 
   return (
     <Card id={id} ref={ref}>
-      <CardContent sx={{ p: [`${theme.spacing(4)} !important`, `${theme.spacing(4)} !important`] }}>
+      <CardContent sx={{ p: [`${theme.spacing(4)} !important`, `${theme.spacing(6)} !important`] }}>
         <Grid container sx={{ mt: 7 }}>
-          <Grid item sm={6} xs={12}>
+          <Grid item sm={4} xs={12}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CompanySvg />
-                <Typography variant='h4' sx={{ ml: 2.5, fontWeight: 500, lineHeight: '18px' }}>
+                <Typography variant='h4' sx={{ ml: 2.5, fontWeight: 900, lineHeight: '18px', textWrap: 'nowrap' }}>
                   {themeConfig.templateName}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 4 }}>
-                <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.companyName}</Typography>
-                <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.address}</Typography>
-                <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.city}</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{companyInfo.phoneNumber}</Typography>
+                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary', textWrap: 'nowrap' }}>
+                  {companyInfo.companyName}
+                </Typography>
+                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo.address}</Typography>
+                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo.city}</Typography>
+                <Typography sx={{ fontWeight: 900, color: 'text.secondary' }}>{companyInfo.phoneNumber}</Typography>
               </Box>
             </Box>
           </Grid>
-          <Grid item sm={6} xs={12}>
+          <Grid item sm={4} xs={12}>
             <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
               <Table sx={{ maxWidth: '9rem' }}>
                 <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
                   <TableRow>
                     <MUITableCell>
-                      <Typography variant='h6'>Purchase Order</Typography>
-                      <Typography variant='h6'>{`#${data.code}`}</Typography>
+                      <Typography variant='h6' sx={{ textWrap: 'nowrap', fontWeight: 900 }}>
+                        Purchase Order
+                      </Typography>
+                      <Typography
+                        variant='h6'
+                        sx={{ textWrap: 'nowrap', fontWeight: 900 }}
+                      >{`#${data.code}`}</Typography>
                     </MUITableCell>
                   </TableRow>
                   <TableRow>
                     <MUITableCell>
-                      <Typography variant='h6'>Tgl. Jatuh Tempo</Typography>
-                      <Typography variant='h6'>{`${data.dueDate}`}</Typography>
+                      <Typography variant='h6' sx={{ textWrap: 'nowrap', fontWeight: 900 }}>
+                        Tgl. Jatuh Tempo
+                      </Typography>
+                      <Typography
+                        variant='h6'
+                        sx={{ textWrap: 'nowrap', fontWeight: 900 }}
+                      >{`${data.dueDate}`}</Typography>
                     </MUITableCell>
                   </TableRow>
                 </TableBody>
               </Table>
             </Box>
           </Grid>
-        </Grid>
-      </CardContent>
-
-      <Divider />
-
-      <CardContent>
-        <Grid container>
-          <Grid item xs={12} sx={{ mb: { lg: 0, xs: 4 } }}>
-            <Typography variant='h6' sx={{ mb: 2 }}>
-              Vendor
-            </Typography>
-            <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.name?.toUpperCase() || ''}</Typography>
-            <Typography sx={{ color: 'text.secondary' }}>{data?.vendor?.address?.toUpperCase() || ''}</Typography>
+          <Grid item sm={4} xs={12}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', py: 1.5 }}>
+              <Typography variant='h6' sx={{ mb: 2, fontWeight: 900 }}>
+                Vendor
+              </Typography>
+              <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>
+                {data?.vendor?.name?.toUpperCase() || ''}
+              </Typography>
+              <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>
+                {data?.vendor?.address?.toUpperCase() || ''}
+              </Typography>
+            </Box>
           </Grid>
         </Grid>
       </CardContent>
 
       <Divider />
 
-      <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
-        Barang Purchase Order
-      </Typography>
       <TableContainer>
+        <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3, fontWeight: 900 }}>
+          Barang Purchase Order
+        </Typography>
         <Table>
-          <TableHead>
+          <TableHead
+            sx={{
+              '& .MuiTableCell-root': {
+                fontWeight: 800,
+                maxWidth: '200px'
+              }
+            }}
+          >
             <TableRow>
               <TableCell align='left'>Produk</TableCell>
               <TableCell align='left'>Unit</TableCell>
@@ -111,13 +129,23 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
             sx={{
               '& .MuiTableCell-root': {
                 py: `${theme.spacing(2.5)} !important`,
-                fontSize: theme.typography.body1.fontSize
+                fontWeight: 800
               }
             }}
           >
             {data?.listProducts?.map((data, index) => (
               <TableRow key={index}>
-                <TableCell>{data?.productName}</TableCell>
+                <TableCell
+                  sx={{
+                    width: '320px', // Fixed width for all rows and columns
+                    maxWidth: '320px', // Prevent exceeding this width
+                    overflow: 'hidden', // Hide overflow
+                    textOverflow: 'ellipsis', // Show ellipsis for truncated text
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {data?.productName}
+                </TableCell>
                 <TableCell>{data?.unitName || ''}</TableCell>
                 <TableCell>{data?.quantity || ''}</TableCell>
                 <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.price)}</TableCell>
@@ -129,8 +157,8 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
           </TableBody>
         </Table>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
-          <Typography sx={{ paddingTop: 2, mr: 5 }}>Total :</Typography>
-          <Typography sx={{ paddingTop: 2, mr: 2, whiteSpace: 'nowrap' }}>
+          <Typography sx={{ paddingTop: 2, mr: 5, fontWeight: 800 }}>Total :</Typography>
+          <Typography sx={{ paddingTop: 2, mr: 2, fontWeight: 800, whiteSpace: 'nowrap' }}>
             Rp. {priceFormat(data?.grandTotalVendor)}
           </Typography>
         </Box>
@@ -138,12 +166,18 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
 
       {data?.listBarterProducts?.length > 0 && (
         <>
-          <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
-            Barang Barter
-          </Typography>
           <TableContainer>
+            <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3, fontWeight: 900 }}>
+              Barang Barter
+            </Typography>
             <Table>
-              <TableHead>
+              <TableHead
+                sx={{
+                  '& .MuiTableCell-root': {
+                    fontWeight: 800
+                  }
+                }}
+              >
                 <TableRow>
                   <TableCell align='left'>Produk</TableCell>
                   <TableCell align='left'>Unit</TableCell>
@@ -156,14 +190,24 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
                 sx={{
                   '& .MuiTableCell-root': {
                     py: `${theme.spacing(2.5)} !important`,
-                    fontSize: theme.typography.body1.fontSize
+                    fontWeight: 800
                   }
                 }}
               >
                 {data?.listBarterProducts?.map((data, index) => {
                   return (
                     <TableRow key={index}>
-                      <TableCell>{data?.productName}</TableCell>
+                      <TableCell
+                        sx={{
+                          width: '320px', // Fixed width for all rows and columns
+                          maxWidth: '320px', // Prevent exceeding this width
+                          overflow: 'hidden', // Hide overflow
+                          textOverflow: 'ellipsis', // Show ellipsis for truncated text
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {data?.productName}
+                      </TableCell>
                       <TableCell>{data?.unitName || ''}</TableCell>
                       <TableCell>{data?.quantity || ''}</TableCell>
                       <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.price)}</TableCell>
@@ -177,8 +221,8 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
             </Table>
           </TableContainer>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
-            <Typography sx={{ paddingTop: 2, mr: 5 }}>Total :</Typography>
-            <Typography sx={{ paddingTop: 2, mr: 2, whiteSpace: 'nowrap' }}>
+            <Typography sx={{ paddingTop: 2, mr: 5, fontWeight: 800 }}>Total :</Typography>
+            <Typography sx={{ paddingTop: 2, mr: 2, whiteSpace: 'nowrap', fontWeight: 800 }}>
               Rp. {priceFormat(data?.grandTotalBarter)}
             </Typography>
           </Box>
@@ -189,7 +233,7 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
       <CardContent sx={{ p: 5 }}>
         <Grid container sx={{ ml: 'auto', justifyContent: 'flex-end' }}>
           <Grid item xs={12} lg={2} md={2} sx={{ textAlign: 'center' }}>
-            <Typography sx={{ color: 'text.secondary' }}>Grand Total:</Typography>
+            <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>Grand Total:</Typography>
           </Grid>
           <Grid item xs={12} lg={2} md={2}>
             <Box
@@ -202,8 +246,10 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
                 mr: 1.5
               }}
             >
-              <Typography sx={{ color: 'text.secondary' }}>Rp.</Typography>
-              <Typography sx={{ color: 'text.secondary', textIndent: 3 }}>{priceFormat(data?.grandTotal)}</Typography>
+              <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>Rp.</Typography>
+              <Typography sx={{ color: 'text.secondary', textIndent: 3, fontWeight: 800 }}>
+                {priceFormat(data?.grandTotal)}
+              </Typography>
             </Box>
           </Grid>
         </Grid>
@@ -213,7 +259,7 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
 
       <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
         <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
-          <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
+          <Typography sx={{ fontWeight: 800, color: 'text.secondary', textAlign: 'left' }}>
             {data?.grandTotal < 0
               ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
                   data?.grandTotal
@@ -227,7 +273,7 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
 
       <Divider />
 
-      <CardContent sx={{ px: [6, 10] }}>
+      <CardContent sx={{ px: [6, 10], pageBreakInside: 'avoid' }}>
         <Grid container>
           <Grid item xs={12} sm={12} lg={12} sx={{ mb: 20, mx: 7 }}>
             <Box
@@ -239,18 +285,18 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
                 textAlign: 'center'
               }}
             >
-              <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Penerima</Typography>
-              <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Dengan Hormat,</Typography>
+              <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>Penerima</Typography>
+              <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>Dengan Hormat,</Typography>
             </Box>
           </Grid>
           <Grid item xs={12} sm={12} lg={12}>
             <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Box sx={{ mb: 2, ml: 5, display: 'flex-column', alignItems: 'center', textAlign: 'center' }}>
-                <Typography sx={{ color: 'text.secondary' }}>( ................... )</Typography>
+                <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>( ................... )</Typography>
               </Box>
               <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                <Typography sx={{ color: 'text.secondary' }}>{companyInfo.ownerName}</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{companyInfo.ownerTitle}</Typography>
+                <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerName}</Typography>
+                <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerTitle}</Typography>
               </Box>
             </Box>
           </Grid>
