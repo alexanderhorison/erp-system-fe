@@ -16,6 +16,9 @@ import ShortcutsDropdown from 'src/@core/layouts/components/shared-components/Sh
 // ** Hook Import
 import { UseAuth } from 'src/hooks/useAuth'
 import { Typography } from '@mui/material'
+import { useMemo } from 'react'
+import { systemInfo } from 'src/data/systemInfo'
+import ButtonBack from 'src/views/common/ButtonBack'
 
 const notifications = [
   {
@@ -120,6 +123,14 @@ const AppBarContent = props => {
   // ** Hook
   const auth = UseAuth()
 
+  const title = useMemo(() => {
+    const url = window.location.pathname
+    if (url.includes('/point-of-sale/')) {
+      return 'Point of Sale'
+    }
+    return systemInfo.systemName
+  })
+
   return (
     <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
       <Box className='actions-left' sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
@@ -131,7 +142,12 @@ const AppBarContent = props => {
         {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && auth.user && (
           <Autocomplete hidden={hidden} settings={settings} />
         )}
-        <Typography>Inventory System</Typography>
+        {
+          title === "Point of Sale" && (
+            <ButtonBack name='' />
+          )
+        }
+        <Typography>{title}</Typography>
       </Box>
       <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
         {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (

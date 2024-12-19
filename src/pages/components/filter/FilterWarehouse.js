@@ -4,7 +4,7 @@ import Icon from 'src/@core/components/icon';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse';
 
-export default function FilterWarehouse({ data, handleChangeQuery }) {
+export default function FilterWarehouse({ data, handleChangeQuery, includeAllWarehouse = true }) {
   const dispatch = useDispatch();
   const { data: warehouseList } = useSelector((state) => state.warehouse);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -18,7 +18,7 @@ export default function FilterWarehouse({ data, handleChangeQuery }) {
 
   useEffect(() => {
     const initialWarehouse = warehouseList.find((item) => item.id === data.warehouseId);
-    setSelectedWarehouse(initialWarehouse);
+    setSelectedWarehouse(initialWarehouse || {});
   }, [warehouseList, data.warehouseId]);
 
   const handleOpenMenu = (event) => {
@@ -48,7 +48,7 @@ export default function FilterWarehouse({ data, handleChangeQuery }) {
         onClick={handleOpenMenu}
         sx={{ mr: 2, '& svg': { ml: 0.5 } }}
       >
-        {selectedWarehouse?.name || 'Semua Gudang'}
+        {selectedWarehouse?.name || `${includeAllWarehouse ? 'Semua Gudang' : "Pilih Gudang"}`}
         <Icon fontSize="1rem" icon="tabler:chevron-down" />
       </Button>
       <Menu
@@ -64,7 +64,11 @@ export default function FilterWarehouse({ data, handleChangeQuery }) {
             {item.name}
           </MenuItem>
         ))}
-        <MenuItem key={0} onClick={() => handleSelectWarehouse({ id: 0 })}>Semua Gudang</MenuItem>
+        {
+          includeAllWarehouse && (
+            <MenuItem key={0} onClick={() => handleSelectWarehouse({ id: 0 })}>Semua Gudang</MenuItem>
+          )
+        }
       </Menu>
     </Box>
   );
