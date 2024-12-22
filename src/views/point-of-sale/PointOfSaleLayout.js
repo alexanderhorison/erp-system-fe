@@ -3,162 +3,77 @@ import {
   Button,
   Card,
   CardContent,
+  Collapse,
   Grid,
   MenuItem,
   Typography
 } from '@mui/material'
 import { yupResolver } from '@hookform/resolvers/yup'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import * as yup from 'yup'
+import ModalAddProductPos from './ModalAddProductPos'
+import CartProductPos from './CartProductPos'
 
-const products = [
-  { id: 1, name: 'Product A', isFavorite: true, companyId: 1 },
-  { id: 2, name: 'Product B', isFavorite: true, companyId: 2 },
-  { id: 3, name: 'Product C', isFavorite: false, companyId: 1 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 4, name: 'Product D', isFavorite: true, companyId: 3 },
-  { id: 5, name: 'Product E', isFavorite: false, companyId: 4 }
-]
-
-const listSaleProduct = [
+// Kedepannya jika tambah filter, bisa tambahkan field ini
+const listFilter = [
   {
-    subTotal: 45000,
-    quantity: 3,
-    price: 15000,
-    warehouseProductId: 138,
-    qty: 15,
-    masterProductId: 31,
-    rackName: 'default',
-    unitName: 'SLOP',
-    productName: 'GUDANG GARAM KALENG'
+    id: 1,
+    name: 'Company',
+    value: "COMPANY"
   },
   {
-    subTotal: 360000,
-    quantity: 4,
-    price: 9000000000,
-    warehouseProductId: 137,
-    qty: 20,
-    masterProductId: 32,
-    rackName: 'default',
-    unitName: 'KARTON',
-    productName: 'SAMPOERNA MILD'
+    id: 2,
+    name: 'Type',
+    value: "TYPE"
   },
   {
-    subTotal: 500000,
-    quantity: 5,
-    price: 100000,
-    warehouseProductId: 100,
-    qty: 20,
-    masterProductId: 27,
-    rackName: 'default',
-    unitName: 'BAL',
-    productName: 'DJARUM 76'
-  }
+    id: 3,
+    name: 'Category',
+    value: "CATEGORY"
+  },
 ]
 
-export default function PointOfSaleLayout() {
+export default function PointOfSaleLayout({
+  showFilter,
+}) {
   const { data: companyData } = useSelector(state => state.company)
-  const [filteredProducts, setFilteredProducts] = useState([])
+  const { data: typeData } = useSelector(state => state.type)
+  const { data: categoryData } = useSelector(state => state.category)
 
+  const { listProductPos } = useSelector(state => state.pos)
+
+  const [openModalProduct, setOpenModalProduct] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState({})
+
+  const [filter, setFilter] = useState({
+    type: "COMPANY",
+    typeValue: "ALL",
+    typeProduct: "ALL"
+  })
+
+  // FORM BUAT FILTER
   const {
     control: controlFilter,
     watch: watchFilter,
     setValue: setValueFilter
   } = useForm({
     defaultValues: {
-      companyId: 'Company',
-      typeProduct: 'all'
+      typeFilter: "COMPANY",
+      typeProduct: 'ALL',
+      typeValue: 'ALL',
     }
   })
   const filterForm = watchFilter()
 
-  const schema = yup.object({
-    grandTotal: yup.number().typeError('Grand Total harus ada')
-  })
+  // const schema = yup.object({
+  //   grandTotal: yup.number().typeError('Grand Total harus ada')
+  // })
 
+  // FORM BUAT CART
   const {
     control,
     handleSubmit,
@@ -168,8 +83,11 @@ export default function PointOfSaleLayout() {
     getValues,
     watch
   } = useForm({
+    values: {
+      formData: localStorage.getItem('listProductPos') ? JSON.parse(localStorage.getItem('listProductPos')) : []
+    },
     mode: 'onChange',
-    resolver: yupResolver(schema)
+    // resolver: yupResolver(schema)
   })
 
   const { fields, remove, append } = useFieldArray({
@@ -178,30 +96,53 @@ export default function PointOfSaleLayout() {
   })
   const formField = watch('formData')
 
-  const applyFilters = () => {
-    const filtered = products.filter(product => {
-      const isCompanyMatch =
-        filterForm.companyId && filterForm.companyId != 'Company' ? product.companyId === filterForm.companyId : true
-      const isFavoriteMatch =
-        filterForm.typeProduct === 'all' ? true : filterForm.typeProduct === 'favorite' ? product.isFavorite : true // Handle custom if needed, for now assuming 'custom' shows all
-      return isCompanyMatch && isFavoriteMatch
-    })
+  const filteredProducts = useMemo(() => {
+    const { typeFilter, typeValue, typeProduct } = filterForm
+    if (typeValue === "ALL" && typeProduct === "ALL") {
+      return listProductPos;
+    }
 
-    setFilteredProducts(filtered) // Set the filtered products to the state
+    const filterKey = {
+      CATEGORY: "categoryId",
+      TYPE: "typeId",
+      COMPANY: "companyId",
+    }[typeFilter];
+
+    // console.log(filterForm);
+
+    return listProductPos.filter((el) => {
+      // Check typeValue condition
+      const matchesTypeValue = typeValue === "ALL" || (filterKey && el[filterKey] === typeValue);
+      // Check typeProduct condition
+      const matchesTypeProduct =
+        typeProduct === "ALL"
+          ? true
+          : typeProduct === "favorite"
+            ? el.isFavorite === true
+            : true
+
+      // Combine both conditions with AND
+      return matchesTypeValue && matchesTypeProduct;
+    });
+  }, [filterForm, listProductPos]);
+
+
+  const listLeftFilter = useMemo(() => {
+    if (filterForm.typeFilter === "COMPANY") {
+      return companyData
+    }
+    if (filterForm.typeFilter === "TYPE") {
+      return typeData
+    }
+    if (filterForm.typeFilter === "CATEGORY") {
+      return categoryData
+    }
+    return []
+  })
+
+  const handleClickProduct = () => {
+    setOpenModalProduct(true)
   }
-
-  useEffect(() => {
-    applyFilters()
-  }, [filterForm])
-
-  useEffect(() => {
-    // if (fields?.length == 0) {
-    listSaleProduct.forEach(el => {
-      append(el)
-    })
-    setValue('grandTotal', 500000)
-    // }
-  }, [])
 
   const helperTextPrice = index => {
     const info = {
@@ -211,109 +152,159 @@ export default function PointOfSaleLayout() {
   }
 
   return (
-    <Card fullwidth>
-      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 4 }}>
-        <Grid container spacing={2}>
-          {/* Filters Section */}
-          <Grid item xs={12}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6} md={2}>
-                {/** Filter Company */}
-                <Controller
-                  name='companyId'
-                  control={controlFilter}
-                  render={({ field: { value, onChange } }) => (
-                    <CustomTextField
-                      select
-                      fullWidth
-                      label='Company'
-                      SelectProps={{
-                        value: value,
-                        onChange: e => onChange(e)
-                      }}
-                      defaultValues='Company'
-                    >
-                      <MenuItem Select value='Company'>
-                        Company
+    <Card>
+      {
+        openModalProduct &&
+        <ModalAddProductPos
+          open={openModalProduct}
+          setOpen={setOpenModalProduct}
+          data={selectedProduct}
+          typeModal={"ADD"}
+          addProduct={append}
+          fields={fields}
+        />
+      }
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '75vh', p: 2 }}>
+        <Grid container spacing={3}>
+          {/* =============== HEADER ================= */}
+          {/* FILTER */}
+          <Grid item md={2} sx={{ display: showFilter ? 'block' : 'none' }}>
+            <Controller
+              name='typeFilter'
+              control={controlFilter}
+              render={({ field: { value, onChange } }) => (
+                <CustomTextField
+                  select
+                  fullWidth
+                  label={
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      Filter By
+                    </div>
+                  }
+                  SelectProps={{
+                    value: value,
+                    onChange: e => {
+                      onChange(e)
+                      setFilter({
+                        ...filter,
+                        type: e.target.value
+                      })
+
+                    }
+                  }}
+                >
+                  {listFilter?.map((data, index) => {
+                    return (
+                      <MenuItem key={index} value={data.value}>
+                        {data.name}
                       </MenuItem>
-                      {companyData?.map((data, index) => {
-                        return (
-                          <MenuItem Select key={index} value={data.id}>
-                            {data.name}
-                          </MenuItem>
-                        )
-                      })}
-                    </CustomTextField>
-                  )}
-                />
-              </Grid>
-              {/** Filter Type*/}
-              <Grid item xs={12} sm={6} md={2}>
+                    )
+                  })}
+                </CustomTextField>
+              )}
+            />
+          </Grid>
+          {/* PRODUCT */}
+          <Grid item md={6} >
+            <Grid container spacing={3} justifyContent="center" alignItems="center">
+              <Grid item md={4} >
                 <Button
                   fullWidth
-                  variant={filterForm.typeProduct === 'all' ? 'contained' : 'outlined'}
-                  onClick={() => setValueFilter('typeProduct', 'all')}
-                  sx={{ mt: 5 }}
+                  variant={filterForm.typeProduct === 'ALL' ? 'contained' : 'outlined'}
+                  onClick={() => {
+                    setValueFilter('typeProduct', 'ALL')
+                    setFilter({
+                      ...filter,
+                      typeProduct: 'ALL'
+                    })
+                  }}
                 >
                   All
                 </Button>
               </Grid>
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid item md={4}>
                 <Button
                   fullWidth
-                  sx={{ mt: 5 }}
                   variant={filterForm.typeProduct === 'favorite' ? 'contained' : 'outlined'}
-                  onClick={() => setValueFilter('typeProduct', 'favorite')}
+                  onClick={() => {
+                    setValueFilter('typeProduct', 'favorite')
+                    setFilter({
+                      ...filter,
+                      typeProduct: "favorite"
+                    })
+                  }}
                 >
                   Favorite
                 </Button>
               </Grid>
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid item md={4}>
                 <Button
                   fullWidth
-                  sx={{ mt: 5 }}
                   variant={filterForm.typeProduct === 'custom' ? 'contained' : 'outlined'}
                   onClick={() => setValueFilter('typeProduct', 'custom')}
                 >
                   Custom
                 </Button>
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
-                <Button fullWidth sx={{ mt: 5 }} variant='contained'>
-                  Add Customer
-                </Button>
-              </Grid>
             </Grid>
           </Grid>
-
-          {/* Company Section Filter */}
-          <Grid item xs={2}>
+          {/* ADD CUSTOMER */}
+          <Grid item md={showFilter ? 4 : 6}>
+            <Button fullWidth variant='contained'>
+              Add Customer
+            </Button>
+          </Grid>
+          {/* =============== BODY ================ */}
+          {/* Section Filter */}
+          <Grid
+            item
+            xs={2}
+            style={{ display: showFilter ? 'block' : 'none', transition: 'display 0.5s ease-in-out' }}
+          >
             <Box
               sx={{
-                maxHeight: 500, // Set the height for the scrollable area
-                overflowY: 'auto', // Enable vertical scrolling
-                // border: '1px solid #ccc', // Optional: Add a border for visual distinction
-                p: 2, // Optional: Add padding inside the scrollable area
-                mt: 2
+                maxHeight: 500,
+                overflowY: 'auto',
+                height: '61vh',
               }}
             >
               <Grid container direction='column' spacing={2}>
-                {companyData?.map((data, index) => (
+                <Grid item xs={6} sm={4} md={4} key={999}>
+                  <Button
+                    fullWidth={true}
+                    variant={filterForm.typeValue === "ALL" ? 'contained' : 'outlined'}
+                    sx={{
+                      height: 60,
+                      textWrap: 'wrap',
+                      textAlign: 'center'
+                    }}
+                    onClick={() => {
+                      setValueFilter('typeValue', "ALL")
+                      setFilter({
+                        ...filter,
+                        typeValue: "ALL"
+                      })
+                    }}
+                  >
+                    ALL
+                  </Button>
+                </Grid>
+                {listLeftFilter?.map((data, index) => (
                   <Grid item xs={6} sm={4} md={4} key={index}>
                     <Button
-                      fullWidth
+                      fullWidth={true}
+                      variant={filterForm.typeValue === data?.id ? 'contained' : 'outlined'}
                       sx={{
-                        maxWidth: '300px',
-                        border: '1px solid',
-                        p: 3,
-                        textAlign: 'center',
-                        width: '100%',
                         height: 60,
-                        backgroundColor: 'primary',
-                        textWrap: 'wrap'
+                        textWrap: 'wrap',
+                        textAlign: 'center'
                       }}
                       onClick={() => {
-                        setValueFilter('companyId', data?.id)
+                        setValueFilter('typeValue', data?.id)
+                        setFilter({
+                          ...filter,
+                          typeValue: data?.id
+                        })
                       }}
                     >
                       {data.name}
@@ -324,104 +315,55 @@ export default function PointOfSaleLayout() {
             </Box>
           </Grid>
           {/** Products */}
-          <Grid item xs={6} sx={{ p: 2, mt: 4 }}>
+          <Grid item xs={6}>
             <Box
               sx={{
-                maxHeight: 1200,
+                maxHeight: '61vh',
                 overflowY: 'auto',
-                p: 2,
-                mt: 2
               }}
             >
               <Grid container spacing={2}>
                 {filteredProducts?.map((data, index) => (
-                  <Grid item xs={6} sm={3} md={4} key={index}>
+                  <Grid item md={4} key={index}>
                     <Button
                       fullWidth
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSelectedProduct(data)
+                        handleClickProduct()
+                      }}
                       sx={{
                         maxWidth: '300px',
                         border: '1px solid',
                         p: 3,
                         textAlign: 'center',
-                        width: '100%', // Ensures buttons expand horizontally
+                        width: '100%', // Ensures buttons expand horizontALLy
                         height: 100,
                         backgroundColor: 'primary',
                         textWrap: 'wrap'
                       }}
                     >
-                      {data.name}
+                      {data.productName}
                     </Button>
                   </Grid>
                 ))}
               </Grid>
             </Box>
           </Grid>
-          <Grid item xs={6} md={4} sx={{ mt: 4 }}>
-            <Card
-              sx={{
-                border: 1,
-                maxHeight: 780,
-                overflowY: 'auto',
-                minHeight: 150
-              }}
-            >
-              {fields.map((item, index) => (
-                <React.Fragment key={item.id}>
-                  <CardContent>
-                    <Grid container spacing={6}>
-                      <Grid item xs={12} md={6}>
-                        <Controller
-                          name={`formData[${index}].productName`}
-                          control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <div>
-                              <Typography variant='h5' sx={{ marginTop: '4px', fontWeight: 'bold', textWrap: 'wrap' }}>
-                                {value}
-                              </Typography>
-                              <Typography
-                                variant='body2' // Adjusts the size (you can change this to 'body1' or 'subtitle2' for larger text)
-                                color='textSecondary' // This can be customized to another color, like 'primary', 'secondary', etc.
-                                sx={{ marginTop: '4px' }} // Adds some spacing between the input and the text
-                              >
-                                {helperTextPrice(index).detailItem}
-                              </Typography>
-                            </div>
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={2}>
-                        <Controller
-                          name={`formData[${index}].quantity`}
-                          control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <Typography variant='h5' sx={{ marginTop: '4px', fontWeight: 'bold' }}>
-                              x{value}
-                            </Typography>
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={4}>
-                        <Controller
-                          name={`formData[${index}].price`}
-                          control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <Typography variant='h5' sx={{ marginTop: '4px', fontWeight: 'bold', textAlign: 'right' }}>
-                              {priceFormat(value)}
-                            </Typography>
-                          )}
-                        />
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </React.Fragment>
-              ))}
-            </Card>
+          {/* Cart */}
+          <Grid item md={showFilter ? 4 : 6}>
+            <CartProductPos
+              data={fields}
+              control={control}
+              helperTextPrice={helperTextPrice}
+            />
             <Button
               fullWidth
               variant={'contained'}
               sx={{ mt: 5 }}
               onClick={() => {
                 remove()
+                localStorage.setItem('listProductPos', JSON.stringify([]))
               }}
             >
               Clear
