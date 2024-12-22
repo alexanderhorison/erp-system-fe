@@ -24,6 +24,7 @@ import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-pr
 import ModalTransformProductSalesOrder from '../sales-order/ModalTransformProductSalesOrder'
 import { createPurchaseOrder } from 'src/store/apps/purchase-order'
 import ModalAddMasterVendor from '../master/vendor/ModalAddMasterVendor'
+import ModalTransformPrice from './ModalTransformPrice'
 
 export default function AddPurchaseOrder({}) {
   const dispatch = useDispatch()
@@ -41,6 +42,8 @@ export default function AddPurchaseOrder({}) {
   const [helperTextChanges, setHelperTextChanges] = useState(false)
   const [transformationData, setTransformationData] = useState({})
   const [dataWarehouseIds, setDataWarehouseIds] = useState({})
+  const [openModalTransformPrice, setOpenModalTransformPrice] = useState(false)
+  const [transformPriceData, setTransformPriceData] = useState({})
 
   // ** Redux
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
@@ -382,6 +385,13 @@ export default function AddPurchaseOrder({}) {
     })
   }
 
+  const handleTransformHarga = index => {
+    setOpenModalTransformPrice(true)
+    let temp = getValues(`data.${index}`)
+    const findUnit = listMasterUnit.find(unit => unit.id == temp.unitId)
+    setTransformPriceData({ ...temp, unitName: findUnit.name, noIndex: index })
+  }
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -456,81 +466,6 @@ export default function AddPurchaseOrder({}) {
               </CardContent>
             </Card>
           </Grid>
-          {/* <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Grid container display='flex' gap={4} justifyContent='space-between'>
-                  <Grid item xs={12} md={4}>
-                    <Box display='flex' alignItems={'center'} width={'100%'}>
-                      <Controller
-                        name={`vendorId`}
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange } }) => (
-                          <CustomAutocomplete
-                            options={masterVendor}
-                            id='autocomplete-custom'
-                            getOptionLabel={option => option.name || ''}
-                            onChange={(event, newValue) => {
-                              onChange(+newValue?.id || '')
-                              setVendorData(newValue)
-                            }}
-                            sx={{ flexGrow: 1 }}
-                            renderInput={params => (
-                              <CustomTextField
-                                value={value}
-                                {...params}
-                                error={Boolean(errors?.vendorId)}
-                                {...(errors?.vendorId && {
-                                  helperText: errors?.vendorId.message
-                                })}
-                                label='Vendor'
-                              />
-                            )}
-                          />
-                        )}
-                      />
-                      <Button
-                        onClick={handleAddVendor}
-                        variant='contained'
-                        sx={{
-                          ml: 2,
-                          mt: 4,
-                          width: '100%',
-                          '@media (min-width: 600px)': {
-                            width: 'auto'
-                          }
-                        }}
-                      >
-                        <Icon fontSize='1.125rem' icon='tabler:plus' />
-                        Tambah Vendor
-                      </Button>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <DatePicker
-                      selected={date}
-                      id='basic'
-                      popperPlacement={popperPlacement}
-                      onChange={date => setDate(date)}
-                      fullWidth
-                      customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid container display='flex' gap={3} sx={{ marginTop: '1rem' }}>
-                  <Grid item xs={12} md={4}>
-                    <Box sx={{ display: 'flex-column', alignItems: 'left', textAlign: 'left' }}>
-                      <Typography sx={{ color: 'text.secondary' }}>{vendorData?.email}</Typography>
-                      <Typography sx={{ color: 'text.secondary' }}>{vendorData?.address}</Typography>
-                      <Typography sx={{ color: 'text.secondary' }}>{vendorData?.phoneNumber}</Typography>
-                      <Typography sx={{ color: 'text.secondary' }}>{vendorData?.rankName}</Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid> */}
           {/* BODY PURCHASE ORDER */}
           <Grid item xs={12}>
             <Card>
@@ -553,9 +488,6 @@ export default function AddPurchaseOrder({}) {
                               getOptionLabel={option => option.name || ''}
                               onChange={(event, newValue) => {
                                 onChange(+newValue?.id)
-                                // setWarehouseId(+newValue?.id)
-                                // dispatch(fetchInvoiceListProductByWarehouseId(+newValue?.id))
-                                // removeBarterProduct()
                               }}
                               renderInput={params => (
                                 <CustomTextField
@@ -573,6 +505,23 @@ export default function AddPurchaseOrder({}) {
                           )}
                         />
                       </Grid>
+                      <Grid item xs={12} md={3}>
+                        <Button
+                          variant='contained'
+                          sx={{
+                            marginTop: '1rem',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => handleTransformHarga(index)}
+                          disabled={
+                            !formField[index]?.masterProductId ||
+                            !formField[index]?.unitId ||
+                            !formField[index]?.quantity
+                          }
+                        >
+                          Transformasi Harga
+                        </Button>
+                      </Grid>
                     </Grid>
                     <Grid container spacing={6} sx={{ marginTop: 1 }}>
                       <Grid item xs={12} md={3}>
@@ -586,11 +535,11 @@ export default function AddPurchaseOrder({}) {
                               options={OptionsGroup(listMasterProduct, 'category')}
                               groupBy={option => option.category}
                               id='autocomplete-grouped'
-                              getOptionLabel={option => option.name || ''}
-                              value={listMasterProduct.find(product => product.id === value) || null}
+                              getOptionLabel={option => option?.name || ''}
+                              value={listMasterProduct.find(product => product?.id == value) || null}
+                              isOptionEqualToValue={(option, value) => option.id === value?.id}
                               onChange={(event, newValue) => {
                                 onChange(+newValue?.id)
-                                setValue(`data[${index}].unitId`, null)
                               }}
                               renderInput={params => (
                                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -674,7 +623,7 @@ export default function AddPurchaseOrder({}) {
                           )}
                         />
                       </Grid>
-                      <Grid key={getValues(`data[${index}].warehouseProductId`)} item xs={3} md={1.5}>
+                      <Grid item xs={3} md={1.5}>
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}
@@ -731,23 +680,6 @@ export default function AddPurchaseOrder({}) {
                                   formStateField: formField,
                                   onChange
                                 })
-                                // const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
-                                // const newPrice = +rawValue
-                                // const currentQuantity = formField[index].quantity || 0
-                                // const newSubTotal = currentQuantity * newPrice
-
-                                // // Update the price and the subtotal
-                                // onChange(rawValue)
-                                // if (parseInt(newSubTotal, 10) > 0) {
-                                //   setValue(`data[${index}].subTotal`, newSubTotal)
-                                // }
-                                // if (
-                                //   formField[index].quantity &&
-                                //   formField[index].price &&
-                                //   parseInt(formField[index].quantity, 10) > 0
-                                // ) {
-                                //   calculateTotals()
-                                // }
                               }}
                               type='text'
                               sx={{ display: 'block' }}
@@ -1023,23 +955,6 @@ export default function AddPurchaseOrder({}) {
                                   formStateField: formBarter,
                                   onChange
                                 })
-                                // const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
-                                // const newPrice = +rawValue
-                                // const currentQuantity = formBarter[index].quantity || 0
-                                // const newSubTotal = currentQuantity * newPrice
-
-                                // // Update the price and the subtotal
-                                // onChange(rawValue)
-                                // if (parseInt(newSubTotal, 10) > 0) {
-                                //   setValue(`barterProduct[${index}].subTotal`, newSubTotal)
-                                // }
-                                // if (
-                                //   formBarter[index].quantity &&
-                                //   formBarter[index].price &&
-                                //   parseInt(formBarter[index].quantity, 10) > 0
-                                // ) {
-                                //   calculateTotals()
-                                // }
                               }}
                               type='text'
                               sx={{ display: 'block' }}
@@ -1217,6 +1132,15 @@ export default function AddPurchaseOrder({}) {
       )}
       {openModalVendor && (
         <ModalAddMasterVendor open={openModalVendor} setOpen={setOpenModalVendor} typeModal={'ADD'} />
+      )}
+      {openModalTransformPrice && (
+        <ModalTransformPrice
+          open={openModalTransformPrice}
+          setOpen={setOpenModalTransformPrice}
+          data={transformPriceData}
+          setValueForm={setValue}
+          handleCalculate={calculateTotals}
+        />
       )}
     </>
   )

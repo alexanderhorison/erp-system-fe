@@ -99,6 +99,25 @@ export const deleteMasterDataTransformation = createAsyncThunk(
   }
 )
 
+// GET ALL TRANSFORMATIONS BY PRODUCT ID AND UNIT ID
+export const fetchTransformationByProductId = createAsyncThunk(
+  'appMasterTransformation/fetchDataTransformationByProductId',
+  async (params, { rejectWithValue }) => {
+
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/master/product/transformation/all',
+        params
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue({})
+    }
+  }
+)
+
 // REDUCER MASTER TRANSFORMATION
 export const appMasterTransformationSlice = createSlice({
   name: 'appMasterTransformation',
@@ -119,7 +138,9 @@ export const appMasterTransformationSlice = createSlice({
     loadingDetail: false,
     total: 1,
     params: {},
-    allData: []
+    allData: [],
+    listTransformation: [],
+    loadingListTransformation: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -152,6 +173,17 @@ export const appMasterTransformationSlice = createSlice({
           unitToId: '',
           amountTo: ''
         }
+      })
+      .addCase(fetchTransformationByProductId.pending, (state, action) => {
+        state.loadingListTransformation = true
+      })
+      .addCase(fetchTransformationByProductId.fulfilled, (state, action) => {
+        state.listTransformation = action.payload.data
+        state.loadingListTransformation = false
+      })
+      .addCase(fetchTransformationByProductId.rejected, (state, action) => {
+        state.loadingListTransformation = false
+        state.error = action.error.message
       })
   }
 })
