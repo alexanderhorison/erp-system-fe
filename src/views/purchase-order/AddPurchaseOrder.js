@@ -66,7 +66,8 @@ export default function AddPurchaseOrder({}) {
         unitId: yup.number().typeError('Satuan harus diisi').nonNullable('Satuan harus diisi'),
         price: yup.number().typeError('Price product harus diisi').nonNullable('Price product harus diisi'),
         quantity: yup.number().min(0, 'Kuantiti tidak boleh minus').typeError('Kuantiti harus diisi'),
-        subTotal: yup.number().typeError('Sub Total Product harus diisi')
+        subTotal: yup.number().typeError('Sub Total Product harus diisi'),
+        disabledTransform: yup.boolean().default(true)
       })
     ),
     barterProduct: yup.lazy(value => {
@@ -145,7 +146,15 @@ export default function AddPurchaseOrder({}) {
   const formBarter = watch('barterProduct')
 
   const addMore = () => {
-    append({ warehouseId: '', masterProductId: '', unitId: '', price: '', quantity: '', subTotal: '' })
+    append({
+      warehouseId: '',
+      masterProductId: '',
+      unitId: '',
+      price: '',
+      quantity: '',
+      subTotal: '',
+      disabledTransform: true
+    })
   }
 
   const deleteItem = itemIndex => {
@@ -239,11 +248,20 @@ export default function AddPurchaseOrder({}) {
 
   useEffect(() => {
     calculateTotals()
+    checkDisabledTransform()
   }, [formField, formBarter])
 
   useEffect(() => {
     if (fields.length === 0) {
-      append({ warehouseId: '', masterProductId: '', unitId: '', price: '', quantity: '', subTotal: '' })
+      append({
+        warehouseId: '',
+        masterProductId: '',
+        unitId: '',
+        price: '',
+        quantity: '',
+        subTotal: '',
+        disabledTransform: true
+      })
     }
     dispatch(fetchMasterDataWarehouse())
     dispatch(fetchMasterDataVendor())
@@ -392,6 +410,19 @@ export default function AddPurchaseOrder({}) {
     setTransformPriceData({ ...temp, unitName: findUnit.name, noIndex: index })
   }
 
+  const checkDisabledTransform = () => {
+    formField?.forEach((item, index) => {
+      const isDisabled = disabledTransform(item)
+      if (item.disabledTransform !== isDisabled) {
+        setValue(`data[${index}].disabledTransform`, isDisabled, { shouldValidate: true })
+      }
+    })
+  }
+
+  const disabledTransform = item => {
+    return !item.masterProductId || !item.unitId || !item.quantity
+  }
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -513,11 +544,7 @@ export default function AddPurchaseOrder({}) {
                             cursor: 'pointer'
                           }}
                           onClick={() => handleTransformHarga(index)}
-                          disabled={
-                            !formField[index]?.masterProductId ||
-                            !formField[index]?.unitId ||
-                            !formField[index]?.quantity
-                          }
+                          disabled={getValues(`data[${index}].disabledTransform`)}
                         >
                           Transformasi Harga
                         </Button>
@@ -540,6 +567,7 @@ export default function AddPurchaseOrder({}) {
                               isOptionEqualToValue={(option, value) => option.id === value?.id}
                               onChange={(event, newValue) => {
                                 onChange(+newValue?.id)
+                                checkDisabledTransform()
                               }}
                               renderInput={params => (
                                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -593,6 +621,7 @@ export default function AddPurchaseOrder({}) {
                                     fieldName: 'data'
                                   })
                                 }
+                                checkDisabledTransform()
                               }}
                               renderInput={params => (
                                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -649,6 +678,7 @@ export default function AddPurchaseOrder({}) {
                                   ) {
                                     calculateTotals()
                                   }
+                                  checkDisabledTransform()
                                 }}
                                 type='number'
                                 sx={{ display: 'block' }}
