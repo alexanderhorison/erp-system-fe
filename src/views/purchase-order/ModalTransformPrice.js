@@ -21,7 +21,15 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
 import { priceFormat } from 'src/helpers/priceFormatter'
 
-export default function ModalTransformPrice({ open, setOpen, data, setValueForm, handleCalculate }) {
+export default function ModalTransformPrice({
+  open,
+  setOpen,
+  data,
+  setValueForm,
+  handleCalculate,
+  savedData,
+  handleSave
+}) {
   const dispatch = useDispatch()
   const [selectedUnit, setSelectedUnit] = useState({})
 
@@ -33,8 +41,15 @@ export default function ModalTransformPrice({ open, setOpen, data, setValueForm,
   })
 
   const onSubmit = payload => {
+    const transformedData = {
+      ...getValues(),
+      totalHarga: result.totalHarga,
+      resultQuantity: result.resultQuantity
+    }
+
     setValueForm(`data[${data?.noIndex}].price`, result.totalHarga / data?.quantity)
     setValueForm(`data[${data?.noIndex}].subTotal`, result.totalHarga)
+    handleSave(data?.noIndex, transformedData)
     handleCalculate()
     setOpen(false)
   }
@@ -55,12 +70,20 @@ export default function ModalTransformPrice({ open, setOpen, data, setValueForm,
     resolver: yupResolver(schema)
   })
 
-  console.log(listTransformation)
-
   useEffect(() => {
     // Get list transformation by product id and unit Id
     dispatch(fetchTransformationByProductId({ productId: data?.masterProductId, unitId: data?.unitId }))
   }, [data])
+
+  useEffect(() => {
+    if (savedData) {
+      setSelectedUnit(listTransformation.find(item => item.id == savedData.transformation))
+      setValue
+      Object.entries(savedData).forEach(([key, value]) => {
+        setValue(key, value)
+      })
+    }
+  }, [savedData, setValue, listTransformation])
 
   const result = useMemo(() => {
     let totalQuantity = 0
@@ -85,7 +108,7 @@ export default function ModalTransformPrice({ open, setOpen, data, setValueForm,
       baseProductPrice,
       formattedTotalHarga
     }
-  }, [selectedUnit, data, watch('basePrice')])
+  }, [selectedUnit, data, watch('basePrice'), setSelectedUnit])
 
   return (
     <Card>
@@ -127,12 +150,11 @@ export default function ModalTransformPrice({ open, setOpen, data, setValueForm,
                             <CustomAutocomplete
                               options={listTransformation}
                               id='autocomplete-custom'
+                              value={listTransformation.find(item => item.id === value) || null}
                               getOptionLabel={option => option.info || ''}
                               onChange={(event, newValue) => {
                                 onChange(+newValue?.id)
                                 setSelectedUnit(newValue)
-                                console.log(newValue)
-
                                 dispatch(
                                   fetchOneMasterDataProductPrice({
                                     productId: newValue?.masterProductId,

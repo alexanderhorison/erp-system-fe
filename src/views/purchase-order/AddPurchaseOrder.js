@@ -44,6 +44,7 @@ export default function AddPurchaseOrder({}) {
   const [dataWarehouseIds, setDataWarehouseIds] = useState({})
   const [openModalTransformPrice, setOpenModalTransformPrice] = useState(false)
   const [transformPriceData, setTransformPriceData] = useState({})
+  const [lastTransformData, setLastTransformData] = useState({})
 
   // ** Redux
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
@@ -421,6 +422,10 @@ export default function AddPurchaseOrder({}) {
 
   const disabledTransform = item => {
     return !item.masterProductId || !item.unitId || !item.quantity
+  }
+
+  const handleSaveTransformData = (index, data) => {
+    setLastTransformData(prev => ({ ...prev, [index]: data }))
   }
 
   return (
@@ -1170,6 +1175,8 @@ export default function AddPurchaseOrder({}) {
           data={transformPriceData}
           setValueForm={setValue}
           handleCalculate={calculateTotals}
+          savedData={lastTransformData[transformPriceData.noIndex] || {}}
+          handleSave={(index, data) => handleSaveTransformData(index, data)}
         />
       )}
     </>
