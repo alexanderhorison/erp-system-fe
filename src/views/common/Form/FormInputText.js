@@ -12,6 +12,7 @@ export default function FormInputText({
   fullWidth = true,
   multiline = false,
   rows = 1,
+  type = 'text'
 }) {
 
   return (
@@ -21,6 +22,7 @@ export default function FormInputText({
       rules={{ required: true }}
       render={({ field: { value, onChange } }) => (
         <CustomTextField
+          type={type}
           multiline={multiline}
           rows={rows}
           fullWidth={fullWidth}

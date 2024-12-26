@@ -59,6 +59,7 @@ export async function swalConfirmationAdd({ label, name = 'Data', axiosRequest, 
         icon: 'success',
         confirmButtonColor: '#6F4E37'
       })
+      return response
     }
   } catch (error) {
     swalError({ error, label })

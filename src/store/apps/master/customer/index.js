@@ -134,6 +134,7 @@ export const appMasterCustomerSlice = createSlice({
       name: '',
       description: '',
       level: '',
+      gender: 'Laki-laki',
     },
     loadingDetail: false,
     total: 1,

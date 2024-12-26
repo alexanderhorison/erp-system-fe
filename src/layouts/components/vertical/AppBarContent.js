@@ -126,7 +126,7 @@ const AppBarContent = props => {
   const title = useMemo(() => {
     const url = window.location.pathname
     if (url.includes('/point-of-sale/')) {
-      return 'Point of Sale'
+      return 'Point of Sale V 1.0'
     }
     return systemInfo.systemName
   })
