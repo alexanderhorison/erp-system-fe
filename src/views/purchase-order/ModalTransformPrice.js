@@ -33,6 +33,15 @@ export default function ModalTransformPrice({ open, setOpen, data, setValueForm,
   })
 
   const onSubmit = payload => {
+    const isTransformationError = Boolean(errors?.transformation)
+
+    if (isTransformationError) {
+      setError('transformation', {
+        type: 'manual',
+        message: 'Quantity asal harus sesuai dengan rumus transformasi'
+      })
+      return
+    }
     setValueForm(`data[${data?.noIndex}].price`, result.totalHarga / data?.quantity)
     setValueForm(`data[${data?.noIndex}].subTotal`, result.totalHarga)
     handleCalculate()
@@ -49,13 +58,13 @@ export default function ModalTransformPrice({ open, setOpen, data, setValueForm,
     setValue,
     getValues,
     watch,
+    clearErrors,
+    setError,
     formState: { errors }
   } = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema)
   })
-
-  console.log(listTransformation)
 
   useEffect(() => {
     // Get list transformation by product id and unit Id
@@ -71,8 +80,21 @@ export default function ModalTransformPrice({ open, setOpen, data, setValueForm,
     let basePrice = getValues('basePrice')
 
     if (selectedUnit?.amountTo) {
-      totalQuantity = data?.quantity * selectedUnit?.amountTo
-      resultQuantity = `${data?.quantity} * ${selectedUnit?.amountTo} = ${totalQuantity} ${selectedUnit?.unitTo?.name}`
+      if (selectedUnit.amountFrom > selectedUnit.amountTo) {
+        if (data?.quantity % selectedUnit?.amountFrom !== 0) {
+          setError('transformation', {
+            type: 'manual',
+            message: 'Quantity asal harus sesuai dengan rumus transformasi'
+          })
+        } else {
+          clearErrors('transformation') // Clear error if the validation passes
+          totalQuantity = data?.quantity / selectedUnit?.amountFrom
+          resultQuantity = `${data?.quantity} / ${selectedUnit?.amountFrom} = ${totalQuantity} ${selectedUnit?.unitTo?.name}`
+        }
+      } else {
+        totalQuantity = data?.quantity * selectedUnit?.amountTo
+        resultQuantity = `${data?.quantity} * ${selectedUnit?.amountTo} = ${totalQuantity} ${selectedUnit?.unitTo?.name}`
+      }
     }
     if (basePrice && totalQuantity) {
       totalHarga = basePrice * totalQuantity
