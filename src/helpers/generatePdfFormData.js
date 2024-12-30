@@ -8,6 +8,7 @@ const pdfFormData = async (cardElement, module, code, namePdf, additionSubjectTe
   cardElement.style.width = '250mm' // A4 width
   cardElement.style.height = 'auto' // Allow height to auto to fit content
   cardElement.style.overflow = 'visible' // Ensure all content is visible
+  cardElement.style.margin = '0';
 
   const canvas = await html2canvas(cardElement, {
     scale: 2.5, // Higher scale for better quality
@@ -20,11 +21,14 @@ const pdfFormData = async (cardElement, module, code, namePdf, additionSubjectTe
   const pdf = new jsPDF('p', 'mm', 'a4') // A4 format
   const pageWidth = pdf.internal.pageSize.getWidth()
   const pageHeight = pdf.internal.pageSize.getHeight()
-  const imgWidth = pageWidth - 30 // Leave some margin (10mm on each side)
+
+  const margin = 10
+  const horizontalMargin = 15
+  const imgWidth = pageWidth - horizontalMargin * 2
   const imgHeight = (canvas.height * imgWidth) / canvas.width
 
-  let position = 20 // Start position from top with margin
-  const maxHeight = pageHeight - 40 // Leave some margin from bottom
+  let position = margin // Start position from top with margin
+  const maxHeight = pageHeight - margin * 2 // Leave some margin from bottom
 
   while (position < imgHeight) {
     const scaledHeight = Math.min(imgHeight - position, maxHeight)
@@ -112,7 +116,6 @@ const handlePrintDownload = (url, id, setIsLoading) => {
   // Append the iframe to the body
   document.body.appendChild(iframe)
   setIsLoading(false) // Stop loading when the download starts
-
 
   // Cara 2 open dan langsung download
   // const link = document.createElement('a')

@@ -93,17 +93,6 @@ const ToolbarSalesOrder = ({ id, data }) => {
     <>
       <Card>
         <CardContent>
-          {/* <Button
-            fullWidth
-            sx={{ mb: 2 }}
-            variant='contained'
-            onClick={() => {
-              handlePrintDownload('sales-order', id)
-            }}
-          >
-            <Icon fontSize='1.125rem' icon='tabler:download' />
-            Unduh
-          </Button> */}
           <DownloadButton url={'sales-order'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
           <Button
             fullWidth
