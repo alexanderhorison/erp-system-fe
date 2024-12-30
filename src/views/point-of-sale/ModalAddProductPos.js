@@ -1,5 +1,5 @@
 // ** React Imports
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -22,7 +22,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { addMasterDataCategory, editMasterDataCategory } from 'src/store/apps/master/category'
 import { fetchDetailProductPos, updateFavoriteProductPos } from 'src/store/apps/pos'
 import FormInputText from '../common/Form/FormInputText'
 import FormInputNumberPos from '../common/FormPos/FormInputNumberPos'
@@ -90,7 +89,6 @@ export default function ModalAddProductPos({
       notes: val?.notes,
       title: val?.title || ""
     }
-    console.log(tempProduct);
     addProduct(tempProduct)
     saveToLocalStorage([...fields, tempProduct])
     setOpen(false)
@@ -254,7 +252,7 @@ export default function ModalAddProductPos({
                 </Button>
               </Grid>
               <Grid item xs={6}>
-                <Button fullWidth type='submit' variant='contained'>
+                <Button fullWidth type='submit' variant='contained' disabled={!selected ? true : false}>
                   Save
                 </Button>
               </Grid>

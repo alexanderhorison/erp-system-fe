@@ -16,6 +16,7 @@ export default function PointOfSale() {
   const handleChangeQuery = ({ key, value }) => {
     setWarehouse(prev => ({ ...prev, [key]: value }))
     localStorage.setItem('warehousePos', JSON.stringify({ warehouseId: value }))
+    localStorage.removeItem('listProductPos')
     dispatch(fetchListProductPos({ id: value }))
   }
 
