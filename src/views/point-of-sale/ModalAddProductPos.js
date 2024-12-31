@@ -114,7 +114,8 @@ export default function ModalAddProductPos({
   }, [selected])
 
   useEffect(() => {
-    dispatch(fetchDetailProductPos({ warehouseId: 6, productId: data?.productId }))
+    const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
+    dispatch(fetchDetailProductPos({ warehouseId: warehouse.warehouseId, productId: data?.productId }))
   }, [data?.id])
 
   return (
