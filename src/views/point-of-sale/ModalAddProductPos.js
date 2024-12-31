@@ -55,6 +55,7 @@ export default function ModalAddProductPos({
   const { detailProductPos, loadingDetailProductPos } = useSelector(state => state.pos)
 
   const [selected, setSelected] = useState(null)
+  const [isFavorite, setIsFavorite] = useState(false)
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
@@ -103,10 +104,10 @@ export default function ModalAddProductPos({
     const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
     const sendData = {
       productId: data.productId,
-      isFavorite: !data.isFavorite,
+      isFavorite: isFavorite ? false : true,
       warehouseId: warehouse?.warehouseId,
     }
-    dispatch(updateFavoriteProductPos({ data: sendData }))
+    dispatch(updateFavoriteProductPos({ data: sendData, setFavorite: setIsFavorite, isFavorite: isFavorite }))
   }
 
   const tempQuantity = useCallback(() => {
@@ -116,7 +117,15 @@ export default function ModalAddProductPos({
   useEffect(() => {
     const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
     dispatch(fetchDetailProductPos({ warehouseId: warehouse.warehouseId, productId: data?.productId }))
+    if (data?.isFavorite) {
+      setIsFavorite(true)
+    }
   }, [data?.id])
+
+  console.log(data);
+  console.log(isFavorite);
+  
+  
 
   return (
     <Card>
@@ -237,16 +246,16 @@ export default function ModalAddProductPos({
                   onClick={handleFav}
                   startIcon={
                     <Icon
-                      icon={data.isFavorite ? 'tabler:star-filled' : 'tabler:star'} // Gunakan ikon sesuai status
+                      icon={isFavorite ? 'tabler:star-filled' : 'tabler:star'} // Gunakan ikon sesuai status
                       fontSize="1.25rem" // Ukuran ikon
                       style={{
-                        color: data.isFavorite ? 'orange' : 'inherit', // Warna kuning jika favorit
+                        color: isFavorite ? 'orange' : 'inherit', // Warna kuning jika favorit
                       }}
                     />
                   }
                   sx={{
-                    borderColor: data.isFavorite ? 'orange' : 'secondary.main', // Border tombol dinamis
-                    color: data.isFavorite ? 'orange' : 'secondary.main', // Warna teks tombol dinamis
+                    borderColor: isFavorite ? 'orange' : 'secondary.main', // Border tombol dinamis
+                    color: isFavorite ? 'orange' : 'secondary.main', // Warna teks tombol dinamis
                   }}
                 >
                   Favourite

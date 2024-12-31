@@ -46,13 +46,18 @@ export const fetchDetailProductPos = createAsyncThunk(
 // UPDATE PRODUCT TO FAV
 export const updateFavoriteProductPos = createAsyncThunk(
   'appProductPos/updateFavoriteProductPos',
-  async ({ data, setOpen }, { dispatch, rejectWithValue }) => {
+  async ({ data, setOpen, setFavorite, isFavorite }, { dispatch, rejectWithValue }) => {
     try {
       await swalConfirmationAdd({
         label: 'Favorite',
         name: 'Favorite',
-        title: 'Jadikan produk favorit?',
+        title: `${isFavorite ? "Remove produk dari favorit?" : "Jadikan produk favorit?"}`,
         axiosRequest: () => {
+          if (isFavorite){
+            setFavorite(false)
+          } else {
+            setFavorite(true)
+          }
           return axios({
             method: 'POST',
             url: '/point-of-sale/add-favorite',
