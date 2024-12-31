@@ -140,11 +140,11 @@ export default function ModalChargePos({
                 </Grid>
                 <Grid container py={10} spacing={3}>
                   <Grid item xs={4} alignContent={'top'}>Pilih Metode Pembayaran</Grid>
-                  <Grid item xs={8}>
-                    <Grid container spacing={3}>
+                  <Grid item xs={12} alignItems={'center'}>
+                    <Grid container spacing={3} xs={12}>
                       {
                         listPaymentType && listPaymentType.map((item, index) => (
-                          <Grid item key={index} xs={3}>
+                          <Grid item key={index} xs={4}>
                             <Button
                               fullWidth
                               variant={selectedPayment?.id === item?.id ? 'contained' : 'outlined'}
