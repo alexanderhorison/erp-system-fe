@@ -164,12 +164,12 @@ export default function ModalAddProductPos({
             </Box>
 
             <Grid container spacing={6} mt={1}>
-              <Grid item>
+              <Grid item xs={12}>
                 <Grid container spacing={2} alignItems={'center'}>
                   {
                     detailProductPos?.map((item, index) => (
-                      <Grid item key={index}>
-                        <Button variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'} onClick={() => setSelected(item)}>{item.unitName}</Button>
+                      <Grid item key={index} xs={6}>
+                        <Button fullWidth variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'} onClick={() => setSelected(item)}>{item.unitName}</Button>
                       </Grid>
                     ))
                   }
