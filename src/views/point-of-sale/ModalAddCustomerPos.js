@@ -29,8 +29,7 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   }
 }))
 
-export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCustomerPos }) {
-
+export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCustomerPos, selectedCustomer }) {
   const dispatch = useDispatch()
 
   const { defaultValue, detail: detailCustomer } = useSelector(state => state.masterCustomer)
@@ -82,6 +81,11 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
     dispatch(addMasterDataCustomerPos({ data, setOpen, setSelectedCustomerPos }))
   }
 
+  const handleRemoveCustomer = () => {
+    setSelectedCustomerPos({})
+    handleClose()
+  }
+
   useEffect(() => {
     dispatch(fetchMasterDataCustomer({}))
   }, [])
@@ -116,37 +120,46 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
             </Typography>
           </Box>
           <Grid container py={3} spacing={4}>
-            <Grid item xs={newCustomerField ? 6 : 8}>
-              {
-                newCustomerField ? (
-                  <Button fullWidth variant='outlined' onClick={() => setNewCustomerField(false)}>Cancel</Button>
-                ) : (
-                  <CustomTextField
-                    fullWidth
-                    value={searchText}
-                    placeholder={"Cari ..."}
-                    onChange={e => handleSearch(e.target.value)}
-                    InputProps={{
-                      startAdornment: (
-                        <Box sx={{ mr: 4, display: 'flex' }}>
-                          <Icon fontSize='1.25rem' icon='tabler:search' />
-                        </Box>
-                      ),
-                      endAdornment: (
-                        <IconButton size='small' title='Clear' aria-label='Clear' onClick={() => { }}>
-                          <Icon fontSize='1.25rem' icon='tabler:x' />
-                        </IconButton>
-                      )
-                    }}
-                    sx={{
-                      '& .MuiInputBase-root > svg': {
-                        mr: 2
-                      }
-                    }}
-                  />
-                )
-              }
+            <Grid item xs={newCustomerField ? 6 : !selectedCustomer?.id ? 8 : 4}>
+              {newCustomerField ? (
+                <Button fullWidth variant='outlined' onClick={() => setNewCustomerField(false)}>
+                  Cancel
+                </Button>
+              ) : (
+                <CustomTextField
+                  fullWidth
+                  value={searchText}
+                  placeholder={'Cari ...'}
+                  onChange={e => handleSearch(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <Box sx={{ mr: 4, display: 'flex' }}>
+                        <Icon fontSize='1.25rem' icon='tabler:search' />
+                      </Box>
+                    ),
+                    endAdornment: (
+                      <IconButton size='small' title='Clear' aria-label='Clear' onClick={() => {}}>
+                        <Icon fontSize='1.25rem' icon='tabler:x' />
+                      </IconButton>
+                    )
+                  }}
+                  sx={{
+                    '& .MuiInputBase-root > svg': {
+                      mr: 2
+                    }
+                  }}
+                />
+              )}
             </Grid>
+            {selectedCustomer?.id && !newCustomerField && (
+              <Grid item xs={4}>
+                {
+                  <Button fullWidth variant='contained' onClick={handleRemoveCustomer}>
+                    Remove Customer
+                  </Button>
+                }
+              </Grid>
+            )}
             <Grid item xs={newCustomerField ? 6 : 4}>
               {
                 newCustomerField ? (

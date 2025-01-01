@@ -195,6 +195,7 @@ export default function PointOfSaleLayout({
           open={openModalAddCustomer}
           setOpen={setOpenModalAddCustomer}
           setSelectedCustomerPos={setSelectedCustomerPos}
+          selectedCustomer={selectedCustomerPos}
         />
       }
       {
