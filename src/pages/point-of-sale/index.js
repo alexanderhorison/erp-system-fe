@@ -7,6 +7,7 @@ import { fetchMasterDataType } from 'src/store/apps/master/type'
 import { fetchListProductPos } from 'src/store/apps/pos'
 import PointOfSaleLayout from 'src/views/point-of-sale/PointOfSaleLayout'
 import FilterWarehouse from '../components/filter/FilterWarehouse'
+import ButtonBack from 'src/views/common/ButtonBack'
 
 export default function PointOfSale() {
   const dispatch = useDispatch()
@@ -16,6 +17,7 @@ export default function PointOfSale() {
   const handleChangeQuery = ({ key, value }) => {
     setWarehouse(prev => ({ ...prev, [key]: value }))
     localStorage.setItem('warehousePos', JSON.stringify({ warehouseId: value }))
+    localStorage.removeItem('listProductPos')
     dispatch(fetchListProductPos({ id: value }))
   }
 
@@ -33,6 +35,7 @@ export default function PointOfSale() {
 
   return (
     <Grid container spacing={3}>
+      <ButtonBack paddingY={3} name='Back to Menu' />
       <Grid item xs={12} display={"flex"} mx={2} gap={2}>
         <FilterWarehouse data={warehouse} includeAllWarehouse={false} handleChangeQuery={handleChangeQuery} />
         <Button

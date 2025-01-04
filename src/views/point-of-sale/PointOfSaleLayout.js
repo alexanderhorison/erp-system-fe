@@ -2,21 +2,21 @@ import {
   Box,
   Button,
   Card,
-  CardContent,
-  Collapse,
   Grid,
   MenuItem,
   Typography
 } from '@mui/material'
-import { yupResolver } from '@hookform/resolvers/yup'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import * as yup from 'yup'
 import ModalAddProductPos from './ModalAddProductPos'
 import CartProductPos from './CartProductPos'
+import ModalAddCustomerPos from './ModalAddCustomerPos'
+import ModalChargePos from './ModalChargePos'
+import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
 
 // Kedepannya jika tambah filter, bisa tambahkan field ini
 const listFilter = [
@@ -40,6 +40,7 @@ const listFilter = [
 export default function PointOfSaleLayout({
   showFilter,
 }) {
+
   const { data: companyData } = useSelector(state => state.company)
   const { data: typeData } = useSelector(state => state.type)
   const { data: categoryData } = useSelector(state => state.category)
@@ -47,7 +48,11 @@ export default function PointOfSaleLayout({
   const { listProductPos } = useSelector(state => state.pos)
 
   const [openModalProduct, setOpenModalProduct] = useState(false)
+  const [openModalAddCustomer, setOpenModalAddCustomer] = useState(false)
+  const [openModalCharge, setOpenModalCharge] = useState(false)
+
   const [selectedProduct, setSelectedProduct] = useState({})
+  const [selectedCustomerPos, setSelectedCustomerPos] = useState(localStorage.getItem('selectedCustomerPos') ? JSON.parse(localStorage.getItem('selectedCustomerPos')) : {})
 
   const [filter, setFilter] = useState({
     type: "COMPANY",
@@ -80,6 +85,7 @@ export default function PointOfSaleLayout({
     formState: { errors },
     setValue,
     setError,
+    resetField,
     getValues,
     watch
   } = useForm({
@@ -108,8 +114,6 @@ export default function PointOfSaleLayout({
       COMPANY: "companyId",
     }[typeFilter];
 
-    // console.log(filterForm);
-
     return listProductPos.filter((el) => {
       // Check typeValue condition
       const matchesTypeValue = typeValue === "ALL" || (filterKey && el[filterKey] === typeValue);
@@ -125,7 +129,6 @@ export default function PointOfSaleLayout({
       return matchesTypeValue && matchesTypeProduct;
     });
   }, [filterForm, listProductPos]);
-
 
   const listLeftFilter = useMemo(() => {
     if (filterForm.typeFilter === "COMPANY") {
@@ -144,11 +147,33 @@ export default function PointOfSaleLayout({
     setOpenModalProduct(true)
   }
 
+  const handleClickAddCustomer = () => {
+    setOpenModalAddCustomer(true)
+  }
+
+  const handleClickCharge = () => {
+    setOpenModalCharge(true)
+  }
+
   const helperTextPrice = index => {
     const info = {
       detailItem: `${getValues(`formData[${index}].unitName`)} @ ${priceFormat(getValues(`formData[${index}].price`))}`
     }
     return info
+  }
+
+  const subTotalPrice = () => {
+    let subTotal = 0
+    fields.forEach((item, index) => {
+      subTotal += getValues(`formData[${index}].quantity`) * getValues(`formData[${index}].price`)
+    })
+    return subTotal
+  }
+
+  const resetAllField = () => {
+    resetField('formData')
+    setSelectedCustomerPos({})
+    localStorage.removeItem('listProductPos')
   }
 
   return (
@@ -162,6 +187,26 @@ export default function PointOfSaleLayout({
           typeModal={"ADD"}
           addProduct={append}
           fields={fields}
+        />
+      }
+      {
+        openModalAddCustomer &&
+        <ModalAddCustomerPos
+          open={openModalAddCustomer}
+          setOpen={setOpenModalAddCustomer}
+          setSelectedCustomerPos={setSelectedCustomerPos}
+          selectedCustomer={selectedCustomerPos}
+        />
+      }
+      {
+        openModalCharge &&
+        <ModalChargePos
+          open={openModalCharge}
+          setOpen={setOpenModalCharge}
+          subTotalPrice={subTotalPrice}
+          listSelectedProduct={fields}
+          customer={selectedCustomerPos}
+          resetAllField={resetAllField}
         />
       }
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '75vh', p: 2 }}>
@@ -250,8 +295,10 @@ export default function PointOfSaleLayout({
           </Grid>
           {/* ADD CUSTOMER */}
           <Grid item md={showFilter ? 4 : 6}>
-            <Button fullWidth variant='contained'>
-              Add Customer
+            <Button fullWidth variant='contained' onClick={handleClickAddCustomer}>
+              {
+                selectedCustomerPos?.name ? selectedCustomerPos.name : 'Add Customer'
+              }
             </Button>
           </Grid>
           {/* =============== BODY ================ */}
@@ -352,25 +399,54 @@ export default function PointOfSaleLayout({
           </Grid>
           {/* Cart */}
           <Grid item md={showFilter ? 4 : 6}>
-            <CartProductPos
-              data={fields}
-              control={control}
-              helperTextPrice={helperTextPrice}
-            />
-            <Button
-              fullWidth
-              variant={'contained'}
-              sx={{ mt: 5 }}
-              onClick={() => {
-                remove()
-                localStorage.setItem('listProductPos', JSON.stringify([]))
-              }}
-            >
-              Clear
-            </Button>
-            <Button fullWidth variant={'contained'} sx={{ mt: 5 }}>
-              Charge {priceFormat(getValues('grandTotal'))}
-            </Button>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <CartProductPos
+                  data={fields}
+                  control={control}
+                  helperTextPrice={helperTextPrice}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container flex flexDirection={'row'} justifyContent={'space-between'} px={6}>
+                  <Grid item>
+                    <Typography align='center' variant='h6' sx={{ marginTop: '4px', fontWeight: 'bold', textWrap: 'wrap' }}>
+                      Total:
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography align='center' variant='h6' sx={{ marginTop: '4px', fontWeight: 'bold', textWrap: 'wrap' }}>
+                      {priceFormat(subTotalPrice()) || "-"}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  fullWidth
+                  variant={'contained'}
+                  onClick={() => {
+                    swalConfirmationOnly({
+                      title: 'Yakin menghapus keranjang?',
+                      text: 'Anda akan menghapus keranjang',
+                      icon: 'warning',
+                      showCancelButton: true,
+                      onClickYes: () => {
+                        remove()
+                        localStorage.setItem('listProductPos', JSON.stringify([]))
+                      }
+                    })
+                  }}
+                >
+                  Clear
+                </Button>
+              </Grid>
+              <Grid item xs={12}>
+                <Button fullWidth variant={'contained'} onClick={handleClickCharge}>
+                  Charge {priceFormat(getValues('grandTotal'))}
+                </Button>
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
       </Box>

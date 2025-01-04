@@ -1,5 +1,5 @@
 // ** React Imports
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -22,7 +22,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { addMasterDataCategory, editMasterDataCategory } from 'src/store/apps/master/category'
 import { fetchDetailProductPos, updateFavoriteProductPos } from 'src/store/apps/pos'
 import FormInputText from '../common/Form/FormInputText'
 import FormInputNumberPos from '../common/FormPos/FormInputNumberPos'
@@ -56,6 +55,7 @@ export default function ModalAddProductPos({
   const { detailProductPos, loadingDetailProductPos } = useSelector(state => state.pos)
 
   const [selected, setSelected] = useState(null)
+  const [isFavorite, setIsFavorite] = useState(false)
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
@@ -90,7 +90,6 @@ export default function ModalAddProductPos({
       notes: val?.notes,
       title: val?.title || ""
     }
-    console.log(tempProduct);
     addProduct(tempProduct)
     saveToLocalStorage([...fields, tempProduct])
     setOpen(false)
@@ -105,10 +104,10 @@ export default function ModalAddProductPos({
     const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
     const sendData = {
       productId: data.productId,
-      isFavorite: !data.isFavorite,
+      isFavorite: isFavorite ? false : true,
       warehouseId: warehouse?.warehouseId,
     }
-    dispatch(updateFavoriteProductPos({ data: sendData }))
+    dispatch(updateFavoriteProductPos({ data: sendData, setFavorite: setIsFavorite, isFavorite: isFavorite }))
   }
 
   const tempQuantity = useCallback(() => {
@@ -116,8 +115,17 @@ export default function ModalAddProductPos({
   }, [selected])
 
   useEffect(() => {
-    dispatch(fetchDetailProductPos({ warehouseId: 6, productId: data?.productId }))
+    const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
+    dispatch(fetchDetailProductPos({ warehouseId: warehouse.warehouseId, productId: data?.productId }))
+    if (data?.isFavorite) {
+      setIsFavorite(true)
+    }
   }, [data?.id])
+
+  console.log(data);
+  console.log(isFavorite);
+  
+  
 
   return (
     <Card>
@@ -165,12 +173,12 @@ export default function ModalAddProductPos({
             </Box>
 
             <Grid container spacing={6} mt={1}>
-              <Grid item>
+              <Grid item xs={12}>
                 <Grid container spacing={2} alignItems={'center'}>
                   {
                     detailProductPos?.map((item, index) => (
-                      <Grid item key={index}>
-                        <Button variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'} onClick={() => setSelected(item)}>{item.unitName}</Button>
+                      <Grid item key={index} xs={6}>
+                        <Button fullWidth variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'} onClick={() => setSelected(item)}>{item.unitName}</Button>
                       </Grid>
                     ))
                   }
@@ -238,23 +246,23 @@ export default function ModalAddProductPos({
                   onClick={handleFav}
                   startIcon={
                     <Icon
-                      icon={data.isFavorite ? 'tabler:star-filled' : 'tabler:star'} // Gunakan ikon sesuai status
+                      icon={isFavorite ? 'tabler:star-filled' : 'tabler:star'} // Gunakan ikon sesuai status
                       fontSize="1.25rem" // Ukuran ikon
                       style={{
-                        color: data.isFavorite ? 'orange' : 'inherit', // Warna kuning jika favorit
+                        color: isFavorite ? 'orange' : 'inherit', // Warna kuning jika favorit
                       }}
                     />
                   }
                   sx={{
-                    borderColor: data.isFavorite ? 'orange' : 'secondary.main', // Border tombol dinamis
-                    color: data.isFavorite ? 'orange' : 'secondary.main', // Warna teks tombol dinamis
+                    borderColor: isFavorite ? 'orange' : 'secondary.main', // Border tombol dinamis
+                    color: isFavorite ? 'orange' : 'secondary.main', // Warna teks tombol dinamis
                   }}
                 >
                   Favourite
                 </Button>
               </Grid>
               <Grid item xs={6}>
-                <Button fullWidth type='submit' variant='contained'>
+                <Button fullWidth type='submit' variant='contained' disabled={!selected ? true : false}>
                   Save
                 </Button>
               </Grid>

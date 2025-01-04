@@ -34,6 +34,9 @@ export default function FormInputPricePos({
       rules={{ required: true }}
       render={({ field: { value, onChange } }) => (
         <CustomTextField
+          type="text" // Use type="text" for cursor manipulation
+          inputMode="numeric" // Ensure numeric keyboard appears
+          pattern="[0-9]*" // Allow only numeric input
           multiline={multiline}
           rows={rows}
           fullWidth={fullWidth}
