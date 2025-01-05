@@ -11,7 +11,17 @@ export default function CartProductPos({
   data,
   control,
   helperTextPrice,
+  setOpenEditProduct,
+  selectedProductEdit,
+  setSelectedProductEdit,
 }) {
+  const handleOpenEditProduct = (item, index) => {
+    setOpenEditProduct(true)
+    setSelectedProductEdit({
+      ...item,
+      index
+    })
+  }
   return (
     <Card
       sx={{
@@ -32,7 +42,7 @@ export default function CartProductPos({
       }
       {data.map((item, index) => (
         <React.Fragment key={item.id}>
-          <CardContent>
+          <CardContent onClick={() => handleOpenEditProduct(item, index)} sx={{ paddingY: 4 }}>
             <Grid container spacing={6}>
               <Grid item xs={12} md={6}>
                 <Controller

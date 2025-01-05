@@ -41,6 +41,7 @@ export async function swalConfirmationOnly({
   onClickYes = () => { },
   onClickNo = () => { },
   title,
+  successMessage = 'Sukses'
 }) {
   const result = await swal.fire({
     title: title,
@@ -55,6 +56,12 @@ export async function swalConfirmationOnly({
 
   if (result.isConfirmed) {
     onClickYes();
+    swal.fire({
+      title: successMessage,
+      icon: 'success',
+      timer: 1000,
+      showConfirmButton: false
+    })
   } else if (result.dismiss === swal.DismissReason.cancel) {
     onClickNo();
   }

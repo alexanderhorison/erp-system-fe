@@ -56,14 +56,14 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    // name: yup.string().required('Nama company harus diisi'),
+    name: yup.string().required('Nama customer harus diisi'),
     // phoneNumber: yup.string().required('Nomor telepon harus diisi'),
     // address: yup.string().optional(),
     // email: yup.string().email('Masukkan email yang valid').optional(),
     // description: yup.string().optional(),
     // gender: yup.string().required('Jenis kelamin harus diisi'),
     // notes: yup.string().optional(),
-    // rankId: yup.number().required('Rank harus dipilih'),
+    rankId: yup.number().required('Rank harus dipilih'),
   })
 
   // FORM FOR CUSTOMER
@@ -72,7 +72,10 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
     handleSubmit,
     formState: { errors }
   } = useForm({
-    values: defaultValue,
+    values: {
+      name: '',
+      rankId: 1, // default value at prod is Level 1
+    },
     mode: 'onChange',
     resolver: yupResolver(schema)
   })
@@ -138,7 +141,7 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
                       </Box>
                     ),
                     endAdornment: (
-                      <IconButton size='small' title='Clear' aria-label='Clear' onClick={() => {}}>
+                      <IconButton size='small' title='Clear' aria-label='Clear' onClick={() => { }}>
                         <Icon fontSize='1.25rem' icon='tabler:x' />
                       </IconButton>
                     )

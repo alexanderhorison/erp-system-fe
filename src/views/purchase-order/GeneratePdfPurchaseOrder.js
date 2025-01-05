@@ -34,6 +34,14 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
   // ** Hooks
   const theme = useTheme()
 
+  const stylePageBreak = (index) => {
+    // Add a page break class if the item is the last in a group of 10
+    if ((index + 1) % 11 === 0) {
+      return 'page-break'; // Class for breaking page
+    }
+    return ''; // No special class for other items
+  };
+
   return (
     <Card id={id} ref={ref}>
       <CardContent sx={{ p: [`${theme.spacing(4)} !important`, `${theme.spacing(6)} !important`] }}>
@@ -134,7 +142,7 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
             }}
           >
             {data?.listProducts?.map((data, index) => (
-              <TableRow key={index}>
+              <TableRow key={index} className={stylePageBreak(index)}>
                 <TableCell
                   sx={{
                     width: '320px', // Fixed width for all rows and columns
@@ -165,7 +173,7 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
       </TableContainer>
 
       {data?.listBarterProducts?.length > 0 && (
-        <>
+        <Box sx={{ mt: 5 }}>
           <TableContainer>
             <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3, fontWeight: 900 }}>
               Barang Barter
@@ -196,7 +204,7 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
               >
                 {data?.listBarterProducts?.map((data, index) => {
                   return (
-                    <TableRow key={index}>
+                    <TableRow key={index} className={stylePageBreak(index)}>
                       <TableCell
                         sx={{
                           width: '320px', // Fixed width for all rows and columns
@@ -227,7 +235,7 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
             </Typography>
           </Box>
           <Divider sx={{ mt: 8 }} />
-        </>
+        </Box>
       )}
 
       <CardContent sx={{ p: 5 }}>
@@ -257,16 +265,15 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
 
       <Divider sx={{ mt: 5 }} />
 
-      <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
+      <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }} className='no-page-break'>
         <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
           <Typography sx={{ fontWeight: 800, color: 'text.secondary', textAlign: 'left' }}>
             {data?.grandTotal < 0
               ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
-                  data?.grandTotal
-                ).toLocaleString()}`
-              : `Vendor ${
-                  data?.customer?.name?.toUpperCase() || ''
-                } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
+                data?.grandTotal
+              ).toLocaleString()}`
+              : `Vendor ${data?.customer?.name?.toUpperCase() || ''
+              } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
           </Typography>
         </Box>
       </CardContent>
