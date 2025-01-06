@@ -253,63 +253,64 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
         </Grid>
       </CardContent>
 
-      <Divider sx={{ mt: 7 }} />
+      <div className='no-page-break'>
+        <Divider sx={{ mt: 7 }} />
+        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
+          <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
+            <Typography sx={{ fontWeight: 800, color: 'text.secondary', textAlign: 'left' }}>
+              {data?.grandTotal < 0
+                ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
+                  data?.grandTotal
+                ).toLocaleString()}`
+                : `Customer ${data?.customer?.name?.toUpperCase() || ''
+                } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
+            </Typography>
+          </Box>
+        </CardContent>
 
-      <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
-        <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
-          <Typography sx={{ fontWeight: 800, color: 'text.secondary', textAlign: 'left' }}>
-            {data?.grandTotal < 0
-              ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
-                data?.grandTotal
-              ).toLocaleString()}`
-              : `Customer ${data?.customer?.name?.toUpperCase() || ''
-              } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
-          </Typography>
-        </Box>
-      </CardContent>
+        <Divider />
 
-      <Divider />
+        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`], mt: 5 }}>
+          <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
+            <Typography sx={{ fontWeight: 800, color: 'text.secondary', textAlign: 'left' }}>
+              Silahkan transfer ke rekening:
+            </Typography>
+            <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>{companyInfo.bank}</Typography>
+          </Box>
+        </CardContent>
 
-      <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`], mt: 5 }}>
-        <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
-          <Typography sx={{ fontWeight: 800, color: 'text.secondary', textAlign: 'left' }}>
-            Silahkan transfer ke rekening:
-          </Typography>
-          <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>{companyInfo.bank}</Typography>
-        </Box>
-      </CardContent>
+        <Divider />
 
-      <Divider />
-
-      <CardContent sx={{ px: [6, 10], pageBreakInside: 'avoid' }}>
-        <Grid container>
-          <Grid item xs={12} sm={12} lg={12} sx={{ mb: 20, mx: 7 }}>
-            <Box
-              sx={{
-                mb: 2,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                textAlign: 'center'
-              }}
-            >
-              <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>Penerima</Typography>
-              <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>Dengan Hormat,</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={12} lg={12} sx={{}}>
-            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box sx={{ mb: 2, ml: 5, display: 'flex-column', alignItems: 'center', textAlign: 'center' }}>
-                <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>( ................... )</Typography>
+        <CardContent sx={{ px: [6, 10], pageBreakInside: 'avoid' }}>
+          <Grid container>
+            <Grid item xs={12} sm={12} lg={12} sx={{ mb: 20, mx: 7 }}>
+              <Box
+                sx={{
+                  mb: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  textAlign: 'center'
+                }}
+              >
+                <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>Penerima</Typography>
+                <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>Dengan Hormat,</Typography>
               </Box>
-              <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerName}</Typography>
-                <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerTitle}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={12} lg={12} sx={{}}>
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box sx={{ mb: 2, ml: 5, display: 'flex-column', alignItems: 'center', textAlign: 'center' }}>
+                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>( ................... )</Typography>
+                </Box>
+                <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
+                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerName}</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerTitle}</Typography>
+                </Box>
               </Box>
-            </Box>
+            </Grid>
           </Grid>
-        </Grid>
-      </CardContent>
+        </CardContent>
+      </div>
     </Card>
   )
 })
