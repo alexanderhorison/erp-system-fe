@@ -38,3 +38,48 @@ code[class*='language-'] {
 .stock-opname-quantity {
   background-color: #ddffdb;
 }
+
+/* printStyles.css */
+
+/* Ensure page breaks after certain sections */
+@media print {
+  .page {
+    margin: auto;
+    box-shadow: none;
+    page-break-after: always;
+  }
+
+  /* Add page break after elements with this class */
+  .page-break {
+    page-break-after: always !important;
+  }
+
+  /* Avoid breaking tables within a page */
+  .no-page-break {
+    page-break-inside: avoid !important;
+  }
+
+  .page-break-before {
+    page-break-before: always !important;
+  }
+
+  /* Remove unnecessary borders or shadows for print */
+  .MuiCard-root {
+    box-shadow: none !important;
+  }
+
+  /* Adjust padding for better fit on printed pages */
+  .print-padding {
+    padding: 16px !important;
+  }
+
+  /* Hide unnecessary interactive elements in print */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Ensure text visibility */
+  .text-secondary {
+    color: black !important;
+  }
+}

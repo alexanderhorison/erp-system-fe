@@ -27,6 +27,7 @@ import FormInputText from '../common/Form/FormInputText'
 import FormInputNumberPos from '../common/FormPos/FormInputNumberPos'
 import FormInputPricePos from '../common/FormPos/FormInputPricePos'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
+import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -45,12 +46,12 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
 
 const saveToLocalStorage = (data) => localStorage.setItem('listProductPos', JSON.stringify(data))
 
-export default function ModalAddProductPos({
+export default function ModalEditProductPos({
   open,
   setOpen,
   data,
-  addProduct,
-  fields,
+  updateProduct,
+  removeProduct,
 }) {
   const dispatch = useDispatch()
   const { detailProductPos, loadingDetailProductPos } = useSelector(state => state.pos)
@@ -73,22 +74,22 @@ export default function ModalAddProductPos({
     watch,
   } = useForm({
     values: {
-      price: selected?.basePrice || null,
+      price: selected?.price || null,
+      quantity: selected?.quantity || null,
     },
     mode: 'onChange',
     resolver: yupResolver(schema)
   })
 
   // ON SUBMIT
-  // console.log(selected);
   const onSubmit = val => {
-
     let tempProduct = {
+      id: selected?.id,
       subTotal: val?.price * val?.quantity,
       quantity: val?.quantity,
       price: val?.price,
-      warehouseProductId: selected?.id,
-      qty: selected?.quantity,
+      warehouseProductId: selected?.warehouseProductId,
+      qty: selected?.qty,
       masterProductId: selected?.productId,
       rackName: selected?.rackName,
       unitName: selected?.unitName,
@@ -97,8 +98,7 @@ export default function ModalAddProductPos({
       title: val?.title || "",
       productId: selected?.productId,
     }
-    addProduct(tempProduct)
-    saveToLocalStorage([...fields, tempProduct])
+    updateProduct(data?.index, tempProduct)
     setOpen(false)
   }
 
@@ -107,18 +107,23 @@ export default function ModalAddProductPos({
     setOpen(false)
   }
 
-  const handleFav = () => {
-    const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
-    const sendData = {
-      productId: data.productId,
-      isFavorite: isFavorite ? false : true,
-      warehouseId: warehouse?.warehouseId,
-    }
-    dispatch(updateFavoriteProductPos({ data: sendData, setFavorite: setIsFavorite, isFavorite: isFavorite }))
+  const handleRemoveProduct = () => {
+    swalConfirmationOnly({
+      title: 'Hapus Produk Dari Keranjang?',
+      text: 'Produk akan dihapus dari keranjang',
+      confirmButtonText: 'Ya, Hapus',
+      showCancelButton: true,
+      cancelButtonText: 'Tidak',
+      icon: 'warning',
+      onClickYes: () => {
+        removeProduct(data?.index)
+        setOpen(false)
+      },
+    })
   }
 
   const tempQuantity = useCallback(() => {
-    return selected?.quantity || "Kosong"
+    return selected?.qty || "Kosong"
   }, [selected])
 
   const calculateSubTotal = useMemo(() => {
@@ -128,9 +133,10 @@ export default function ModalAddProductPos({
   useEffect(() => {
     const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
     dispatch(fetchDetailProductPos({ warehouseId: warehouse.warehouseId, productId: data?.productId }))
-    if (data?.isFavorite) {
-      setIsFavorite(true)
-    }
+    // if (data?.isFavorite) {
+    //   setIsFavorite(true)
+    // }
+    setSelected(data)
   }, [data?.id])
 
   return (
@@ -189,10 +195,10 @@ export default function ModalAddProductPos({
                     fullWidth
                     variant='outlined'
                     color='secondary'
-                    onClick={handleFav}
+                    onClick={handleRemoveProduct}
                     startIcon={
                       <Icon
-                        icon={isFavorite ? 'tabler:star-filled' : 'tabler:star'} // Gunakan ikon sesuai status
+                        icon={'tabler:trash'} // Gunakan ikon sesuai status
                         fontSize="1.25rem" // Ukuran ikon
                         style={{
                           color: isFavorite ? 'orange' : 'inherit', // Warna kuning jika favorit
@@ -204,7 +210,7 @@ export default function ModalAddProductPos({
                       color: isFavorite ? 'orange' : 'secondary.main', // Warna teks tombol dinamis
                     }}
                   >
-                    Favourite
+                    Hapus Dari Keranjang
                   </Button>
                 </Grid>
                 <Grid item xs={6}>
@@ -220,7 +226,19 @@ export default function ModalAddProductPos({
                   {
                     detailProductPos?.map((item, index) => (
                       <Grid item key={index} xs={6}>
-                        <Button fullWidth variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'} onClick={() => setSelected(item)}>{item.unitName}</Button>
+                        <Button fullWidth variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'} onClick={() => {
+                          console.log(item);
+
+                          setSelected({
+                            ...selected,
+                            unitName: item?.unitName,
+                            unitId: item?.unitId,
+                            qty: item?.quantity,
+                            quantity: "",
+                            price: item?.basePrice
+                          })
+                        }
+                        }>{item.unitName}</Button>
                       </Grid>
                     ))
                   }

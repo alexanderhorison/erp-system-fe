@@ -16,6 +16,10 @@ export default function FormInputNumberPos({
   max,
   step = 1,
 }) {
+
+  const buttonWidth = '70px';
+  const buttonHeight = '36px';
+
   return (
     <Controller
       name={name}
@@ -48,6 +52,9 @@ export default function FormInputNumberPos({
               min,
               max,
               step,
+              sx: {
+                padding: 0, // Ensures no padding inside the input
+              },
               startAdornment: (
                 <InputAdornment position="start">
                   <Icon
@@ -58,8 +65,9 @@ export default function FormInputNumberPos({
                     }}
                     style={{
                       backgroundColor: "rgba(0, 0, 0, 0.1)",
-                      width: "50px",
-                      borderRadius: "8px",
+                      width: buttonWidth,
+                      height: buttonHeight,
+                      borderRadius: "5px",
                       padding: "0px", // Add padding for better appearance
                       cursor: disabled || (min !== undefined && value <= min) ? "not-allowed" : "pointer",
                       opacity: disabled || (min !== undefined && value <= min) ? 0.5 : 1,
@@ -77,8 +85,9 @@ export default function FormInputNumberPos({
                     }}
                     style={{
                       backgroundColor: "rgba(0, 0, 0, 0.1)",
-                      width: "50px",
-                      borderRadius: "8px",
+                      width: buttonWidth,
+                      height: buttonHeight,
+                      borderRadius: "5px",
                       cursor: disabled || (max !== undefined && value >= max) ? "not-allowed" : "pointer",
                       opacity: disabled || (max !== undefined && value >= max) ? 0.5 : 1,
                     }}

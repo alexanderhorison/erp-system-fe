@@ -17,6 +17,7 @@ import CartProductPos from './CartProductPos'
 import ModalAddCustomerPos from './ModalAddCustomerPos'
 import ModalChargePos from './ModalChargePos'
 import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
+import ModalEditProductPos from './ModalEditProductPos'
 
 // Kedepannya jika tambah filter, bisa tambahkan field ini
 const listFilter = [
@@ -48,10 +49,12 @@ export default function PointOfSaleLayout({
   const { listProductPos } = useSelector(state => state.pos)
 
   const [openModalProduct, setOpenModalProduct] = useState(false)
+  const [openModalEditProduct, setOpenModalEditProduct] = useState(false)
   const [openModalAddCustomer, setOpenModalAddCustomer] = useState(false)
   const [openModalCharge, setOpenModalCharge] = useState(false)
 
   const [selectedProduct, setSelectedProduct] = useState({})
+  const [selectedProductEdit, setSelectedProductEdit] = useState({})
   const [selectedCustomerPos, setSelectedCustomerPos] = useState(localStorage.getItem('selectedCustomerPos') ? JSON.parse(localStorage.getItem('selectedCustomerPos')) : {})
 
   const [filter, setFilter] = useState({
@@ -96,7 +99,7 @@ export default function PointOfSaleLayout({
     // resolver: yupResolver(schema)
   })
 
-  const { fields, remove, append } = useFieldArray({
+  const { fields, remove, append, update } = useFieldArray({
     control,
     name: 'formData'
   })
@@ -207,6 +210,16 @@ export default function PointOfSaleLayout({
           listSelectedProduct={fields}
           customer={selectedCustomerPos}
           resetAllField={resetAllField}
+        />
+      }
+      {
+        openModalEditProduct &&
+        <ModalEditProductPos
+          open={openModalEditProduct}
+          setOpen={setOpenModalEditProduct}
+          data={selectedProductEdit}
+          updateProduct={update}
+          removeProduct={remove}
         />
       }
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '75vh', p: 2 }}>
@@ -405,6 +418,9 @@ export default function PointOfSaleLayout({
                   data={fields}
                   control={control}
                   helperTextPrice={helperTextPrice}
+                  setOpenEditProduct={() => setOpenModalEditProduct(true)}
+                  selectedProductEdit={selectedProductEdit}
+                  setSelectedProductEdit={setSelectedProductEdit}
                 />
               </Grid>
               <Grid item xs={12}>

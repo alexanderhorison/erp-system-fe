@@ -143,7 +143,7 @@ const AppBarContent = props => {
           <Autocomplete hidden={hidden} settings={settings} />
         )}
         {
-          title === "Point of Sale" && (
+          title.includes('Point of Sale') && (
             <ButtonBack name='' />
           )
         }

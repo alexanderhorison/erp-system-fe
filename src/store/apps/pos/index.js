@@ -53,7 +53,7 @@ export const updateFavoriteProductPos = createAsyncThunk(
         name: 'Favorite',
         title: `${isFavorite ? "Remove produk dari favorit?" : "Jadikan produk favorit?"}`,
         axiosRequest: () => {
-          if (isFavorite){
+          if (isFavorite) {
             setFavorite(false)
           } else {
             setFavorite(true)
@@ -88,7 +88,7 @@ export const addMasterDataCustomerPos = createAsyncThunk(
         axiosRequest: () => {
           return axios({
             method: 'POST',
-            url: '/master/customer/create',
+            url: '/master/customer/create-pos',
             data
           })
         },
