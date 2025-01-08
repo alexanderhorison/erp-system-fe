@@ -60,6 +60,9 @@ export default function ModalChargePos({
 
   // CLOSE MODAL AND RESET FORM
   const handleClose = () => {
+    if (alreadyPayment) {
+      resetAllField()
+    }
     setOpen(false)
   }
 
