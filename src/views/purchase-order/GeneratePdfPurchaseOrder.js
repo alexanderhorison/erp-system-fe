@@ -34,23 +34,53 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
   // ** Hooks
   const theme = useTheme()
 
-  const stylePageBreak = (index) => {
-    // Add a page break class if the item is the last in a group of 10
-    if ((index + 1) % 11 === 0) {
-      return 'page-break'; // Class for breaking page
+  const calculatePageBreaks = (productCount, barterCount) => {
+    const maxItemsPerPage = 14 // Maximum items per page
+    const maxCombineLimit = 8 // Max combined limit for products + barters
+    const maxProductsPerPage = 12 // Max products allowed per page
+
+    const pages = [] // Array of pages
+    let remainingProducts = productCount
+    let remainingBarters = barterCount
+
+    // Distribute items dynamically, page by page
+    while (remainingProducts > 0 || remainingBarters > 0) {
+      let productsThisPage = 0
+      let bartersThisPage = 0
+
+      if (remainingProducts > 0) {
+        // Fill products on this page, respecting limits
+        productsThisPage = Math.min(maxProductsPerPage, remainingProducts)
+        remainingProducts -= productsThisPage
+      }
+
+      // Calculate available space after products
+      const spaceLeft = maxItemsPerPage - productsThisPage
+
+      if (spaceLeft > 0 && remainingBarters > 0) {
+        // Fill barters, respecting the combined limit
+        bartersThisPage = Math.min(Math.min(remainingBarters, spaceLeft), maxCombineLimit - productsThisPage)
+        remainingBarters -= bartersThisPage
+      }
+
+      // Save the page allocation
+      pages.push({ products: productsThisPage, barters: bartersThisPage })
     }
-    return ''; // No special class for other items
-  };
+
+    return pages
+  }
+
+  const productPageBreaks = calculatePageBreaks(data?.listProducts?.length || 0, data?.listBarterProducts?.length || 0)
 
   return (
     <Card id={id} ref={ref}>
       <CardContent sx={{ p: [`${theme.spacing(4)} !important`, `${theme.spacing(6)} !important`] }}>
         <Grid container sx={{ mt: 7 }}>
-          <Grid item sm={4} xs={12}>
+          <Grid item sm={5} xs={12}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CompanySvg />
-                <Typography variant='h4' sx={{ ml: 2.5, fontWeight: 900, lineHeight: '18px', textWrap: 'nowrap' }}>
+                <Typography variant='h5' sx={{ ml: 2.5, fontWeight: 900, lineHeight: '18px', textWrap: 'nowrap' }}>
                   {themeConfig.templateName}
                 </Typography>
               </Box>
@@ -64,7 +94,7 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
               </Box>
             </Box>
           </Grid>
-          <Grid item sm={4} xs={12}>
+          <Grid item sm={3} xs={12}>
             <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
               <Table sx={{ maxWidth: '9rem' }}>
                 <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
@@ -112,7 +142,7 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
 
       <Divider />
 
-      <TableContainer>
+      <TableContainer sx={{overflow: 'hidden'}}>
         <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3, fontWeight: 900 }}>
           Barang Purchase Order
         </Typography>
@@ -142,7 +172,7 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
             }}
           >
             {data?.listProducts?.map((data, index) => (
-              <TableRow key={index} className={stylePageBreak(index)}>
+              <TableRow key={index} className={productPageBreaks?.products?.includes(index) ? 'page-break' : ''}>
                 <TableCell
                   sx={{
                     width: '320px', // Fixed width for all rows and columns
@@ -164,16 +194,50 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
             ))}
           </TableBody>
         </Table>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
-          <Typography sx={{ paddingTop: 2, mr: 5, fontWeight: 800 }}>Total :</Typography>
-          <Typography sx={{ paddingTop: 2, mr: 2, fontWeight: 800, whiteSpace: 'nowrap' }}>
-            Rp. {priceFormat(data?.grandTotalVendor)}
-          </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 3, // Adjust gap if needed for spacing
+            p: 3,
+            mr: 1
+          }}
+        >
+          {/** Empty box*/}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-start', // Left alignment
+              gap: 2,
+              p: 2
+            }}
+          ></Box>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              alignItems: 'center', // Vertical alignment
+              textAlign: 'right',
+              gap: 1,
+              mr: 2,
+              maxWidth: '100%', // Ensure it doesn't go beyond container width
+              overflow: 'hidden' //
+            }}
+          >
+            <Typography sx={{ paddingTop: 2, fontWeight: 800, mr: '3rem' }}>Total :</Typography>
+            <Typography sx={{ paddingTop: 2, whiteSpace: 'nowrap', fontWeight: 800, mr: 1 }}>Rp.</Typography>
+            <Typography sx={{ paddingTop: 2, whiteSpace: 'nowrap', fontWeight: 800 }}>
+              {priceFormat(data?.grandTotalVendor)}
+            </Typography>
+          </Box>
         </Box>
       </TableContainer>
 
       {data?.listBarterProducts?.length > 0 && (
-        <Box sx={{ mt: 5 }}>
+        <Box className='no-page-break'>
           <TableContainer>
             <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3, fontWeight: 900 }}>
               Barang Barter
@@ -204,7 +268,7 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
               >
                 {data?.listBarterProducts?.map((data, index) => {
                   return (
-                    <TableRow key={index} className={stylePageBreak(index)}>
+                    <TableRow key={index} className={productPageBreaks?.barters?.includes(index) ? 'page-break' : ''}>
                       <TableCell
                         sx={{
                           width: '320px', // Fixed width for all rows and columns
@@ -228,22 +292,60 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
               </TableBody>
             </Table>
           </TableContainer>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, p: 3, mr: 1 }}>
-            <Typography sx={{ paddingTop: 2, mr: 5, fontWeight: 800 }}>Total :</Typography>
-            <Typography sx={{ paddingTop: 2, mr: 2, whiteSpace: 'nowrap', fontWeight: 800 }}>
-              Rp. {priceFormat(data?.grandTotalBarter)}
-            </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 3, // Adjust gap if needed for spacing
+              p: 3,
+              mr: 1,
+              maxWidth: '100%', // Ensure it doesn't go beyond container width
+              overflow: 'hidden' //
+            }}
+          >
+            {/* Empty Box*/}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-start', // Left alignment
+                gap: 2,
+                p: 2
+              }}
+            ></Box>
+            {/* Grand Total Box */}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                alignItems: 'center', // Vertical alignment
+                textAlign: 'right',
+                gap: 1,
+                mr: 2,
+              }}
+            >
+              <Typography sx={{ paddingTop: 2, fontWeight: 800, mr: '3rem' }}>Total :</Typography>
+              <Typography sx={{ paddingTop: 2, whiteSpace: 'nowrap', fontWeight: 800, mr: 1 }}>Rp.</Typography>
+              <Typography sx={{ paddingTop: 2, whiteSpace: 'nowrap', fontWeight: 800 }}>
+                {priceFormat(data?.grandTotalBarter)}
+              </Typography>
+            </Box>
           </Box>
-          <Divider sx={{ mt: 8 }} />
         </Box>
       )}
 
-      <CardContent sx={{ p: 5 }}>
-        <Grid container sx={{ ml: 'auto', justifyContent: 'flex-end' }}>
-          <Grid item xs={12} lg={2} md={2} sx={{ textAlign: 'center' }}>
-            <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>Grand Total:</Typography>
+      <CardContent sx={{ mt: '-2rem' }}>
+        <Grid container sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+          {/* Left Aligned Typography */}
+          <Grid item xs={6} lg={6} md={6} sx={{ textAlign: 'left' }}>
+            {/* Empty Box */}
+            <Box sx={{ display: 'flex-col', alignItems: 'center' }}></Box>
           </Grid>
-          <Grid item xs={12} lg={2} md={2}>
+
+          {/* Right Aligned Content */}
+          <Grid item xs={6} lg={6} md={6} sx={{ textAlign: 'right' }}>
             <Box
               sx={{
                 mb: 2,
@@ -251,36 +353,20 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
                 flexDirection: 'row',
                 justifyContent: 'flex-end',
                 textAlign: 'right',
-                mr: 1.5
+                gap: 1,
+                maxWidth: '100%', // Ensure it doesn't go beyond container width
+                overflow: 'hidden' // Avoid any overflow from this box
               }}
             >
-              <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>Rp.</Typography>
-              <Typography sx={{ color: 'text.secondary', textIndent: 3, fontWeight: 800 }}>
-                {priceFormat(data?.grandTotal)}
-              </Typography>
+              <Typography sx={{ color: 'text.secondary', fontWeight: 800, mr: '3rem' }}>Grand Total :</Typography>
+              <Typography sx={{ color: 'text.secondary', fontWeight: 800, mr: 1 }}>Rp.</Typography>
+              <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{priceFormat(data?.grandTotal)}</Typography>
             </Box>
           </Grid>
         </Grid>
       </CardContent>
 
       <div className='no-page-break'>
-        <Divider sx={{ mt: 5 }} />
-
-        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }} >
-          <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
-            <Typography sx={{ fontWeight: 800, color: 'text.secondary', textAlign: 'left' }}>
-              {data?.grandTotal < 0
-                ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
-                  data?.grandTotal
-                ).toLocaleString()}`
-                : `Vendor ${data?.customer?.name?.toUpperCase() || ''
-                } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
-            </Typography>
-          </Box>
-        </CardContent>
-
-        <Divider />
-
         <CardContent sx={{ px: [6, 10], pageBreakInside: 'avoid' }}>
           <Grid container>
             <Grid item xs={12} sm={12} lg={12} sx={{ mb: 20, mx: 7 }}>
