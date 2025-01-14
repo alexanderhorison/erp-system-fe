@@ -50,7 +50,7 @@ export default function TableCustomerPos({ setSelectedCustomerPos, setOpen, data
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.email}
+                  {params.row?.email || "-"}
                 </Typography>
               )
             }
@@ -63,7 +63,7 @@ export default function TableCustomerPos({ setSelectedCustomerPos, setOpen, data
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.phoneNumber}
+                  {params.row?.phoneNumber || "-"}
                 </Typography>
               )
             }

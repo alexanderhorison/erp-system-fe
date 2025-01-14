@@ -112,6 +112,20 @@ export const addMasterDataCustomerPos = createAsyncThunk(
   }
 )
 
+// GET ALL CUSTOMER POS
+export const fetchCustomerPos = createAsyncThunk('appProductPos/fetchCustomerPos', async (params, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/master/customer/all-pos?isPosCustomer=true',
+    })
+    return response.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
 export const fetchListPaymentTypePos = createAsyncThunk(
   'appProductPos/fetchListPaymentType',
   async (params, { rejectWithValue }) => {
@@ -127,6 +141,8 @@ export const fetchListPaymentTypePos = createAsyncThunk(
     }
   }
 )
+
+
 
 // CHARGE PAYMENT
 export const chargePos = createAsyncThunk(
@@ -168,7 +184,11 @@ export const appPosSlice = createSlice({
 
     listPaymentType: [],
     loadingListPaymentType: true,
-    errorListPaymentType: false
+    errorListPaymentType: false,
+
+    listCustomerPos: [],
+    loadingListCustomerPos: true,
+    errorListCustomerPos: false,
   },
   reducers: {},
   extraReducers: builder => {
@@ -210,6 +230,20 @@ export const appPosSlice = createSlice({
         state.loadingListPaymentType = false
         state.errorListPaymentType = action.error.message
         state.listPaymentType = []
+      })
+
+      // CUSTOMER
+      .addCase(fetchCustomerPos.pending, (state, action) => {
+        state.loadingListCustomerPos = true
+      })
+      .addCase(fetchCustomerPos.fulfilled, (state, action) => {
+        state.listCustomerPos = action.payload.data
+        state.loadingListCustomerPos = false
+      })
+      .addCase(fetchCustomerPos.rejected, (state, action) => {
+        state.loadingListCustomerPos = false
+        state.errorListCustomerPos = action.error.message
+        state.listCustomerPos = []
       })
   }
 })
