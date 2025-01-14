@@ -158,8 +158,8 @@ const ToolbarSalesOrder = ({ id, data }) => {
                   data?.amountDebt == 0
                     ? 'LUNAS'
                     : data?.grandTotal === data?.amountDebt
-                    ? 'BELUM LUNAS'
-                    : 'SEBAGIAN LUNAS'
+                      ? 'BELUM LUNAS'
+                      : 'SEBAGIAN LUNAS'
                 }
                 skin='light'
                 color={data?.amountDebt == 0 ? 'success' : data?.grandTotal === data?.amountDebt ? 'error' : 'warning'}

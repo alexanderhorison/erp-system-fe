@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import { swalNotifError } from './swalFunction'
+import axios from 'src/configs/axios'
 
 const pdfFormData = async (cardElement, module, code, namePdf, additionSubjectText = '') => {
   // Addition Subject Text for add on email subject
@@ -129,8 +130,44 @@ const handlePrintDownload = (url, id, setIsLoading) => {
   // }, 1000)
 }
 
+// PENDING
+// const handlePrintDownloadV2 = async ({ url, id, setIsLoading }) => {
+//   try {
+//     setIsLoading(true); // Start loading
+
+//     // Fetch the PDF from the backend
+//     const response = await axios.get(`/export/`, {
+//       responseType: 'blob', // Ensure the response is treated as a binary file (Blob)
+//     });
+
+//     const blob = response.data;
+//     const link = document.createElement('a');
+//     const urlBlob = window.URL.createObjectURL(blob);
+
+//     // Set the download attributes
+//     link.href = urlBlob;
+//     link.download = `sales-order-${id}.pdf`; // You can customize the filename
+
+//     // Append the link to the body and trigger the download
+//     link.click();
+
+//     // Clean up the created URL after the download
+//     window.URL.revokeObjectURL(urlBlob);
+
+//     console.log(response);
+
+//     // setIsLoading(false); // Done
+//   } catch (error) {
+//     console.error('Error generating PDF:', error);
+//     alert('Failed to generate PDF. Please try again.');
+//     setIsLoading(false);
+//   }
+// };
+
+
 module.exports = {
   pdfFormData,
   downloadPdf,
-  handlePrintDownload
+  handlePrintDownload,
+  // handlePrintDownloadV2
 }

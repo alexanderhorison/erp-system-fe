@@ -10,14 +10,14 @@ import React, { useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
-import { priceFormat } from 'src/helpers/priceFormatter'
-import * as yup from 'yup'
+import { priceFormat, priceFormatWithZero } from 'src/helpers/priceFormatter'
 import ModalAddProductPos from './ModalAddProductPos'
 import CartProductPos from './CartProductPos'
 import ModalAddCustomerPos from './ModalAddCustomerPos'
 import ModalChargePos from './ModalChargePos'
 import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
 import ModalEditProductPos from './ModalEditProductPos'
+import ProductCustomField from './ProductCustomField'
 
 // Kedepannya jika tambah filter, bisa tambahkan field ini
 const listFilter = [
@@ -40,9 +40,12 @@ const listFilter = [
 
 export default function PointOfSaleLayout({
   showFilter,
+  setShowFilter,
+  warehouse,
+  setShowButtonFilter,
 }) {
 
-  const { data: companyData } = useSelector(state => state.company)
+  const { data: companyData, loading } = useSelector(state => state.company)
   const { data: typeData } = useSelector(state => state.type)
   const { data: categoryData } = useSelector(state => state.category)
 
@@ -52,6 +55,7 @@ export default function PointOfSaleLayout({
   const [openModalEditProduct, setOpenModalEditProduct] = useState(false)
   const [openModalAddCustomer, setOpenModalAddCustomer] = useState(false)
   const [openModalCharge, setOpenModalCharge] = useState(false)
+  const [showProduct, setShowProduct] = useState(true)
 
   const [selectedProduct, setSelectedProduct] = useState({})
   const [selectedProductEdit, setSelectedProductEdit] = useState({})
@@ -77,10 +81,6 @@ export default function PointOfSaleLayout({
   })
   const filterForm = watchFilter()
 
-  // const schema = yup.object({
-  //   grandTotal: yup.number().typeError('Grand Total harus ada')
-  // })
-
   // FORM BUAT CART
   const {
     control,
@@ -93,7 +93,7 @@ export default function PointOfSaleLayout({
     watch
   } = useForm({
     values: {
-      formData: localStorage.getItem('listProductPos') ? JSON.parse(localStorage.getItem('listProductPos')) : []
+      formData: localStorage.getItem('listProductPos') ? JSON.parse(localStorage.getItem('listProductPos')) : [],
     },
     mode: 'onChange',
     // resolver: yupResolver(schema)
@@ -160,10 +160,24 @@ export default function PointOfSaleLayout({
 
   const helperTextPrice = index => {
     const info = {
-      detailItem: `${getValues(`formData[${index}].unitName`)} @ ${priceFormat(getValues(`formData[${index}].price`))}`
+      detailItem: `${getValues(`formData[${index}].unitName`) ? getValues(`formData[${index}].unitName`) : ''} ${getValues(`formData[${index}].unitName`) ? `@` : ''} ${priceFormatWithZero(getValues(`formData[${index}].price`))}`
     }
     return info
   }
+
+  const disableButtonCharge = useMemo(() => {
+    if (getValues('formData').length === 0) {
+      return true
+    }
+    return false
+  }, [getValues('formData')])
+
+  const disableButtonClear = useMemo(() => {
+    if (getValues('formData').length === 0) {
+      return true
+    }
+    return false
+  }, [getValues('formData')])
 
   const subTotalPrice = () => {
     let subTotal = 0
@@ -179,8 +193,42 @@ export default function PointOfSaleLayout({
     localStorage.removeItem('listProductPos')
   }
 
+  const handleClickCustom = () => {
+    setValueFilter('typeProduct', 'custom')
+    setShowFilter(false)
+    setShowProduct(false)
+    setShowButtonFilter(false)
+  }
+
+  const handleClickAll = () => {
+    setValueFilter('typeProduct', 'ALL')
+    setFilter({
+      ...filter,
+      typeProduct: 'ALL'
+    })
+    setShowProduct(true)
+    setShowButtonFilter(true)
+  }
+
+  const handleClickFavorite = () => {
+    setValueFilter('typeProduct', 'favorite')
+    setFilter({
+      ...filter,
+      typeProduct: "favorite"
+    })
+    setShowProduct(true)
+    setShowButtonFilter(true)
+  }
+
+  const handleDeleteCustom = (item, index) => {
+    remove(index)
+    const updatedFields = formField.filter((_, i) => i !== index)
+    localStorage.setItem('listProductPos', JSON.stringify(updatedFields))
+  }
+
   return (
-    <Card>
+
+    <Grid container spacing={3}>
       {
         openModalProduct &&
         <ModalAddProductPos
@@ -210,6 +258,7 @@ export default function PointOfSaleLayout({
           listSelectedProduct={fields}
           customer={selectedCustomerPos}
           resetAllField={resetAllField}
+          warehouse={warehouse}
         />
       }
       {
@@ -222,250 +271,249 @@ export default function PointOfSaleLayout({
           removeProduct={remove}
         />
       }
-      <Box sx={{ display: 'flex', flexDirection: 'column', height: '75vh', p: 2 }}>
-        <Grid container spacing={3}>
-          {/* =============== HEADER ================= */}
-          {/* FILTER */}
-          <Grid item md={2} sx={{ display: showFilter ? 'block' : 'none' }}>
-            <Controller
-              name='typeFilter'
-              control={controlFilter}
-              render={({ field: { value, onChange } }) => (
-                <CustomTextField
-                  select
-                  fullWidth
-                  label={
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      Filter By
-                    </div>
-                  }
-                  SelectProps={{
-                    value: value,
-                    onChange: e => {
-                      onChange(e)
-                      setFilter({
-                        ...filter,
-                        type: e.target.value
-                      })
-
-                    }
-                  }}
-                >
-                  {listFilter?.map((data, index) => {
-                    return (
-                      <MenuItem key={index} value={data.value}>
-                        {data.name}
-                      </MenuItem>
-                    )
-                  })}
-                </CustomTextField>
-              )}
-            />
-          </Grid>
-          {/* PRODUCT */}
-          <Grid item md={6} >
-            <Grid container spacing={3} justifyContent="center" alignItems="center">
-              <Grid item md={4} >
-                <Button
-                  fullWidth
-                  variant={filterForm.typeProduct === 'ALL' ? 'contained' : 'outlined'}
-                  onClick={() => {
-                    setValueFilter('typeProduct', 'ALL')
-                    setFilter({
-                      ...filter,
-                      typeProduct: 'ALL'
-                    })
-                  }}
-                >
-                  All
-                </Button>
-              </Grid>
-              <Grid item md={4}>
-                <Button
-                  fullWidth
-                  variant={filterForm.typeProduct === 'favorite' ? 'contained' : 'outlined'}
-                  onClick={() => {
-                    setValueFilter('typeProduct', 'favorite')
-                    setFilter({
-                      ...filter,
-                      typeProduct: "favorite"
-                    })
-                  }}
-                >
-                  Favorite
-                </Button>
-              </Grid>
-              <Grid item md={4}>
-                <Button
-                  fullWidth
-                  variant={filterForm.typeProduct === 'custom' ? 'contained' : 'outlined'}
-                  onClick={() => setValueFilter('typeProduct', 'custom')}
-                >
-                  Custom
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
-          {/* ADD CUSTOMER */}
-          <Grid item md={showFilter ? 4 : 6}>
-            <Button fullWidth variant='contained' onClick={handleClickAddCustomer}>
-              {
-                selectedCustomerPos?.name ? selectedCustomerPos.name : 'Add Customer'
+      {/* =============== HEADER ================= */}
+      {/* FILTER */}
+      <Grid item md={2} sx={{ display: showFilter ? 'block' : 'none' }}>
+        <Controller
+          name='typeFilter'
+          control={controlFilter}
+          render={({ field: { value, onChange } }) => (
+            <CustomTextField
+              select
+              fullWidth
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  Filter By
+                </div>
               }
+              SelectProps={{
+                value: value,
+                onChange: e => {
+                  onChange(e)
+                  setFilter({
+                    ...filter,
+                    type: e.target.value
+                  })
+
+                }
+              }}
+            >
+              {listFilter?.map((data, index) => {
+                return (
+                  <MenuItem key={index} value={data.value}>
+                    {data.name}
+                  </MenuItem>
+                )
+              })}
+            </CustomTextField>
+          )}
+        />
+      </Grid>
+      {/* FILTER BODY PRODUCT */}
+      <Grid item md={6} >
+        <Grid container spacing={3} justifyContent="center" alignItems="center">
+          <Grid item md={4} >
+            <Button
+              fullWidth
+              variant={filterForm.typeProduct === 'ALL' ? 'contained' : 'outlined'}
+              onClick={handleClickAll}
+            >
+              All
             </Button>
           </Grid>
-          {/* =============== BODY ================ */}
-          {/* Section Filter */}
-          <Grid
-            item
-            xs={2}
-            style={{ display: showFilter ? 'block' : 'none', transition: 'display 0.5s ease-in-out' }}
-          >
-            <Box
-              sx={{
-                maxHeight: 500,
-                overflowY: 'auto',
-                height: '61vh',
-              }}
+          <Grid item md={4}>
+            <Button
+              fullWidth
+              variant={filterForm.typeProduct === 'favorite' ? 'contained' : 'outlined'}
+              onClick={handleClickFavorite}
             >
-              <Grid container direction='column' spacing={2}>
-                <Grid item xs={6} sm={4} md={4} key={999}>
-                  <Button
-                    fullWidth={true}
-                    variant={filterForm.typeValue === "ALL" ? 'contained' : 'outlined'}
-                    sx={{
-                      height: 60,
-                      textWrap: 'wrap',
-                      textAlign: 'center'
-                    }}
-                    onClick={() => {
-                      setValueFilter('typeValue', "ALL")
-                      setFilter({
-                        ...filter,
-                        typeValue: "ALL"
-                      })
-                    }}
-                  >
-                    ALL
-                  </Button>
-                </Grid>
-                {listLeftFilter?.map((data, index) => (
-                  <Grid item xs={6} sm={4} md={4} key={index}>
-                    <Button
-                      fullWidth={true}
-                      variant={filterForm.typeValue === data?.id ? 'contained' : 'outlined'}
-                      sx={{
-                        height: 60,
-                        textWrap: 'wrap',
-                        textAlign: 'center'
-                      }}
-                      onClick={() => {
-                        setValueFilter('typeValue', data?.id)
-                        setFilter({
-                          ...filter,
-                          typeValue: data?.id
-                        })
-                      }}
-                    >
-                      {data.name}
-                    </Button>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
+              Favorite
+            </Button>
           </Grid>
-          {/** Products */}
-          <Grid item xs={6}>
-            <Box
-              sx={{
-                maxHeight: '61vh',
-                overflowY: 'auto',
-              }}
+          <Grid item md={4}>
+            <Button
+              fullWidth
+              variant={filterForm.typeProduct === 'custom' ? 'contained' : 'outlined'}
+              onClick={handleClickCustom}
             >
-              <Grid container spacing={2}>
-                {filteredProducts?.map((data, index) => (
-                  <Grid item md={4} key={index}>
-                    <Button
-                      fullWidth
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setSelectedProduct(data)
-                        handleClickProduct()
-                      }}
-                      sx={{
-                        maxWidth: '300px',
-                        border: '1px solid',
-                        p: 3,
-                        textAlign: 'center',
-                        width: '100%', // Ensures buttons expand horizontALLy
-                        height: 100,
-                        backgroundColor: 'primary',
-                        textWrap: 'wrap'
-                      }}
-                    >
-                      {data.productName}
-                    </Button>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
+              Custom
+            </Button>
           </Grid>
-          {/* Cart */}
-          <Grid item md={showFilter ? 4 : 6}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <CartProductPos
-                  data={fields}
-                  control={control}
-                  helperTextPrice={helperTextPrice}
-                  setOpenEditProduct={() => setOpenModalEditProduct(true)}
-                  selectedProductEdit={selectedProductEdit}
-                  setSelectedProductEdit={setSelectedProductEdit}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Grid container flex flexDirection={'row'} justifyContent={'space-between'} px={6}>
-                  <Grid item>
-                    <Typography align='center' variant='h6' sx={{ marginTop: '4px', fontWeight: 'bold', textWrap: 'wrap' }}>
-                      Total:
-                    </Typography>
-                  </Grid>
-                  <Grid item>
-                    <Typography align='center' variant='h6' sx={{ marginTop: '4px', fontWeight: 'bold', textWrap: 'wrap' }}>
-                      {priceFormat(subTotalPrice()) || "-"}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid item xs={12}>
+        </Grid>
+      </Grid>
+      {/* ADD CUSTOMER */}
+      <Grid item md={showFilter ? 4 : 6}>
+        <Button fullWidth variant='contained' onClick={handleClickAddCustomer}>
+          {
+            selectedCustomerPos?.name ? selectedCustomerPos.name : 'Add Customer'
+          }
+        </Button>
+      </Grid>
+      {/* =============== BODY ================ */}
+      {/* Section Filter */}
+      <Grid
+        item
+        xs={2}
+        style={{ display: showFilter ? 'block' : 'none', transition: 'display 0.5s ease-in-out' }}
+      >
+        <Box
+          sx={{
+            maxHeight: 500,
+            overflowY: 'auto',
+            height: '61vh',
+          }}
+        >
+          <Grid container direction='column' spacing={2}>
+            <Grid item xs={6} sm={4} md={4} key={999}>
+              <Button
+                fullWidth={true}
+                variant={filterForm.typeValue === "ALL" ? 'contained' : 'outlined'}
+                sx={{
+                  height: 60,
+                  textWrap: 'wrap',
+                  textAlign: 'center'
+                }}
+                onClick={() => {
+                  setValueFilter('typeValue', "ALL")
+                  setFilter({
+                    ...filter,
+                    typeValue: "ALL"
+                  })
+                }}
+              >
+                ALL
+              </Button>
+            </Grid>
+            {listLeftFilter?.map((data, index) => (
+              <Grid item xs={6} sm={4} md={4} key={index}>
                 <Button
-                  fullWidth
-                  variant={'contained'}
+                  fullWidth={true}
+                  variant={filterForm.typeValue === data?.id ? 'contained' : 'outlined'}
+                  sx={{
+                    height: 60,
+                    textWrap: 'wrap',
+                    textAlign: 'center'
+                  }}
                   onClick={() => {
-                    swalConfirmationOnly({
-                      title: 'Yakin menghapus keranjang?',
-                      text: 'Anda akan menghapus keranjang',
-                      icon: 'warning',
-                      showCancelButton: true,
-                      onClickYes: () => {
-                        remove()
-                        localStorage.setItem('listProductPos', JSON.stringify([]))
-                      }
+                    setValueFilter('typeValue', data?.id)
+                    setFilter({
+                      ...filter,
+                      typeValue: data?.id
                     })
                   }}
                 >
-                  Clear
+                  {data.name}
                 </Button>
               </Grid>
-              <Grid item xs={12}>
-                <Button fullWidth variant={'contained'} onClick={handleClickCharge}>
-                  Charge {priceFormat(getValues('grandTotal'))}
+            ))}
+          </Grid>
+        </Box>
+      </Grid>
+      {/** Products */}
+      <Grid item xs={6}>
+        {/* All Product */}
+        <Box
+          sx={{
+            maxHeight: '68vh',
+            overflowY: 'auto',
+            display: showProduct ? 'block' : 'none',
+          }}
+        >
+          <Grid container spacing={2}>
+            {filteredProducts?.map((data, index) => (
+              <Grid item md={4} key={index}>
+                <Button
+                  fullWidth
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedProduct(data)
+                    handleClickProduct()
+                  }}
+                  sx={{
+                    maxWidth: '300px',
+                    border: '1px solid',
+                    p: 3,
+                    textAlign: 'center',
+                    width: '100%', // Ensures buttons expand horizontALLy
+                    height: 100,
+                    backgroundColor: 'primary',
+                    textWrap: 'wrap'
+                  }}
+                >
+                  {data.productName}
                 </Button>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+        {/* Custom Product */}
+        <Box
+          sx={{
+            maxHeight: '68vh',
+            overflowY: 'auto',
+            display: showProduct ? 'none' : 'block',
+          }}
+        >
+          <ProductCustomField append={append} control={control} errors={errors} fields={fields} />
+
+        </Box>
+      </Grid>
+      {/* Cart */}
+      <Grid item md={showFilter ? 4 : 6}>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <CartProductPos
+              data={fields}
+              control={control}
+              helperTextPrice={helperTextPrice}
+              setOpenEditProduct={() => setOpenModalEditProduct(true)}
+              selectedProductEdit={selectedProductEdit}
+              setSelectedProductEdit={setSelectedProductEdit}
+              handleDeleteCustom={handleDeleteCustom}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Grid container flex flexDirection={'row'} justifyContent={'space-between'} px={6}>
+              <Grid item>
+                <Typography align='center' variant='h6' sx={{ marginTop: '4px', fontWeight: 'bold', textWrap: 'wrap' }}>
+                  Total:
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Typography align='center' variant='h6' sx={{ marginTop: '4px', fontWeight: 'bold', textWrap: 'wrap' }}>
+                  {priceFormat(subTotalPrice()) || "-"}
+                </Typography>
               </Grid>
             </Grid>
           </Grid>
+          <Grid item xs={12}>
+            <Button
+              disabled={disableButtonClear}
+              fullWidth
+              variant={'contained'}
+              onClick={() => {
+                swalConfirmationOnly({
+                  title: 'Yakin menghapus keranjang?',
+                  text: 'Anda akan menghapus keranjang',
+                  icon: 'warning',
+                  showCancelButton: true,
+                  onClickYes: () => {
+                    remove()
+                    localStorage.setItem('listProductPos', JSON.stringify([]))
+                  }
+                })
+              }}
+            >
+              Clear
+            </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <Button disabled={disableButtonCharge} fullWidth variant={'contained'} onClick={handleClickCharge}>
+              Charge {priceFormat(getValues('grandTotal'))}
+            </Button>
+          </Grid>
         </Grid>
-      </Box>
-    </Card>
+      </Grid>
+    </Grid>
   )
 }

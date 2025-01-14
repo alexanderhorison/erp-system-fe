@@ -117,6 +117,9 @@ export default function ModalEditProductPos({
       icon: 'warning',
       onClickYes: () => {
         removeProduct(data?.index)
+        const fields = localStorage.getItem('listProductPos')
+        const updatedFields = JSON.parse(fields).filter((item, index) => index !== data?.index)
+        localStorage.setItem('listProductPos', JSON.stringify(updatedFields))
         setOpen(false)
       },
     })
@@ -227,8 +230,6 @@ export default function ModalEditProductPos({
                     detailProductPos?.map((item, index) => (
                       <Grid item key={index} xs={6}>
                         <Button fullWidth variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'} onClick={() => {
-                          console.log(item);
-
                           setSelected({
                             ...selected,
                             unitName: item?.unitName,

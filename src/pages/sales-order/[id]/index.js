@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, Typography } from '@mui/material'
 import CustomChip from 'src/@core/components/mui/chip'
 import { priceFormat } from 'src/helpers/priceFormatter'
 
-export default function DetailSalesOrder({}) {
+export default function DetailSalesOrder({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id
