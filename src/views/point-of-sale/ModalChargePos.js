@@ -123,6 +123,8 @@ export default function ModalChargePos({
 
   const [alreadyPayment, setAlreadyPayment] = useState(false)
 
+  const [dataSuccessPayment, setDataSuccessPayment] = useState({})
+
   const { listPaymentType, loadingListPaymentType } = useSelector(state => state.pos)
 
   // SHCEMA YUP VALIDATION
@@ -185,8 +187,9 @@ export default function ModalChargePos({
       data: sendData,
       selectedPayment: selectedPayment,
       subTotalPrice: priceFormat(totalPayment),
-      onComplete: () => {
+      onComplete: (data) => {
         setAlreadyPayment(true)
+        setDataSuccessPayment(data)
       }
     }))
   }
@@ -220,7 +223,7 @@ export default function ModalChargePos({
           </CustomCloseButton>
           {
             alreadyPayment ? (
-              <PaymentSuccess alreadyPayment={alreadyPayment} totalPayment={priceFormat(getValues('amount'))} totalAmount={priceFormat(subTotalPrice())} change={getValues('amount') - subTotalPrice()} setOpen={setOpen} resetAll={resetAllField} />
+              <PaymentSuccess alreadyPayment={alreadyPayment} totalPayment={priceFormat(getValues('amount'))} totalAmount={priceFormat(subTotalPrice())} change={getValues('amount') - subTotalPrice()} setOpen={setOpen} resetAll={resetAllField} dataPayment={dataSuccessPayment} />
             ) : (
               <>
                 <Box sx={{ textAlign: 'center' }}>

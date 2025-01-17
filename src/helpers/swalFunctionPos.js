@@ -19,7 +19,7 @@ export async function swalConfirmationChargePos({ label, text, width = 300, name
     } else {
       const response = await axiosRequest()
       if (dispatchRequest) {
-        dispatchRequest()
+        dispatchRequest(response)
       }
       swal.fire({
         title: response?.data?.message || `${name} berhasil ditambahkan`,
