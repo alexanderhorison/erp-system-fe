@@ -12,6 +12,7 @@ import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
 import TableHeaderPointOfSale from './TableHeaderPointOfSale'
+import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 
 const RowOptions = ({ handleView }) => {
   return (
@@ -132,12 +133,25 @@ export default function TablePointOfSale({ timeFilter }) {
           {
             flex: 0.16,
             minWidth: 120,
-            field: 'warehouseName',
-            headerName: 'Gudang',
+            field: 'grandTotal',
+            headerName: 'Total Pembelian',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.warehouseName}
+                  {priceFormatWIthCurrency(params.row.grandTotal)}
+                </Typography>
+              )
+            }
+          },
+          {
+            flex: 0.16,
+            minWidth: 120,
+            field: 'totalQuantity',
+            headerName: 'Total Item',
+            renderCell: params => {
+              return (
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  {params.row.totalQuantity}
                 </Typography>
               )
             }

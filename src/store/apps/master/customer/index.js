@@ -1,22 +1,37 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import {
+  swalConfirmationAdd,
+  swalConfirmationDelete,
+  swalError,
+  swalSuccess,
+  swalToastError
+} from 'src/helpers/swalFunction'
 
 const label = 'customer'
 
 // GET ALL CUSTOMER
-export const fetchMasterDataCustomer = createAsyncThunk('appMasterCustomer/fetchData', async (params, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/master/customer/all'
-    })
-    return response.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchMasterDataCustomer = createAsyncThunk(
+  'appMasterCustomer/fetchData',
+  async (params, { rejectWithValue }) => {
+    try {
+      // by default isPosCustomer is false
+      const newParams = {
+        ...params,
+        isPosCustomer: false
+      }
+      const response = await axios({
+        method: 'GET',
+        url: '/master/customer/all',
+        params: newParams
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // GET DETAIL CUSTOMER
 export const fetchMasterDataCustomerDetail = createAsyncThunk(
@@ -127,14 +142,14 @@ export const appMasterCustomerSlice = createSlice({
       id: '',
       name: '',
       description: '',
-      level: '',
+      level: ''
     },
     defaultValue: {
       id: '',
       name: '',
       description: '',
       level: '',
-      gender: 'Laki-laki',
+      gender: 'Laki-laki'
     },
     loadingDetail: false,
     total: 1,
