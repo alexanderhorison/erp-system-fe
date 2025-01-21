@@ -10,16 +10,16 @@ import FilterWarehouse from '../components/filter/FilterWarehouse'
 import { Box } from '@mui/system'
 import MenuPos from 'src/views/point-of-sale/MenuPos'
 import TransactionLayout from 'src/views/point-of-sale/transaction/TransactionLayout'
+import OpenBillLayout from 'src/views/point-of-sale/open-bill/OpenBillLayout'
+import { UseAuth } from 'src/hooks/useAuth'
 
 export default function PointOfSale() {
   const dispatch = useDispatch()
+  const { user } = UseAuth()
   const [showFilter, setShowFilter] = useState(true)
   const [showButtonFilter, setShowButtonFilter] = useState(true)
-  const [warehouse, setWarehouse] = useState(JSON.parse(localStorage.getItem('warehousePos')) || {})
-  const [selectedMenu, setSelectedMenu] = useState({
-    name: 'POS',
-    code: 'POS'
-  })
+  const [warehouse, setWarehouse] = useState(localStorage.getItem('warehousePos') ? JSON.parse(localStorage.getItem('warehousePos')) : {})
+  const [selectedMenu, setSelectedMenu] = useState(listMenuPos[0])
 
   const listMenuPos = [
     {
@@ -29,12 +29,16 @@ export default function PointOfSale() {
     {
       name: 'Transaction',
       code: 'TRANSACTION'
+    },
+    {
+      name: 'Open Bill',
+      code: 'OPEN_BILL'
     }
   ]
 
-  const handleChangeQuery = ({ key, value }) => {
+  const handleChangeQuery = ({ key, value, name }) => {
     setWarehouse(prev => ({ ...prev, [key]: value }))
-    localStorage.setItem('warehousePos', JSON.stringify({ warehouseId: value }))
+    localStorage.setItem('warehousePos', JSON.stringify({ warehouseId: value, warehouseName: name }))
     localStorage.removeItem('listProductPos')
     dispatch(fetchListProductPos({ id: value }))
   }
@@ -46,23 +50,37 @@ export default function PointOfSale() {
   }, [dispatch])
 
   useEffect(() => {
-    if (warehouse.warehouseId) {
+    if (warehouse?.warehouseId) {
       dispatch(fetchListProductPos({ id: warehouse.warehouseId }))
     }
-  }, [])
+  }, [warehouse])
+
+  useEffect(() => {
+    if (user?.warehouseId) {
+      setWarehouse({
+        warehouseId: user?.warehouseId,
+        warehouseName: user?.warehouseName
+      })
+      localStorage.setItem('warehousePos', JSON.stringify({ warehouseId: user?.warehouseId, warehouseName: user?.warehouseName }))
+    }
+  }, [user])
 
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} display={'flex'} mx={2} gap={2}>
-        <Grid item xs={2}>
-          <FilterWarehouse
-            fullWidth
-            data={warehouse}
-            includeAllWarehouse={false}
-            handleChangeQuery={handleChangeQuery}
-          />
-        </Grid>
-        <Grid item xs={2}>
+        {
+          !user?.warehouseId && (
+            <Grid item xs={2}>
+              <FilterWarehouse
+                fullWidth
+                data={localStorage.getItem('warehousePos') ? JSON.parse(localStorage.getItem('warehousePos')) : {}}
+                includeAllWarehouse={false}
+                handleChangeQuery={handleChangeQuery}
+              />
+            </Grid>
+          )
+        }
+        <Grid item xs={!user?.warehouseId ? 2 : 2}>
           <Button
             fullWidth
             size='small'
@@ -103,6 +121,7 @@ export default function PointOfSale() {
               />
             )}
             {selectedMenu?.code === 'TRANSACTION' && <TransactionLayout warehouseId={warehouse.warehouseId} />}
+            {selectedMenu?.code === 'OPEN_BILL' && <OpenBillLayout setSelectedMenu={setSelectedMenu}>Open Bill</OpenBillLayout>}
           </Box>
         </Card>
       </Grid>

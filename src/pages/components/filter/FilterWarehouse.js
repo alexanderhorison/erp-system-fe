@@ -33,6 +33,7 @@ export default function FilterWarehouse({ data, handleChangeQuery, includeAllWar
     handleChangeQuery({
       key: 'warehouseId',
       value: warehouse.id,
+      name: warehouse.name
     });
     setSelectedWarehouse(warehouse);
     handleCloseMenu();

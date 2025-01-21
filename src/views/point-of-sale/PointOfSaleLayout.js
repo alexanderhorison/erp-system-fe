@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Card,
   Grid,
   MenuItem,
   Typography
@@ -226,8 +225,47 @@ export default function PointOfSaleLayout({
     localStorage.setItem('listProductPos', JSON.stringify(updatedFields))
   }
 
-  return (
+  const generateIdOpenBill = () => {
+    const timestamp = Date.now()
+    return `BILL-${timestamp}`
+  }
 
+  const handleSaveBill = () => {
+    if (fields.length > 0) {
+      swalConfirmationOnly({
+        title: 'Simpan Transaksi?',
+        text: 'Apakah anda ingin menyimpan transaksi ini?',
+        confirmButtonText: 'Ya, Simpan',
+        showCancelButton: true,
+        cancelButtonText: 'Tidak',
+        icon: 'warning',
+        onClickYes: () => {
+          let exsistingData = localStorage.getItem('openBill')
+          const selectedWarehouse = JSON.parse(localStorage.getItem('warehousePos'))
+          let totalItem = 0
+          fields?.forEach(item => {
+            totalItem += +item?.quantity
+          })
+          let dataBill = [{
+            id: generateIdOpenBill(),
+            customer: selectedCustomerPos,
+            products: fields,
+            warehouse: selectedWarehouse,
+            subTotelPrice: subTotalPrice(),
+            totalItem: totalItem
+          }]
+          if (exsistingData) {
+            localStorage.setItem('openBill', JSON.stringify([...JSON.parse(exsistingData), ...dataBill]))
+          } else {
+            localStorage.setItem('openBill', JSON.stringify(dataBill))
+          }
+          resetAllField()
+        },
+      })
+    }
+  }
+
+  return (
     <Grid container spacing={3}>
       {
         openModalProduct &&
@@ -317,6 +355,7 @@ export default function PointOfSaleLayout({
               fullWidth
               variant={filterForm.typeProduct === 'ALL' ? 'contained' : 'outlined'}
               onClick={handleClickAll}
+              disabled={warehouse?.warehouseId ? false : true}
             >
               All
             </Button>
@@ -326,6 +365,7 @@ export default function PointOfSaleLayout({
               fullWidth
               variant={filterForm.typeProduct === 'favorite' ? 'contained' : 'outlined'}
               onClick={handleClickFavorite}
+              disabled={warehouse?.warehouseId ? false : true}
             >
               Favorite
             </Button>
@@ -335,6 +375,7 @@ export default function PointOfSaleLayout({
               fullWidth
               variant={filterForm.typeProduct === 'custom' ? 'contained' : 'outlined'}
               onClick={handleClickCustom}
+              disabled={warehouse?.warehouseId ? false : true}
             >
               Custom
             </Button>
@@ -414,7 +455,7 @@ export default function PointOfSaleLayout({
         {/* All Product */}
         <Box
           sx={{
-            maxHeight: '68vh',
+            maxHeight: '65vh',
             overflowY: 'auto',
             display: showProduct ? 'block' : 'none',
           }}
@@ -485,6 +526,11 @@ export default function PointOfSaleLayout({
                 </Typography>
               </Grid>
             </Grid>
+          </Grid>
+          <Grid item xs={12}>
+            <Button disabled={disableButtonCharge} fullWidth variant={'outlined'} onClick={handleSaveBill}>
+              Simpan Bill {priceFormat(getValues('grandTotal'))}
+            </Button>
           </Grid>
           <Grid item xs={12}>
             <Button
