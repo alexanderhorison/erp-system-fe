@@ -34,7 +34,7 @@ export default function TableOpenBill({ setSelectedMenu, warehouse }) {
   useEffect(() => {
     const listBill = JSON.parse(localStorage.getItem('openBill'))
     const warehousePos = warehouse
-    const filtered = listBill.filter(bill => bill.warehouse?.warehouseId === warehousePos?.warehouseId)
+    const filtered = listBill?.filter(bill => bill.warehouse?.warehouseId === warehousePos?.warehouseId) || []
     setFilteredData(filtered)
   }, [openModalDetail, warehouse])
 

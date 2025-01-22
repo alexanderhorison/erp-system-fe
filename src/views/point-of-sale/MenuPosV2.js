@@ -15,7 +15,7 @@ const MenuBox = ({ icon, title, action, selected, disable }) => {
         flexDirection="column"
         alignItems="center"
         justifyContent="center"
-        onClick={!disable ? () => action() : undefined} // Hanya panggil action jika tidak disable
+        onClick={!disable ? action : undefined} // Hanya panggil action jika tidak disable
         style={{
           opacity: disable ? 0.5 : 1,
           pointerEvents: disable ? 'none' : 'auto',
