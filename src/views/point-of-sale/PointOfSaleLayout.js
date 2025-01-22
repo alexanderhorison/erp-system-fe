@@ -37,6 +37,8 @@ const listFilter = [
   },
 ]
 
+const height = '62vh'
+
 export default function PointOfSaleLayout({
   showFilter,
   setShowFilter,
@@ -319,11 +321,6 @@ export default function PointOfSaleLayout({
             <CustomTextField
               select
               fullWidth
-              label={
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  Filter By
-                </div>
-              }
               SelectProps={{
                 value: value,
                 onChange: e => {
@@ -401,7 +398,7 @@ export default function PointOfSaleLayout({
           sx={{
             maxHeight: 500,
             overflowY: 'auto',
-            height: '61vh',
+            height: height,
           }}
         >
           <Grid container direction='column' spacing={2}>
@@ -455,7 +452,7 @@ export default function PointOfSaleLayout({
         {/* All Product */}
         <Box
           sx={{
-            maxHeight: '65vh',
+            height: height,
             overflowY: 'auto',
             display: showProduct ? 'block' : 'none',
           }}
@@ -490,13 +487,12 @@ export default function PointOfSaleLayout({
         {/* Custom Product */}
         <Box
           sx={{
-            maxHeight: '68vh',
+            height: height,
             overflowY: 'auto',
             display: showProduct ? 'none' : 'block',
           }}
         >
           <ProductCustomField append={append} control={control} errors={errors} fields={fields} />
-
         </Box>
       </Grid>
       {/* Cart */}

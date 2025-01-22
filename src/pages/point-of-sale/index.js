@@ -1,4 +1,4 @@
-import { Button, Card, Grid, Typography } from '@mui/material'
+import { Card, Grid } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { fetchDataMasterCategory } from 'src/store/apps/master/category'
@@ -6,12 +6,12 @@ import { fetchMasterDataCompany } from 'src/store/apps/master/company'
 import { fetchMasterDataType } from 'src/store/apps/master/type'
 import { fetchListProductPos } from 'src/store/apps/pos'
 import PointOfSaleLayout from 'src/views/point-of-sale/PointOfSaleLayout'
-import FilterWarehouse from '../components/filter/FilterWarehouse'
 import { Box } from '@mui/system'
-import MenuPos from 'src/views/point-of-sale/MenuPos'
 import TransactionLayout from 'src/views/point-of-sale/transaction/TransactionLayout'
 import OpenBillLayout from 'src/views/point-of-sale/open-bill/OpenBillLayout'
 import { UseAuth } from 'src/hooks/useAuth'
+import MenuPosV2 from 'src/views/point-of-sale/MenuPosV2'
+import DetailUserPos from 'src/views/point-of-sale/DetailUserPos'
 
 export default function PointOfSale() {
   const dispatch = useDispatch()
@@ -68,51 +68,27 @@ export default function PointOfSale() {
 
   return (
     <Grid container spacing={3}>
-      <Grid item xs={12} display={'flex'} mx={2} gap={2}>
-        {
-          !user?.warehouseId && (
-            <Grid item xs={2}>
-              <FilterWarehouse
-                fullWidth
-                data={localStorage.getItem('warehousePos') ? JSON.parse(localStorage.getItem('warehousePos')) : {}}
-                includeAllWarehouse={false}
-                handleChangeQuery={handleChangeQuery}
-              />
+      <Grid item xs={12} gap={2}>
+        <Box sx={{ height: '12vh' }}>
+          <Grid container spacing={2} >
+            <Grid item xs={showFilter ? 6 : 6}>
+              <MenuPosV2 showFilter={showFilter} setShowFilter={setShowFilter} setSelectedMenu={setSelectedMenu} selectedMenu={selectedMenu} />
             </Grid>
-          )
-        }
-        <Grid item xs={!user?.warehouseId ? 2 : 2}>
-          <Button
-            fullWidth
-            size='small'
-            sx={{ display: selectedMenu?.code === 'POS' && showButtonFilter ? 'flex' : 'none' }}
-            variant={showFilter ? 'contained' : 'outlined'}
-            onClick={() => {
-              setShowFilter(!showFilter)
-            }}
-          >
-            {`Show Filter`}
-          </Button>
-        </Grid>
-
-        <Grid item xs={showFilter ? 4 : 2}>
-          <MenuPos
-            data={listMenuPos}
-            onChange={setSelectedMenu}
-            value={selectedMenu}
-            trigger={() => {
-              setShowButtonFilter(true)
-            }}
-          />
-        </Grid>
-        <Grid item xs={showFilter ? 4 : 6}>
-          {/* BOOK TEMPAT SALES */}
-          <Box>{/* <Typography variant='h5'></Typography> */}</Box>
-        </Grid>
+            {
+              showFilter && (
+                <Grid item xs={2}>
+                </Grid>
+              )
+            }
+            <Grid item xs={showFilter ? 4 : 6} >
+              <DetailUserPos user={user} warehouse={warehouse} setWarehouse={setWarehouse} />
+            </Grid>
+          </Grid>
+        </Box>
       </Grid>
       <Grid item xs={12} sx={{ mt: 2 }}>
         <Card>
-          <Box sx={{ display: 'flex', flexDirection: 'column', height: '77vh', p: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', height: '70.5vh', p: 2 }}>
             {selectedMenu?.code === 'POS' && (
               <PointOfSaleLayout
                 showFilter={showFilter}
@@ -122,7 +98,7 @@ export default function PointOfSale() {
               />
             )}
             {selectedMenu?.code === 'TRANSACTION' && <TransactionLayout warehouseId={warehouse.warehouseId} />}
-            {selectedMenu?.code === 'OPEN_BILL' && <OpenBillLayout setSelectedMenu={setSelectedMenu}>Open Bill</OpenBillLayout>}
+            {selectedMenu?.code === 'OPEN_BILL' && <OpenBillLayout setSelectedMenu={setSelectedMenu} warehouse={warehouse}>Open Bill</OpenBillLayout>}
           </Box>
         </Card>
       </Grid>

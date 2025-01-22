@@ -127,7 +127,7 @@ export default function ModalAddProductPos({
 
   useEffect(() => {
     const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
-    dispatch(fetchDetailProductPos({ warehouseId: warehouse.warehouseId, productId: data?.productId }))
+    dispatch(fetchDetailProductPos({ warehouseId: warehouse?.warehouseId, productId: data?.productId }))
     if (data?.isFavorite) {
       setIsFavorite(true)
     }

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import { Box, Card, IconButton, Typography } from '@mui/material'
 
@@ -27,14 +26,11 @@ const RowOptions = ({ handleView }) => {
 }
 
 export default function TablePointOfSale({ timeFilter }) {
-  const dispatch = useDispatch()
-  const router = useRouter()
-
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
-  const { dataPointOfSale: data } = useSelector(state => state.pos)
+  const { dataPointOfSale: data, loadingDataPointOfSale } = useSelector(state => state.pos)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
@@ -74,6 +70,7 @@ export default function TablePointOfSale({ timeFilter }) {
   return (
     <Card sx={{ height: '70vh' }}>
       <DataGrid
+        loading={loadingDataPointOfSale}
         columns={[
           {
             flex: 0.1,

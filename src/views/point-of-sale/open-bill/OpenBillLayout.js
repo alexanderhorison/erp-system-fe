@@ -3,7 +3,7 @@ import { Box } from '@mui/system'
 
 import TableOpenBill from './TableOpenBill'
 
-export default function OpenBillLayout({ setSelectedMenu }) {
+export default function OpenBillLayout({ setSelectedMenu, warehouse }) {
   return (
     <Grid container spacing={3}>
       <Grid item xs={12}>
@@ -14,6 +14,7 @@ export default function OpenBillLayout({ setSelectedMenu }) {
         </Box>
         <TableOpenBill
           setSelectedMenu={setSelectedMenu}
+          warehouse={warehouse}
         />
       </Grid>
     </Grid>

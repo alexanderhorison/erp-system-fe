@@ -20,7 +20,7 @@ const RowOptions = ({ handleView, data }) => {
   )
 }
 
-export default function TableOpenBill({ setSelectedMenu }) {
+export default function TableOpenBill({ setSelectedMenu, warehouse }) {
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
   const [selectedData, setSelectedData] = useState({})
@@ -32,8 +32,11 @@ export default function TableOpenBill({ setSelectedMenu }) {
   }
 
   useEffect(() => {
-    setFilteredData(localStorage.getItem('openBill') ? JSON.parse(localStorage.getItem('openBill')) : [])
-  }, [openModalDetail])
+    const listBill = JSON.parse(localStorage.getItem('openBill'))
+    const warehousePos = warehouse
+    const filtered = listBill.filter(bill => bill.warehouse?.warehouseId === warehousePos?.warehouseId)
+    setFilteredData(filtered)
+  }, [openModalDetail, warehouse])
 
   return (
     <Card sx={{ height: '70vh' }}>
@@ -131,7 +134,7 @@ export default function TableOpenBill({ setSelectedMenu }) {
           }
         ]}
         pageSizeOptions={[5, 10]}
-        onCellClick={e => handleRowClick(e)}
+        // onCellClick={e => handleRowClick(e)}
         paginationModel={paginationModel}
         // slots={{ toolbar: TableHeaderPointOfSale }}
         onPaginationModelChange={setPaginationModel}

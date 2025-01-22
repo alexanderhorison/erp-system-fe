@@ -77,7 +77,8 @@ export default function ModalDetailOpenBill({ open, setOpen, data, setSelectedMe
       >
         <DialogContent
           sx={{
-            height: "85vh"
+            height: "85vh",
+            overflow: "auto"
           }}
         >
           <CustomCloseButton onClick={() => setOpen(false)}>

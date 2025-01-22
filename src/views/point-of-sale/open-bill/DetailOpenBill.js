@@ -1,11 +1,12 @@
 import React from "react";
-import { Grid, Typography, Paper, Divider } from "@mui/material";
+import { Grid, Typography, Paper, Divider, Card } from "@mui/material";
+import { Box } from "@mui/system";
 
 export default function DetailOpenBill({ data }) {
   const { id, customer, products, warehouse, subTotelPrice, totalItem } = data;
 
   return (
-    <Paper elevation={3} style={{ padding: "20px" }}>
+    <Card sx={{ p: 3, height: "85%", overflow: "auto", bgcolor: "" }}>
       <Typography variant="h4" gutterBottom>
         Bill Details
       </Typography>
@@ -106,6 +107,6 @@ export default function DetailOpenBill({ data }) {
           </Grid>
         </Grid>
       </Grid>
-    </Paper>
+    </Card>
   );
 }

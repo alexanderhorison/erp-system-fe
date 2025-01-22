@@ -91,7 +91,7 @@ export default function ProductCustomField({
             <Button
               variant="outlined"
               onClick={() => handleButtonClick(value)}
-              sx={{ width: '100%', height: 97, borderRadius: 1 }}
+              sx={{ width: '100%', height: 85, borderRadius: 1 }}
             >
               {value}
             </Button>
