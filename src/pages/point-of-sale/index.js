@@ -19,7 +19,6 @@ export default function PointOfSale() {
   const [showFilter, setShowFilter] = useState(true)
   const [showButtonFilter, setShowButtonFilter] = useState(true)
   const [warehouse, setWarehouse] = useState(localStorage.getItem('warehousePos') ? JSON.parse(localStorage.getItem('warehousePos')) : {})
-  const [selectedMenu, setSelectedMenu] = useState(listMenuPos[0])
 
   const listMenuPos = [
     {
@@ -35,6 +34,8 @@ export default function PointOfSale() {
       code: 'OPEN_BILL'
     }
   ]
+
+  const [selectedMenu, setSelectedMenu] = useState(listMenuPos[0])
 
   const handleChangeQuery = ({ key, value, name }) => {
     setWarehouse(prev => ({ ...prev, [key]: value }))
