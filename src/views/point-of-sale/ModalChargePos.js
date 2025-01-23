@@ -66,7 +66,7 @@ const AmountButton = ({ subTotalPrice, selectAmount }) => {
       return Math.ceil(subTotalPrice / 5000) * 5000; // Dibulatkan ke atas kelipatan 5000
     } else {
       // Jika di atas 500.000, gunakan pecahan 10.000 - 50.000
-      return Math.ceil(subTotalPrice / 10000) * 10000; // Dibulatkan ke atas kelipatan 10000
+      return Math.ceil(subTotalPrice / 50000) * 50000; // Dibulatkan ke atas kelipatan 10000
     }
   };
 
@@ -74,10 +74,10 @@ const AmountButton = ({ subTotalPrice, selectAmount }) => {
   const calculateButton3Value = (subTotalPrice) => {
     // Jika subTotalPrice di bawah 500.000, gunakan pecahan 10.000 - 50.000
     if (subTotalPrice <= 500000) {
-      return Math.ceil(subTotalPrice / 10000) * 10000; // Dibulatkan ke atas kelipatan 10000
+      return Math.ceil(subTotalPrice / 50000) * 50000; // Dibulatkan ke atas kelipatan 10000
     } else {
       // Jika di atas 500.000, gunakan pecahan 50.000 - 100.000
-      return Math.ceil(subTotalPrice / 50000) * 50000; // Dibulatkan ke atas kelipatan 50000
+      return Math.ceil(subTotalPrice / 100000) * 100000; // Dibulatkan ke atas kelipatan 50000
     }
   };
 
@@ -204,6 +204,9 @@ export default function ModalChargePos({
     setValue('amount', value)
   }
 
+  console.log(listPaymentType);
+
+
   return (
     <Card>
       <Dialog
@@ -255,31 +258,6 @@ export default function ModalChargePos({
                   />
                 </Grid>
                 <Grid item xs={4} alignContent={'top'}>Pilih Metode Pembayaran</Grid>
-                {/* <Grid container spacing={3}>
-                  <Grid item xs={12} alignItems={'center'}>
-                    <Grid container spacing={3} xs={12}>
-                      {
-                        listPaymentType && listPaymentType.map((item, index) => (
-                          <Grid item key={index} xs={4}>
-                            <Button
-                              fullWidth
-                              variant={selectedPayment?.id === item?.id ? 'contained' : 'outlined'}
-                              onClick={() => setSelectedPayment(item)}
-                              style={{
-                                whiteSpace: 'nowrap', // Prevents text from wrapping
-                                overflow: 'hidden',  // Ensures text doesn't overflow
-                                textOverflow: 'ellipsis', // Adds ellipsis for truncated text
-                                fontSize: item?.label.length > 10 ? '0.8rem' : '1rem', // Shrinks font size if label is long
-                              }}
-                            >
-                              {item?.label}
-                            </Button>
-                          </Grid>
-                        ))
-                      }
-                    </Grid>
-                  </Grid>
-                </Grid> */}
                 <Grid container spacing={4} py={3}>
                   {
                     loadingListPaymentType && <Grid item xs={12} sx={{ height: '150px' }} textAlign={'center'}><CircularProgress /></Grid>
@@ -291,7 +269,8 @@ export default function ModalChargePos({
                         id: item?.id,
                         title: item?.label,
                         value: item?.id,
-                        icon: item?.icon
+                        icon: item?.icon,
+                        description: item?.description
                       }}
                       selected={selectedPayment?.id}
                       icon={
@@ -317,11 +296,11 @@ export default function ModalChargePos({
 const defaultIconPayment = ({ icon }) => {
   let tempIcon = ''
   if (!icon) {
-    tempIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M8 2v4h8V2"/></svg>`
+    tempIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M8 2v4h8V2"/></svg>`
   } else {
     tempIcon = icon
+    tempIcon = tempIcon.replace(/width="[^"]*"/g, '').replace(/height="[^"]*"/g, '')
   }
-
   return typeof tempIcon === 'string' ? (
     <span
       style={{ width: 28, height: 28, display: 'inline-block' }}

@@ -10,7 +10,7 @@ import Icon from 'src/@core/components/icon'
 export default function CustomPaymentTypePos(props) {
   // ** Props
   const { data, icon, name, selected, gridProps, iconProps, handleChange, color = 'primary', iconWidth, iconHeight } = props
-  const { title, value, content } = data
+  const { title, value, content, description } = data
 
   const renderComponent = () => {
     return (
@@ -52,15 +52,17 @@ export default function CustomPaymentTypePos(props) {
               title
             )
           ) : null}
-          {content ? (
-            typeof content === 'string' ? (
-              <Typography variant='body2' sx={{ my: 'auto', textAlign: 'center' }}>
-                {content}
-              </Typography>
-            ) : (
-              content
-            )
-          ) : null}
+          {
+            description ? (
+              typeof description === 'string' ? (
+                <Typography sx={{ fontSize: '0.6rem', textAlign: 'center' }}>
+                  {description}
+                </Typography>
+              ) : (
+                description
+              )
+            ) : null
+          }
           <Radio
             name={name}
             size='small'
