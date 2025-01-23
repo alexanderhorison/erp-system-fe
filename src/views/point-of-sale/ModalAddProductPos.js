@@ -133,6 +133,9 @@ export default function ModalAddProductPos({
     }
   }, [data?.id])
 
+  console.log(selected);
+
+
   return (
     <Card>
       <Dialog
@@ -241,7 +244,7 @@ export default function ModalAddProductPos({
                       name='price'
                       errors={errors}
                       label='Harga'
-                      disabled={selected ? false : true}
+                      disabled={selected?.basePrice !== 0 || !selected}
                       fullWidth
                     />
                   </Grid>
