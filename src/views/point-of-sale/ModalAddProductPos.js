@@ -43,15 +43,9 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   }
 }))
 
-const saveToLocalStorage = (data) => localStorage.setItem('listProductPos', JSON.stringify(data))
+const saveToLocalStorage = data => localStorage.setItem('listProductPos', JSON.stringify(data))
 
-export default function ModalAddProductPos({
-  open,
-  setOpen,
-  data,
-  addProduct,
-  fields,
-}) {
+export default function ModalAddProductPos({ open, setOpen, data, addProduct, fields }) {
   const dispatch = useDispatch()
   const { detailProductPos, loadingDetailProductPos } = useSelector(state => state.pos)
 
@@ -61,7 +55,7 @@ export default function ModalAddProductPos({
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
     price: yup.string().required('Harga harus diisi'),
-    quantity: yup.string().required('Kuantiti harus diisi'),
+    quantity: yup.string().required('Kuantiti harus diisi')
   })
 
   // REACT FORM
@@ -70,10 +64,10 @@ export default function ModalAddProductPos({
     handleSubmit,
     getValues,
     formState: { errors },
-    watch,
+    watch
   } = useForm({
     values: {
-      price: selected?.basePrice || null,
+      price: selected?.basePrice || null
     },
     mode: 'onChange',
     resolver: yupResolver(schema)
@@ -82,7 +76,6 @@ export default function ModalAddProductPos({
   // ON SUBMIT
   // console.log(selected);
   const onSubmit = val => {
-
     let tempProduct = {
       subTotal: val?.price * val?.quantity,
       quantity: val?.quantity,
@@ -94,8 +87,8 @@ export default function ModalAddProductPos({
       unitName: selected?.unitName,
       productName: selected?.productName,
       notes: val?.notes,
-      title: val?.title || "",
-      productId: selected?.productId,
+      title: val?.title || '',
+      productId: selected?.productId
     }
     addProduct(tempProduct)
     saveToLocalStorage([...fields, tempProduct])
@@ -112,13 +105,13 @@ export default function ModalAddProductPos({
     const sendData = {
       productId: data.productId,
       isFavorite: isFavorite ? false : true,
-      warehouseId: warehouse?.warehouseId,
+      warehouseId: warehouse?.warehouseId
     }
     dispatch(updateFavoriteProductPos({ data: sendData, setFavorite: setIsFavorite, isFavorite: isFavorite }))
   }
 
   const tempQuantity = useCallback(() => {
-    return selected?.quantity || "Kosong"
+    return selected?.quantity || 'Kosong'
   }, [selected])
 
   const calculateSubTotal = useMemo(() => {
@@ -133,8 +126,7 @@ export default function ModalAddProductPos({
     }
   }, [data?.id])
 
-  console.log(selected);
-
+  console.log(selected)
 
   return (
     <Card>
@@ -158,7 +150,7 @@ export default function ModalAddProductPos({
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              bgcolor: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: 'rgba(255, 255, 255, 0.8)'
             }}
           >
             <CircularProgress />
@@ -168,7 +160,7 @@ export default function ModalAddProductPos({
           <DialogContent
             sx={{
               pb: theme => `${theme.spacing(8)} !important`,
-              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`]
               // pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
             }}
           >
@@ -176,14 +168,19 @@ export default function ModalAddProductPos({
               <Icon icon='tabler:x' fontSize='1.25rem' />
             </CustomCloseButton>
             <Box sx={{ textAlign: 'center' }}>
-              <Typography variant='h4' sx={{}}>
+              <Typography
+                variant='h4'
+                sx={{
+                  marginBottom: 2
+                }}
+              >
                 {data?.productName}
               </Typography>
             </Box>
             {/* BUTTON FAV AND SAVE */}
             <DialogActions
               sx={{
-                px: theme => [`${theme.spacing(0)} !important`, `${theme.spacing(0)} !important`],
+                px: theme => [`${theme.spacing(0)} !important`, `${theme.spacing(0)} !important`]
               }}
             >
               <Grid container spacing={6}>
@@ -196,15 +193,15 @@ export default function ModalAddProductPos({
                     startIcon={
                       <Icon
                         icon={isFavorite ? 'tabler:star-filled' : 'tabler:star'} // Gunakan ikon sesuai status
-                        fontSize="1.25rem" // Ukuran ikon
+                        fontSize='1.25rem' // Ukuran ikon
                         style={{
-                          color: isFavorite ? 'orange' : 'inherit', // Warna kuning jika favorit
+                          color: isFavorite ? 'orange' : 'inherit' // Warna kuning jika favorit
                         }}
                       />
                     }
                     sx={{
                       borderColor: isFavorite ? 'orange' : 'secondary.main', // Border tombol dinamis
-                      color: isFavorite ? 'orange' : 'secondary.main', // Warna teks tombol dinamis
+                      color: isFavorite ? 'orange' : 'secondary.main' // Warna teks tombol dinamis
                     }}
                   >
                     Favourite
@@ -219,22 +216,27 @@ export default function ModalAddProductPos({
             </DialogActions>
             <Grid container spacing={6} mt={0.5}>
               <Grid item xs={12}>
+                <Typography variant='h6' sx={{ marginBottom: 1 }}>
+                  PILIH UNIT
+                </Typography>
                 <Grid container spacing={6} alignItems={'center'}>
-                  {
-                    detailProductPos?.map((item, index) => (
-                      <Grid item key={index} xs={6}>
-                        <Button fullWidth variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'} onClick={() => setSelected(item)}>{item.unitName}</Button>
-                      </Grid>
-                    ))
-                  }
+                  {detailProductPos?.map((item, index) => (
+                    <Grid item key={index} xs={6}>
+                      <Button
+                        fullWidth
+                        variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'}
+                        onClick={() => setSelected(item)}
+                      >
+                        {item.unitName}
+                      </Button>
+                    </Grid>
+                  ))}
                 </Grid>
-                {
-                  !selected?.unitName && (
-                    <Typography mt={2} variant='body2' sx={{ color: 'error.main' }}>
-                      *Silahkan pilih satuan
-                    </Typography>
-                  )
-                }
+                {!selected?.unitName && (
+                  <Typography mt={2} variant='body2' sx={{ color: 'error.main' }}>
+                    *Silahkan pilih satuan
+                  </Typography>
+                )}
               </Grid>
               <Grid item xs={12}>
                 <Grid container spacing={6}>
@@ -257,7 +259,7 @@ export default function ModalAddProductPos({
                       errors={errors}
                       label={`Stock: ${tempQuantity()}`}
                       max={tempQuantity()}
-                      disabled={tempQuantity() === "Kosong" ? true : selected ? false : true}
+                      disabled={tempQuantity() === 'Kosong' ? true : selected ? false : true}
                     />
                   </Grid>
                   <Grid item xs={12}>
