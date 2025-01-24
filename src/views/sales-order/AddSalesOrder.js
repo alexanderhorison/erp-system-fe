@@ -470,82 +470,6 @@ export default function AddSalesOrder({}) {
               </CardContent>
             </Card>
           </Grid>
-          {/* <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Grid container display='flex' gap={4} justifyContent='space-between'>
-                  <Grid item xs={12} md={4}>
-                    <Box display='flex' alignItems={'center'} width={'100%'}>
-                      <Controller
-                        name={`customerId`}
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange } }) => (
-                          <CustomAutocomplete
-                            options={masterCustomer}
-                            id='autocomplete-custom'
-                            sx={{ flexGrow: 1 }}
-                            getOptionLabel={option => option.name || ''}
-                            onChange={(event, newValue) => {
-                              onChange(+newValue?.id || '')
-                              setCustomerData(newValue)
-                            }}
-                            renderInput={params => (
-                              <CustomTextField
-                                value={value}
-                                {...params}
-                                error={Boolean(errors?.customerId)}
-                                {...(errors?.customerId && {
-                                  helperText: errors?.customerId.message
-                                })}
-                                label='Customer'
-                                sx={{ flexGrow: 1 }}
-                              />
-                            )}
-                          />
-                        )}
-                      />
-                      <Button
-                        onClick={handleAddCustomer}
-                        variant='contained'
-                        sx={{
-                          ml: 2,
-                          mt: 4,
-                          width: '100%',
-                          '@media (min-width: 600px)': {
-                            width: 'auto'
-                          }
-                        }}
-                      >
-                        <Icon fontSize='1.125rem' icon='tabler:plus' />
-                        Tambah Customer
-                      </Button>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <DatePicker
-                      selected={date}
-                      id='basic'
-                      popperPlacement={popperPlacement}
-                      onChange={date => setDate(date)}
-                      fullWidth
-                      customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid container display='flex' gap={3} sx={{ marginTop: '1rem' }}>
-                  <Grid item xs={12} md={4}>
-                    <Box sx={{ display: 'flex-column', alignItems: 'left', textAlign: 'left' }}>
-                      <Typography sx={{ color: 'text.secondary' }}>{customerData?.email}</Typography>
-                      <Typography sx={{ color: 'text.secondary' }}>{customerData?.address}</Typography>
-                      <Typography sx={{ color: 'text.secondary' }}>{customerData?.phoneNumber}</Typography>
-                      <Typography sx={{ color: 'text.secondary' }}>{customerData?.rankName}</Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid> */}
           <Grid item xs={12}>
             <Card>
               <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
@@ -742,29 +666,6 @@ export default function AddSalesOrder({}) {
                                   formStateField: formField,
                                   onChange
                                 })
-                                // const input = e.target
-                                // const cursorPosition = input.selectionStart
-                                // const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
-                                // const newPrice = +rawValue
-                                // const currentQuantity = formField[index].quantity || 0
-                                // const newSubTotal = currentQuantity * newPrice
-                                // const formattedValue = priceFormat(+rawValue)
-                                // // Update the price and the subtotal
-                                // onChange(rawValue)
-                                // setTimeout(() => {
-                                //   input.value = formattedValue // Update input display with formatted value
-                                //   input.setSelectionRange(cursorPosition, cursorPosition) // Restore cursor position
-                                // }, 0)
-                                // if (parseInt(newSubTotal, 10) > 0) {
-                                //   setValue(`data[${index}].subTotal`, newSubTotal)
-                                // }
-                                // if (
-                                //   formField[index].quantity &&
-                                //   formField[index].price &&
-                                //   parseInt(formField[index].quantity, 10) > 0
-                                // ) {
-                                //   calculateTotals()
-                                // }
                               }}
                               type='text'
                               sx={{ display: 'block' }}

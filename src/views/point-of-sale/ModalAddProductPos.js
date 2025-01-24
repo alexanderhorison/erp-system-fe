@@ -27,6 +27,7 @@ import FormInputText from '../common/Form/FormInputText'
 import FormInputNumberPos from '../common/FormPos/FormInputNumberPos'
 import FormInputPricePos from '../common/FormPos/FormInputPricePos'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
+import TransformProductPointOfSale from './TransformProductPointOfSale'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -51,6 +52,9 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
 
   const [selected, setSelected] = useState(null)
   const [isFavorite, setIsFavorite] = useState(false)
+
+  const [openModalTransform, setOpenModalTransform] = useState(false)
+  const [dataTransformation, setDataTransformation] = useState({})
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
@@ -126,164 +130,213 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
     }
   }, [data?.id])
 
-  console.log(selected)
+  const handleTransformation = () => {
+    setDataTransformation({ ...selected, qty: getValues('quantity') })
+    setOpenModalTransform(true)
+  }
 
   return (
-    <Card>
-      <Dialog
-        fullWidth
-        open={open}
-        maxWidth='sm'
-        scroll='body'
-        onClose={handleClose}
-        sx={{ '& .MuiDialog-paper': { overflow: 'visible' }, zoom: 1.2 }}
-      >
-        {loadingDetailProductPos && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 10,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              bgcolor: 'rgba(255, 255, 255, 0.8)'
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        )}
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent
-            sx={{
-              pb: theme => `${theme.spacing(8)} !important`,
-              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`]
-              // pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-            }}
-          >
-            <CustomCloseButton onClick={handleClose}>
-              <Icon icon='tabler:x' fontSize='1.25rem' />
-            </CustomCloseButton>
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography
-                variant='h4'
-                sx={{
-                  marginBottom: 2
-                }}
-              >
-                {data?.productName}
-              </Typography>
-            </Box>
-            {/* BUTTON FAV AND SAVE */}
-            <DialogActions
+    <>
+      <Card>
+        <Dialog
+          fullWidth
+          open={open}
+          maxWidth='sm'
+          scroll='body'
+          onClose={handleClose}
+          sx={{ '& .MuiDialog-paper': { overflow: 'visible' }, zoom: 1.2 }}
+        >
+          {loadingDetailProductPos && (
+            <Box
               sx={{
-                px: theme => [`${theme.spacing(0)} !important`, `${theme.spacing(0)} !important`]
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 10,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                bgcolor: 'rgba(255, 255, 255, 0.8)'
               }}
             >
-              <Grid container spacing={6}>
-                <Grid item xs={6}>
-                  <Button
-                    fullWidth
-                    variant='outlined'
-                    color='secondary'
-                    onClick={handleFav}
-                    startIcon={
-                      <Icon
-                        icon={isFavorite ? 'tabler:star-filled' : 'tabler:star'} // Gunakan ikon sesuai status
-                        fontSize='1.25rem' // Ukuran ikon
-                        style={{
-                          color: isFavorite ? 'orange' : 'inherit' // Warna kuning jika favorit
-                        }}
-                      />
-                    }
-                    sx={{
-                      borderColor: isFavorite ? 'orange' : 'secondary.main', // Border tombol dinamis
-                      color: isFavorite ? 'orange' : 'secondary.main' // Warna teks tombol dinamis
-                    }}
-                  >
-                    Favourite
-                  </Button>
-                </Grid>
-                <Grid item xs={6}>
-                  <Button fullWidth type='submit' variant='contained' disabled={!selected ? true : false}>
-                    Save
-                  </Button>
-                </Grid>
-              </Grid>
-            </DialogActions>
-            <Grid container spacing={6} mt={0.5}>
-              <Grid item xs={12}>
-                <Typography variant='h6' sx={{ marginBottom: 1 }}>
-                  PILIH UNIT
+              <CircularProgress />
+            </Box>
+          )}
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <DialogContent
+              sx={{
+                pb: theme => `${theme.spacing(8)} !important`,
+                px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`]
+                // pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+              }}
+            >
+              <CustomCloseButton onClick={handleClose}>
+                <Icon icon='tabler:x' fontSize='1.25rem' />
+              </CustomCloseButton>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography
+                  variant='h4'
+                  sx={{
+                    marginBottom: 2
+                  }}
+                >
+                  {data?.productName}
                 </Typography>
-                <Grid container spacing={6} alignItems={'center'}>
-                  {detailProductPos?.map((item, index) => (
-                    <Grid item key={index} xs={6}>
-                      <Button
-                        fullWidth
-                        variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'}
-                        onClick={() => setSelected(item)}
-                      >
-                        {item.unitName}
-                      </Button>
-                    </Grid>
-                  ))}
-                </Grid>
-                {!selected?.unitName && (
-                  <Typography mt={2} variant='body2' sx={{ color: 'error.main' }}>
-                    *Silahkan pilih satuan
-                  </Typography>
-                )}
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              {/* BUTTON FAV AND SAVE */}
+              <DialogActions
+                sx={{
+                  px: theme => [`${theme.spacing(0)} !important`, `${theme.spacing(0)} !important`]
+                }}
+              >
                 <Grid container spacing={6}>
                   <Grid item xs={6}>
-                    <FormInputPricePos
-                      control={control}
-                      name='price'
-                      errors={errors}
-                      label='Harga'
-                      disabled={selected?.basePrice !== 0 || !selected}
+                    <Button
                       fullWidth
-                    />
+                      variant='outlined'
+                      color='secondary'
+                      onClick={handleFav}
+                      startIcon={
+                        <Icon
+                          icon={isFavorite ? 'tabler:star-filled' : 'tabler:star'} // Gunakan ikon sesuai status
+                          fontSize='1.25rem' // Ukuran ikon
+                          style={{
+                            color: isFavorite ? 'orange' : 'inherit' // Warna kuning jika favorit
+                          }}
+                        />
+                      }
+                      sx={{
+                        borderColor: isFavorite ? 'orange' : 'secondary.main', // Border tombol dinamis
+                        color: isFavorite ? 'orange' : 'secondary.main' // Warna teks tombol dinamis
+                      }}
+                    >
+                      Favourite
+                    </Button>
                   </Grid>
                   <Grid item xs={6}>
-                    <FormInputNumberPos
-                      multiline
-                      rows={1}
-                      control={control}
-                      name='quantity'
-                      errors={errors}
-                      label={`Stock: ${tempQuantity()}`}
-                      max={tempQuantity()}
-                      disabled={tempQuantity() === 'Kosong' ? true : selected ? false : true}
-                    />
+                    <Button fullWidth type='submit' variant='contained' disabled={!selected ? true : false}>
+                      Save
+                    </Button>
                   </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                      Sub Total: {priceFormatWIthCurrency(calculateSubTotal)}
+                </Grid>
+              </DialogActions>
+              <Grid container spacing={6} mt={0.5}>
+                <Grid item xs={12}>
+                  <Typography variant='h6' sx={{ marginBottom: 1 }}>
+                    PILIH UNIT
+                  </Typography>
+                  <Grid container spacing={6} alignItems={'center'}>
+                    {detailProductPos?.map((item, index) => (
+                      <Grid item key={index} xs={6}>
+                        <Button
+                          fullWidth
+                          variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'}
+                          onClick={() => setSelected(item)}
+                        >
+                          {item.unitName}
+                        </Button>
+                      </Grid>
+                    ))}
+                  </Grid>
+                  {!selected?.unitName && (
+                    <Typography mt={2} variant='body2' sx={{ color: 'error.main' }}>
+                      *Silahkan pilih satuan
                     </Typography>
+                  )}
+                  <Grid container spacing={6} alignItems={'center'}>
+                    <Grid item xs={6}>
+                      <Typography
+                        variant='subtitle2'
+                        sx={{
+                          cursor: 'pointer',
+                          color: 'text.secondary',
+                          ':hover': { color: 'blue', textDecoration: 'underline' },
+                          marginTop: 3
+                        }}
+                        onClick={() => {
+                          handleTransformation()
+                        }}
+                      >
+                        {getValues('quantity') > 0 && selected ? 'Transformasi Produk' : ''}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={6}>
+                      {/* <Typography
+                        variant='subtitle2'
+                        sx={{
+                          cursor: 'pointer',
+                          color: 'text.secondary',
+                          ':hover': { color: 'blue', textDecoration: 'underline' },
+                          marginTop: 3
+                        }}
+                        onClick={() => {
+                          // Add the logic to transform the product here
+                          console.log('Transformasi Produk clicked')
+                        }}
+                      >
+                        Add Base price
+                      </Typography> */}
+                    </Grid>
                   </Grid>
-                  <Grid item xs={12}>
-                    <FormInputText
-                      multiline
-                      rows={3}
-                      control={control}
-                      name='notes'
-                      errors={errors}
-                      label='Notes'
-                      disabled={selected ? false : true}
-                    />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Grid container spacing={6}>
+                    <Grid item xs={6}>
+                      <FormInputPricePos
+                        control={control}
+                        name='price'
+                        errors={errors}
+                        label='Harga'
+                        disabled={selected?.basePrice !== 0 || !selected}
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <FormInputNumberPos
+                        multiline
+                        rows={1}
+                        control={control}
+                        name='quantity'
+                        errors={errors}
+                        label={`Stock: ${tempQuantity()}`}
+                        max={tempQuantity()}
+                        disabled={tempQuantity() === 'Kosong' ? true : selected ? false : true}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                        Sub Total: {priceFormatWIthCurrency(calculateSubTotal)}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormInputText
+                        multiline
+                        rows={3}
+                        control={control}
+                        name='notes'
+                        errors={errors}
+                        label='Notes'
+                        disabled={selected ? false : true}
+                      />
+                    </Grid>
                   </Grid>
                 </Grid>
               </Grid>
-            </Grid>
-          </DialogContent>
-        </form>
-      </Dialog>
-    </Card>
+            </DialogContent>
+          </form>
+        </Dialog>
+      </Card>
+      {openModalTransform && (
+        <TransformProductPointOfSale
+          setOpen={setOpenModalTransform}
+          open={openModalTransform}
+          transformationData={dataTransformation}
+          setSelectedProductPos={setSelected}
+        />
+      )}
+    </>
   )
 }
