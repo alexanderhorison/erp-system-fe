@@ -28,6 +28,8 @@ import FormInputNumberPos from '../common/FormPos/FormInputNumberPos'
 import FormInputPricePos from '../common/FormPos/FormInputPricePos'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import TransformProductPointOfSale from './TransformProductPointOfSale'
+import ModalAddBasePrice from './ModalAddBasePrice'
+import { fetchMasterDataProductPrice } from 'src/store/apps/master/product-price'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -55,6 +57,8 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
 
   const [openModalTransform, setOpenModalTransform] = useState(false)
   const [dataTransformation, setDataTransformation] = useState({})
+
+  const [openModalBasePrice, setOpenModalBasePrice] = useState(false)
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
@@ -128,6 +132,8 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
     if (data?.isFavorite) {
       setIsFavorite(true)
     }
+    // Dispatch Product Base Price
+    dispatch(fetchMasterDataProductPrice(data?.productId))
   }, [data?.id])
 
   const handleTransformation = () => {
@@ -256,14 +262,14 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
                           marginTop: 3
                         }}
                         onClick={() => {
-                          handleTransformation()
+                          setOpenModalBasePrice(true)
                         }}
                       >
-                        {getValues('quantity') > 0 && selected ? 'Transformasi Produk' : ''}
+                        Add Base price
                       </Typography>
                     </Grid>
                     <Grid item xs={6}>
-                      {/* <Typography
+                      <Typography
                         variant='subtitle2'
                         sx={{
                           cursor: 'pointer',
@@ -272,12 +278,11 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
                           marginTop: 3
                         }}
                         onClick={() => {
-                          // Add the logic to transform the product here
-                          console.log('Transformasi Produk clicked')
+                          handleTransformation()
                         }}
                       >
-                        Add Base price
-                      </Typography> */}
+                        {getValues('quantity') > 0 && selected ? 'Transformasi Produk' : ''}
+                      </Typography>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -335,6 +340,14 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
           open={openModalTransform}
           transformationData={dataTransformation}
           setSelectedProductPos={setSelected}
+        />
+      )}
+      {openModalBasePrice && (
+        <ModalAddBasePrice
+          open={openModalBasePrice}
+          setOpen={setOpenModalBasePrice}
+          product={data}
+          setSelected={setSelected}
         />
       )}
     </>
