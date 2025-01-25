@@ -10,6 +10,8 @@ import { fetchDetailProductPos } from 'src/store/apps/pos'
 export default function ModalAddBasePrice({ open, setOpen, product, setSelected }) {
   const dispatch = useDispatch()
   const handleClose = () => {
+    const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
+      dispatch(fetchDetailProductPos({ warehouseId: warehouse?.warehouseId, productId: product?.productId }))
     setSelected(null)
     setOpen(false)
   }
@@ -61,8 +63,6 @@ export default function ModalAddBasePrice({ open, setOpen, product, setSelected 
       })
     } else {
       dispatch(addMasterDataProductPrice(newRow))
-      const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
-      dispatch(fetchDetailProductPos({ warehouseId: warehouse?.warehouseId, productId: product?.productId }))
     }
     return newRow
   }
