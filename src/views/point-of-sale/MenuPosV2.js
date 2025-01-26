@@ -80,12 +80,15 @@ export default function MenuPosV2({
         selected={selectedMenu.code === 'OPEN_BILL'}
       />
       <MenuBox
-
+        disable
+        icon="tabler:x"
+        title={'Disable'}
       />
       <MenuBox
         icon="tabler:credit-card-pay"
         title="Other"
         selected={selectedMenu.code === 'OTHER'}
+        disable
       />
     </Grid>
   )

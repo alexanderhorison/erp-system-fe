@@ -82,10 +82,18 @@ export default function CartProductPos({
                       >
                         {helperTextPrice(index).detailItem}
                       </Typography>
+                      <Typography
+                        variant='body2'
+                        color='textSecondary'
+                        sx={{ marginTop: '4px' }}
+                      >
+                        Notes: {item?.notes}
+                      </Typography>
                     </div>
                   )}
                 />
               </Grid>
+
               <Grid item xs={12} md={2}>
                 <Controller
                   name={`formData[${index}].quantity`}

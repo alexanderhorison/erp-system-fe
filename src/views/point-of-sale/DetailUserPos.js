@@ -20,6 +20,7 @@ export default function DetailUserPos({ user, warehouse, setWarehouse }) {
   }
 
   const handleOpenMenu = (event) => {
+    if (user?.warehouseId) return
     if (!warehouseList.length) {
       dispatch(fetchMasterDataWarehouse({}));
     }
@@ -47,7 +48,7 @@ export default function DetailUserPos({ user, warehouse, setWarehouse }) {
           sx={{ py: '0.25rem', fontWeight: 500, color: "text.secondary" }}
         // aria-haspopup="true"
         >
-          {warehouse?.warehouseName || "-"}
+          {warehouse?.warehouseName || "Pilih Gudang"}
         </Typography>
       </Box>
       <Menu

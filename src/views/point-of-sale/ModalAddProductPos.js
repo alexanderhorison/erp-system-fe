@@ -30,6 +30,7 @@ import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import TransformProductPointOfSale from './TransformProductPointOfSale'
 import ModalAddBasePrice from './ModalAddBasePrice'
 import { fetchMasterDataProductPrice } from 'src/store/apps/master/product-price'
+import { autoSavePos } from 'src/helpers/pos/autoSavePos'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -82,7 +83,6 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
   })
 
   // ON SUBMIT
-  // console.log(selected);
   const onSubmit = val => {
     let tempProduct = {
       subTotal: val?.price * val?.quantity,
@@ -100,6 +100,7 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
     }
     addProduct(tempProduct)
     saveToLocalStorage([...fields, tempProduct])
+    autoSavePos()
     setOpen(false)
   }
 

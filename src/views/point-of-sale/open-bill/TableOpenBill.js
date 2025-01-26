@@ -102,7 +102,7 @@ export default function TableOpenBill({ setSelectedMenu, warehouse }) {
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {priceFormatWIthCurrency(params.row.subTotelPrice || 0)}
+                  {priceFormatWIthCurrency(params.row.subTotalPrice || 0)}
                 </Typography>
               )
             }

@@ -5,7 +5,7 @@ import {
   MenuItem,
   Typography
 } from '@mui/material'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -17,6 +17,7 @@ import ModalChargePos from './ModalChargePos'
 import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
 import ModalEditProductPos from './ModalEditProductPos'
 import ProductCustomField from './ProductCustomField'
+import { autoSavePos, generateIdOpenBill } from 'src/helpers/pos/autoSavePos'
 
 // Kedepannya jika tambah filter, bisa tambahkan field ini
 const listFilter = [
@@ -191,7 +192,9 @@ export default function PointOfSaleLayout({
   const resetAllField = () => {
     resetField('formData')
     setSelectedCustomerPos({})
-    localStorage.removeItem('listProductPos')
+    localStorage.setItem('listProductPos', JSON.stringify([]))
+    localStorage.setItem('billId', JSON.stringify(generateIdOpenBill()))
+    localStorage.removeItem('selectedCustomerPos')
   }
 
   const handleClickCustom = () => {
@@ -225,47 +228,32 @@ export default function PointOfSaleLayout({
     remove(index)
     const updatedFields = formField.filter((_, i) => i !== index)
     localStorage.setItem('listProductPos', JSON.stringify(updatedFields))
-  }
-
-  const generateIdOpenBill = () => {
-    const timestamp = Date.now()
-    return `BILL-${timestamp}`
+    autoSavePos()
   }
 
   const handleSaveBill = () => {
     if (fields.length > 0) {
       swalConfirmationOnly({
-        title: 'Simpan Transaksi?',
-        text: 'Apakah anda ingin menyimpan transaksi ini?',
-        confirmButtonText: 'Ya, Simpan',
+        title: 'Transaksi Baru?',
+        text: 'Apakah anda ingin membuat transaksi baru?',
+        confirmButtonText: 'Ya, Buat',
         showCancelButton: true,
         cancelButtonText: 'Tidak',
         icon: 'warning',
         onClickYes: () => {
-          let exsistingData = localStorage.getItem('openBill')
-          const selectedWarehouse = JSON.parse(localStorage.getItem('warehousePos'))
-          let totalItem = 0
-          fields?.forEach(item => {
-            totalItem += +item?.quantity
-          })
-          let dataBill = [{
-            id: generateIdOpenBill(),
-            customer: selectedCustomerPos,
-            products: fields,
-            warehouse: selectedWarehouse,
-            subTotelPrice: subTotalPrice(),
-            totalItem: totalItem
-          }]
-          if (exsistingData) {
-            localStorage.setItem('openBill', JSON.stringify([...JSON.parse(exsistingData), ...dataBill]))
-          } else {
-            localStorage.setItem('openBill', JSON.stringify(dataBill))
-          }
+          autoSavePos()
           resetAllField()
         },
       })
     }
   }
+
+  useEffect(() => {
+    const billId = JSON.parse(localStorage.getItem('billId'))
+    if (!billId) {
+      localStorage.setItem('billId', JSON.stringify(generateIdOpenBill()))
+    }
+  }, [])
 
   return (
     <Grid container spacing={3}>
@@ -525,7 +513,7 @@ export default function PointOfSaleLayout({
           </Grid>
           <Grid item xs={12}>
             <Button disabled={disableButtonCharge} fullWidth variant={'outlined'} onClick={handleSaveBill}>
-              Simpan Bill {priceFormat(getValues('grandTotal'))}
+              Next Bill {priceFormat(getValues('grandTotal'))}
             </Button>
           </Grid>
           <Grid item xs={12}>

@@ -71,16 +71,10 @@ export default function PointOfSale() {
       <Grid item xs={12} gap={2}>
         <Box sx={{ height: '12vh' }}>
           <Grid container spacing={2} >
-            <Grid item xs={showFilter ? 6 : 6}>
+            <Grid item xs={8}>
               <MenuPosV2 showFilter={showFilter} setShowFilter={setShowFilter} setSelectedMenu={setSelectedMenu} selectedMenu={selectedMenu} />
             </Grid>
-            {
-              showFilter && (
-                <Grid item xs={2}>
-                </Grid>
-              )
-            }
-            <Grid item xs={showFilter ? 4 : 6} >
+            <Grid item xs={4} >
               <DetailUserPos user={user} warehouse={warehouse} setWarehouse={setWarehouse} />
             </Grid>
           </Grid>

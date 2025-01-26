@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { Grid } from '@mui/material';
 import { priceFormatWithZero } from 'src/helpers/priceFormatter';
 import FormInputNumberPos from '../common/FormPos/FormInputNumberPos';
+import { autoSavePos } from 'src/helpers/pos/autoSavePos';
 
 const saveToLocalStorage = (data) => localStorage.setItem('listProductPos', JSON.stringify(data))
 
@@ -34,10 +35,9 @@ export default function ProductCustomField({
     let value = getValues();
     const subTotal = value.quantity * value.price
     value = { ...value, productName: value.title, isCustom: true, subTotal, warehouseProductId: null };
-    console.log(value);
-
     append(value);
     saveToLocalStorage([...fields, value])
+    autoSavePos()
     reset();
   };
 

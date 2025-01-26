@@ -3,7 +3,7 @@ import { Grid, Typography, Paper, Divider, Card } from "@mui/material";
 import { Box } from "@mui/system";
 
 export default function DetailOpenBill({ data }) {
-  const { id, customer, products, warehouse, subTotelPrice, totalItem } = data;
+  const { id, customer, products, warehouse, subTotalPrice, totalItem } = data;
 
   return (
     <Card sx={{ p: 3, height: "85%", overflow: "auto", bgcolor: "" }}>
@@ -15,7 +15,7 @@ export default function DetailOpenBill({ data }) {
         {/* Bill ID */}
         <Grid item xs={12} sm={6}>
           <Typography variant="subtitle1" fontWeight="bold">
-            Bill ID:
+            Bill ID
           </Typography>
           <Typography variant="body1">{id}</Typography>
         </Grid>
@@ -23,7 +23,7 @@ export default function DetailOpenBill({ data }) {
         {/* Warehouse */}
         <Grid item xs={12} sm={6}>
           <Typography variant="subtitle1" fontWeight="bold">
-            Warehouse Name:
+            Warehouse Name
           </Typography>
           <Typography variant="body1">{warehouse?.warehouseName}</Typography>
         </Grid>
@@ -61,6 +61,7 @@ export default function DetailOpenBill({ data }) {
               <Grid item xs={6}>
                 <Typography variant="subtitle1">Product Name:</Typography>
                 <Typography variant="body1">{product.productName}</Typography>
+                <Typography variant="subtitle1">Notes: {product.notes}</Typography>
               </Grid>
               <Grid item xs={2}>
                 <Typography variant="subtitle1">Quantity:</Typography>
@@ -101,7 +102,7 @@ export default function DetailOpenBill({ data }) {
             </Grid>
             <Grid item xs={6}>
               <Typography variant="body1">
-                Rp {subTotelPrice.toLocaleString()}
+                Rp {subTotalPrice.toLocaleString()}
               </Typography>
             </Grid>
           </Grid>

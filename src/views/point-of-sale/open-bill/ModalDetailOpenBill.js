@@ -56,6 +56,7 @@ export default function ModalDetailOpenBill({ open, setOpen, data, setSelectedMe
         localStorage.setItem('listProductPos', JSON.stringify(listProductPos))
         localStorage.setItem('selectedCustomerPos', JSON.stringify(selectedCustomerPos))
         localStorage.setItem('warehousePos', JSON.stringify(selectedBill?.warehouse))
+        localStorage.setItem('billId', JSON.stringify(selectedBill?.id))
         setSelectedMenu({
           name: "POS",
           code: "POS"

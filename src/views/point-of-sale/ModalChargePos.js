@@ -82,11 +82,11 @@ const AmountButton = ({ subTotalPrice, selectAmount }) => {
   };
 
   // Hitung nilai untuk setiap tombol
-  const buttonValues = [
-    subTotalPrice, // Nilai asli
-    showButton2And3 ? calculateButton2Value(subTotalPrice) : null, // Nilai untuk tombol 2 (kembalian kecil)
-    showButton2And3 ? calculateButton3Value(subTotalPrice) : null, // Nilai untuk tombol 3 (nilai besar berikutnya)
-  ];
+  const buttonValues = [...new Set([
+    subTotalPrice,
+    showButton2And3 ? calculateButton2Value(subTotalPrice) : null,
+    showButton2And3 ? calculateButton3Value(subTotalPrice) : null
+  ])].filter(Boolean); // Hapus null dan undefined
 
   return (
     <Grid container py={3} spacing={3}>
@@ -172,7 +172,7 @@ export default function ModalChargePos({
       })
     })
     let sendData = {
-      customerId: customer.id,
+      customerId: customer?.id,
       subTotal: subTotal,
       totalDiscount: dicount,
       grandTotal: subTotal - dicount,
@@ -190,6 +190,10 @@ export default function ModalChargePos({
       onComplete: (data) => {
         setAlreadyPayment(true)
         setDataSuccessPayment(data)
+        const openBill = JSON.parse(localStorage.getItem('openBill'))
+        const billId = JSON.parse(localStorage.getItem('billId'))
+        const newArray = openBill.filter(bill => bill.id !== billId)
+        localStorage.setItem('openBill', JSON.stringify(newArray))
       }
     }))
   }
@@ -203,9 +207,6 @@ export default function ModalChargePos({
   const selectAmount = (value) => {
     setValue('amount', value)
   }
-
-  console.log(listPaymentType);
-
 
   return (
     <Card>

@@ -3,11 +3,13 @@ import { useState } from 'react'
 import { Box, Card, IconButton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
+import { autoSavePos } from 'src/helpers/pos/autoSavePos'
 
 const RowOptions = ({ id, name, setSelectedCustomerPos, setOpen }) => {
   const handleAddCustomerPos = () => {
     setSelectedCustomerPos({ id, name })
     localStorage.setItem('selectedCustomerPos', JSON.stringify({ id, name }))
+    autoSavePos()
     setOpen(false)
   }
 

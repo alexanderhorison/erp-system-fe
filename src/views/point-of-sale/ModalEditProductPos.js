@@ -28,6 +28,7 @@ import FormInputNumberPos from '../common/FormPos/FormInputNumberPos'
 import FormInputPricePos from '../common/FormPos/FormInputPricePos'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
+import { autoSavePos } from 'src/helpers/pos/autoSavePos'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -86,10 +87,10 @@ export default function ModalEditProductPos({
     let tempProduct = {
       id: selected?.id,
       subTotal: val?.price * val?.quantity,
-      quantity: val?.quantity,
+      quantity: +val?.quantity,
       price: val?.price,
       warehouseProductId: selected?.warehouseProductId,
-      qty: selected?.qty,
+      qty: +selected?.qty,
       masterProductId: selected?.productId,
       rackName: selected?.rackName,
       unitName: selected?.unitName,
@@ -99,6 +100,12 @@ export default function ModalEditProductPos({
       productId: selected?.productId,
     }
     updateProduct(data?.index, tempProduct)
+    const listProductPos = JSON.parse(localStorage.getItem('listProductPos'))
+    const updatedArray = listProductPos.map((item, i) =>
+      i === data?.index ? tempProduct : item
+    );
+    saveToLocalStorage(updatedArray)
+    autoSavePos()
     setOpen(false)
   }
 
@@ -120,6 +127,7 @@ export default function ModalEditProductPos({
         const fields = localStorage.getItem('listProductPos')
         const updatedFields = JSON.parse(fields).filter((item, index) => index !== data?.index)
         localStorage.setItem('listProductPos', JSON.stringify(updatedFields))
+        autoSavePos()
         setOpen(false)
       },
     })
@@ -136,9 +144,6 @@ export default function ModalEditProductPos({
   useEffect(() => {
     const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
     dispatch(fetchDetailProductPos({ warehouseId: warehouse.warehouseId, productId: data?.productId }))
-    // if (data?.isFavorite) {
-    //   setIsFavorite(true)
-    // }
     setSelected(data)
   }, [data?.id])
 
