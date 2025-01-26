@@ -6,7 +6,7 @@ export default function DetailOpenBill({ data }) {
   const { id, customer, products, warehouse, subTotalPrice, totalItem } = data;
 
   return (
-    <Card sx={{ p: 3, height: "85%", overflow: "auto", bgcolor: "" }}>
+    <Box sx={{ p: 3, height: "85%", overflow: "auto", bgcolor: "" }}>
       <Typography variant="h4" gutterBottom>
         Bill Details
       </Typography>
@@ -108,6 +108,6 @@ export default function DetailOpenBill({ data }) {
           </Grid>
         </Grid>
       </Grid>
-    </Card>
+    </Box>
   );
 }
