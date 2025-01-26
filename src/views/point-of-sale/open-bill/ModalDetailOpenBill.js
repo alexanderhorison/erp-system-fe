@@ -4,6 +4,7 @@ import Icon from 'src/@core/components/icon'
 import { styled } from '@mui/material/styles'
 import DetailOpenBill from "./DetailOpenBill";
 import { swalConfirmationOnly } from "src/helpers/swalFunctionPos";
+import DetailOpenBillAndTransaction from "./DetailOpenBillAndTransaction";
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -85,11 +86,11 @@ export default function ModalDetailOpenBill({ open, setOpen, data, setSelectedMe
           <CustomCloseButton onClick={() => setOpen(false)}>
             <Icon icon='tabler:x' fontSize='1.25rem' />
           </CustomCloseButton>
-          <Box sx={{ textAlign: 'center' }}>
+          {/* <Box sx={{ textAlign: 'center' }}>
             <Typography variant='h4' sx={{}}>
               Detail Open Bill
             </Typography>
-          </Box>
+          </Box> */}
           <Grid container py={3} spacing={4}>
             <Grid item xs={6}>
               <Button fullWidth variant='outlined' onClick={() => handleRemove(data.id)}>
@@ -102,7 +103,8 @@ export default function ModalDetailOpenBill({ open, setOpen, data, setSelectedMe
               </Button>
             </Grid>
           </Grid>
-          <DetailOpenBill data={data} />
+          {/* <DetailOpenBill data={data} /> */}
+          <DetailOpenBillAndTransaction data={data} type='openBill' />
         </DialogContent>
       </Dialog>
     </Card>

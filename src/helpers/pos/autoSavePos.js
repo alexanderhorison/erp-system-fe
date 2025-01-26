@@ -37,3 +37,8 @@ export const generateIdOpenBill = () => {
   const timestamp = Date.now()
   return `BILL-${timestamp}`
 }
+
+export const generateIdProduct = () => {
+  const timestamp = Date.now()
+  return `PRODUCT-${timestamp}`
+}
