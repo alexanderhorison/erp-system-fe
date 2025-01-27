@@ -1,4 +1,3 @@
-
 import { useMemo } from 'react'
 import CustomChip from 'src/@core/components/mui/chip'
 
@@ -11,6 +10,7 @@ export default function Status(props) {
       case 'PENDING':
         return 'info'
       case 'APPROVED':
+      case 'PAID':
         return 'success'
       case 'REJECTED':
         return 'error'

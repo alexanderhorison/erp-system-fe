@@ -4,7 +4,7 @@ import Icon from 'src/@core/components/icon';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse';
 
-export default function FilterWarehouse({ data, handleChangeQuery, includeAllWarehouse = true }) {
+export default function FilterWarehouse({ data, handleChangeQuery, includeAllWarehouse = true, fullWidth }) {
   const dispatch = useDispatch();
   const { data: warehouseList } = useSelector((state) => state.warehouse);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -33,6 +33,7 @@ export default function FilterWarehouse({ data, handleChangeQuery, includeAllWar
     handleChangeQuery({
       key: 'warehouseId',
       value: warehouse.id,
+      name: warehouse.name
     });
     setSelectedWarehouse(warehouse);
     handleCloseMenu();
@@ -42,6 +43,7 @@ export default function FilterWarehouse({ data, handleChangeQuery, includeAllWar
     <Box>
       {/* Warehouse Filter */}
       <Button
+        fullWidth={fullWidth}
         size="small"
         variant="outlined"
         aria-haspopup="true"

@@ -1,9 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import {
-  swalConfirmationAdd,
-  swalToastError
-} from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
 import { fetchMasterDataCustomer } from '../master/customer'
 import { swalConfirmationChargePos } from 'src/helpers/swalFunctionPos'
 
@@ -51,7 +48,7 @@ export const updateFavoriteProductPos = createAsyncThunk(
       await swalConfirmationAdd({
         label: 'Favorite',
         name: 'Favorite',
-        title: `${isFavorite ? "Remove produk dari favorit?" : "Jadikan produk favorit?"}`,
+        title: `${isFavorite ? 'Remove produk dari favorit?' : 'Jadikan produk favorit?'}`,
         axiosRequest: () => {
           if (isFavorite) {
             setFavorite(false)
@@ -97,17 +94,34 @@ export const addMasterDataCustomerPos = createAsyncThunk(
           dispatch(fetchMasterDataCustomer())
         }
       })
-      const customer = response?.data?.data;
+      const customer = response?.data?.data
       if (customer) {
         setSelectedCustomerPos({
           id: customer.id,
-          name: customer.name,
-        });
+          name: customer.name
+        })
         localStorage.setItem('selectedCustomerPos', JSON.stringify({ id: customer.id, name: customer.name }))
       }
     } catch (error) {
       swalError({ error, label })
       return rejectWithValue({})
+    }
+  }
+)
+
+// GET ALL CUSTOMER POS
+export const fetchCustomerPos = createAsyncThunk(
+  'appProductPos/fetchCustomerPos',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/master/customer/all-pos?isPosCustomer=true'
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
     }
   }
 )
@@ -118,7 +132,7 @@ export const fetchListPaymentTypePos = createAsyncThunk(
     try {
       const response = await axios({
         method: 'GET',
-        url: '/point-of-sale/payment-type',
+        url: '/point-of-sale/payment-type'
       })
       return response.data
     } catch (error) {
@@ -144,10 +158,44 @@ export const chargePos = createAsyncThunk(
             data
           })
         },
-        dispatchRequest: () => {
-          onComplete()
+        dispatchRequest: ({ data }) => {
+          onComplete(data?.data)
         }
       })
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
+// GET ALL POINT OF SALE BY WAREHOUSEID
+export const fetchAllPointOfSaleByWarehouseId = createAsyncThunk(
+  'appProductPos/fetchAllPointOfSaleByWarehouseId',
+  async (warehouseId, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/point-of-sale/get-all-point-of-sale/' + warehouseId
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
+// GET DETAIL PURCHASE ORDER
+export const fetchDetailPointOfSale = createAsyncThunk(
+  'appProductPos/fetchDetailPointOfSale',
+  async (code, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/point-of-sale/' + code
+      })
+      return response.data
     } catch (error) {
       swalToastError({ label, error })
       return rejectWithValue([])
@@ -168,7 +216,19 @@ export const appPosSlice = createSlice({
 
     listPaymentType: [],
     loadingListPaymentType: true,
-    errorListPaymentType: false
+    errorListPaymentType: false,
+
+    listCustomerPos: [],
+    loadingListCustomerPos: true,
+    errorListCustomerPos: false,
+
+    dataPointOfSale: [],
+    loadingDataPointOfSale: true,
+    errorDataPointOfSale: false,
+
+    detailPointOfSale: {},
+    loadingDetailPointOfSale: true,
+    errorDetailPointOfSale: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -210,6 +270,48 @@ export const appPosSlice = createSlice({
         state.loadingListPaymentType = false
         state.errorListPaymentType = action.error.message
         state.listPaymentType = []
+      })
+
+      // CUSTOMER
+      .addCase(fetchCustomerPos.pending, (state, action) => {
+        state.loadingListCustomerPos = true
+      })
+      .addCase(fetchCustomerPos.fulfilled, (state, action) => {
+        state.listCustomerPos = action.payload.data
+        state.loadingListCustomerPos = false
+      })
+      .addCase(fetchCustomerPos.rejected, (state, action) => {
+        state.loadingListCustomerPos = false
+        state.errorListCustomerPos = action.error.message
+        state.listCustomerPos = []
+      })
+
+      // List Point Of Sale
+      .addCase(fetchAllPointOfSaleByWarehouseId.pending, (state, action) => {
+        state.loadingDataPointOfSale = true
+      })
+      .addCase(fetchAllPointOfSaleByWarehouseId.fulfilled, (state, action) => {
+        state.dataPointOfSale = action.payload.data
+        state.loadingDataPointOfSale = false
+      })
+      .addCase(fetchAllPointOfSaleByWarehouseId.rejected, (state, action) => {
+        state.dataPointOfSale = []
+        state.loadingDataPointOfSale = false
+        state.errorDataPointOfSale = action.error.message
+      })
+
+      // fetch detail point of sale
+      .addCase(fetchDetailPointOfSale.pending, (state, action) => {
+        state.loadingDetailPointOfSale = true
+      })
+      .addCase(fetchDetailPointOfSale.fulfilled, (state, action) => {
+        state.detailPointOfSale = action.payload.data
+        state.loadingDetailPointOfSale = false
+      })
+      .addCase(fetchDetailPointOfSale.rejected, (state, action) => {
+        state.detailPointOfSale = {}
+        state.loadingDetailPointOfSale = false
+        state.errorDetailPointOfSale = action.error.message
       })
   }
 })

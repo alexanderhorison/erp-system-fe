@@ -3,11 +3,13 @@ import { useState } from 'react'
 import { Box, Card, IconButton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
+import { autoSavePos } from 'src/helpers/pos/autoSavePos'
 
 const RowOptions = ({ id, name, setSelectedCustomerPos, setOpen }) => {
   const handleAddCustomerPos = () => {
     setSelectedCustomerPos({ id, name })
     localStorage.setItem('selectedCustomerPos', JSON.stringify({ id, name }))
+    autoSavePos()
     setOpen(false)
   }
 
@@ -50,7 +52,7 @@ export default function TableCustomerPos({ setSelectedCustomerPos, setOpen, data
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.email}
+                  {params.row?.email || "-"}
                 </Typography>
               )
             }
@@ -63,7 +65,7 @@ export default function TableCustomerPos({ setSelectedCustomerPos, setOpen, data
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.phoneNumber}
+                  {params.row?.phoneNumber || "-"}
                 </Typography>
               )
             }

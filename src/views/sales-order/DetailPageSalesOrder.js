@@ -271,11 +271,10 @@ const DetailPageSalesOrder = ({ data }) => {
             <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
               {data?.grandTotal < 0
                 ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
-                    data?.grandTotal
-                  ).toLocaleString()}`
-                : `Customer ${
-                    data?.customer?.name?.toUpperCase() || ''
-                  } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
+                  data?.grandTotal
+                ).toLocaleString()}`
+                : `Customer ${data?.customer?.name?.toUpperCase() || ''
+                } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
             </Typography>
           </Box>
         </CardContent>

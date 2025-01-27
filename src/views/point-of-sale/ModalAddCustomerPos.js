@@ -10,9 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from 'yup'
-import { addMasterDataCustomerPos } from "src/store/apps/pos";
+import { addMasterDataCustomerPos, fetchCustomerPos } from "src/store/apps/pos";
 import HandleSearch from "src/helpers/handleSearch";
-import { fetchMasterDataCustomer } from "src/store/apps/master/customer";
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -32,8 +31,7 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
 export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCustomerPos, selectedCustomer }) {
   const dispatch = useDispatch()
 
-  const { defaultValue, detail: detailCustomer } = useSelector(state => state.masterCustomer)
-  const { data: listDataCustomer } = useSelector(state => state.masterCustomer)
+  const { listCustomerPos: listDataCustomer, loadingListCustomerPos } = useSelector(state => state.pos)
 
   const [listDataCustomerPos, setListDataCustomerPos] = useState([])
   const [searchText, setSearchText] = useState('')
@@ -90,7 +88,7 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
   }
 
   useEffect(() => {
-    dispatch(fetchMasterDataCustomer({}))
+    dispatch(fetchCustomerPos({}))
   }, [])
 
   useEffect(() => {

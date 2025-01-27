@@ -8,6 +8,7 @@ import {
   swalToastError
 } from 'src/helpers/swalFunction'
 import { fetchInvoiceListProductByWarehouseId } from '../delivery-order'
+import { fetchDetailProductPos } from '../pos'
 
 const label = 'produk'
 // GET ALL WAREHOUSE
@@ -290,6 +291,32 @@ export const fetchDeleteProductWarehouse = createAsyncThunk(
       })
     } catch (error) {
       swalError({ error, label })
+      return rejectWithValue({})
+    }
+  }
+)
+
+export const transformProductFromPointOfSale = createAsyncThunk(
+  'appMasterProduct/transformProductFromPointOfSale',
+  async (data, { dispatch, rejectWithValue }) => {
+    try {
+      await swalConfirmationEdit({
+        label: 'Produk',
+        name: 'Produk',
+        title: 'Anda akan melakukan transformasi produk',
+        axiosRequest: () => {
+          return axios({
+            method: 'POST',
+            url: '/product-warehouse/transformation/' + data?.productWarehouseId,
+            data: data
+          })
+        },
+        dispatchRequest: () => {
+          dispatch(fetchDetailProductPos({ warehouseId: data?.warehouseId, productId: data?.productId }))
+        }
+      })
+      return
+    } catch (error) {
       return rejectWithValue({})
     }
   }
