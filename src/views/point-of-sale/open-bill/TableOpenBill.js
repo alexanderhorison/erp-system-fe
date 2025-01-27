@@ -134,7 +134,7 @@ export default function TableOpenBill({ setSelectedMenu, warehouse }) {
           }
         ]}
         pageSizeOptions={[5, 10]}
-        // onCellClick={e => handleRowClick(e)}
+        onCellClick={e => handleRowClick(e?.row)}
         paginationModel={paginationModel}
         // slots={{ toolbar: TableHeaderPointOfSale }}
         onPaginationModelChange={setPaginationModel}

@@ -5,21 +5,7 @@ import { styled } from '@mui/material/styles'
 import DetailOpenBill from "./DetailOpenBill";
 import { swalConfirmationOnly } from "src/helpers/swalFunctionPos";
 import DetailOpenBillAndTransaction from "./DetailOpenBillAndTransaction";
-
-const CustomCloseButton = styled(IconButton)(({ theme }) => ({
-  top: 0,
-  right: 0,
-  color: 'grey.500',
-  position: 'absolute',
-  boxShadow: theme.shadows[2],
-  transform: 'translate(10px, -10px)',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: `${theme.palette.background.paper} !important`,
-  transition: 'transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out',
-  '&:hover': {
-    transform: 'translate(7px, -5px)'
-  }
-}))
+import { CustomCloseButton } from "src/views/pages/dialog-examples/DialogEditUserInfo";
 
 export default function ModalDetailOpenBill({ open, setOpen, data, setSelectedMenu }) {
 
@@ -86,11 +72,6 @@ export default function ModalDetailOpenBill({ open, setOpen, data, setSelectedMe
           <CustomCloseButton onClick={() => setOpen(false)}>
             <Icon icon='tabler:x' fontSize='1.25rem' />
           </CustomCloseButton>
-          {/* <Box sx={{ textAlign: 'center' }}>
-            <Typography variant='h4' sx={{}}>
-              Detail Open Bill
-            </Typography>
-          </Box> */}
           <Grid container py={3} spacing={4}>
             <Grid item xs={6}>
               <Button fullWidth variant='outlined' onClick={() => handleRemove(data.id)}>
