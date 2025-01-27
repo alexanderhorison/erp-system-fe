@@ -5,6 +5,7 @@ import { Status } from "src/@core/components/common";
 import { priceFormat, priceFormatWIthCurrency } from "src/helpers/priceFormatter";
 import TablePorductOpenBill from "./TableProductOpenBill";
 import { generateIdProduct } from "src/helpers/pos/autoSavePos";
+import { returnFormatDate, returnFormatDateDay, returnFormatTime } from "src/helpers/formatDate";
 
 
 export default function DetailOpenBillAndTransaction({ data, type }) {
@@ -34,6 +35,8 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
       temp.subTotal = data?.subTotalPrice
       temp.grandTotal = data?.subTotalPrice
       temp.totalDiscount = data?.totalDiscount || 0
+      temp.createdAt = new Date(+data?.id.split('-')[1])
+
     }
     if (type === 'transaction') {
       temp.products = data?.listProducts
@@ -42,6 +45,7 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
       temp.code = data?.code
       temp.totalQuantity = data?.totalQuantity
       temp.change = data?.totalPayment - data?.grandTotal
+      temp.createdAt = data?.createdAt
     }
     return temp
   }, [data, type])
@@ -59,7 +63,9 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
               type === 'openBill' ? 'Bill ID' : 'POS Code'
             }
           </Typography>
-          <Typography variant="body1">{mappedData?.id}</Typography>
+          <Typography variant="body1">{mappedData?.code}</Typography>
+          <Typography variant="body2">{returnFormatDate(mappedData?.createdAt)} - {returnFormatTime(mappedData?.createdAt)} </Typography>
+          {/* <Typography variant="body2"></Typography> */}
         </Grid>
         {/* Warehouse */}
         <Grid item xs={12} sm={3}>
@@ -81,7 +87,6 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
           </Typography>
           <Typography variant='body1'>Michael Santoso</Typography>
         </Grid>
-
         <Divider style={{ width: "100%", margin: "20px 0" }} />
 
         <Grid item xs={12}>
