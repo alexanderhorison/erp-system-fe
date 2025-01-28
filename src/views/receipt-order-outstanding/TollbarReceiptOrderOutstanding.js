@@ -56,7 +56,7 @@ const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAdd
     <>
       <Card>
         <CardContent>
-          <DownloadButton url={'receipt-order-outstanding'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
+          <DownloadButton url={'delivery-order-receive-outstanding'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
           <Button
             fullWidth
             sx={{ mb: 2, '& svg': { mr: 2 } }}

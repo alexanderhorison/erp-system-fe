@@ -28,7 +28,7 @@ const ToolbarGoodsOut = ({ id, status }) => {
   return (
     <Card>
       <CardContent>
-        <DownloadButton url={'adjustment/goods-out'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
+        <DownloadButton url={'adjustment-goods-out'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
         <Button
           fullWidth
           sx={{ mb: 2, '& svg': { mr: 2 } }}

@@ -30,7 +30,7 @@ const ToolbarReceive = ({ id, toggleSendInvoiceDrawer, toggleAddPaymentDrawer, s
           Kirim Invoice
         </Button>
         */}
-        <DownloadButton url={'receive-order'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
+        <DownloadButton url={'delivery-order-receive'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
         <Button
           fullWidth
           sx={{ mb: 2, '& svg': { mr: 2 } }}

@@ -110,7 +110,8 @@ const handlePrintDownload = async ({ url, id, setIsLoading }) => {
     });
 
     const contentDisposition = response.headers['content-disposition'];
-    const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+    const filenameMatch = contentDisposition?.match(/filename\*?=["']?([^"';\n]+)["']?/);
+
     const filename = filenameMatch ? filenameMatch[1] : `${url}-${id}.pdf`;
 
     // Create a blob URL and download link
