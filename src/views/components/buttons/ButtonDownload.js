@@ -9,7 +9,7 @@ const DownloadButton = ({ url, id, isLoading, setIsLoading }) => {
       sx={{ mb: 2 }}
       variant='contained'
       onClick={() => {
-        handlePrintDownload(url, id, setIsLoading)
+        handlePrintDownload({ url, id, setIsLoading })
       }}
     >
       {isLoading ? (
