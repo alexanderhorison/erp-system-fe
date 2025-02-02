@@ -322,6 +322,48 @@ export const transformProductFromPointOfSale = createAsyncThunk(
   }
 )
 
+export const exportAllStock = createAsyncThunk(
+  'appProductWarehouse/exportAllStock',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get('/export/all-stock', {
+        responseType: 'arraybuffer', // Ensures binary data is received correctly
+      });
+
+      const type = response.headers['content-type'];
+      const contentDisposition = response.headers['content-disposition'];
+
+      // Extract filename from Content-Disposition header
+      let filename = 'Export Stock.xlsx';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename\*?=["']?([^"';\n]+)["']?/);
+        if (filenameMatch) {
+          filename = decodeURIComponent(filenameMatch[1]); // Decode in case of special characters
+        }
+      }
+
+      // Create Blob from response
+      const blob = new Blob([response.data], { type });
+
+      // Trigger file download
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Cleanup Blob URL
+      window.URL.revokeObjectURL(blobUrl);
+      return { success: true };
+    } catch (error) {
+      console.error('Error exporting:', error);
+      return rejectWithValue('Failed to export. Please try again.');
+    }
+  }
+);
+
 export const appMasterProductSlice = createSlice({
   name: 'appProductWarehouse',
   initialState: {
@@ -350,7 +392,11 @@ export const appMasterProductSlice = createSlice({
       product: {}
     },
     loadingListHistory: true,
-    errorListHistory: false
+    errorListHistory: false,
+
+    // Export
+    isExporting: false,
+    exportError: null,
   },
   reducers: {},
   extraReducers: builder => {
@@ -437,6 +483,19 @@ export const appMasterProductSlice = createSlice({
           product: {}
         }
       })
+
+      //Export
+      .addCase(exportAllStock.pending, (state) => {
+        state.isExporting = true;
+        state.exportError = null;
+      })
+      .addCase(exportAllStock.fulfilled, (state) => {
+        state.isExporting = false;
+      })
+      .addCase(exportAllStock.rejected, (state, action) => {
+        state.isExporting = false;
+        state.exportError = action.payload;
+      });
   }
 })
 
