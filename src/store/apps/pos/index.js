@@ -116,7 +116,8 @@ export const fetchCustomerPos = createAsyncThunk(
     try {
       const response = await axios({
         method: 'GET',
-        url: '/master/customer/all-pos?isPosCustomer=true'
+        url: '/master/customer/all-pos',
+        params,
       })
       return response.data
     } catch (error) {

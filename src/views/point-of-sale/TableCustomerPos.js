@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 import { Box, Card, IconButton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
@@ -24,12 +22,19 @@ const RowOptions = ({ id, name, setSelectedCustomerPos, setOpen }) => {
   )
 }
 
-export default function TableCustomerPos({ setSelectedCustomerPos, setOpen, dataCustomer }) {
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 })
+export default function TableCustomerPos({
+  setSelectedCustomerPos,
+  setOpen,
+  dataCustomer,
+  paginationModel,
+  setPaginationModel,
+  loading,
+}) {
   return (
     <Card>
       <DataGrid
         autoHeight
+        loading={loading}
         columns={[
           {
             flex: 0.1,
@@ -80,9 +85,11 @@ export default function TableCustomerPos({ setSelectedCustomerPos, setOpen, data
           }
         ]}
         pageSizeOptions={[5, 10,]}
+        paginationMode='server'
+        rowCount={dataCustomer?.pagination?.total || 0}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
-        rows={dataCustomer}
+        rows={dataCustomer?.data || []}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
