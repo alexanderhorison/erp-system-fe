@@ -206,6 +206,48 @@ export const checkStockOpnameWarehouse = createAsyncThunk(
   }
 )
 
+export const exportStockOpname = createAsyncThunk(
+  'appStockOpname/exportStockOpname',
+  async ({ code }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`/export/stock-opname/${code}`, {
+        responseType: 'arraybuffer', // Ensures binary data is received correctly
+      });
+
+      const type = response.headers['content-type'];
+      const contentDisposition = response.headers['content-disposition'];
+
+      // Extract filename from Content-Disposition header
+      let filename = 'Stock Opname.xlsx';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename\*?=["']?([^"';\n]+)["']?/);
+        if (filenameMatch) {
+          filename = decodeURIComponent(filenameMatch[1]); // Decode in case of special characters
+        }
+      }
+
+      // Create Blob from response
+      const blob = new Blob([response.data], { type });
+
+      // Trigger file download
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Cleanup Blob URL
+      window.URL.revokeObjectURL(blobUrl);
+      return { success: true };
+    } catch (error) {
+      console.error('Error exporting:', error);
+      return rejectWithValue('Failed to export. Please try again.');
+    }
+  }
+);
+
 // REDUCER STOCK OPNAME
 export const appStockOpnameSlice = createSlice({
   name: 'appStockOpname',
@@ -223,7 +265,10 @@ export const appStockOpnameSlice = createSlice({
     error: false,
     total: 1,
     params: {},
-    allData: []
+    allData: [],
+
+    loadingExport: false,
+    errorExport: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -261,6 +306,19 @@ export const appStockOpnameSlice = createSlice({
         state.loadingCheckStockOpname = false
         state.error = action.error.message
       })
+
+      // EXPORT
+      .addCase(exportStockOpname.pending, (state) => {
+        state.loadingExport = true;
+        state.errorExport = null;
+      })
+      .addCase(exportStockOpname.fulfilled, (state) => {
+        state.loadingExport = false;
+      })
+      .addCase(exportStockOpname.rejected, (state, action) => {
+        state.loadingExport = false;
+        state.errorExport = action.payload;
+      });
   }
 })
 
