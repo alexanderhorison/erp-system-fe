@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from 'yup'
 import { addMasterDataCustomerPos, fetchCustomerPos } from "src/store/apps/pos";
-import HandleSearch from "src/helpers/handleSearch";
+import { useDebounce } from "src/hooks/useDebounce";
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -32,9 +32,12 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
   const dispatch = useDispatch()
 
   const { listCustomerPos: listDataCustomer, loadingListCustomerPos } = useSelector(state => state.pos)
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 })
+
 
   const [listDataCustomerPos, setListDataCustomerPos] = useState([])
   const [searchText, setSearchText] = useState('')
+  const debouncedSearch = useDebounce(searchText, 200)
 
 
   const [newCustomerField, setNewCustomerField] = useState(false)
@@ -49,7 +52,6 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearch({ data: listDataCustomer, keys: ["name"], searchValue, setData: setListDataCustomerPos })
   }
 
   // SHCEMA YUP VALIDATION
@@ -88,8 +90,12 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
   }
 
   useEffect(() => {
-    dispatch(fetchCustomerPos({}))
-  }, [])
+    dispatch(fetchCustomerPos({
+      page: paginationModel.page + 1,
+      pageSize: paginationModel.pageSize,
+      name: debouncedSearch
+    }))
+  }, [paginationModel, debouncedSearch])
 
   useEffect(() => {
     setListDataCustomerPos(listDataCustomer)
@@ -180,7 +186,14 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
                 errors={errors}
               />
             ) : (
-              <TableCustomerPos dataCustomer={listDataCustomerPos} setSelectedCustomerPos={setSelectedCustomerPos} setOpen={setOpen} />
+              <TableCustomerPos
+                dataCustomer={listDataCustomerPos}
+                setSelectedCustomerPos={setSelectedCustomerPos}
+                setOpen={setOpen}
+                paginationModel={paginationModel}
+                setPaginationModel={setPaginationModel}
+                loading={loadingListCustomerPos}
+              />
             )
           }
         </DialogContent>
