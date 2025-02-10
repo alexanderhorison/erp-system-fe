@@ -39,7 +39,9 @@ export default function TableSalesOrderCustomer() {
 
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  const { dataSalesOrderCustomer: data, loadingDataSalesOrderCustomer: loading } = useSelector(state => state.salesOrder)
+  const { dataSalesOrderCustomer: data, loadingDataSalesOrderCustomer: loading } = useSelector(
+    state => state.salesOrder
+  )
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
@@ -62,9 +64,11 @@ export default function TableSalesOrderCustomer() {
   }
 
   useEffect(() => {
-    dispatch(fetchAllSalesOrderCustomer({
-      id
-    }))
+    dispatch(
+      fetchAllSalesOrderCustomer({
+        id
+      })
+    )
   }, [id])
 
   useEffect(() => {
@@ -79,7 +83,7 @@ export default function TableSalesOrderCustomer() {
         columns={[
           {
             flex: 0.1,
-            minWidth: 100,
+            minWidth: 130,
             field: 'code',
             headerName: 'Kode',
             cellClassName: {
@@ -208,7 +212,7 @@ export default function TableSalesOrderCustomer() {
             value: searchText,
             placeholder: 'Cari sales order',
             clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
+            onChange: event => handleSearch(event.target.value)
           }
         }}
       />

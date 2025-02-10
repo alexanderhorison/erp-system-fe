@@ -41,7 +41,7 @@ export default function DetailCustomer({ data, loading }) {
           {data.name}
         </Typography>
         <Grid container spacing={2} mt={2} justifyContent='center'>
-          <Grid item xs={6}>
+          <Grid item>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <CustomAvatar skin='light' color={'primary'}>
                 <Icon icon={'tabler:shopping-cart'} fontSize='1.5rem' />
@@ -54,7 +54,7 @@ export default function DetailCustomer({ data, loading }) {
               </Box>
             </Box>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <CustomAvatar skin='light' color={'info'}>
                 <Icon icon={'tabler:moneybag'} fontSize='1.5rem' />
