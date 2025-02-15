@@ -204,11 +204,11 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
               p: 2
             }}
           >
-            {data?.listBarterProducts?.length == 0 && (
+            {/* {data?.listBarterProducts?.length == 0 && (
               <Typography sx={{ fontWeight: 800, color: 'text.secondary', textAlign: 'left', ml: 1 }}>
                 Silahkan transfer ke rekening:
               </Typography>
-            )}
+            )} */}
           </Box>
           <Box
             sx={{
@@ -231,7 +231,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
       </TableContainer>
       {data?.listBarterProducts?.length > 0 && (
         <Box className='no-page-break'>
-          <TableContainer sx={{overflow: 'hidden'}}>
+          <TableContainer sx={{ overflow: 'hidden' }}>
             <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 5, fontWeight: 900 }}>
               Barang Barter
             </Typography>
@@ -305,9 +305,9 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
                 p: 2
               }}
             >
-              <Typography sx={{ fontWeight: 800, color: 'text.secondary', textAlign: 'left', ml: 1 }}>
+              {/* <Typography sx={{ fontWeight: 800, color: 'text.secondary', textAlign: 'left', ml: 1 }}>
                 Silahkan transfer ke rekening:
-              </Typography>
+              </Typography> */}
             </Box>
 
             {/* Grand Total Box */}
@@ -332,12 +332,12 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
         </Box>
       )}
 
-      <CardContent sx={{ mt: '-2.5rem' }}>
+      <CardContent sx={{ mt: '-2rem' }}>
         <Grid container sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
           {/* Left Aligned Typography */}
           <Grid item xs={6} lg={6} md={6} sx={{ textAlign: 'left' }}>
             <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
-              <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>{companyInfo.bank}</Typography>
+              {/* <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>{companyInfo.bank}</Typography> */}
             </Box>
           </Grid>
 
@@ -362,6 +362,21 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
           </Grid>
         </Grid>
       </CardContent>
+
+      <Box
+        sx={{
+          display: 'flex-col',
+          textAlign: 'left',
+          gap: 2,
+          ml: 4,
+          mt: -4
+          // maxWidth: '100%', // Ensure it doesn't go beyond container width
+          // overflow: 'hidden' // Avoid any overflow from this box
+        }}
+      >
+        <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>Silahkan transfer ke rekening:</Typography>
+        <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>{companyInfo.bank}</Typography>
+      </Box>
 
       <div className='no-page-break'>
         <CardContent sx={{ px: [6, 10], pageBreakInside: 'avoid' }}>
