@@ -14,7 +14,6 @@ const pdfFormData = async (cardElement, module, code, namePdf, additionSubjectTe
     // cardElement.style.height = 'auto' // Allow height to auto to fit content
     // cardElement.style.overflow = 'visible' // Ensure all content is visible
     // cardElement.style.margin = '0';
-
     // const canvas = await html2canvas(cardElement, {
     //   scale: 2.5, // Higher scale for better quality
     //   width: cardElement.scrollWidth,
@@ -26,15 +25,12 @@ const pdfFormData = async (cardElement, module, code, namePdf, additionSubjectTe
     // const pdf = new jsPDF('p', 'mm', 'a4') // A4 format
     // const pageWidth = pdf.internal.pageSize.getWidth()
     // const pageHeight = pdf.internal.pageSize.getHeight()
-
     // const margin = 10
     // const horizontalMargin = 15
     // const imgWidth = pageWidth - horizontalMargin * 2
     // const imgHeight = (canvas.height * imgWidth) / canvas.width
-
     // let position = margin // Start position from top with margin
     // const maxHeight = pageHeight - margin * 2 // Leave some margin from bottom
-
     // while (position < imgHeight) {
     //   const scaledHeight = Math.min(imgHeight - position, maxHeight)
     //   pdf.addImage(imgData, 'PNG', 15, position, imgWidth, scaledHeight, undefined, 'SLOW')
@@ -102,31 +98,31 @@ const downloadPdf = async (cardElement, code, setIsShow, setIsDownload, setIsDow
 // DIRECT DOWNLOAD
 const handlePrintDownload = async ({ url, id, setIsLoading }) => {
   try {
-    setIsLoading(true); // Start loading
+    setIsLoading(true) // Start loading
 
     // Fetch the PDF from the backend
-    const response = await axios.get(`/export/${url}/${id}`, {
-      responseType: 'blob', // Ensure the response is treated as a binary file (Blob)
-    });
+    const response = await axios.get(`/export/${url}/${id}`);
 
-    const contentDisposition = response.headers['content-disposition'];
-    const filenameMatch = contentDisposition?.match(/filename\*?=["']?([^"';\n]+)["']?/);
+    if (!response.data.status) {
+      throw new Error('Failed to fetch PDF');
+    }
+    const { data: pdfBase64, fileName, mimeType } = response.data;
 
-    const filename = filenameMatch ? filenameMatch[1] : `${url}-${id}.pdf`;
+    const byteCharacters = atob(pdfBase64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: mimeType});
 
-    // Create a blob URL and download link
-    const blob = new Blob([response.data], { type: 'application/pdf' });
     const urlBlob = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
-
     link.href = urlBlob;
-    link.download = filename; // Use filename from BE or default
-
+    link.download = fileName;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
-    // Cleanup
     window.URL.revokeObjectURL(urlBlob);
 
     setIsLoading(false); // Done
