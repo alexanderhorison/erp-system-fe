@@ -29,7 +29,7 @@ export default function SummaryCustomer() {
 
   const renderStats = () => {
     return data?.slice(2)?.map((item, index) => (
-      <Grid item xs={6}>
+      <Grid item xs={6} key={index}>
         <Card sx={{ textAlign: 'center' }}>
           <CardContent>
             <CustomAvatar skin='light' color={color[item.name]} sx={{ mr: 4, width: 42, height: 42 }}>

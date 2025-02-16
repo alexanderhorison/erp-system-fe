@@ -8,6 +8,7 @@ import Alert from '@mui/material/Alert'
 // ** Demo Components Imports
 import { fetchDetailPointOfSale } from 'src/store/apps/pos'
 import GeneratePdfPrintOfSale from 'src/views/point-of-sale/transaction/GeneratePdfPrintOfSale'
+import { Box, CircularProgress, Typography } from '@mui/material'
 
 const PrintPointOfSale = ({ id }) => {
   const dispatch = useDispatch()

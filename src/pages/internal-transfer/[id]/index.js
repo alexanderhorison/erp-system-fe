@@ -14,7 +14,7 @@ import { fetchDetailInternalTransfer } from 'src/store/apps/internal-transfer'
 import ToolbarInternalTransfer from 'src/views/internalTransfer/ToolbarInternalTransfer'
 import PageDetailInternalTransfer from 'src/views/internalTransfer/PageDetailInternalTransfer'
 import ButtonBack from 'src/views/common/ButtonBack'
-DetailInternalTransfer
+
 export default function DetailInternalTransfer({ }) {
   const dispatch = useDispatch()
   const router = useRouter()

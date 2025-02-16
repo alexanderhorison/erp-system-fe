@@ -21,8 +21,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { fetchDetailReceiptOrderOutstanding } from 'src/store/apps/receipt-order-outstanding'
 import { useTheme } from '@mui/system'
-import { CircularProgress } from '@mui/material'
+import { Alert, CircularProgress } from '@mui/material'
 import HeaderReceiptOrderOutstanding from './HeaderReceiptOrderOutstanding'
+import Link from 'next/link'
 
 export default function PrintReceiptOrderOutstanding({ code }) {
   // ** Hook

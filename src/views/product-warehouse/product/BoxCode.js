@@ -18,10 +18,12 @@ export default function BoxCode({
   const code = value?.split(':')[1] || "-";
   const message = value?.split(':')[0] || "-";
 
+  const haveAccess = true;
+
   // CHANGE LATER IF NEED USER ACCESS
-  const haveAccess = useMemo(() => {
-    return true
-  }, [])
+  // const haveAccess = useMemo(() => {
+  //   // return true
+  // }, [])
 
 
   return (

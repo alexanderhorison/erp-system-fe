@@ -5,7 +5,7 @@ import Icon from 'src/@core/components/icon'
 import { useDispatch, useSelector } from 'react-redux'
 import { exportAllStock } from 'src/store/apps/product-warehouse'
 
-export default function homeProductWarehouse() {
+export default function HomeProductWarehouse() {
   const dispatch = useDispatch()
   const { isExporting } = useSelector(state => state.productWarehouse)
 

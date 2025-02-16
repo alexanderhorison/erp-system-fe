@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchHistoryProduct } from 'src/store/apps/product-warehouse'
 import ButtonBack from 'src/views/common/ButtonBack'
 import TableHistoryProduct from 'src/views/product-warehouse/product/TableHistoryProduct'
+
 export default function HomeProduct() {
   const router = useRouter()
   const dispatch = useDispatch()
