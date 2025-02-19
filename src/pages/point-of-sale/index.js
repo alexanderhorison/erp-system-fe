@@ -1,6 +1,6 @@
 import { Card, Grid } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { fetchDataMasterCategory } from 'src/store/apps/master/category'
 import { fetchMasterDataCompany } from 'src/store/apps/master/company'
 import { fetchMasterDataType } from 'src/store/apps/master/type'
@@ -12,6 +12,8 @@ import OpenBillLayout from 'src/views/point-of-sale/open-bill/OpenBillLayout'
 import { UseAuth } from 'src/hooks/useAuth'
 import MenuPosV2 from 'src/views/point-of-sale/MenuPosV2'
 import DetailUserPos from 'src/views/point-of-sale/DetailUserPos'
+import { connectToPrinter } from 'src/utils/printerHelper'
+import { fetchConfigPrinter } from 'src/store/apps/config'
 
 export default function PointOfSale() {
   const dispatch = useDispatch()
@@ -19,6 +21,7 @@ export default function PointOfSale() {
   const [showFilter, setShowFilter] = useState(true)
   const [showButtonFilter, setShowButtonFilter] = useState(true)
   const [warehouse, setWarehouse] = useState(localStorage.getItem('warehousePos') ? JSON.parse(localStorage.getItem('warehousePos')) : {})
+  const { printerConfig, loadingPrinterConfig, printerStatus } = useSelector(state => state.config)
 
   const listMenuPos = [
     {
@@ -65,6 +68,22 @@ export default function PointOfSale() {
       localStorage.setItem('warehousePos', JSON.stringify({ warehouseId: user?.warehouseId, warehouseName: user?.warehouseName }))
     }
   }, [user])
+
+  useEffect(() => {
+    if (printerConfig && !printerStatus.connected) {
+      connectToPrinter({
+        ipAddress: printerConfig.ip,
+        port: printerConfig.port,
+        dispatch: dispatch,
+      })
+    }
+  }, [loadingPrinterConfig]);
+
+  useEffect(() => {
+    if (!printerConfig) {
+      dispatch(fetchConfigPrinter({}))
+    }
+  }, [])
 
   return (
     <Grid container spacing={3}>
