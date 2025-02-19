@@ -1,14 +1,20 @@
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
+import { connect, useSelector } from 'react-redux'
 
 export default function TableHeaderPointOfSale(props) {
+  const { printerStatus } = useSelector(state => state.config)
+  const isConnected = printerStatus.connected
+  const isLoading = printerStatus.loading
+
   return (
     <Box
       sx={{
@@ -46,6 +52,18 @@ export default function TableHeaderPointOfSale(props) {
           }
         }}
       />
+
+      {/* Status Printer dengan Ikon */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Icon
+          fontSize='0.8rem'
+          icon={isConnected ? 'tabler:circle-check' : 'tabler:circle-x'}
+          style={{ color: isConnected ? 'green' : 'red' }}
+        />
+        <Typography fontSize={'0.8rem'} sx={{ fontWeight: 400, textWrap: 'nowrap' }}>
+          Status Printer: ({isLoading ? 'Loading...' : isConnected ? 'Online' : 'Offline'})
+        </Typography>
+      </Box>
     </Box>
   )
 }

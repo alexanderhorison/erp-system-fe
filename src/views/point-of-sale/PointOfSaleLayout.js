@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import { priceFormat, priceFormatWithZero } from 'src/helpers/priceFormatter'
 import ModalAddProductPos from './ModalAddProductPos'
@@ -18,6 +18,9 @@ import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
 import ModalEditProductPos from './ModalEditProductPos'
 import ProductCustomField from './ProductCustomField'
 import { autoSavePos, generateIdOpenBill } from 'src/helpers/pos/autoSavePos'
+import Script from 'next/script'
+import { connectToPrinter } from 'src/utils/printerHelper'
+import { fetchConfigPrinter } from 'src/store/apps/config'
 
 // Kedepannya jika tambah filter, bisa tambahkan field ini
 const listFilter = [
@@ -46,10 +49,12 @@ export default function PointOfSaleLayout({
   warehouse,
   setShowButtonFilter,
 }) {
+  const dispatch = useDispatch()
 
   const { data: companyData, loading } = useSelector(state => state.company)
   const { data: typeData } = useSelector(state => state.type)
   const { data: categoryData } = useSelector(state => state.category)
+  const { printerConfig, loadingPrinterConfig, printerStatus } = useSelector(state => state.config)
 
   const { listProductPos } = useSelector(state => state.pos)
 
@@ -252,6 +257,22 @@ export default function PointOfSaleLayout({
     const billId = JSON.parse(localStorage.getItem('billId'))
     if (!billId) {
       localStorage.setItem('billId', JSON.stringify(generateIdOpenBill()))
+    }
+  }, [])
+
+  useEffect(() => {
+    if (printerConfig && !printerStatus.connected) {
+      connectToPrinter({
+        ipAddress: printerConfig.ip,
+        port: printerConfig.port,
+        dispatch: dispatch,
+      })
+    }
+  }, [loadingPrinterConfig]);
+
+  useEffect(() => {
+    if (!printerConfig) {
+      dispatch(fetchConfigPrinter({}))
     }
   }, [])
 
@@ -544,6 +565,11 @@ export default function PointOfSaleLayout({
           </Grid>
         </Grid>
       </Grid>
+      <Script
+        src="/epos-2.27.0.js"
+        strategy="afterInteractive"
+        onLoad={() => console.log("📜 ePOS SDK Loaded")}
+      />
     </Grid>
   )
 }

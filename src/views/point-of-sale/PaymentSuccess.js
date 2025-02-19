@@ -1,5 +1,7 @@
 import React from 'react'
 import { Box, Typography, Button, Stack } from '@mui/material'
+import { printItem, printPointOfSale } from 'src/utils/printerHelper'
+import { useDispatch } from 'react-redux'
 
 export default function PaymentSuccess({
   alreadyPayment,
@@ -10,8 +12,9 @@ export default function PaymentSuccess({
   totalAmount,
   dataPayment
 }) {
+  const dispatch = useDispatch()
   const handlePrintReceipt = () => {
-    window.open(`/point-of-sale/print/${dataPayment.code}`, '_blank')
+    printPointOfSale(dispatch, dataPayment.code)
   }
 
   const handleNewSale = () => {
