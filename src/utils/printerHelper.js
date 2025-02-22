@@ -9,8 +9,8 @@ let printer = null;
 let connected = false;
 
 export const connectToPrinter = ({
-  ipAddress = "10.147.17.11",
-  port = "8008",
+  ipAddress = "192.168.1.123", // Default to localhost
+  port = "8043", // 8008 HTTP - 8043 HTTPS
   dispatch,
 }) => {
   return new Promise((resolve, reject) => {
@@ -34,7 +34,7 @@ export const connectToPrinter = ({
 
     ePosDev.connect(ipAddress, port, (data) => {
       dispatch(setPrinterStatus({ loading: true }));
-      if (data === "OK") {
+      if (data === "OK" || data === "SSL_CONNECT_OK") {
         console.log("✅ Terhubung ke printer!");
         connected = true;
         ePosDev.createDevice(
@@ -55,6 +55,7 @@ export const connectToPrinter = ({
           }
         );
       } else {
+        console.log("❌ Gagal terhubung ke printer:", data);
         dispatch(setPrinterStatus({ connected: false, loading: false, error: data }));
         reject(data);
       }
