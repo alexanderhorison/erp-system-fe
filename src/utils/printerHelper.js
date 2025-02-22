@@ -21,6 +21,8 @@ export const connectToPrinter = ({
       return;
     }
 
+    console.log("📡 Mencoba terhubung ke printer...");
+
     if (connected) {
       console.log("✅ Sudah terhubung ke printer.");
       dispatch(setPrinterStatus({ connected: true, loading: false }));
