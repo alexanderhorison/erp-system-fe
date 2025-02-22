@@ -8,13 +8,20 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { connect, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { Button, CircularProgress } from '@mui/material'
+import { connectToPrinter } from 'src/utils/printerHelper'
 
 export default function TableHeaderPointOfSale(props) {
-  const { printerStatus } = useSelector(state => state.config)
+  const dispatch = useDispatch()
+  const { printerConfig, loadingPrinterConfig, printerStatus } = useSelector(state => state.config)
+
   const isConnected = printerStatus.connected
   const isLoading = printerStatus.loading
 
+  const handleReconnect = () => {
+    connectToPrinter({ printerConfig, dispatch })
+  }
   return (
     <Box
       sx={{
@@ -61,8 +68,31 @@ export default function TableHeaderPointOfSale(props) {
           style={{ color: isConnected ? 'green' : 'red' }}
         />
         <Typography fontSize={'0.8rem'} sx={{ fontWeight: 400, textWrap: 'nowrap' }}>
-          Status Printer: ({isLoading ? 'Loading...' : isConnected ? 'Online' : 'Offline'})
+          Status Printer: {isLoading ? (<CircularProgress size={14} color="inherit" />) : isConnected ? '(Online)' : '(Offline)'}
         </Typography>
+        {/* Button Reconnect */}
+        {!isConnected && !isLoading && (
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            sx={{
+              textTransform: 'none',
+              fontSize: '0.75rem',
+              padding: '2px 8px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}
+            onClick={handleReconnect}
+            disabled={isLoading} // Tombol dinonaktifkan saat loading
+          >
+            {isLoading ? <CircularProgress size={14} color="inherit" /> : 'Reconnect'}
+
+            {!isLoading && <Icon icon="tabler:refresh" />}
+          </Button>
+        )}
+
       </Box>
     </Box>
   )

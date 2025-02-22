@@ -40,13 +40,6 @@ export default function PointOfSale() {
 
   const [selectedMenu, setSelectedMenu] = useState(listMenuPos[0])
 
-  const handleChangeQuery = ({ key, value, name }) => {
-    setWarehouse(prev => ({ ...prev, [key]: value }))
-    localStorage.setItem('warehousePos', JSON.stringify({ warehouseId: value, warehouseName: name }))
-    localStorage.removeItem('listProductPos')
-    dispatch(fetchListProductPos({ id: value }))
-  }
-
   useEffect(() => {
     dispatch(fetchMasterDataType())
     dispatch(fetchDataMasterCategory())
@@ -72,8 +65,7 @@ export default function PointOfSale() {
   useEffect(() => {
     if (printerConfig && !printerStatus.connected) {
       connectToPrinter({
-        ipAddress: printerConfig.ip,
-        port: printerConfig.port,
+        printerConfig: printerConfig,
         dispatch: dispatch,
       })
     }

@@ -9,8 +9,7 @@ let printer = null;
 let connected = false;
 
 export const connectToPrinter = ({
-  ipAddress = "192.168.1.123", // Default to localhost
-  port = "8043", // 8008 HTTP - 8043 HTTPS
+  printerConfig,
   dispatch,
 }) => {
   return new Promise((resolve, reject) => {
@@ -32,8 +31,8 @@ export const connectToPrinter = ({
 
     ePosDev = new window.epson.ePOSDevice();
 
-    ePosDev.connect(ipAddress, port, (data) => {
-      dispatch(setPrinterStatus({ loading: true }));
+    dispatch(setPrinterStatus({ loading: true }));
+    ePosDev.connect(printerConfig?.domain_type === "IP" ? printerConfig.ip : printerConfig?.domain, printerConfig?.port, (data) => {
       if (data === "OK" || data === "SSL_CONNECT_OK") {
         console.log("✅ Terhubung ke printer!");
         connected = true;
