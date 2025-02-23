@@ -1,5 +1,5 @@
 import { Card, CardContent, Grid, IconButton, Typography } from "@mui/material";
-import React from "react";
+import React, { useMemo } from "react";
 import { Controller } from "react-hook-form";
 import { priceFormatWithZero } from 'src/helpers/priceFormatter'
 import Icon from 'src/@core/components/icon'
@@ -18,6 +18,16 @@ export default function CartProductPos({
   setSelectedProductEdit,
   handleDeleteCustom,
 }) {
+  const viewportHeight = window.innerHeight;
+  const maxHeight = useMemo(() => {
+    if (viewportHeight >= 1080) {
+      return '47vh'
+    }
+    if (viewportHeight >= 768) {
+      return '39.5vh'
+    }
+    return '32vh'
+  }, [viewportHeight])
   const handleOpenEditProduct = (item, index) => {
     if (item?.isCustom) {
       swalConfirmationOnly({
@@ -45,7 +55,7 @@ export default function CartProductPos({
     <Card
       sx={{
         border: 1,
-        maxHeight: '45vh',
+        maxHeight: maxHeight,
         overflowY: 'auto',
         minHeight: 150
       }}
@@ -82,13 +92,17 @@ export default function CartProductPos({
                       >
                         {helperTextPrice(index).detailItem}
                       </Typography>
-                      <Typography
-                        variant='body2'
-                        color='textSecondary'
-                        sx={{ marginTop: '4px' }}
-                      >
-                        Notes: {item?.notes}
-                      </Typography>
+                      {
+                        item?.notes && (
+                          <Typography
+                            variant='body2'
+                            color='textSecondary'
+                            sx={{ marginTop: '4px' }}
+                          >
+                            Notes: {item?.notes}
+                          </Typography>
+                        )
+                      }
                     </div>
                   )}
                 />
