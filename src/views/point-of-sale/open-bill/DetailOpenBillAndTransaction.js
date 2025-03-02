@@ -43,7 +43,7 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
       temp.warehouseName = data?.warehouseName
       temp.status = data?.status
       temp.code = data?.code
-      temp.totalQuantity = data?.totalQuantity
+      temp.totalQuantity = data?.totalItems
       temp.change = data?.totalPayment - data?.grandTotal
       temp.createdAt = data?.createdAt
     }
