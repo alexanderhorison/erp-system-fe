@@ -512,15 +512,25 @@ export default function PointOfSaleLayout({
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            <Button disabled={disableButtonCharge} fullWidth variant={'outlined'} onClick={handleSaveBill}>
-              Next Bill {priceFormat(getValues('grandTotal'))}
-            </Button>
+            <Grid container spacing={4}>
+              <Grid item xs={6}>
+                <Button disabled={disableButtonCharge} fullWidth variant={'outlined'} onClick={handleSaveBill}>
+                  Next Bill {priceFormat(getValues('grandTotal'))}
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button disabled={disableButtonCharge} fullWidth variant={'contained'} onClick={handleClickCharge}>
+                  Charge {priceFormat(getValues('grandTotal'))}
+                </Button>
+              </Grid>
+            </Grid>
           </Grid>
           <Grid item xs={12}>
             <Button
               disabled={disableButtonClear}
               fullWidth
-              variant={'contained'}
+              // variant={'contained'}
+              sx={{ backgroundColor: '#d6bdab' }}
               onClick={() => {
                 swalConfirmationOnly({
                   title: 'Yakin menghapus keranjang?',
@@ -535,11 +545,6 @@ export default function PointOfSaleLayout({
               }}
             >
               Clear
-            </Button>
-          </Grid>
-          <Grid item xs={12}>
-            <Button disabled={disableButtonCharge} fullWidth variant={'contained'} onClick={handleClickCharge}>
-              Charge {priceFormat(getValues('grandTotal'))}
             </Button>
           </Grid>
         </Grid>

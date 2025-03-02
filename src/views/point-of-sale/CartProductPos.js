@@ -20,13 +20,17 @@ export default function CartProductPos({
 }) {
   const viewportHeight = window.innerHeight;
   const maxHeight = useMemo(() => {
-    if (viewportHeight >= 1080) {
-      return '47vh'
+    console.log(viewportHeight);
+    if (viewportHeight >= 1024) { // FHD
+      return '50.5vh'
     }
     if (viewportHeight >= 768) {
-      return '39.5vh'
+      return '45.9vh'
     }
-    return '32vh'
+    if (viewportHeight >= 600) {
+      return '40.9vh'
+    }
+    return '35.9vh'
   }, [viewportHeight])
   const handleOpenEditProduct = (item, index) => {
     if (item?.isCustom) {
