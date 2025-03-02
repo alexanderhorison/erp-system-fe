@@ -159,12 +159,12 @@ export default function TablePointOfSale({ timeFilter }) {
             {
               flex: 0.16,
               minWidth: 120,
-              field: 'totalQuantity',
+              field: 'totalItems',
               headerName: 'Total Item',
               renderCell: params => {
                 return (
                   <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.totalQuantity}
+                    {params.row.totalItems}
                   </Typography>
                 )
               }
