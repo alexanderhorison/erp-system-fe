@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalNotifSuccess, swalToastError } from 'src/helpers/swalFunction'
 import { fetchMasterDataCustomer } from '../master/customer'
 import { swalConfirmationChargePos } from 'src/helpers/swalFunctionPos'
 
@@ -98,7 +98,8 @@ export const addMasterDataCustomerPos = createAsyncThunk(
       if (customer) {
         setSelectedCustomerPos({
           id: customer.id,
-          name: customer.name
+          name: customer.name,
+          email: customer.email ?? ''
         })
         localStorage.setItem('selectedCustomerPos', JSON.stringify({ id: customer.id, name: customer.name }))
       }
@@ -117,7 +118,7 @@ export const fetchCustomerPos = createAsyncThunk(
       const response = await axios({
         method: 'GET',
         url: '/master/customer/all-pos',
-        params,
+        params
       })
       return response.data
     } catch (error) {
@@ -203,6 +204,24 @@ export const fetchDetailPointOfSale = createAsyncThunk(
     }
   }
 )
+
+export const sendEmailPos = createAsyncThunk('appProductPos/sendEmail', async (formData, { rejectWithValue }) => {
+  try {
+    // Prepare form data
+    const response = await axios({
+      method: 'POST',
+      url: '/send-email-pos/',
+      data: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data' // Set the correct header for file uploads
+      }
+    })
+    swalNotifSuccess({ message: response?.data?.message })
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
 
 export const appPosSlice = createSlice({
   name: 'appProductPos',
