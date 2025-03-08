@@ -227,7 +227,7 @@ export default function ModalChargePos({
           </CustomCloseButton>
           {
             alreadyPayment ? (
-              <PaymentSuccess alreadyPayment={alreadyPayment} totalPayment={priceFormat(getValues('amount'))} totalAmount={priceFormat(subTotalPrice())} change={getValues('amount') - subTotalPrice()} setOpen={setOpen} resetAll={resetAllField} dataPayment={dataSuccessPayment} />
+              <PaymentSuccess alreadyPayment={alreadyPayment} customer={customer} totalPayment={priceFormat(getValues('amount'))} totalAmount={priceFormat(subTotalPrice())} change={getValues('amount') - subTotalPrice()} setOpen={setOpen} resetAll={resetAllField} dataPayment={dataSuccessPayment} />
             ) : (
               <>
                 <Box sx={{ textAlign: 'center' }}>

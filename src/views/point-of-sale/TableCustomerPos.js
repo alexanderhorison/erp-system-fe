@@ -3,10 +3,11 @@ import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 import { autoSavePos } from 'src/helpers/pos/autoSavePos'
 
-const RowOptions = ({ id, name, setSelectedCustomerPos, setOpen }) => {
+const RowOptions = ({ id, name, email, setSelectedCustomerPos, setOpen }) => {
+  let customerEmail = email || "";
   const handleAddCustomerPos = () => {
-    setSelectedCustomerPos({ id, name })
-    localStorage.setItem('selectedCustomerPos', JSON.stringify({ id, name }))
+    setSelectedCustomerPos({ id, name, email: customerEmail })
+    localStorage.setItem('selectedCustomerPos', JSON.stringify({ id, name, email: customerEmail }))
     autoSavePos()
     setOpen(false)
   }
@@ -81,7 +82,7 @@ export default function TableCustomerPos({
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} setSelectedCustomerPos={setSelectedCustomerPos} setOpen={setOpen} />
+            renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} email={row.email} setSelectedCustomerPos={setSelectedCustomerPos} setOpen={setOpen} />
           }
         ]}
         pageSizeOptions={[5, 10,]}

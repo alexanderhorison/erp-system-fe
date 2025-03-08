@@ -334,7 +334,9 @@ export const exportAllStock = createAsyncThunk(
       const contentDisposition = response.headers['content-disposition']
 
       // Extract filename from Content-Disposition header
-      let filename = 'Export Stock.xlsx'
+      const currentDate = new Date()
+      const formattedDate = currentDate.toISOString().split('T')[0].replace(/-/g, '') // YYYYMMDD format
+      let filename = `Current Stock - ${formattedDate}.xlsx`
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename\*?=["']?([^"';\n]+)["']?/)
         if (filenameMatch) {

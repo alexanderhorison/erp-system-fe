@@ -43,7 +43,7 @@ export default function HomeProductWarehouseId() {
             ) : (
               <>
                 <Icon fontSize='1.125rem' icon='tabler:download' />
-                Export Stock
+                Export Current Stock
               </>
             )}
           </Button>
