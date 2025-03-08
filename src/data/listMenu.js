@@ -196,7 +196,13 @@ export const listMenu = [
   },
   {
     sectionTitle: 'Pengguna & Otoritas',
-    menuId: [1, 2]
+    menuId: [1, 2, 28]
+  },
+  {
+    title: 'Printer Setting',
+    icon: 'tabler:printer',
+    path: '/settings/printer',
+    menuId: 28
   },
   {
     title: 'Pengguna',

@@ -19,7 +19,6 @@ export const fetchConfigPrinter = createAsyncThunk('appDashboard/fetchConfigPrin
   }
 })
 
-
 // REDUCER CONFIG
 export const appPrinterSlice = createSlice({
   name: 'appPrinter',

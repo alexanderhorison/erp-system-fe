@@ -211,6 +211,12 @@ export default function DetailRole() {
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
                 />
+                <MenuItem
+                  name={"Printer Setting"}
+                  menuId={28}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
                 <MenuTitle name={"Point Of Sale"} />
                 <MenuItem
                   name={"Point Of Sale"}

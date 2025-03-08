@@ -35,9 +35,7 @@ export async function swalConfirmationChargePos({ label, text, width = 300, name
 }
 
 export async function swalConfirmationOnly({
-  label,
   text,
-  name = 'Data',
   onClickYes = () => { },
   onClickNo = () => { },
   title,
