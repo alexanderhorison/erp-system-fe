@@ -121,7 +121,9 @@ export default function AddPurchaseOrder({}) {
     setValue,
     setError,
     getValues,
-    watch
+    watch,
+    clearErrors,
+    trigger,
   } = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema)
@@ -164,13 +166,17 @@ export default function AddPurchaseOrder({}) {
 
   // ** Calculate Totals
   const calculateTotals = () => {
+
+    const updatedFormField = getValues('data') // Fetch latest form values
+    const updatedFormBarter = getValues('barterProduct')
+
     // Calculate Purchase Order total
-    const purchaseOrderTotal = formField?.reduce((acc, item) => {
+    const purchaseOrderTotal = updatedFormField?.reduce((acc, item) => {
       return acc + Number(item.quantity) * Number(item.price)
     }, 0)
 
     // Calculate Barter Product total
-    const barterTotal = formBarter?.reduce((acc, item) => {
+    const barterTotal = updatedFormBarter?.reduce((acc, item) => {
       return acc + Number(item.quantity) * Number(item.price)
     }, 0)
 
@@ -398,6 +404,14 @@ export default function AddPurchaseOrder({}) {
       // if price exist then switch to replace
       if (payload.data) {
         setValue(`${fieldName}[${index}].price`, payload.data.basePrice)
+        const dataIndex = getValues(`${fieldName}[${index}]`)
+        setValue(`${fieldName}[${index}].subTotal`, Number(dataIndex.price) * dataIndex.quantity, {
+          shouldValidate: true, // Ensures validation runs
+          shouldDirty: true
+        })
+        setTimeout(() => {
+          calculateTotals();
+        }, 0);
       } else {
         setValue(`${fieldName}[${index}].price`, '')
       }
@@ -426,6 +440,16 @@ export default function AddPurchaseOrder({}) {
 
   const handleSaveTransformData = (index, data) => {
     setLastTransformData(prev => ({ ...prev, [index]: data }))
+  }
+  
+  const handleResetValueAndForm = ({fieldName, index}) => {
+    setValue(`${fieldName}[${index}].subTotal`, '')
+    setValue(`${fieldName}[${index}].quantity`, '')
+    setValue(`${fieldName}[${index}].price`, '')
+    clearErrors(`${fieldName}.${index}.subTotal`);
+    clearErrors(`${fieldName}.${index}.quantity`);
+    clearErrors(`${fieldName}.${index}.price`);
+    calculateTotals()
   }
 
   return (
@@ -876,6 +900,10 @@ export default function AddPurchaseOrder({}) {
                                         index,
                                         fieldName: 'barterProduct'
                                       })
+                                      handleResetValueAndForm({
+                                        fieldName: 'barterProduct',
+                                        index,
+                                      })
                                     } else {
                                       setValue(`barterProduct[${index}].qty`, '')
                                       setValue(`barterProduct[${index}].masterProductId`, '')
@@ -945,6 +973,8 @@ export default function AddPurchaseOrder({}) {
                                   const newSubTotal = newQuantity * currentPrice
 
                                   onChange(newQuantity || '')
+                                  // to trigger transform
+                                  trigger(`barterProduct[${index}].quantity`)
                                   if (parseInt(newSubTotal, 10) > 0) {
                                     setHelperTextChanges(!helperTextChanges)
                                     setValue(`barterProduct[${index}].subTotal`, newSubTotal)
