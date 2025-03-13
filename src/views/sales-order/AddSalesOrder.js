@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Card, CardContent, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
@@ -19,7 +19,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
-import { Box } from '@mui/system'
+import { Box, getValue } from '@mui/system'
 import ModalTransformProductSalesOrder from './ModalTransformProductSalesOrder'
 import ModalAddMasterCustomer from '../master/customer/ModalAddMasterCustomer'
 
@@ -112,7 +112,9 @@ export default function AddSalesOrder({}) {
     setValue,
     setError,
     getValues,
-    watch
+    watch,
+    clearErrors,
+    trigger
   } = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema)
@@ -210,18 +212,17 @@ export default function AddSalesOrder({}) {
     setOpenModalTransformation(true)
   }
 
-  useEffect(() => {
-    calculateTotals()
-  }, [formField, formBarter])
-
   const calculateTotals = () => {
     // Calculate Sales Order total
-    const salesOrderTotal = formField?.reduce((acc, item) => {
+    const updatedFormField = getValues('data') // Fetch latest form values
+    const updatedFormBarter = getValues('barterProduct')
+
+    const salesOrderTotal = updatedFormField?.reduce((acc, item) => {
       return acc + Number(item.quantity) * Number(item.price)
     }, 0)
 
     // Calculate Barter Product total
-    const barterTotal = formBarter?.reduce((acc, item) => {
+    const barterTotal = updatedFormBarter?.reduce((acc, item) => {
       return acc + Number(item.quantity) * Number(item.price)
     }, 0)
 
@@ -230,6 +231,10 @@ export default function AddSalesOrder({}) {
     setValue('grandTotalCustomer', salesOrderTotal) // Update total sales order
     setValue('grandTotalBarter', barterTotal) // Update total barter
   }
+
+  useEffect(() => {
+    calculateTotals()
+  }, [formField, formBarter])
 
   useEffect(() => {
     if (fields.length === 0) {
@@ -387,10 +392,28 @@ export default function AddSalesOrder({}) {
       // if price exist then switch to replace
       if (payload.data) {
         setValue(`${fieldName}[${index}].price`, payload.data.basePrice)
+        const dataIndex = getValues(`${fieldName}[${index}]`)
+        setValue(`${fieldName}[${index}].subTotal`, Number(dataIndex.price) * dataIndex.quantity, {
+          shouldValidate: true, // Ensures validation runs
+          shouldDirty: true
+        })
+        setTimeout(() => {
+          calculateTotals();
+        }, 0);
       } else {
         setValue(`${fieldName}[${index}].price`, '')
       }
     })
+  }
+
+  const handleResetValueAndForm = ({ fieldName, index }) => {
+    setValue(`${fieldName}[${index}].subTotal`, '')
+    setValue(`${fieldName}[${index}].quantity`, '')
+    setValue(`${fieldName}[${index}].price`, '')
+    clearErrors(`${fieldName}.${index}.subTotal`)
+    clearErrors(`${fieldName}.${index}.quantity`)
+    clearErrors(`${fieldName}.${index}.price`)
+    calculateTotals()
   }
 
   return (
@@ -553,6 +576,10 @@ export default function AddSalesOrder({}) {
                                         index,
                                         fieldName: 'data'
                                       })
+                                      handleResetValueAndForm({
+                                        fieldName: 'data',
+                                        index
+                                      })
                                     } else {
                                       setValue(`data[${index}].qty`, '')
                                       setValue(`data[${index}].masterProductId`, '')
@@ -621,6 +648,8 @@ export default function AddSalesOrder({}) {
                                   const currentPrice = formField[index].price || 0
                                   const newSubTotal = newQuantity * currentPrice
                                   onChange(newQuantity || '')
+                                  // to trigger transform
+                                  trigger(`data[${index}].quantity`)
                                   if (parseInt(newSubTotal, 10) > 0) {
                                     setHelperTextChanges(!helperTextChanges)
                                     setValue(`data[${index}].subTotal`, newSubTotal)
@@ -824,6 +853,10 @@ export default function AddSalesOrder({}) {
                                         index,
                                         fieldName: 'barterProduct'
                                       })
+                                      handleResetValueAndForm({
+                                        fieldName: 'barterProduct',
+                                        index
+                                      })
                                     } else {
                                       setValue(`barterProduct[${index}].qty`, '')
                                       setValue(`barterProduct[${index}].masterProductId`, '')
@@ -913,23 +946,6 @@ export default function AddSalesOrder({}) {
                                   formStateField: formBarter,
                                   onChange
                                 })
-                                // const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
-                                // const newPrice = +rawValue
-                                // const currentQuantity = formBarter[index].quantity || 0
-                                // const newSubTotal = currentQuantity * newPrice
-
-                                // // Update the price and the subtotal
-                                // onChange(rawValue)
-                                // if (parseInt(newSubTotal, 10) > 0) {
-                                //   setValue(`barterProduct[${index}].subTotal`, newSubTotal)
-                                // }
-                                // if (
-                                //   formBarter[index].quantity &&
-                                //   formBarter[index].price &&
-                                //   parseInt(formBarter[index].quantity, 10) > 0
-                                // ) {
-                                //   calculateTotals()
-                                // }
                               }}
                               type='text'
                               sx={{ display: 'block' }}
