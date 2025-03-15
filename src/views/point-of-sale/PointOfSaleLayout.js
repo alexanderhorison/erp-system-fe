@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import { priceFormat, priceFormatWithZero } from 'src/helpers/priceFormatter'
 import ModalAddProductPos from './ModalAddProductPos'
@@ -45,7 +45,7 @@ export default function PointOfSaleLayout({
   showFilter,
   setShowFilter,
   warehouse,
-  setShowButtonFilter,
+  setScriptEpos,
 }) {
   const { data: companyData, loading } = useSelector(state => state.company)
   const { data: typeData } = useSelector(state => state.type)
@@ -201,7 +201,6 @@ export default function PointOfSaleLayout({
     setValueFilter('typeProduct', 'custom')
     setShowFilter(false)
     setShowProduct(false)
-    setShowButtonFilter(false)
   }
 
   const handleClickAll = () => {
@@ -211,7 +210,6 @@ export default function PointOfSaleLayout({
       typeProduct: 'ALL'
     })
     setShowProduct(true)
-    setShowButtonFilter(true)
   }
 
   const handleClickFavorite = () => {
@@ -221,7 +219,6 @@ export default function PointOfSaleLayout({
       typeProduct: "favorite"
     })
     setShowProduct(true)
-    setShowButtonFilter(true)
   }
 
   const handleDeleteCustom = (item, index) => {
@@ -552,7 +549,10 @@ export default function PointOfSaleLayout({
       <Script
         src="/epos-2.27.0.js"
         strategy="afterInteractive"
-        onLoad={() => console.log("📜 ePOS SDK Loaded")}
+        onLoad={() => {
+          setScriptEpos(true)
+          console.log("📜 ePOS SDK Loaded")
+        }}
       />
     </Grid>
   )

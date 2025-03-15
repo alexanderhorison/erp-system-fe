@@ -1,8 +1,7 @@
 import { swalToastError } from "src/helpers/swalFunction";
 import { swalConfirmationOnly } from "src/helpers/swalFunctionPos";
-import { setPrinterStatus } from "src/store/apps/config";
 import axios from 'src/configs/axios'
-
+import { setPrinterStatus } from "src/store/apps/config/configPrinter";
 
 let ePosDev = null;
 let printer = null;
@@ -12,6 +11,7 @@ export const connectToPrinter = ({
   printerConfig,
   dispatch,
 }) => {
+
   return new Promise((resolve, reject) => {
     if (typeof window === "undefined" || !window.epson) {
       console.error("❌ ePOS SDK belum dimuat!");
@@ -53,7 +53,9 @@ export const connectToPrinter = ({
             resolve(printer);
           }
         );
+        localStorage.setItem('printerPos', JSON.stringify(printerConfig))
       } else {
+        connected = false
         console.log("❌ Gagal terhubung ke printer:", data);
         dispatch(setPrinterStatus({ connected: false, loading: false, error: data }));
         reject(data);
@@ -64,7 +66,6 @@ export const connectToPrinter = ({
       connected = false;
       printer = null;
     };
-
   });
 };
 
@@ -87,6 +88,8 @@ export const printPointOfSale = async (dispatch, code) => {
 
         // 🔹 Ambil printer
         const printer = getPrinter();
+        console.log("🖨️ Printer:", printer);
+
         if (!printer) {
           swalToastError({ label: "Printer", error: "Printer tidak ditemukan" });
           dispatch(setPrinterStatus({ printing: false }));

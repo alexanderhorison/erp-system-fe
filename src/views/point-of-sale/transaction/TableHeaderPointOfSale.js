@@ -14,14 +14,16 @@ import { connectToPrinter } from 'src/utils/printerHelper'
 
 export default function TableHeaderPointOfSale(props) {
   const dispatch = useDispatch()
-  const { printerConfig, loadingPrinterConfig, printerStatus } = useSelector(state => state.config)
+  const { printerStatus } = useSelector(state => state.printer)
+  const printerPos = localStorage.getItem('printerPos') ? JSON.parse(localStorage.getItem('printerPos')) : null
 
   const isConnected = printerStatus.connected
   const isLoading = printerStatus.loading
 
   const handleReconnect = () => {
-    connectToPrinter({ printerConfig, dispatch })
+    connectToPrinter({ printerConfig: printerPos, dispatch })
   }
+
   return (
     <Box
       sx={{
@@ -68,7 +70,7 @@ export default function TableHeaderPointOfSale(props) {
           style={{ color: isConnected ? 'green' : 'red' }}
         />
         <Typography fontSize={'0.8rem'} sx={{ fontWeight: 400, textWrap: 'nowrap' }}>
-          Status Printer: {isLoading ? (<CircularProgress size={14} color="inherit" />) : isConnected ? '(Online)' : '(Offline)'}
+          Status Printer: "{printerPos?.name}" {isLoading ? (<CircularProgress size={14} color="inherit" />) : isConnected ? '(Online)' : '(Offline)'}
         </Typography>
         {/* Button Reconnect */}
         {!isConnected && !isLoading && (
