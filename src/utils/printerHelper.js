@@ -69,6 +69,16 @@ export const connectToPrinter = ({
   });
 };
 
+export const changePrinter = () => {
+  return new Promise((resolve, reject) => {
+    ePosDev = new window.epson.ePOSDevice();
+    ePosDev.ondisconnect = () => {
+      connected = false;
+      printer = null;
+    };
+  })
+}
+
 export const getPrinter = () => printer;
 
 export const printPointOfSale = async (dispatch, code) => {
@@ -99,6 +109,8 @@ export const printPointOfSale = async (dispatch, code) => {
         // 🔹 Ambil buffer dari API (sudah dalam format ESC/POS)
         const dataString = posData.buffer;
         printer.addText(dataString);
+        console.log(dataString);
+
         printer.addCut(printer.CUT_FEED);
         printer.send();
 

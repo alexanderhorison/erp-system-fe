@@ -27,22 +27,10 @@ export default function PointOfSale() {
 
   const printerPos = localStorage.getItem('printerPos') ? JSON.parse(localStorage.getItem('printerPos')) : null
 
-  const listMenuPos = [
-    {
-      name: 'POS',
-      code: 'POS'
-    },
-    {
-      name: 'Transaction',
-      code: 'TRANSACTION'
-    },
-    {
-      name: 'Open Bill',
-      code: 'OPEN_BILL'
-    }
-  ]
-
-  const [selectedMenu, setSelectedMenu] = useState(listMenuPos[0])
+  const [selectedMenu, setSelectedMenu] = useState({
+    name: 'POS',
+    code: 'POS'
+  })
 
   useEffect(() => {
     dispatch(fetchMasterDataType())

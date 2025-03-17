@@ -8,7 +8,7 @@ import { fetchMasterDataWarehouse } from "src/store/apps/master/warehouse";
 import Icon from 'src/@core/components/icon';
 import SettingSectionWarehouse from "./SettingSectionWarehouse";
 import SettingSectionPrinter from "./SettingSectionPrinter";
-import { connectToPrinter } from "src/utils/printerHelper";
+import { changePrinter, connectToPrinter } from "src/utils/printerHelper";
 
 export default function SettingPosLayout({
   setWarehouse,
@@ -49,6 +49,7 @@ export default function SettingPosLayout({
       showCancelButton: true,
       cancelButtonText: "Tidak",
       onClickYes: () => {
+        changePrinter()
         let printerPos = {
           id: printer.id,
           name: printer.value,
