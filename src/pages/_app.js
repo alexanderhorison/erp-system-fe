@@ -115,14 +115,10 @@ const App = props => {
               name='description'
               content={`${themeConfig.templateName}`}
             />
+            <link rel="manifest" href="/manifest.json" />
             <meta name='keywords' content='' />
             <meta name='viewport' content='initial-scale=1, width=device-width' />
             <meta name="robots" content="noindex, nofollow" />
-            <link
-              rel="stylesheet"
-              type="text/css"
-              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-            />
           </Head>
 
           <AuthProvider>

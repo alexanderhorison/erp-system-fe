@@ -40,3 +40,8 @@ yarn.lock
 
 notes.js
 sandbox.js
+
+# FOR PWA - Automatic generated at server
+public/sw.js
+public/sw.js.map
+public/workbox-*

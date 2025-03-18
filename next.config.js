@@ -1,19 +1,24 @@
-const path = require('path')
+const path = require("path");
+
+const withPWA = require("next-pwa")({
+  dest: "public",
+  register: true,
+  skipWaiting: true,
+  disableDevLogs: true,
+  disable: !process.env.NEXT_PUBLIC_ENABLE_PWA,
+});
 
 /** @type {import('next').NextConfig} */
-
-// Remove this if you're not using Fullcalendar features
-
-module.exports = {
+module.exports = withPWA({
   trailingSlash: true,
-  reactStrictMode: false,
+  reactStrictMode: false, // Set false if needed
   swcMinify: true,
-  webpack: config => { 
+  webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      apexcharts: path.resolve(__dirname, './node_modules/apexcharts-clevision')
-    }
+      apexcharts: path.resolve(__dirname, "./node_modules/apexcharts-clevision"),
+    };
 
-    return config
-  }
-}
+    return config;
+  },
+});
