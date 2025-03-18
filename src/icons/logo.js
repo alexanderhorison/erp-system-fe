@@ -1,4 +1,5 @@
 import * as React from "react";
+
 const Logo = (props) => (
   <svg
     viewBox="1 0 194 194"
