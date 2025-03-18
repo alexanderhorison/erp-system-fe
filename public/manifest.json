@@ -2,7 +2,7 @@
   "name": "TBA-POS",
   "short_name": "TBA-POS",
   "description": "Tjahaya Berkat Abadi POS",
-  "start_url": "/point-of-sale",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
