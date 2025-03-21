@@ -173,6 +173,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
                       <TableCell align='left'>Produk</TableCell>
                       <TableCell align='left'>Kuantiti</TableCell>
                       <TableCell align='left'>Harga</TableCell>
+                      <TableCell align='left'>Modal</TableCell>
                       <TableCell align='center'>Jumlah</TableCell>
                     </TableRow>
                   </TableHead>
@@ -198,6 +199,9 @@ const DetailPagePurchaseOrder = ({ data }) => {
                           </TableCell>
                           <TableCell>{data?.quantity || ''}</TableCell>
                           <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.price)}</TableCell>
+                          <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>
+                            Rp. {priceFormat(data?.modal)}
+                          </TableCell>
                           <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>
                             Rp. {priceFormat(data?.subTotal)}
                           </TableCell>
@@ -243,7 +247,9 @@ const DetailPagePurchaseOrder = ({ data }) => {
                 lg={2}
                 sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 1, xs: 2 }, ml: 'auto', textAlign: 'right' }}
               >
-                <Typography sx={{ color: 'text.secondary', mr: 1, whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.grandTotal)}</Typography>
+                <Typography sx={{ color: 'text.secondary', mr: 1, whiteSpace: 'nowrap' }}>
+                  Rp. {priceFormat(data?.grandTotal)}
+                </Typography>
               </Grid>
             </Grid>
             <Typography

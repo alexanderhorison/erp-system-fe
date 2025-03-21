@@ -22,6 +22,7 @@ import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-pr
 import { Box, getValue } from '@mui/system'
 import ModalTransformProductSalesOrder from './ModalTransformProductSalesOrder'
 import ModalAddMasterCustomer from '../master/customer/ModalAddMasterCustomer'
+import { fetchOneMasterDataModal } from 'src/store/apps/master/modal'
 
 export default function AddSalesOrder({}) {
   const dispatch = useDispatch()
@@ -64,7 +65,8 @@ export default function AddSalesOrder({}) {
             const num = Number(value)
             return num >= 0
           }),
-        subTotal: yup.number().typeError('Sub Total Product harus diisi')
+        subTotal: yup.number().typeError('Sub Total Product harus diisi'),
+        modal: yup.number().typeError('Harga Modal Product harus diisi')
       })
     ),
     barterProduct: yup.lazy(value => {
@@ -198,7 +200,7 @@ export default function AddSalesOrder({}) {
   }
 
   const addMore = () => {
-    append({ warehouseProductId: '', price: '', quantity: '', subTotal: '', warehouseId: '' })
+    append({ warehouseProductId: '', price: '', quantity: '', subTotal: '', warehouseId: '', modal: '' })
   }
 
   const deleteItem = itemIndex => {
@@ -243,7 +245,8 @@ export default function AddSalesOrder({}) {
         price: '',
         quantity: '',
         subTotal: '',
-        warehouseId: ''
+        warehouseId: '',
+        modal: ''
       })
     }
     dispatch(fetchMasterDataWarehouse())
@@ -302,6 +305,13 @@ export default function AddSalesOrder({}) {
     setValue(`data[${indexForm}].warehouseProductId`, transformedProduct.productWarehouseId)
     // fetch default base price after transformation
     handleFetchDefaultBasePrice({
+      productId: transformedProduct.masterProductId,
+      unitId: transformedProduct.masterUnitId,
+      index: indexForm,
+      fieldName: 'data'
+    })
+    // fetch default modal after transformation
+    handleFetchDefaultBaseModal({
       productId: transformedProduct.masterProductId,
       unitId: transformedProduct.masterUnitId,
       index: indexForm,
@@ -398,10 +408,26 @@ export default function AddSalesOrder({}) {
           shouldDirty: true
         })
         setTimeout(() => {
-          calculateTotals();
-        }, 0);
+          calculateTotals()
+        }, 0)
       } else {
         setValue(`${fieldName}[${index}].price`, '')
+      }
+    })
+  }
+
+  const handleFetchDefaultBaseModal = ({ productId, unitId, index, fieldName }) => {
+    dispatch(
+      fetchOneMasterDataModal({
+        productId,
+        unitId
+      })
+    ).then(({ payload }) => {
+      // if price exist then switch to replace
+      if (payload.data) {
+        setValue(`${fieldName}[${index}].modal`, payload.data.modal)
+      } else {
+        setValue(`${fieldName}[${index}].modal`, '')
       }
     })
   }
@@ -410,9 +436,11 @@ export default function AddSalesOrder({}) {
     setValue(`${fieldName}[${index}].subTotal`, '')
     setValue(`${fieldName}[${index}].quantity`, '')
     setValue(`${fieldName}[${index}].price`, '')
+    setValue(`${fieldName}[${index}].modal`, '')
     clearErrors(`${fieldName}.${index}.subTotal`)
     clearErrors(`${fieldName}.${index}.quantity`)
     clearErrors(`${fieldName}.${index}.price`)
+    clearErrors(`${fieldName}.${index}.modal`)
     calculateTotals()
   }
 
@@ -580,6 +608,13 @@ export default function AddSalesOrder({}) {
                                         fieldName: 'data',
                                         index
                                       })
+                                      // Fetch modal base on selected product
+                                      handleFetchDefaultBaseModal({
+                                        productId: selectedProduct.masterProductId,
+                                        unitId: selectedProduct.masterUnitId,
+                                        index,
+                                        fieldName: 'data'
+                                      })
                                     } else {
                                       setValue(`data[${index}].qty`, '')
                                       setValue(`data[${index}].masterProductId`, '')
@@ -632,7 +667,7 @@ export default function AddSalesOrder({}) {
                           }}
                         />
                       </Grid>
-                      <Grid key={getValues(`data[${index}].warehouseProductId`)} item xs={5} md={2}>
+                      <Grid key={getValues(`data[${index}].warehouseProductId`)} item xs={5} md={1}>
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}
@@ -706,7 +741,27 @@ export default function AddSalesOrder({}) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={3}>
+                      <Grid item xs={5} md={2}>
+                        <Controller
+                          name={`data[${index}].modal`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomTextField
+                              fullWidth
+                              label='Modal'
+                              value={priceFormat(value || 0)}
+                              type='text'
+                              sx={{ display: 'block' }}
+                              error={Boolean(errors?.data?.[index]?.modal)}
+                              {...(errors?.data?.[index]?.modal && {
+                                helperText: errors?.data?.[index]?.modal.message
+                              })}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={5} md={2}>
                         <Controller
                           name={`data[${index}].subTotal`}
                           control={control}
