@@ -6,6 +6,7 @@ const withPWA = require("next-pwa")({
   skipWaiting: true,
   disableDevLogs: true,
   disable: !process.env.NEXT_PUBLIC_ENABLE_PWA,
+  cacheStartUrl: false, // Jangan cache halaman utama
 });
 
 /** @type {import('next').NextConfig} */
