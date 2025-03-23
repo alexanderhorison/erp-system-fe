@@ -348,7 +348,7 @@ export default function AddSalesOrder({}) {
     // For transformation product
   }, [helperTextChanges, dataWarehouseIds])
 
-  const handlePriceChange = ({ event, index, fieldName, setValue, formStateField, onChange }) => {
+  const handlePriceChange = ({ event, index, fieldName, setValue, formStateField, onChange, isCalculation }) => {
     const input = event.target
     const cursorPosition = input.selectionStart // Save cursor position
     const rawValue = input.value.replace(/\D/g, '') // Remove non-digit characters
@@ -375,20 +375,22 @@ export default function AddSalesOrder({}) {
     }
     input.setSelectionRange(cursorIndexInFormatted, cursorIndexInFormatted)
 
-    const newPrice = +rawValue
-    const currentQuantity = formStateField[index]?.quantity || 0
-    const newSubTotal = currentQuantity * newPrice
+    if (isCalculation) {
+      const newPrice = +rawValue
+      const currentQuantity = formStateField[index]?.quantity || 0
+      const newSubTotal = currentQuantity * newPrice
 
-    if (parseInt(newSubTotal, 10) > 0) {
-      setValue(`${fieldName}[${index}].subTotal`, newSubTotal)
-    }
+      if (parseInt(newSubTotal, 10) > 0) {
+        setValue(`${fieldName}[${index}].subTotal`, newSubTotal)
+      }
 
-    if (
-      formStateField[index].quantity &&
-      formStateField[index].price &&
-      parseInt(formStateField[index].quantity, 10) > 0
-    ) {
-      calculateTotals()
+      if (
+        formStateField[index].quantity &&
+        formStateField[index].price &&
+        parseInt(formStateField[index].quantity, 10) > 0
+      ) {
+        calculateTotals()
+      }
     }
   }
 
@@ -728,7 +730,8 @@ export default function AddSalesOrder({}) {
                                   fieldName: 'data',
                                   setValue,
                                   formStateField: formField,
-                                  onChange
+                                  onChange,
+                                  isCalculation: true
                                 })
                               }}
                               type='text'
@@ -752,6 +755,16 @@ export default function AddSalesOrder({}) {
                               label='Modal'
                               value={priceFormat(value || 0)}
                               type='text'
+                              onChange={e => {
+                                handlePriceChange({
+                                  event: e,
+                                  index,
+                                  fieldName: 'data',
+                                  setValue,
+                                  formStateField: formField,
+                                  onChange
+                                })
+                              }}
                               sx={{ display: 'block' }}
                               error={Boolean(errors?.data?.[index]?.modal)}
                               {...(errors?.data?.[index]?.modal && {
@@ -999,7 +1012,8 @@ export default function AddSalesOrder({}) {
                                   fieldName: 'barterProduct',
                                   setValue,
                                   formStateField: formBarter,
-                                  onChange
+                                  onChange,
+                                  isCalculation: true
                                 })
                               }}
                               type='text'
