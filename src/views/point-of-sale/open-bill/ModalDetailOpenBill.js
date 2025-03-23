@@ -1,8 +1,5 @@
-import { Button, Card, Dialog, DialogContent, Grid, IconButton, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { Button, Card, Dialog, DialogContent, Grid } from "@mui/material";
 import Icon from 'src/@core/components/icon'
-import { styled } from '@mui/material/styles'
-import DetailOpenBill from "./DetailOpenBill";
 import { swalConfirmationOnly } from "src/helpers/swalFunctionPos";
 import DetailOpenBillAndTransaction from "./DetailOpenBillAndTransaction";
 import { CustomCloseButton } from "src/views/pages/dialog-examples/DialogEditUserInfo";
@@ -84,7 +81,6 @@ export default function ModalDetailOpenBill({ open, setOpen, data, setSelectedMe
               </Button>
             </Grid>
           </Grid>
-          {/* <DetailOpenBill data={data} /> */}
           <DetailOpenBillAndTransaction data={data} type='openBill' />
         </DialogContent>
       </Dialog>

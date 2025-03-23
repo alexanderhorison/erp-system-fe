@@ -6,7 +6,8 @@ export const autoSavePos = () => {
   const listOpenBIll = JSON.parse(localStorage.getItem('openBill')) || []
 
   const subTotalPrices = () => listProduct.reduce((total, item) => total + item.subTotal, 0)
-  const totalItem = () => listProduct.reduce((total, item) => total + +item.quantity, 0)
+  const totalItem = () => listProduct.length
+  const totalQuantity = () => listProduct.reduce((total, item) => total + item.quantity, 0)
 
   const newBill = [...listOpenBIll] // Salin data lama
   const index = listOpenBIll.findIndex(bill => bill.id === billId)
@@ -17,7 +18,8 @@ export const autoSavePos = () => {
       products: listProduct,
       warehouse: selectedWarehouse,
       subTotalPrice: subTotalPrices(),
-      totalItem: totalItem()
+      totalItem: totalItem(),
+      totalQuantity: totalQuantity()
     }
   } else {
     newBill.push({ // Tambahkan data baru jika tidak ditemukan
@@ -26,7 +28,8 @@ export const autoSavePos = () => {
       products: listProduct,
       warehouse: selectedWarehouse,
       subTotalPrice: subTotalPrices(),
-      totalItem: totalItem()
+      totalItem: totalItem(),
+      totalQuantity: totalQuantity()
     })
   }
   localStorage.setItem('openBill', JSON.stringify(newBill))

@@ -7,11 +7,11 @@ import { fetchAllPointOfSaleByWarehouseId } from 'src/store/apps/pos'
 import TablePointOfSale from './TablePointOfSale'
 
 export default function TransactionLayout({ warehouseId }) {
+  const dispatch = useDispatch()
   const [timeFilter, setTimeFilter] = useState({
     month: '',
     year: new Date().getFullYear()
   })
-  const dispatch = useDispatch()
 
   useEffect(() => {
     if (warehouseId) {

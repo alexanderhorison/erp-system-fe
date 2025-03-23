@@ -1,8 +1,9 @@
-import { Grid, Typography } from "@mui/material"
+import { Badge, Grid, Typography } from "@mui/material"
 import { Box } from "@mui/system"
+import { useMemo } from "react";
 import Icon from 'src/@core/components/icon';
 
-const MenuBox = ({ icon, title, action, selected, disable }) => {
+const MenuBox = ({ icon, title, action, selected, disable, notification = false }) => {
   return (
     <Grid item xs={2}>
       <Box
@@ -21,7 +22,15 @@ const MenuBox = ({ icon, title, action, selected, disable }) => {
           pointerEvents: disable ? 'none' : 'auto',
         }}
       >
-        <Icon icon={icon} />
+        <Badge
+          color="error"
+          variant="dot"
+          invisible={!notification}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          overlap="circular"
+        >
+          <Icon icon={icon} width={24} height={24} />
+        </Badge>
         <Typography variant="body2" fontSize={'0.75rem'} mt={1}>
           {title}
         </Typography>
@@ -36,6 +45,16 @@ export default function MenuPosV2({
   selectedMenu,
   setSelectedMenu,
 }) {
+  const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
+  const printer = JSON.parse(localStorage.getItem("printerPos"))
+
+  const notificationBadge = useMemo(() => {
+    if (warehouse && printer) {
+      return false
+    }
+    return true
+  }, [warehouse, printer])
+
   return (
     <Grid container height={'100%'} columnSpacing={2} >
       <MenuBox
@@ -80,9 +99,16 @@ export default function MenuPosV2({
         selected={selectedMenu.code === 'OPEN_BILL'}
       />
       <MenuBox
-        disable
-        icon="tabler:x"
-        title={'Disable'}
+        icon="tabler:settings"
+        title={'Setting'}
+        action={() => {
+          setSelectedMenu({
+            name: 'Setting',
+            code: 'SETTING'
+          })
+        }}
+        selected={selectedMenu.code === 'SETTING'}
+        notification={notificationBadge}
       />
       <MenuBox
         icon="tabler:credit-card-pay"

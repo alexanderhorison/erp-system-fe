@@ -18,6 +18,7 @@ import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
 import ModalEditProductPos from './ModalEditProductPos'
 import ProductCustomField from './ProductCustomField'
 import { autoSavePos, generateIdOpenBill } from 'src/helpers/pos/autoSavePos'
+import Script from 'next/script'
 
 // Kedepannya jika tambah filter, bisa tambahkan field ini
 const listFilter = [
@@ -44,9 +45,8 @@ export default function PointOfSaleLayout({
   showFilter,
   setShowFilter,
   warehouse,
-  setShowButtonFilter,
+  setScriptEpos,
 }) {
-
   const { data: companyData, loading } = useSelector(state => state.company)
   const { data: typeData } = useSelector(state => state.type)
   const { data: categoryData } = useSelector(state => state.category)
@@ -201,7 +201,6 @@ export default function PointOfSaleLayout({
     setValueFilter('typeProduct', 'custom')
     setShowFilter(false)
     setShowProduct(false)
-    setShowButtonFilter(false)
   }
 
   const handleClickAll = () => {
@@ -211,7 +210,6 @@ export default function PointOfSaleLayout({
       typeProduct: 'ALL'
     })
     setShowProduct(true)
-    setShowButtonFilter(true)
   }
 
   const handleClickFavorite = () => {
@@ -221,7 +219,6 @@ export default function PointOfSaleLayout({
       typeProduct: "favorite"
     })
     setShowProduct(true)
-    setShowButtonFilter(true)
   }
 
   const handleDeleteCustom = (item, index) => {
@@ -512,15 +509,25 @@ export default function PointOfSaleLayout({
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            <Button disabled={disableButtonCharge} fullWidth variant={'outlined'} onClick={handleSaveBill}>
-              Next Bill {priceFormat(getValues('grandTotal'))}
-            </Button>
+            <Grid container spacing={4}>
+              <Grid item xs={6}>
+                <Button disabled={disableButtonCharge} fullWidth variant={'outlined'} onClick={handleSaveBill}>
+                  Next Bill {priceFormat(getValues('grandTotal'))}
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button disabled={disableButtonCharge} fullWidth variant={'contained'} onClick={handleClickCharge}>
+                  Charge {priceFormat(getValues('grandTotal'))}
+                </Button>
+              </Grid>
+            </Grid>
           </Grid>
           <Grid item xs={12}>
             <Button
               disabled={disableButtonClear}
               fullWidth
-              variant={'contained'}
+              // variant={'contained'}
+              sx={{ backgroundColor: '#d6bdab' }}
               onClick={() => {
                 swalConfirmationOnly({
                   title: 'Yakin menghapus keranjang?',
@@ -537,13 +544,16 @@ export default function PointOfSaleLayout({
               Clear
             </Button>
           </Grid>
-          <Grid item xs={12}>
-            <Button disabled={disableButtonCharge} fullWidth variant={'contained'} onClick={handleClickCharge}>
-              Charge {priceFormat(getValues('grandTotal'))}
-            </Button>
-          </Grid>
         </Grid>
       </Grid>
+      <Script
+        src="/epos-2.27.0.js"
+        strategy="afterInteractive"
+        onLoad={() => {
+          setScriptEpos(true)
+          console.log("📜 ePOS SDK Loaded")
+        }}
+      />
     </Grid>
   )
 }

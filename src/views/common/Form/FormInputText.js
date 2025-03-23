@@ -1,6 +1,6 @@
 import { Controller } from "react-hook-form";
 import CustomTextField from "src/@core/components/mui/text-field";
-
+import { keyframes } from "@mui/system";
 
 export default function FormInputText({
   label,
@@ -12,8 +12,15 @@ export default function FormInputText({
   fullWidth = true,
   multiline = false,
   rows = 1,
-  type = 'text'
+  type = 'text',
+  required = false,
+  loading = false
 }) {
+  // Define pulse animation using keyframes
+  const pulse = keyframes`
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  `;
 
   return (
     <Controller
@@ -26,16 +33,25 @@ export default function FormInputText({
           multiline={multiline}
           rows={rows}
           fullWidth={fullWidth}
-          value={value}
-          label={label}
-          placeholder={placeholder}
+          value={loading ? '' : value}
+          label={`${label} ${required ? '*' : ''}`}
+          placeholder={loading ? '' : placeholder}
           onChange={onChange}
-          disabled={disabled}
+          disabled={disabled || loading}
           error={Boolean(errors[name])}
           aria-describedby={`validation-schema-${name}`}
           {...(errors[name] && { helperText: errors[name].message })}
+          InputProps={{
+            sx: loading
+              ? {
+                animation: `${pulse} 1.5s ease-in-out infinite`,
+                backgroundColor: '#f0f0f0',
+                color: 'transparent', // Hide text while loading
+              }
+              : {},
+          }}
         />
       )}
     />
-  )
+  );
 }

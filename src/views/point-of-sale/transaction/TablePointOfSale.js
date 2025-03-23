@@ -15,6 +15,8 @@ import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import ModalViewTransaction from './ModalViewTransaction'
 import { fetchDetailPointOfSale } from 'src/store/apps/pos'
 import ModalViewTransactionV2 from './ModalViewTransactionV2'
+import { printPointOfSale } from 'src/utils/printerHelper'
+
 
 const RowOptions = ({ handleView, handlePrint }) => {
   return (
@@ -57,10 +59,9 @@ export default function TablePointOfSale({ timeFilter }) {
     dispatch(fetchDetailPointOfSale(id))
   }
 
-  const handleRowPrint = params => {
-    const id = params?.code || params?.row?.code
-    window.open(`/point-of-sale/print/${id}`, '_blank')
-  }
+  const handleRowPrint = async (params) => {
+    printPointOfSale(dispatch, params.code)
+  };
 
   useEffect(() => {
     if (timeFilter && timeFilter.year) {
@@ -158,12 +159,12 @@ export default function TablePointOfSale({ timeFilter }) {
             {
               flex: 0.16,
               minWidth: 120,
-              field: 'totalQuantity',
+              field: 'totalItems',
               headerName: 'Total Item',
               renderCell: params => {
                 return (
                   <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.totalQuantity}
+                    {params.row.totalItems}
                   </Typography>
                 )
               }

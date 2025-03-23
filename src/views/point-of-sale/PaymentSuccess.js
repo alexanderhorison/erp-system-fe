@@ -1,5 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Box, Typography, Button, Stack } from '@mui/material'
+import { printItem, printPointOfSale } from 'src/utils/printerHelper'
+import { useDispatch } from 'react-redux'
+import ModalSendEmailCustomer from './ModalSendEmailCustomer'
 
 export default function PaymentSuccess({
   alreadyPayment,
@@ -8,10 +11,18 @@ export default function PaymentSuccess({
   setOpen,
   resetAll,
   totalAmount,
-  dataPayment
+  dataPayment,
+  customer
 }) {
+  const dispatch = useDispatch()
   const handlePrintReceipt = () => {
-    window.open(`/point-of-sale/print/${dataPayment.code}`, '_blank')
+    printPointOfSale(dispatch, dataPayment.code)
+  }
+
+  const [openModalEmail, setOpenModalEmail] = useState(false)
+
+  const handleEmailReceipt = () => {
+    setOpenModalEmail(true)
   }
 
   const handleNewSale = () => {
@@ -20,64 +31,78 @@ export default function PaymentSuccess({
   }
 
   return (
-    alreadyPayment && (
-      <Box
-        sx={{
-          textAlign: 'center',
-          margin: '20px auto'
-        }}
-      >
-        <Typography variant='h4' sx={{ fontWeight: 'bold', color: '#4caf50', mb: 2 }}>
-          Pembayaran Berhasil!
-        </Typography>
-        <Typography variant='body1' sx={{ mb: 4, color: '#6c757d' }}>
-          Terima kasih atas pembayarannya. Anda dapat mencetak struk atau memulai transaksi baru.
-        </Typography>
-        <Box sx={{ mb: 4 }}>
-          <Typography variant='body2' sx={{ fontWeight: 'bold', color: '#333' }}>
-            Total Payment:
+    <>
+      {alreadyPayment && (
+        <Box
+          sx={{
+            textAlign: 'center',
+            margin: '20px auto'
+          }}
+        >
+          <Typography variant='h4' sx={{ fontWeight: 'bold', color: '#4caf50', mb: 2 }}>
+            Pembayaran Berhasil!
           </Typography>
-          <Typography variant='h6' sx={{ fontWeight: 'bold', color: '#4caf50' }}>
-            Rp {totalAmount.toLocaleString('id-ID')}
+          <Typography variant='body1' sx={{ mb: 4, color: '#6c757d' }}>
+            Terima kasih atas pembayarannya. Anda dapat mencetak struk atau memulai transaksi baru.
           </Typography>
-          <Typography variant='body2' sx={{ fontWeight: 'bold', color: '#333' }}>
-            Paid:
-          </Typography>
-          <Typography variant='h6' sx={{ fontWeight: 'bold', color: '#4caf50' }}>
-            Rp {totalPayment.toLocaleString('id-ID')}
-          </Typography>
-          <Typography variant='body2' sx={{ fontWeight: 'bold', color: '#333', mt: 1 }}>
-            {change > 0 ? `Change:` : 'Hutang: '}
-          </Typography>
-          <Typography variant='h6' sx={{ fontWeight: 'bold', color: '#4caf50' }}>
-            Rp {Math.abs(change || 0).toLocaleString('id-ID')}
-          </Typography>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant='body2' sx={{ fontWeight: 'bold', color: '#333' }}>
+              Total Payment:
+            </Typography>
+            <Typography variant='h6' sx={{ fontWeight: 'bold', color: '#4caf50' }}>
+              Rp {totalAmount.toLocaleString('id-ID')}
+            </Typography>
+            <Typography variant='body2' sx={{ fontWeight: 'bold', color: '#333' }}>
+              Paid:
+            </Typography>
+            <Typography variant='h6' sx={{ fontWeight: 'bold', color: '#4caf50' }}>
+              Rp {totalPayment.toLocaleString('id-ID')}
+            </Typography>
+            <Typography variant='body2' sx={{ fontWeight: 'bold', color: '#333', mt: 1 }}>
+              {change > 0 ? `Change:` : 'Hutang: '}
+            </Typography>
+            <Typography variant='h6' sx={{ fontWeight: 'bold', color: '#4caf50' }}>
+              Rp {Math.abs(change || 0).toLocaleString('id-ID')}
+            </Typography>
+          </Box>
+          <Stack direction='row' spacing={2} justifyContent='center'>
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={handlePrintReceipt}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 'bold'
+              }}
+            >
+              Print Receipt
+            </Button>
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={handleEmailReceipt}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 'bold'
+              }}
+            >
+              Email Receipt
+            </Button>
+            <Button
+              variant='outlined'
+              color='primary'
+              onClick={handleNewSale}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 'bold'
+              }}
+            >
+              New Sale
+            </Button>
+          </Stack>
         </Box>
-        <Stack direction='row' spacing={2} justifyContent='center'>
-          <Button
-            variant='contained'
-            color='primary'
-            onClick={handlePrintReceipt}
-            sx={{
-              textTransform: 'none',
-              fontWeight: 'bold'
-            }}
-          >
-            Print Receipt
-          </Button>
-          <Button
-            variant='outlined'
-            color='primary'
-            onClick={handleNewSale}
-            sx={{
-              textTransform: 'none',
-              fontWeight: 'bold'
-            }}
-          >
-            New Sale
-          </Button>
-        </Stack>
-      </Box>
-    )
+      )}
+      {openModalEmail && <ModalSendEmailCustomer open={openModalEmail} setOpen={setOpenModalEmail} customer={customer} code={dataPayment.code} />}
+    </>
   )
 }

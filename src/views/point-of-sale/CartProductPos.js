@@ -1,5 +1,5 @@
 import { Card, CardContent, Grid, IconButton, Typography } from "@mui/material";
-import React from "react";
+import React, { useMemo } from "react";
 import { Controller } from "react-hook-form";
 import { priceFormatWithZero } from 'src/helpers/priceFormatter'
 import Icon from 'src/@core/components/icon'
@@ -18,6 +18,20 @@ export default function CartProductPos({
   setSelectedProductEdit,
   handleDeleteCustom,
 }) {
+  const viewportHeight = window.innerHeight;
+  const maxHeight = useMemo(() => {
+    console.log(viewportHeight);
+    if (viewportHeight >= 1024) { // FHD
+      return '50.5vh'
+    }
+    if (viewportHeight >= 768) {
+      return '45.9vh'
+    }
+    if (viewportHeight >= 600) {
+      return '40.9vh'
+    }
+    return '35.9vh'
+  }, [viewportHeight])
   const handleOpenEditProduct = (item, index) => {
     if (item?.isCustom) {
       swalConfirmationOnly({
@@ -45,7 +59,7 @@ export default function CartProductPos({
     <Card
       sx={{
         border: 1,
-        maxHeight: '45vh',
+        maxHeight: maxHeight,
         overflowY: 'auto',
         minHeight: 150
       }}
@@ -82,13 +96,17 @@ export default function CartProductPos({
                       >
                         {helperTextPrice(index).detailItem}
                       </Typography>
-                      <Typography
-                        variant='body2'
-                        color='textSecondary'
-                        sx={{ marginTop: '4px' }}
-                      >
-                        Notes: {item?.notes}
-                      </Typography>
+                      {
+                        item?.notes && (
+                          <Typography
+                            variant='body2'
+                            color='textSecondary'
+                            sx={{ marginTop: '4px' }}
+                          >
+                            Notes: {item?.notes}
+                          </Typography>
+                        )
+                      }
                     </div>
                   )}
                 />

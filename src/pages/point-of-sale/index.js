@@ -1,6 +1,6 @@
 import { Card, Grid } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { fetchDataMasterCategory } from 'src/store/apps/master/category'
 import { fetchMasterDataCompany } from 'src/store/apps/master/company'
 import { fetchMasterDataType } from 'src/store/apps/master/type'
@@ -12,37 +12,25 @@ import OpenBillLayout from 'src/views/point-of-sale/open-bill/OpenBillLayout'
 import { UseAuth } from 'src/hooks/useAuth'
 import MenuPosV2 from 'src/views/point-of-sale/MenuPosV2'
 import DetailUserPos from 'src/views/point-of-sale/DetailUserPos'
+import SettingPosLayout from 'src/views/point-of-sale/setting/SettingPosLayout'
+import { connectToPrinter } from 'src/utils/printerHelper'
 
 export default function PointOfSale() {
   const dispatch = useDispatch()
   const { user } = UseAuth()
+
   const [showFilter, setShowFilter] = useState(true)
-  const [showButtonFilter, setShowButtonFilter] = useState(true)
   const [warehouse, setWarehouse] = useState(localStorage.getItem('warehousePos') ? JSON.parse(localStorage.getItem('warehousePos')) : {})
+  const [scriptEpos, setScriptEpos] = useState(false)
 
-  const listMenuPos = [
-    {
-      name: 'POS',
-      code: 'POS'
-    },
-    {
-      name: 'Transaction',
-      code: 'TRANSACTION'
-    },
-    {
-      name: 'Open Bill',
-      code: 'OPEN_BILL'
-    }
-  ]
+  const { printerStatus } = useSelector(state => state.printer)
 
-  const [selectedMenu, setSelectedMenu] = useState(listMenuPos[0])
+  const printerPos = localStorage.getItem('printerPos') ? JSON.parse(localStorage.getItem('printerPos')) : null
 
-  const handleChangeQuery = ({ key, value, name }) => {
-    setWarehouse(prev => ({ ...prev, [key]: value }))
-    localStorage.setItem('warehousePos', JSON.stringify({ warehouseId: value, warehouseName: name }))
-    localStorage.removeItem('listProductPos')
-    dispatch(fetchListProductPos({ id: value }))
-  }
+  const [selectedMenu, setSelectedMenu] = useState({
+    name: 'POS',
+    code: 'POS'
+  })
 
   useEffect(() => {
     dispatch(fetchMasterDataType())
@@ -66,6 +54,12 @@ export default function PointOfSale() {
     }
   }, [user])
 
+  useEffect(() => {
+    if (printerPos && !printerStatus.connected) {
+      connectToPrinter({ printerConfig: printerPos, dispatch })
+    }
+  }, [scriptEpos])
+
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} gap={2}>
@@ -75,7 +69,14 @@ export default function PointOfSale() {
               <MenuPosV2 showFilter={showFilter} setShowFilter={setShowFilter} setSelectedMenu={setSelectedMenu} selectedMenu={selectedMenu} />
             </Grid>
             <Grid item xs={4} >
-              <DetailUserPos user={user} warehouse={warehouse} setWarehouse={setWarehouse} />
+              <DetailUserPos
+                user={user}
+                warehouse={warehouse}
+                setOpenSetting={() => setSelectedMenu({
+                  name: 'Setting',
+                  code: 'SETTING'
+                })}
+              />
             </Grid>
           </Grid>
         </Box>
@@ -88,11 +89,20 @@ export default function PointOfSale() {
                 showFilter={showFilter}
                 setShowFilter={setShowFilter}
                 warehouse={warehouse}
-                setShowButtonFilter={setShowButtonFilter}
+                setScriptEpos={setScriptEpos}
               />
             )}
+
             {selectedMenu?.code === 'TRANSACTION' && <TransactionLayout warehouseId={warehouse.warehouseId} />}
+
             {selectedMenu?.code === 'OPEN_BILL' && <OpenBillLayout setSelectedMenu={setSelectedMenu} warehouse={warehouse}>Open Bill</OpenBillLayout>}
+
+            {
+              selectedMenu?.code === 'SETTING' && <SettingPosLayout
+                setWarehouse={setWarehouse}
+                user={user}
+              />
+            }
           </Box>
         </Card>
       </Grid>

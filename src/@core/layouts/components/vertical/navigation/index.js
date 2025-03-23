@@ -33,12 +33,11 @@ const StyledBoxForShadow = styled(Box)(({ theme }) => ({
   width: 'calc(100% + 15px)',
   height: theme.mixins.toolbar.minHeight,
   transition: 'opacity .15s ease-in-out',
-  background: `linear-gradient(${theme.palette.background.paper} ${
-    theme.direction === 'rtl' ? '95%' : '5%'
-  },${hexToRGBA(theme.palette.background.paper, 0.85)} 30%,${hexToRGBA(
-    theme.palette.background.paper,
-    0.5
-  )} 65%,${hexToRGBA(theme.palette.background.paper, 0.3)} 75%,transparent)`,
+  background: `linear-gradient(${theme.palette.background.paper} ${theme.direction === 'rtl' ? '95%' : '5%'
+    },${hexToRGBA(theme.palette.background.paper, 0.85)} 30%,${hexToRGBA(
+      theme.palette.background.paper,
+      0.5
+    )} 65%,${hexToRGBA(theme.palette.background.paper, 0.3)} 75%,transparent)`,
   '&.scrolled': {
     opacity: 1
   }
@@ -130,14 +129,14 @@ const Navigation = props => {
           <ScrollWrapper
             {...(hidden
               ? {
-                  onScroll: container => scrollMenu(container),
-                  sx: { height: '100%', overflowY: 'auto', overflowX: 'hidden' }
-                }
+                onScroll: container => scrollMenu(container),
+                sx: { height: '100%', overflowY: 'auto', overflowX: 'hidden' }
+              }
               : {
-                  options: { wheelPropagation: false },
-                  onScrollY: container => scrollMenu(container),
-                  containerRef: ref => handleInfiniteScroll(ref)
-                })}
+                options: { wheelPropagation: false },
+                onScrollY: container => scrollMenu(container),
+                containerRef: ref => handleInfiniteScroll(ref)
+              })}
           >
             {beforeNavMenuContent && beforeVerticalNavMenuContentPosition === 'static'
               ? beforeNavMenuContent(navMenuContentProps)
@@ -145,7 +144,7 @@ const Navigation = props => {
             {userNavMenuContent ? (
               userNavMenuContent(navMenuContentProps)
             ) : (
-              <List className='nav-items' sx={{ pt: 0, '& > :first-child': { mt: '0' } }}>
+              <List className='nav-items' sx={{ pt: 0, '& > :first-of-type': { mt: '0' } }}>
                 <VerticalNavItems
                   navHover={navHover}
                   groupActive={groupActive}
