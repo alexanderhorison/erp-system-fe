@@ -755,6 +755,7 @@ export default function AddSalesOrder({}) {
                               label='Modal'
                               value={priceFormat(value || 0)}
                               type='text'
+                              disabled
                               onChange={e => {
                                 handlePriceChange({
                                   event: e,
