@@ -67,7 +67,8 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
               .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
                 return Number(value) >= 0
               }),
-            subTotal: yup.number().typeError('Sub Total Product harus diisi').required('Sub Total barter harus diisi')
+            subTotal: yup.number().typeError('Sub Total Product harus diisi').required('Sub Total barter harus diisi'),
+            modal: yup.number().typeError('Modal Product harus diisi')
           })
         )
       }
@@ -80,7 +81,8 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
             price: yup.number(),
             quantity: yup.number(),
             subTotal: yup.number(),
-            warehouseId: yup.number()
+            warehouseId: yup.number(),
+            modal: yup.number()
           })
         )
         .optional()
@@ -215,7 +217,8 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
           subTotal: product.subTotal,
           qty: product.qty,
           warehouseId: product.warehouseId,
-          warehouseName: product.warehouseName
+          warehouseName: product.warehouseName,
+          modal: product.modal
         })
       })
     }
@@ -274,7 +277,7 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
     return infos
   }
 
-  const handlePriceChange = ({ event, index, fieldName, setValue, formStateField, onChange }) => {
+  const handlePriceChange = ({ event, index, fieldName, setValue, formStateField, onChange, isCalculation }) => {
     const input = event.target
     const cursorPosition = input.selectionStart // Save cursor position
     const rawValue = input.value.replace(/\D/g, '') // Remove non-digit characters
@@ -300,20 +303,22 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
     }
     input.setSelectionRange(cursorIndexInFormatted, cursorIndexInFormatted)
 
-    const newPrice = +rawValue
-    const currentQuantity = formStateField[index]?.quantity || 0
-    const newSubTotal = currentQuantity * newPrice
+    if (isCalculation) {
+      const newPrice = +rawValue
+      const currentQuantity = formStateField[index]?.quantity || 0
+      const newSubTotal = currentQuantity * newPrice
 
-    if (parseInt(newSubTotal, 10) > 0) {
-      setValue(`${fieldName}[${index}].subTotal`, newSubTotal)
-    }
+      if (parseInt(newSubTotal, 10) > 0) {
+        setValue(`${fieldName}[${index}].subTotal`, newSubTotal)
+      }
 
-    if (
-      formStateField[index].quantity &&
-      formStateField[index].price &&
-      parseInt(formStateField[index].quantity, 10) > 0
-    ) {
-      calculateTotals()
+      if (
+        formStateField[index].quantity &&
+        formStateField[index].price &&
+        parseInt(formStateField[index].quantity, 10) > 0
+      ) {
+        calculateTotals()
+      }
     }
   }
 
@@ -414,7 +419,7 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={2}>
+                      <Grid item xs={5} md={1}>
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}
@@ -469,7 +474,8 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
                                   fieldName: 'data',
                                   setValue,
                                   formStateField: formField,
-                                  onChange
+                                  onChange,
+                                  isCalculation: true
                                 })
                                 // const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
                                 // const newPrice = +rawValue
@@ -662,25 +668,9 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
                                     fieldName: 'barterProduct',
                                     setValue,
                                     formStateField: formBarter,
-                                    onChange
+                                    onChange,
+                                    isCalculation: true
                                   })
-                                  // const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
-                                  // const newPrice = +rawValue
-                                  // const currentQuantity = formBarter[index].quantity || 0
-                                  // const newSubTotal = currentQuantity * newPrice
-
-                                  // // Update the price and the subtotal
-                                  // onChange(rawValue)
-                                  // if (parseInt(newSubTotal, 10) > 0) {
-                                  //   setValue(`barterProduct[${index}].subTotal`, newSubTotal)
-                                  // }
-                                  // if (
-                                  //   formBarter[index].quantity &&
-                                  //   formBarter[index].price &&
-                                  //   parseInt(formBarter[index].quantity, 10) > 0
-                                  // ) {
-                                  //   calculateTotals()
-                                  // }
                                 }}
                                 type='text'
                                 sx={{ display: 'block' }}
@@ -692,7 +682,36 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
                             )}
                           />
                         </Grid>
-                        <Grid item xs={5} md={3}>
+                        <Grid item xs={5} md={2}>
+                          <Controller
+                            name={`barterProduct[${index}].modal`}
+                            control={control}
+                            render={({ field: { value, onChange } }) => (
+                              <CustomTextField
+                                fullWidth
+                                label='Modal'
+                                value={value ? priceFormat(value) : ''}
+                                onChange={e => {
+                                  handlePriceChange({
+                                    event: e,
+                                    index,
+                                    fieldName: 'barterProduct',
+                                    setValue,
+                                    formStateField: formBarter,
+                                    onChange
+                                  })
+                                }}
+                                type='text'
+                                sx={{ display: 'block' }}
+                                error={Boolean(errors?.barterProduct?.[index]?.modal)}
+                                {...(errors?.barterProduct?.[index]?.modal && {
+                                  helperText: errors?.barterProduct?.[index]?.modal.message
+                                })}
+                              />
+                            )}
+                          />
+                        </Grid>
+                        <Grid item xs={5} md={2}>
                           <Controller
                             name={`barterProduct[${index}].subTotal`}
                             control={control}

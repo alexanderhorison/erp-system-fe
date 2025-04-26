@@ -47,7 +47,8 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
             const num = Number(value)
             return num >= 0
           }),
-        subTotal: yup.number().typeError('Sub Total Product harus diisi')
+        subTotal: yup.number().typeError('Sub Total Product harus diisi'),
+        modal: yup.number().typeError('Modal Product harus diisi')
       })
     ),
     barterProduct: yup.lazy(value => {
@@ -200,7 +201,8 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
         subTotal: product.subTotal,
         qty: product.qty,
         warehouseId: product.warehouseId,
-        warehouseName: product.warehouseName
+        warehouseName: product.warehouseName,
+        modal: product.modal
       })
     })
     if (data?.listBarterProducts.length > 0) {
@@ -275,7 +277,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
     return infos
   }
 
-  const handlePriceChange = ({ event, index, fieldName, setValue, formStateField, onChange }) => {
+  const handlePriceChange = ({ event, index, fieldName, setValue, formStateField, onChange, isCalculation }) => {
     const input = event.target
     const cursorPosition = input.selectionStart // Save cursor position
     const rawValue = input.value.replace(/\D/g, '') // Remove non-digit characters
@@ -301,20 +303,22 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
     }
     input.setSelectionRange(cursorIndexInFormatted, cursorIndexInFormatted)
 
-    const newPrice = +rawValue
-    const currentQuantity = formStateField[index]?.quantity || 0
-    const newSubTotal = currentQuantity * newPrice
+    if (isCalculation) {
+      const newPrice = +rawValue
+      const currentQuantity = formStateField[index]?.quantity || 0
+      const newSubTotal = currentQuantity * newPrice
 
-    if (parseInt(newSubTotal, 10) > 0) {
-      setValue(`${fieldName}[${index}].subTotal`, newSubTotal)
-    }
+      if (parseInt(newSubTotal, 10) > 0) {
+        setValue(`${fieldName}[${index}].subTotal`, newSubTotal)
+      }
 
-    if (
-      formStateField[index].quantity &&
-      formStateField[index].price &&
-      parseInt(formStateField[index].quantity, 10) > 0
-    ) {
-      calculateTotals()
+      if (
+        formStateField[index].quantity &&
+        formStateField[index].price &&
+        parseInt(formStateField[index].quantity, 10) > 0
+      ) {
+        calculateTotals()
+      }
     }
   }
 
@@ -411,7 +415,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={2}>
+                      <Grid item xs={5} md={1}>
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}
@@ -471,25 +475,9 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                                   fieldName: 'data',
                                   setValue,
                                   formStateField: formField,
-                                  onChange
+                                  onChange,
+                                  isCalculation: true
                                 })
-                                //   const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
-                                //   const newPrice = +rawValue
-                                //   const currentQuantity = formField[index].quantity || 0
-                                //   const newSubTotal = currentQuantity * newPrice
-
-                                //   // Update the price and the subtotal
-                                //   onChange(rawValue)
-                                //   if (parseInt(newSubTotal, 10) > 0) {
-                                //     setValue(`data[${index}].subTotal`, newSubTotal)
-                                //   }
-                                //   if (
-                                //     formField[index].quantity &&
-                                //     formField[index].price &&
-                                //     parseInt(formField[index].quantity, 10) > 0
-                                //   ) {
-                                //     calculateTotals()
-                                //   }
                               }}
                               type='text'
                               sx={{ display: 'block' }}
@@ -501,7 +489,37 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={3}>
+                      <Grid item xs={5} md={2}>
+                        <Controller
+                          name={`data[${index}].modal`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomTextField
+                              fullWidth
+                              label='Modal'
+                              value={priceFormat(value || 0)}
+                              type='text'
+                              onChange={e => {
+                                handlePriceChange({
+                                  event: e,
+                                  index,
+                                  fieldName: 'data',
+                                  setValue,
+                                  formStateField: formField,
+                                  onChange
+                                })
+                              }}
+                              sx={{ display: 'block' }}
+                              error={Boolean(errors?.data?.[index]?.modal)}
+                              {...(errors?.data?.[index]?.modal && {
+                                helperText: errors?.data?.[index]?.modal.message
+                              })}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={5} md={2}>
                         <Controller
                           name={`data[${index}].subTotal`}
                           control={control}
@@ -660,25 +678,9 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                                     fieldName: 'barterProduct',
                                     setValue,
                                     formStateField: formBarter,
-                                    onChange
+                                    onChange,
+                                    isCalculation: true
                                   })
-                                  //   const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
-                                  //   const newPrice = +rawValue
-                                  //   const currentQuantity = formBarter[index].quantity || 0
-                                  //   const newSubTotal = currentQuantity * newPrice
-
-                                  //   // Update the price and the subtotal
-                                  //   onChange(rawValue)
-                                  //   if (parseInt(newSubTotal, 10) > 0) {
-                                  //     setValue(`barterProduct[${index}].subTotal`, newSubTotal)
-                                  //   }
-                                  //   if (
-                                  //     formBarter[index].quantity &&
-                                  //     formBarter[index].price &&
-                                  //     parseInt(formBarter[index].quantity, 10) > 0
-                                  //   ) {
-                                  //     calculateTotals()
-                                  //   }
                                 }}
                                 type='text'
                                 sx={{ display: 'block' }}

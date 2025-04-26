@@ -12,6 +12,7 @@ import category from './apps/master/category'
 import type from './apps/master/type'
 import company from './apps/master/company'
 import masterProduct from './apps/master/product'
+import masterModal from './apps/master/modal'
 import menu from 'src/store/apps/menu'
 import unit from './apps/master/unit'
 import masterProductPrice from './apps/master/product-price'
@@ -80,6 +81,7 @@ export const store = configureStore({
     pos,
     config,
     printer,
+    masterModal
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

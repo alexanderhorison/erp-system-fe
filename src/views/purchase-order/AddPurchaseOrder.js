@@ -25,6 +25,7 @@ import ModalTransformProductSalesOrder from '../sales-order/ModalTransformProduc
 import { createPurchaseOrder } from 'src/store/apps/purchase-order'
 import ModalAddMasterVendor from '../master/vendor/ModalAddMasterVendor'
 import ModalTransformPrice from './ModalTransformPrice'
+import { fetchOneMasterDataModal } from 'src/store/apps/master/modal'
 
 export default function AddPurchaseOrder({}) {
   const dispatch = useDispatch()
@@ -93,7 +94,8 @@ export default function AddPurchaseOrder({}) {
               .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
                 return Number(value) >= 0
               }),
-            subTotal: yup.number().typeError('Sub Total Product harus diisi').required('Sub Total barter harus diisi')
+            subTotal: yup.number().typeError('Sub Total Product harus diisi').required('Sub Total barter harus diisi'),
+            modal: yup.number().typeError('Modal Product harus diisi').required('Modal barter harus diisi')
           })
         )
       }
@@ -106,7 +108,8 @@ export default function AddPurchaseOrder({}) {
             warehouseId: yup.number(),
             price: yup.number(),
             quantity: yup.number(),
-            subTotal: yup.number()
+            subTotal: yup.number(),
+            modal: yup.number()
           })
         )
         .optional()
@@ -123,7 +126,7 @@ export default function AddPurchaseOrder({}) {
     getValues,
     watch,
     clearErrors,
-    trigger,
+    trigger
   } = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema)
@@ -166,7 +169,6 @@ export default function AddPurchaseOrder({}) {
 
   // ** Calculate Totals
   const calculateTotals = () => {
-
     const updatedFormField = getValues('data') // Fetch latest form values
     const updatedFormBarter = getValues('barterProduct')
 
@@ -345,13 +347,19 @@ export default function AddPurchaseOrder({}) {
       index: indexForm,
       fieldName: 'barterProduct'
     })
+    handleFetchDefaultBaseModal({
+      productId: transformedProduct.masterProductId,
+      unitId: transformedProduct?.masterUnitId,
+      index: indexForm,
+      fieldName: 'barterProduct'
+    })
   }
 
   const handleAddVendor = () => {
     setOpenModalVendor(true)
   }
 
-  const handlePriceChange = ({ event, index, fieldName, setValue, formStateField, onChange }) => {
+  const handlePriceChange = ({ event, index, fieldName, setValue, formStateField, onChange, isCalculation }) => {
     const input = event.target
     const cursorPosition = input.selectionStart // Save cursor position
     const rawValue = input.value.replace(/\D/g, '') // Remove non-digit characters
@@ -377,20 +385,22 @@ export default function AddPurchaseOrder({}) {
     }
     input.setSelectionRange(cursorIndexInFormatted, cursorIndexInFormatted)
 
-    const newPrice = +rawValue
-    const currentQuantity = formStateField[index]?.quantity || 0
-    const newSubTotal = currentQuantity * newPrice
+    if (isCalculation) {
+      const newPrice = +rawValue
+      const currentQuantity = formStateField[index]?.quantity || 0
+      const newSubTotal = currentQuantity * newPrice
 
-    if (parseInt(newSubTotal, 10) > 0) {
-      setValue(`${fieldName}[${index}].subTotal`, newSubTotal)
-    }
+      if (parseInt(newSubTotal, 10) > 0) {
+        setValue(`${fieldName}[${index}].subTotal`, newSubTotal)
+      }
 
-    if (
-      formStateField[index].quantity &&
-      formStateField[index].price &&
-      parseInt(formStateField[index].quantity, 10) > 0
-    ) {
-      calculateTotals()
+      if (
+        formStateField[index].quantity &&
+        formStateField[index].price &&
+        parseInt(formStateField[index].quantity, 10) > 0
+      ) {
+        calculateTotals()
+      }
     }
   }
 
@@ -410,10 +420,26 @@ export default function AddPurchaseOrder({}) {
           shouldDirty: true
         })
         setTimeout(() => {
-          calculateTotals();
-        }, 0);
+          calculateTotals()
+        }, 0)
       } else {
         setValue(`${fieldName}[${index}].price`, '')
+      }
+    })
+  }
+
+  const handleFetchDefaultBaseModal = ({ productId, unitId, index, fieldName }) => {
+    dispatch(
+      fetchOneMasterDataModal({
+        productId,
+        unitId
+      })
+    ).then(({ payload }) => {
+      // if price exist then switch to replace
+      if (payload.data) {
+        setValue(`${fieldName}[${index}].modal`, payload.data.modal)
+      } else {
+        setValue(`${fieldName}[${index}].modal`, '')
       }
     })
   }
@@ -441,14 +467,16 @@ export default function AddPurchaseOrder({}) {
   const handleSaveTransformData = (index, data) => {
     setLastTransformData(prev => ({ ...prev, [index]: data }))
   }
-  
-  const handleResetValueAndForm = ({fieldName, index}) => {
+
+  const handleResetValueAndForm = ({ fieldName, index }) => {
     setValue(`${fieldName}[${index}].subTotal`, '')
     setValue(`${fieldName}[${index}].quantity`, '')
     setValue(`${fieldName}[${index}].price`, '')
-    clearErrors(`${fieldName}.${index}.subTotal`);
-    clearErrors(`${fieldName}.${index}.quantity`);
-    clearErrors(`${fieldName}.${index}.price`);
+    setValue(`${fieldName}[${index}].modal`, '')
+    clearErrors(`${fieldName}.${index}.subTotal`)
+    clearErrors(`${fieldName}.${index}.quantity`)
+    clearErrors(`${fieldName}.${index}.price`)
+    clearErrors(`${fieldName}.${index}.modal`)
     calculateTotals()
   }
 
@@ -737,7 +765,8 @@ export default function AddPurchaseOrder({}) {
                                   fieldName: 'data',
                                   setValue,
                                   formStateField: formField,
-                                  onChange
+                                  onChange,
+                                  isCalculation: true
                                 })
                               }}
                               type='text'
@@ -902,7 +931,13 @@ export default function AddPurchaseOrder({}) {
                                       })
                                       handleResetValueAndForm({
                                         fieldName: 'barterProduct',
+                                        index
+                                      })
+                                      handleFetchDefaultBaseModal({
+                                        productId: selectedProduct.masterProductId,
+                                        unitId: selectedProduct.masterUnitId,
                                         index,
+                                        fieldName: 'barterProduct'
                                       })
                                     } else {
                                       setValue(`barterProduct[${index}].qty`, '')
@@ -956,7 +991,7 @@ export default function AddPurchaseOrder({}) {
                           }}
                         />
                       </Grid>
-                      <Grid key={getValues(`barterProduct[${index}].warehouseProductId`)} item xs={5} md={2}>
+                      <Grid key={getValues(`barterProduct[${index}].warehouseProductId`)} item xs={5} md={1}>
                         <Controller
                           name={`barterProduct[${index}].quantity`}
                           control={control}
@@ -1018,7 +1053,8 @@ export default function AddPurchaseOrder({}) {
                                   fieldName: 'barterProduct',
                                   setValue,
                                   formStateField: formBarter,
-                                  onChange
+                                  onChange,
+                                  isCalculation: true
                                 })
                               }}
                               type='text'
@@ -1031,7 +1067,38 @@ export default function AddPurchaseOrder({}) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={3}>
+                      <Grid item xs={5} md={2}>
+                        <Controller
+                          name={`barterProduct[${index}].modal`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value } }) => (
+                            <CustomTextField
+                              fullWidth
+                              label='Modal'
+                              value={priceFormat(value || 0)}
+                              type='text'
+                              disabled
+                              onChange={e => {
+                                handlePriceChange({
+                                  event: e,
+                                  index,
+                                  fieldName: 'barterProduct',
+                                  setValue,
+                                  formStateField: formBarter,
+                                  onChange
+                                })
+                              }}
+                              sx={{ display: 'block' }}
+                              error={Boolean(errors?.barterProduct?.[index]?.modal)}
+                              {...(errors?.barterProduct?.[index]?.modal && {
+                                helperText: errors?.barterProduct?.[index]?.modal.message
+                              })}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={5} md={2}>
                         <Controller
                           name={`barterProduct[${index}].subTotal`}
                           control={control}
@@ -1072,7 +1139,8 @@ export default function AddPurchaseOrder({}) {
                           price: '',
                           quantity: '',
                           subTotal: '',
-                          warehouseId: ''
+                          warehouseId: '',
+                          modal: ''
                         })
                       }
                       startIcon={<Icon icon='tabler:plus' />}
