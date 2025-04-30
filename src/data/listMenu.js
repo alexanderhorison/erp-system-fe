@@ -195,6 +195,38 @@ export const listMenu = [
     ]
   },
   {
+    sectionTitle: 'Master Data',
+    menuId: [29, 31, 32]
+  },
+  {
+    title: 'Cost Tak Terduga',
+    icon: 'tabler:cash',
+    path: '/master/unexpected-cost-category',
+    menuId: 29
+  },
+  {
+    title: 'Mobil',
+    icon: 'tabler:car',
+    path: '/master/car',
+    menuId: 31
+  },
+  {
+    title: 'Karyawan',
+    icon: 'tabler:users',
+    path: '/master/employee',
+    menuId: 32
+  },
+  {
+    sectionTitle: 'Report',
+    menuId: [30]
+  },
+  {
+    title: 'Report',
+    icon: 'tabler:file-report',
+    path: '/report/',
+    menuId: 30
+  },
+  {
     sectionTitle: 'Pengguna & Otoritas',
     menuId: [1, 2, 28]
   },

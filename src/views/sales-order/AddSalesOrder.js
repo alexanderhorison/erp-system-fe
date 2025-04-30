@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Card, CardContent, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
@@ -23,10 +23,13 @@ import { Box, getValue } from '@mui/system'
 import ModalTransformProductSalesOrder from './ModalTransformProductSalesOrder'
 import ModalAddMasterCustomer from '../master/customer/ModalAddMasterCustomer'
 import { fetchOneMasterDataModal } from 'src/store/apps/master/modal'
+import { UseAuth } from 'src/hooks/useAuth'
 
-export default function AddSalesOrder({}) {
+export default function AddSalesOrder({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
+
+  const { user } = UseAuth()
 
   const theme = useTheme()
   const { direction } = theme
@@ -321,9 +324,8 @@ export default function AddSalesOrder({}) {
 
   const titleProductInfo = index => {
     const infos = {
-      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${
-        getValues(`data[${index}].unitName`) || '-'
-      }`,
+      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${getValues(`data[${index}].unitName`) || '-'
+        }`,
       titleQuantity: `QTY: ${getValues(`data[${index}].qty`) || '-'}`,
       titleTransformation: getValues(`data[${index}].quantity`) > 0 ? '| Transformasi Produk' : ''
     }
@@ -332,13 +334,19 @@ export default function AddSalesOrder({}) {
 
   const titleBarterInfo = index => {
     const infos = {
-      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${
-        getValues(`barterProduct[${index}].unitName`) || '-'
-      }`,
+      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${getValues(`barterProduct[${index}].unitName`) || '-'
+        }`,
       titleQuantity: `QTY: ${getValues(`barterProduct[${index}].qty`) || '-'}`
     }
     return infos
   }
+
+  const showModal = useMemo(() => {
+    return user?.role === 'admin'
+  }, [user])
+
+  console.log(showModal);
+
 
   const handleAddCustomer = () => {
     setOpenModalCustomer(true)
@@ -669,7 +677,7 @@ export default function AddSalesOrder({}) {
                           }}
                         />
                       </Grid>
-                      <Grid key={getValues(`data[${index}].warehouseProductId`)} item xs={5} md={1}>
+                      <Grid key={getValues(`data[${index}].warehouseProductId`)} item xs={5} md={showModal ? 1 : 3}>
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}
@@ -744,37 +752,41 @@ export default function AddSalesOrder({}) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={2}>
-                        <Controller
-                          name={`data[${index}].modal`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Modal'
-                              value={priceFormat(value || 0)}
-                              type='text'
-                              disabled
-                              onChange={e => {
-                                handlePriceChange({
-                                  event: e,
-                                  index,
-                                  fieldName: 'data',
-                                  setValue,
-                                  formStateField: formField,
-                                  onChange
-                                })
-                              }}
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors?.data?.[index]?.modal)}
-                              {...(errors?.data?.[index]?.modal && {
-                                helperText: errors?.data?.[index]?.modal.message
-                              })}
+                      {
+                        showModal && (
+                          <Grid item xs={5} md={2} >
+                            <Controller
+                              name={`data[${index}].modal`}
+                              control={control}
+                              rules={{ required: true }}
+                              render={({ field: { value, onChange } }) => (
+                                <CustomTextField
+                                  fullWidth
+                                  label='Modal'
+                                  value={priceFormat(value || 0)}
+                                  type='text'
+                                  disabled
+                                  onChange={e => {
+                                    handlePriceChange({
+                                      event: e,
+                                      index,
+                                      fieldName: 'data',
+                                      setValue,
+                                      formStateField: formField,
+                                      onChange
+                                    })
+                                  }}
+                                  sx={{ display: 'block' }}
+                                  error={Boolean(errors?.data?.[index]?.modal)}
+                                  {...(errors?.data?.[index]?.modal && {
+                                    helperText: errors?.data?.[index]?.modal.message
+                                  })}
+                                />
+                              )}
                             />
-                          )}
-                        />
-                      </Grid>
+                          </Grid>
+                        )
+                      }
                       <Grid item xs={5} md={2}>
                         <Controller
                           name={`data[${index}].subTotal`}
