@@ -25,7 +25,7 @@ import ModalAddMasterCustomer from '../master/customer/ModalAddMasterCustomer'
 import { fetchOneMasterDataModal } from 'src/store/apps/master/modal'
 import { UseAuth } from 'src/hooks/useAuth'
 
-export default function AddSalesOrder({ }) {
+export default function AddSalesOrder({}) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -258,19 +258,35 @@ export default function AddSalesOrder({ }) {
 
   // Set WarehouseId and Fetch data list product by warehouse Id
   const handleWarehouseSelect = newWarehouseId => {
-    setWarehouseId(newWarehouseId) // Update the selected warehouseId
+    // Don't proceed if the warehouseId is null or undefined
+    if (!newWarehouseId) return
+
+    // Update the selected warehouseId
+    setWarehouseId(newWarehouseId)
 
     // Check if data for the selected warehouseId already exists
     if (!dataWarehouseIds[newWarehouseId]) {
       // Fetch data only if it doesn't exist in the state
       dispatch(fetchInvoiceListProductByWarehouseId(newWarehouseId))
         .then(response => {
+          if (response && response.payload) {
+            // Initialize with empty array if data is falsy
+            const productData = response.payload.data || []
+
+            setDataWarehouseIds(prevState => ({
+              ...prevState,
+              [newWarehouseId]: productData // Store the fetched data by warehouseId
+            }))
+          }
+        })
+        .catch(error => {
+          console.error('Failed to fetch data:', error)
+          // Initialize with empty array on error
           setDataWarehouseIds(prevState => ({
             ...prevState,
-            [newWarehouseId]: response.payload.data // Store the fetched data by warehouseId
+            [newWarehouseId]: []
           }))
         })
-        .catch(error => console.error('Failed to fetch data:', error))
     }
   }
 
@@ -324,8 +340,9 @@ export default function AddSalesOrder({ }) {
 
   const titleProductInfo = index => {
     const infos = {
-      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${getValues(`data[${index}].unitName`) || '-'
-        }`,
+      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${
+        getValues(`data[${index}].unitName`) || '-'
+      }`,
       titleQuantity: `QTY: ${getValues(`data[${index}].qty`) || '-'}`,
       titleTransformation: getValues(`data[${index}].quantity`) > 0 ? '| Transformasi Produk' : ''
     }
@@ -334,8 +351,9 @@ export default function AddSalesOrder({ }) {
 
   const titleBarterInfo = index => {
     const infos = {
-      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${getValues(`barterProduct[${index}].unitName`) || '-'
-        }`,
+      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${
+        getValues(`barterProduct[${index}].unitName`) || '-'
+      }`,
       titleQuantity: `QTY: ${getValues(`barterProduct[${index}].qty`) || '-'}`
     }
     return infos
@@ -345,8 +363,7 @@ export default function AddSalesOrder({ }) {
     return user?.role === 'admin'
   }, [user])
 
-  console.log(showModal);
-
+  console.log(showModal)
 
   const handleAddCustomer = () => {
     setOpenModalCustomer(true)
@@ -752,41 +769,39 @@ export default function AddSalesOrder({ }) {
                           )}
                         />
                       </Grid>
-                      {
-                        showModal && (
-                          <Grid item xs={5} md={2} >
-                            <Controller
-                              name={`data[${index}].modal`}
-                              control={control}
-                              rules={{ required: true }}
-                              render={({ field: { value, onChange } }) => (
-                                <CustomTextField
-                                  fullWidth
-                                  label='Modal'
-                                  value={priceFormat(value || 0)}
-                                  type='text'
-                                  disabled
-                                  onChange={e => {
-                                    handlePriceChange({
-                                      event: e,
-                                      index,
-                                      fieldName: 'data',
-                                      setValue,
-                                      formStateField: formField,
-                                      onChange
-                                    })
-                                  }}
-                                  sx={{ display: 'block' }}
-                                  error={Boolean(errors?.data?.[index]?.modal)}
-                                  {...(errors?.data?.[index]?.modal && {
-                                    helperText: errors?.data?.[index]?.modal.message
-                                  })}
-                                />
-                              )}
-                            />
-                          </Grid>
-                        )
-                      }
+                      {showModal && (
+                        <Grid item xs={5} md={2}>
+                          <Controller
+                            name={`data[${index}].modal`}
+                            control={control}
+                            rules={{ required: true }}
+                            render={({ field: { value, onChange } }) => (
+                              <CustomTextField
+                                fullWidth
+                                label='Modal'
+                                value={priceFormat(value || 0)}
+                                type='text'
+                                disabled
+                                onChange={e => {
+                                  handlePriceChange({
+                                    event: e,
+                                    index,
+                                    fieldName: 'data',
+                                    setValue,
+                                    formStateField: formField,
+                                    onChange
+                                  })
+                                }}
+                                sx={{ display: 'block' }}
+                                error={Boolean(errors?.data?.[index]?.modal)}
+                                {...(errors?.data?.[index]?.modal && {
+                                  helperText: errors?.data?.[index]?.modal.message
+                                })}
+                              />
+                            )}
+                          />
+                        </Grid>
+                      )}
                       <Grid item xs={5} md={2}>
                         <Controller
                           name={`data[${index}].subTotal`}
