@@ -31,6 +31,8 @@ export default function AddSalesOrder({}) {
 
   const { user } = UseAuth()
 
+  console.log(user)
+
   const theme = useTheme()
   const { direction } = theme
   const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
@@ -359,11 +361,9 @@ export default function AddSalesOrder({}) {
     return infos
   }
 
-  const showModal = useMemo(() => {
-    return user?.role === 'admin'
+  const isAdmin = useMemo(() => {
+    return user?.roleId === 1
   }, [user])
-
-  console.log(showModal)
 
   const handleAddCustomer = () => {
     setOpenModalCustomer(true)
@@ -694,7 +694,7 @@ export default function AddSalesOrder({}) {
                           }}
                         />
                       </Grid>
-                      <Grid key={getValues(`data[${index}].warehouseProductId`)} item xs={5} md={showModal ? 1 : 3}>
+                      <Grid key={getValues(`data[${index}].warehouseProductId`)} item xs={5} md={isAdmin ? 1 : 3}>
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}
@@ -769,7 +769,7 @@ export default function AddSalesOrder({}) {
                           )}
                         />
                       </Grid>
-                      {showModal && (
+                      {isAdmin && (
                         <Grid item xs={5} md={2}>
                           <Controller
                             name={`data[${index}].modal`}

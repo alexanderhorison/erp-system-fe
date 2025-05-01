@@ -20,6 +20,8 @@ import { companyInfo } from 'src/data/companyInfo'
 import { Status } from 'src/@core/components/common'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { CompanySvg } from 'src/data/companySvg'
+import { UseAuth } from 'src/hooks/useAuth'
+import { useMemo } from 'react'
 
 const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
@@ -42,6 +44,8 @@ const CalcWrapper = styled(Box)(({ theme }) => ({
 const DetailPageSalesOrder = ({ data }) => {
   // ** Hook
   const theme = useTheme()
+  const { user } = UseAuth()
+  const isAdmin = useMemo(() => user?.roleId === 1, [user])
 
   if (data) {
     return (
@@ -120,7 +124,7 @@ const DetailPageSalesOrder = ({ data }) => {
                   <TableCell align='left'>Produk</TableCell>
                   <TableCell align='left'>Kuantiti</TableCell>
                   <TableCell align='left'>Harga</TableCell>
-                  <TableCell align='left'>Modal</TableCell>
+                  {isAdmin && <TableCell align='left'>Modal</TableCell>}
                   <TableCell align='center'>Jumlah</TableCell>
                 </TableRow>
               </TableHead>
@@ -146,9 +150,11 @@ const DetailPageSalesOrder = ({ data }) => {
                       </TableCell>
                       <TableCell>{item?.quantity || ''}</TableCell>
                       <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(item?.price)}</TableCell>
-                      <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>
-                        Rp. {priceFormat(item?.modal)}
-                      </TableCell>
+                      {isAdmin && (
+                        <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>
+                          Rp. {priceFormat(item?.modal)}
+                        </TableCell>
+                      )}
                       <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>
                         Rp. {priceFormat(item?.subTotal)}
                       </TableCell>

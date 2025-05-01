@@ -17,10 +17,13 @@ import { companyInfo } from 'src/data/companyInfo'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { CompanySvg } from 'src/data/companySvg'
 import { MUITableCell } from './PrintSalesOrder'
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useContext } from 'react'
+import { UseAuth } from 'src/hooks/useAuth'
 
 const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
   const theme = useTheme()
+  const { user } = UseAuth()
+  const isAdmin = user?.roleId === 1
 
   const calculatePageBreaks = (productCount, barterCount) => {
     const maxItemsPerPage = 14 // Maximum items per page
@@ -148,6 +151,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
               <TableCell align='left'>Unit</TableCell>
               <TableCell align='left'>Kuantiti</TableCell>
               <TableCell align='left'>Harga</TableCell>
+              {isAdmin && <TableCell align='left'>Modal</TableCell>}
               <TableCell align='center'>Jumlah</TableCell>
             </TableRow>
           </TableHead>
@@ -176,6 +180,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
                   <TableCell>{data?.unitName || ''}</TableCell>
                   <TableCell>{data?.quantity || ''}</TableCell>
                   <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.price)}</TableCell>
+                  {isAdmin && <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.modal)}</TableCell>}
                   <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>
                     Rp. {priceFormat(data?.subTotal)}
                   </TableCell>

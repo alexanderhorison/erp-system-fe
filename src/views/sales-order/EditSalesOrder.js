@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Card, CardContent, Divider, Grid, Typography, useTheme } from '@mui/material'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -14,10 +14,12 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { Box } from '@mui/system'
+import { UseAuth } from 'src/hooks/useAuth'
 
 export default function EditSalesOrderPage({ data, salesOrderCode }) {
   const dispatch = useDispatch()
   const router = useRouter()
+  const { user } = UseAuth()
 
   const theme = useTheme()
   const { direction } = theme
@@ -119,6 +121,10 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
     name: 'barterProduct'
   })
   const formBarter = watch('barterProduct')
+
+  const isAdmin = useMemo(() => {
+    return user?.roleId === 1
+  }, [user])
 
   const onSubmit = data => {
     const listItems = data.data
@@ -489,36 +495,38 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={2}>
-                        <Controller
-                          name={`data[${index}].modal`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Modal'
-                              value={priceFormat(value || 0)}
-                              type='text'
-                              onChange={e => {
-                                handlePriceChange({
-                                  event: e,
-                                  index,
-                                  fieldName: 'data',
-                                  setValue,
-                                  formStateField: formField,
-                                  onChange
-                                })
-                              }}
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors?.data?.[index]?.modal)}
-                              {...(errors?.data?.[index]?.modal && {
-                                helperText: errors?.data?.[index]?.modal.message
-                              })}
-                            />
-                          )}
-                        />
-                      </Grid>
+                      {isAdmin && (
+                        <Grid item xs={5} md={2}>
+                          <Controller
+                            name={`data[${index}].modal`}
+                            control={control}
+                            rules={{ required: true }}
+                            render={({ field: { value, onChange } }) => (
+                              <CustomTextField
+                                fullWidth
+                                label='Modal'
+                                value={priceFormat(value || 0)}
+                                type='text'
+                                onChange={e => {
+                                  handlePriceChange({
+                                    event: e,
+                                    index,
+                                    fieldName: 'data',
+                                    setValue,
+                                    formStateField: formField,
+                                    onChange
+                                  })
+                                }}
+                                sx={{ display: 'block' }}
+                                error={Boolean(errors?.data?.[index]?.modal)}
+                                {...(errors?.data?.[index]?.modal && {
+                                  helperText: errors?.data?.[index]?.modal.message
+                                })}
+                              />
+                            )}
+                          />
+                        </Grid>
+                      )}
                       <Grid item xs={5} md={2}>
                         <Controller
                           name={`data[${index}].subTotal`}
