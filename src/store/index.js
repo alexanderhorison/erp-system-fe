@@ -44,6 +44,7 @@ import printer from './apps/config/configPrinter'
 import masterCar from './apps/master/car'
 import masterEmployee from './apps/master/employee'
 import masterUnexpectedCostCategory from './apps/master/unexpected-cost-category'
+import exportReport from './apps/export'
 
 export const store = configureStore({
   reducer: {
@@ -87,7 +88,8 @@ export const store = configureStore({
     masterModal,
     masterCar,
     masterEmployee,
-    masterUnexpectedCostCategory
+    masterUnexpectedCostCategory,
+    exportReport
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
