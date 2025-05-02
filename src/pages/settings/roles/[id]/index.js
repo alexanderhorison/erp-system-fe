@@ -205,6 +205,13 @@ export default function DetailRole() {
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
                 />
+                <MenuTitle name={'Daily Cost Calendar'} />
+                <MenuItem
+                  name={'Daily Cost Calendar'}
+                  menuId={33}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
               </List>
             </Grid>
             <Grid item md={4} xs={12}>
@@ -254,7 +261,6 @@ export default function DetailRole() {
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
                 />
-
                 <MenuTitle name={'Point Of Sale'} />
                 <MenuItem
                   name={'Point Of Sale'}

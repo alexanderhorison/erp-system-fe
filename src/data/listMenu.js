@@ -6,6 +6,12 @@ export const listMenu = [
     menuId: 27
   },
   {
+    title: 'Daily Cost Calendar',
+    path: '/daily-cost-calendar/',
+    icon: 'tabler:calendar',
+    menuId: 33
+  },
+  {
     sectionTitle: 'Inventory',
     menuId: [4, 5, 12, 3, 6, 13],
   },
