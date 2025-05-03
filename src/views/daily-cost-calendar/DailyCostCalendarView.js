@@ -17,6 +17,7 @@ import { priceFormatWIthCurrency } from "src/helpers/priceFormatter";
 import Icon from 'src/@core/components/icon'
 import "dayjs/locale/id";
 import SettingDailyCost from "./SettingDailyCost";
+import ModalActionCalendar from "./ModalActionCalendar";
 dayjs.locale("id");
 
 export default function DailyCostCalendarView({ expenses }) {
@@ -28,6 +29,8 @@ export default function DailyCostCalendarView({ expenses }) {
     },
   });
   const [openModalSetting, setOpenModalSetting] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [openModalCalendar, setOpenModalCalendar] = useState(false);
 
   const selectedMonth = watch("month");
   const selectedYear = watch("year");
@@ -52,29 +55,41 @@ export default function DailyCostCalendarView({ expenses }) {
 
     for (let i = 0; i < totalBoxes; i++) {
       const dayNumber = i - startDay + 1;
-      const dateStr = dayjs(`${selectedYear}-${selectedMonth + 1}-${dayNumber}`).format("YYYY-MM-DD");
+      const date = dayjs(`${selectedYear}-${selectedMonth + 1}-${dayNumber}`)
+      const dateStr = date.format("YYYY-MM-DD");
+      const isFuture = date.isAfter(now, 'day');
 
       calendar.push(
         <Grid item xs={12 / 7} key={i}>
-          <Card sx={{ height: 80, backgroundColor: "#f5f5f5" }}>
-            <CardContent sx={{ p: 1 }}>
-              {i >= startDay && (
-                <>
-                  <Typography variant="subtitle2">
-                    {dayjs(`${selectedYear}-${selectedMonth + 1}-${dayNumber}`).format("dddd")}
+          <Box
+            onClick={() => {
+              if (i >= startDay && !isFuture) {
+                setSelectedDate(dateStr);
+                setOpenModalCalendar(true);
+              }
+            }}
+            sx={{ cursor: i >= startDay && !isFuture ? "pointer" : "default" }}
+          >
+            <Card sx={{ height: 80, backgroundColor: "#f5f5f5" }}>
+              <CardContent sx={{ p: 1 }}>
+                {i >= startDay && (
+                  <>
+                    <Typography variant="subtitle2">
+                      {dayjs(dateStr).format("dddd")}
+                    </Typography>
+                    <Typography variant="subtitle2">
+                      {dayNumber}
+                    </Typography>
+                  </>
+                )}
+                {i >= startDay && expensesByDate[dateStr] && (
+                  <Typography variant="body2" color="primary" sx={{ mt: 2 }}>
+                    {priceFormatWIthCurrency(expensesByDate[dateStr])}
                   </Typography>
-                  <Typography variant="subtitle2">
-                    {dayNumber}
-                  </Typography>
-                </>
-              )}
-              {i >= startDay && expensesByDate[dateStr] && (
-                <Typography variant="body2" color="primary">
-                  {priceFormatWIthCurrency(expensesByDate[dateStr])}
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
+          </Box>
         </Grid>
       );
     }
@@ -145,6 +160,15 @@ export default function DailyCostCalendarView({ expenses }) {
           open={openModalSetting}
           onClose={() => setOpenModalSetting(false)}
         />)
+      }
+      {openModalCalendar && (
+        <ModalActionCalendar
+          open={openModalCalendar}
+          onClose={() => setOpenModalCalendar(false)}
+          selectedDate={selectedDate}
+          expensesByDate={expensesByDate}
+        />
+      )
       }
     </>
   );
