@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalError } from 'src/helpers/swalFunction'
+import { swalError, swalSuccess } from 'src/helpers/swalFunction'
+import { fetchMasterDataProductPrice } from '../product-price'
 
 const label = 'modal'
 
@@ -14,6 +15,25 @@ export const fetchOneMasterDataModal = createAsyncThunk(
         url: `/master/modal/${data.productId}/${data.unitId}`,
         data
       })
+      return response.data
+    } catch (error) {
+      swalError({ error, label })
+      return rejectWithValue({})
+    }
+  }
+)
+
+export const forceUpdateMasterDataModal = createAsyncThunk(
+  'appMasterModal/forceUpdateMasterDataModal',
+  async (data, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: '/master/modal/force-update-modal',
+        data
+      })
+      swalSuccess({ label, name: 'Product Price', response })
+      dispatch(fetchMasterDataProductPrice(data.productId))
       return response.data
     } catch (error) {
       swalError({ error, label })

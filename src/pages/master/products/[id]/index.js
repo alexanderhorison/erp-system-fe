@@ -35,7 +35,7 @@ export default function MasterProductTransformation() {
       </Grid>
       <Grid item xs={12}>
         <Typography fontSize={20} paddingY={3}>
-          Master Product Price
+          Master Product Price And Master Modal
         </Typography>
         <TableMasterProductPrice product={detail} />
       </Grid>

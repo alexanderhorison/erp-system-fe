@@ -3,6 +3,7 @@ import Card from '@mui/material/Card'
 import { DataGrid } from '@mui/x-data-grid'
 import { useDispatch, useSelector } from 'react-redux'
 import swal from 'src/pages/sweetalert'
+import { forceUpdateMasterDataModal } from 'src/store/apps/master/modal'
 import { addMasterDataProductPrice } from 'src/store/apps/master/product-price'
 
 export default function TableMasterProductPrice({ product }) {
@@ -40,22 +41,55 @@ export default function TableMasterProductPrice({ product }) {
       headerName: 'Base Price',
       field: 'basePrice',
       headerAlign: 'left'
+    },
+    {
+      flex: 0.15,
+      minWidth: 200,
+      editable: true,
+      type: 'number',
+      align: 'left',
+      headerName: 'Master Modal',
+      field: 'masterModal',
+      headerAlign: 'left'
     }
   ]
 
   const onChangeVal = (newRow, oldRow) => {
-    if (newRow.basePrice < 0) {
-      newRow.basePrice = 0
-      swal.fire({
-        icon: 'error',
-        title: 'Base price harus lebih dari 0',
-        timer: 2000,
-        confirmButtonColor: '#6F4E37'
-      })
-    } else {
-      dispatch(addMasterDataProductPrice(newRow))
+    // Mengidentifikasi kolom yang diubah
+    const changedField = Object.keys(newRow).find(key => newRow[key] !== oldRow[key]);
+    console.log(newRow);
+    
+    if (changedField === 'basePrice') {
+      if (newRow.basePrice < 0) {
+        newRow.basePrice = 0
+        swal.fire({
+          icon: 'error',
+          title: 'Base price harus lebih dari 0',
+          timer: 2000,
+          confirmButtonColor: '#6F4E37'
+        })
+      } else {
+        dispatch(addMasterDataProductPrice(newRow))
+      }
+      return newRow
+    } else if (changedField === 'masterModal') {
+      if (newRow.masterModal < 0) {
+        newRow.masterModal = 0
+        swal.fire({
+          icon: 'error',
+          title: 'Master Modal harus lebih dari 0',
+          timer: 2000,
+          confirmButtonColor: '#6F4E37'
+        })
+      } else {
+        dispatch(forceUpdateMasterDataModal({
+          productId: newRow.productId,
+          unitId: newRow.unitId,
+          modal: newRow.masterModal
+        }))
+      }
+      return newRow
     }
-    return newRow
   }
 
   return (
