@@ -178,6 +178,7 @@ const DetailPageSalesOrder = ({ data }) => {
                       <TableCell align='left'>Produk</TableCell>
                       <TableCell align='left'>Kuantiti</TableCell>
                       <TableCell align='left'>Harga</TableCell>
+                      <TableCell align='left'>Modal Baru</TableCell>
                       <TableCell align='center'>Jumlah</TableCell>
                     </TableRow>
                   </TableHead>
@@ -203,6 +204,7 @@ const DetailPageSalesOrder = ({ data }) => {
                           </TableCell>
                           <TableCell>{item?.quantity || ''}</TableCell>
                           <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(item?.price)}</TableCell>
+                          <TableCell>{item?.isNewModal ? 'Ya' : 'Tidak'}</TableCell>
                           <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>
                             Rp. {priceFormat(item?.subTotal)}
                           </TableCell>
@@ -275,11 +277,10 @@ const DetailPageSalesOrder = ({ data }) => {
             <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
               {data?.grandTotal < 0
                 ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
-                    data?.grandTotal
-                  ).toLocaleString()}`
-                : `Customer ${
-                    data?.customer?.name?.toUpperCase() || ''
-                  } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
+                  data?.grandTotal
+                ).toLocaleString()}`
+                : `Customer ${data?.customer?.name?.toUpperCase() || ''
+                } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
             </Typography>
           </Box>
         </CardContent>
