@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid, IconButton, Typography, useTheme } from '@mui/material'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Button, Card, CardContent, Checkbox, Divider, FormControlLabel, Grid, IconButton, Typography, useTheme } from '@mui/material'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
@@ -92,7 +92,8 @@ export default function AddSalesOrder({}) {
               .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
                 return Number(value) >= 0
               }),
-            subTotal: yup.number().typeError('Sub Total Product harus diisi').required('Sub Total barter harus diisi')
+            subTotal: yup.number().typeError('Sub Total Product harus diisi').required('Sub Total barter harus diisi'),
+            isNewModal: yup.boolean().default(false),
           })
         )
       }
@@ -105,7 +106,8 @@ export default function AddSalesOrder({}) {
             warehouseId: yup.number(),
             price: yup.number(),
             quantity: yup.number(),
-            subTotal: yup.number()
+            subTotal: yup.number(),
+            isNewModal: yup.boolean().default(false),
           })
         )
         .optional()
@@ -905,6 +907,24 @@ export default function AddSalesOrder({}) {
                           )}
                         />
                       </Grid>
+                      <Grid item xs={12} md={2} sx={{ marginTop: '1rem' }}>
+                          <Controller
+                            name={`barterProduct[${index}].isNewModal`}
+                            control={control}
+                            defaultValue={false}
+                            render={({ field: { value, onChange } }) => (
+                              <FormControlLabel
+                                control={
+                                  <Checkbox
+                                    checked={value}
+                                    onChange={e => onChange(e.target.checked)}
+                                  />
+                                }
+                                label='Modal Baru'
+                              />
+                            )}
+                          />
+                        </Grid>
                     </Grid>
                     <Grid container spacing={6} sx={{ marginTop: 1 }}>
                       <Grid item xs={12} md={4}>

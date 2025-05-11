@@ -1,6 +1,6 @@
 import { useTheme } from '@emotion/react'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, IconButton, Grid, Typography, Divider } from '@mui/material'
+import { Button, Card, CardContent, IconButton, Grid, Typography, Divider, FormControlLabel, Checkbox } from '@mui/material'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
@@ -27,7 +27,7 @@ import ModalAddMasterVendor from '../master/vendor/ModalAddMasterVendor'
 import ModalTransformPrice from './ModalTransformPrice'
 import { fetchOneMasterDataModal } from 'src/store/apps/master/modal'
 
-export default function AddPurchaseOrder({}) {
+export default function AddPurchaseOrder({ }) {
   const dispatch = useDispatch()
   const router = useRouter()
   const theme = useTheme()
@@ -69,7 +69,8 @@ export default function AddPurchaseOrder({}) {
         price: yup.number().typeError('Price product harus diisi').nonNullable('Price product harus diisi'),
         quantity: yup.number().min(0, 'Kuantiti tidak boleh minus').typeError('Kuantiti harus diisi'),
         subTotal: yup.number().typeError('Sub Total Product harus diisi'),
-        disabledTransform: yup.boolean().default(true)
+        disabledTransform: yup.boolean().default(true),
+        isNewModal: yup.boolean().default(false),
       })
     ),
     barterProduct: yup.lazy(value => {
@@ -284,9 +285,8 @@ export default function AddPurchaseOrder({}) {
 
   const titleProductInfo = index => {
     const infos = {
-      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${
-        getValues(`barterProduct[${index}].unitName`) || '-'
-      }`,
+      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${getValues(`barterProduct[${index}].unitName`) || '-'
+        }`,
       titleQuantity: `QTY: ${getValues(`barterProduct[${index}].qty`) || '-'}`,
       titleTransformation: getValues(`barterProduct[${index}].quantity`) > 0 ? '| Transformasi Produk' : ''
     }
@@ -593,7 +593,7 @@ export default function AddPurchaseOrder({}) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={12} md={3}>
+                      <Grid item xs={12} md={2}>
                         <Button
                           variant='contained'
                           sx={{
@@ -605,6 +605,24 @@ export default function AddPurchaseOrder({}) {
                         >
                           Transformasi Harga
                         </Button>
+                      </Grid>
+                      <Grid item xs={12} md={2} sx={{ marginTop: '1rem' }}>
+                        <Controller
+                          name={`data[${index}].isNewModal`}
+                          control={control}
+                          defaultValue={false}
+                          render={({ field: { value, onChange } }) => (
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={value}
+                                  onChange={e => onChange(e.target.checked)}
+                                />
+                              }
+                              label='Modal Baru'
+                            />
+                          )}
+                        />
                       </Grid>
                     </Grid>
                     <Grid container spacing={6} sx={{ marginTop: 1 }}>
@@ -1072,13 +1090,12 @@ export default function AddPurchaseOrder({}) {
                           name={`barterProduct[${index}].modal`}
                           control={control}
                           rules={{ required: true }}
-                          render={({ field: { value } }) => (
+                          render={({ field: { value, onChange } }) => (
                             <CustomTextField
                               fullWidth
                               label='Modal'
                               value={priceFormat(value || 0)}
                               type='text'
-                              disabled
                               onChange={e => {
                                 handlePriceChange({
                                   event: e,
