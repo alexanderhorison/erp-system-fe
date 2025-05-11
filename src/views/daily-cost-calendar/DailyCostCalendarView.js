@@ -18,6 +18,7 @@ import Icon from 'src/@core/components/icon'
 import "dayjs/locale/id";
 import SettingDailyCost from "./SettingDailyCost";
 import ModalActionCalendar from "./ModalActionCalendar";
+
 dayjs.locale("id");
 
 export default function DailyCostCalendarView({ expenses }) {
