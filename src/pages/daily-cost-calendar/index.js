@@ -1,18 +1,13 @@
 import { Card, CardContent, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import { useState } from 'react'
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchAllDailyCost } from 'src/store/apps/daily-cost'
 import DailyCostCalendarView from 'src/views/daily-cost-calendar/DailyCostCalendarView'
 
 export default function DailyCostCalendar() {
-  const expenses = [
-    { date: "2025-05-01", amount: 15000000 },
-    { date: "2025-05-01", amount: 8000000 },
-    { date: "2025-05-03", amount: 5000000 },
-    { date: "2025-05-05", amount: 1250000 },
-    { date: "2025-05-05", amount: 350000 },
-    { date: "2025-05-15", amount: 7000000 },
-    { date: "2025-05-20", amount: 990000 },
-  ];
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -21,7 +16,7 @@ export default function DailyCostCalendar() {
         </Box>
         <Card>
           <CardContent>
-            <DailyCostCalendarView expenses={expenses} />
+            <DailyCostCalendarView />
           </CardContent>
         </Card>
       </Grid>

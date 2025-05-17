@@ -98,6 +98,21 @@ export default function TableMasterCar({}) {
             }
           },
           {
+            flex: 0.15,
+            minWidth: 150,
+            field: 'emoneyBalance',
+            headerName: 'E-money Balance',
+            renderCell: params => {
+              return (
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
+                    params.row.emoneyBalance || 0
+                  )}
+                </Typography>
+              )
+            }
+          },
+          {
             flex: 0.2,
             minWidth: 120,
             field: 'description',

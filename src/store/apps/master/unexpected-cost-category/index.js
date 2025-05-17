@@ -11,7 +11,8 @@ export const fetchMasterDataUnexpectedCostCategory = createAsyncThunk(
     try {
       const response = await axios({
         method: 'GET',
-        url: '/master/unexpected-cost-category/all'
+        url: '/master/unexpected-cost-category/all',
+        params
       })
       return response.data
     } catch (error) {

@@ -45,6 +45,8 @@ import masterCar from './apps/master/car'
 import masterEmployee from './apps/master/employee'
 import masterUnexpectedCostCategory from './apps/master/unexpected-cost-category'
 import exportReport from './apps/export'
+import configDailyCost from './apps/config/configDailyCost'
+import dailyCost from "./apps/daily-cost"
 
 export const store = configureStore({
   reducer: {
@@ -89,7 +91,9 @@ export const store = configureStore({
     masterCar,
     masterEmployee,
     masterUnexpectedCostCategory,
-    exportReport
+    exportReport,
+    configDailyCost,
+    dailyCost,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

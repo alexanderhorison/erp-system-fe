@@ -5,11 +5,12 @@ import { swalConfirmationAdd, swalNotifSuccess, swalToastError } from 'src/helpe
 const label = 'Sales Order'
 
 // GET ALL SALES ORDER
-export const fetchAllSalesOrder = createAsyncThunk('salesOrder/fetchAllSalesOrder', async (_, { rejectWithValue }) => {
+export const fetchAllSalesOrder = createAsyncThunk('salesOrder/fetchAllSalesOrder', async (params, { rejectWithValue }) => {
   try {
     const response = await axios({
       method: 'GET',
-      url: '/sales-order/'
+      url: '/sales-order/',
+      params,
     })
     return response.data
   } catch (error) {

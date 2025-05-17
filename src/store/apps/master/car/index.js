@@ -9,7 +9,8 @@ export const fetchMasterDataCar = createAsyncThunk('appMasterCar/fetchData', asy
   try {
     const response = await axios({
       method: 'GET',
-      url: '/master/car/all'
+      url: '/master/car/all',
+      params,
     })
     return response.data
   } catch (error) {
@@ -36,26 +37,30 @@ export const fetchMasterDataCarDetail = createAsyncThunk(
 )
 
 // ADD CAR
-export const addMasterDataCar = createAsyncThunk('appMasterCar/addCar', async (data, { dispatch, rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'POST',
-      url: '/master/car/create',
-      headers: {},
-      data
-    })
-    swalSuccess({ label, name: 'Mobil', response })
-    dispatch(fetchMasterDataCar())
-  } catch (error) {
-    swalError({ error, label })
-    return rejectWithValue({})
+export const addMasterDataCar = createAsyncThunk(
+  'appMasterCar/addCar',
+  async ({ data, setOpen }, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: '/master/car/create',
+        headers: {},
+        data
+      })
+      swalSuccess({ label, name: 'Mobil', response })
+      dispatch(fetchMasterDataCar())
+      setOpen(false)
+    } catch (error) {
+      swalError({ error, label })
+      return rejectWithValue({})
+    }
   }
-})
+)
 
 // EDIT CAR
 export const editMasterDataCar = createAsyncThunk(
   'appMasterCar/editCar',
-  async ({ id, data }, { dispatch, rejectWithValue }) => {
+  async ({ id, data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'PUT',
@@ -64,6 +69,7 @@ export const editMasterDataCar = createAsyncThunk(
       })
       swalSuccess({ label, name: 'Mobil', response })
       dispatch(fetchMasterDataCar())
+      setOpen(false)
     } catch (error) {
       swalError({ error, label })
       return rejectWithValue({})
@@ -107,14 +113,16 @@ export const appMasterCarSlice = createSlice({
       name: '',
       plate_number: '',
       description: '',
-      is_active: true
+      is_active: true,
+      emoneyBalance: 0
     },
     defaultValue: {
       id: '',
       name: '',
       plate_number: '',
       description: '',
-      is_active: true
+      is_active: true,
+      emoneyBalance: 0
     },
     loadingDetail: false,
     total: 1,

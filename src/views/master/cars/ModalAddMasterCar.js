@@ -46,7 +46,8 @@ export default function ModalAddMasterCar({ open, setOpen, typeModal, id }) {
   // SCHEMA YUP VALIDATION
   const schema = yup.object().shape({
     name: yup.string().required('Nama mobil harus diisi'),
-    plate_number: yup.string().required('Plat nomor harus diisi')
+    plate_number: yup.string().required('Plat nomor harus diisi'),
+    emoneyBalance: yup.string().default('0')
   })
 
   // REACT FORM
@@ -63,11 +64,10 @@ export default function ModalAddMasterCar({ open, setOpen, typeModal, id }) {
   // ON SUBMIT
   const onSubmit = data => {
     if (typeModal === 'ADD') {
-      dispatch(addMasterDataCar(data))
+      dispatch(addMasterDataCar({ data: data, setOpen }))
     } else {
-      dispatch(editMasterDataCar({ id, data }))
+      dispatch(editMasterDataCar({ id, data, setOpen }))
     }
-    setOpen(false)
   }
 
   // CLOSE MODAL AND RESET FORM
@@ -140,6 +140,35 @@ export default function ModalAddMasterCar({ open, setOpen, typeModal, id }) {
                           error={Boolean(errors.plate_number)}
                           aria-describedby='validation-schema-plate_number'
                           {...(errors.plate_number && { helperText: errors.plate_number.message })}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={12}>
+                    <Controller
+                      name='emoneyBalance'
+                      control={control}
+                      rules={{ required: false }}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomTextField
+                          fullWidth
+                          type='text'
+                          value={value || ''}
+                          label='E-money Balance'
+                          placeholder='0'
+                          onChange={e => {
+                            // Only allow digits
+                            const val = e.target.value.replace(/[^\d]/g, '')
+                            onChange(val)
+                          }}
+                          inputProps={{
+                            inputMode: 'numeric',
+                            pattern: '[0-9]*'
+                          }}
+                          disabled={typeModal === 'VIEW'}
+                          error={Boolean(errors.emoneyBalance)}
+                          aria-describedby='validation-schema-emoneyBalance'
+                          {...(errors.emoneyBalance && { helperText: errors.emoneyBalance.message })}
                         />
                       )}
                     />

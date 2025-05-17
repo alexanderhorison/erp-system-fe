@@ -1,6 +1,6 @@
-import { MenuItem } from "@mui/material"
-import { Controller } from "react-hook-form"
-import CustomTextField from "src/@core/components/mui/text-field"
+import { MenuItem } from '@mui/material'
+import { Controller } from 'react-hook-form'
+import CustomTextField from 'src/@core/components/mui/text-field'
 
 export default function FormSelectSimple({
   control,
@@ -11,6 +11,9 @@ export default function FormSelectSimple({
   label,
   optionsValue,
   optionsLabel,
+  customOptionRenderer,
+  onChange: customOnChange,
+  placeholder = 'Select an option'
 }) {
   return (
     <Controller
@@ -25,6 +28,9 @@ export default function FormSelectSimple({
           value={value || ''}
           onChange={e => {
             onChange(e)
+            if (customOnChange) {
+              customOnChange(e)
+            }
           }}
           disabled={disabled}
           error={Boolean(errors[name])}
@@ -34,7 +40,7 @@ export default function FormSelectSimple({
           {data?.map((item, index) => {
             return (
               <MenuItem key={index} value={item[optionsValue]}>
-                {item[optionsLabel]}
+                {customOptionRenderer ? customOptionRenderer(item) : item[optionsLabel]}
               </MenuItem>
             )
           })}

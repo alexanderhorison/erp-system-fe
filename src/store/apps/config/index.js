@@ -4,6 +4,7 @@ import { swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'config'
 
+
 // REDUCER CONFIG
 export const appPrinterSlice = createSlice({
   name: 'appPrinter',
