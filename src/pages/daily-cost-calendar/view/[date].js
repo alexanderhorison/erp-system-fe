@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import DailyCostViewOnly from 'src/views/daily-cost-calendar/DailyCostViewOnly';
+
 dayjs.locale('id');
 
 export default function ViewDailyCost() {
