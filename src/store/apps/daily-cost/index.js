@@ -104,7 +104,7 @@ export const updateDailyCost = createAsyncThunk(
         axiosRequest: () => {
           return axios({
             method: 'PUT',
-            url: '/daily-cost/' + date,
+            url: '/daily-cost/update/' + date,
             data
           })
         },
@@ -115,6 +115,7 @@ export const updateDailyCost = createAsyncThunk(
       })
     } catch (error) {
       swalToastError({ label, error })
+      setIsSubmitting(false)
       return rejectWithValue([])
     }
   }
