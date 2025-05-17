@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid, Typography, useTheme } from '@mui/material'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Button, Card, CardContent, Checkbox, Divider, FormControlLabel, Grid, Typography, useTheme } from '@mui/material'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -71,7 +71,8 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
               .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
                 return Number(value) >= 0
               }),
-            subTotal: yup.number().typeError('Sub Total Product harus diisi').required('Sub Total barter harus diisi')
+            subTotal: yup.number().typeError('Sub Total Product harus diisi').required('Sub Total barter harus diisi'),
+            isNewModal: yup.boolean().default(false),
           })
         )
       }
@@ -84,7 +85,8 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
             warehouseProductId: yup.number(),
             price: yup.number(),
             quantity: yup.number(),
-            subTotal: yup.number()
+            subTotal: yup.number(),
+            isNewModal: yup.boolean().default(false),
           })
         )
         .optional()
@@ -224,7 +226,8 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
           subTotal: product.subTotal,
           qty: product.qty,
           warehouseId: product.warehouseId,
-          warehouseName: product.warehouseName
+          warehouseName: product.warehouseName,
+          isNewModal: product.isNewModal,
         })
       })
     }
@@ -265,9 +268,8 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
 
   const titleProductInfo = index => {
     const infos = {
-      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${
-        getValues(`data[${index}].unitName`) || '-'
-      }`,
+      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${getValues(`data[${index}].unitName`) || '-'
+        }`,
       titleQuantity: `QTY: ${getValues(`data[${index}].qty`) || '-'}`
     }
     return infos
@@ -275,9 +277,8 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
 
   const titleBarterInfo = index => {
     const infos = {
-      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${
-        getValues(`barterProduct[${index}].unitName`) || '-'
-      }`,
+      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${getValues(`barterProduct[${index}].unitName`) || '-'
+        }`,
       titleQuantity: `QTY: ${getValues(`barterProduct[${index}].qty`) || '-'}`
     }
     return infos
@@ -602,6 +603,24 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                                 disabled
                                 label='Gudang Sumber'
                                 sx={{ zIndex: 0, display: 'block' }}
+                              />
+                            )}
+                          />
+                        </Grid>
+                        <Grid item xs={12} md={2} sx={{ marginTop: '1rem' }}>
+                          <Controller
+                            name={`barterProduct[${index}].isNewModal`}
+                            control={control}
+                            defaultValue={false}
+                            render={({ field: { value, onChange } }) => (
+                              <FormControlLabel
+                                control={
+                                  <Checkbox
+                                    checked={value}
+                                    onChange={e => onChange(e.target.checked)}
+                                  />
+                                }
+                                label='Modal Baru'
                               />
                             )}
                           />

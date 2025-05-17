@@ -119,6 +119,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
                   <TableCell align='left'>Produk</TableCell>
                   <TableCell align='left'>Kuantiti</TableCell>
                   <TableCell align='left'>Harga</TableCell>
+                  <TableCell align='left'>Modal Baru</TableCell>
                   <TableCell align='center'>Jumlah</TableCell>
                 </TableRow>
               </TableHead>
@@ -144,6 +145,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
                       </TableCell>
                       <TableCell>{data?.quantity || ''}</TableCell>
                       <TableCell sx={{ whiteSpace: 'nowrap' }}>Rp. {priceFormat(data?.price)}</TableCell>
+                      <TableCell>{data?.isNewModal ? 'Ya' : 'Tidak'}</TableCell>
                       <TableCell align='right' sx={{ whiteSpace: 'nowrap' }}>
                         Rp. {priceFormat(data?.subTotal)}
                       </TableCell>

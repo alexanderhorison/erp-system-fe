@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid, Typography, useTheme } from '@mui/material'
+import { Button, Card, CardContent, Checkbox, Divider, FormControlLabel, Grid, Typography, useTheme } from '@mui/material'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
@@ -43,7 +43,8 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
             const num = Number(value)
             return num >= 0
           }),
-        subTotal: yup.number().typeError('Sub Total Product harus diisi')
+        subTotal: yup.number().typeError('Sub Total Product harus diisi'),
+        isNewModal: yup.boolean().default(false),
       })
     ),
     barterProduct: yup.lazy(value => {
@@ -201,7 +202,8 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
         subTotal: product.subTotal,
         qty: product.qty,
         warehouseId: product.warehouseId,
-        warehouseName: product.warehouseName
+        warehouseName: product.warehouseName,
+        isNewModal: product.isNewModal
       })
     })
     if (data?.listBarterProducts.length > 0) {
@@ -389,6 +391,24 @@ export default function EditPurchaseOrderPage({ data, purchaseOrderCode }) {
                               disabled
                               label='Gudang Tujuan'
                               sx={{ zIndex: 0, display: 'block' }}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={2} sx={{ marginTop: '1rem' }}>
+                        <Controller
+                          name={`data[${index}].isNewModal`}
+                          control={control}
+                          defaultValue={false}
+                          render={({ field: { value, onChange } }) => (
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={value}
+                                  onChange={e => onChange(e.target.checked)}
+                                />
+                              }
+                              label='Modal Baru'
                             />
                           )}
                         />
