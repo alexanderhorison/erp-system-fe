@@ -59,6 +59,9 @@ export const addDailyCost = createAsyncThunk(
         dispatchRequest: () => {
           setIsSubmitting(false)
           router.push('/daily-cost-calendar')
+        },
+        cancelAction: () => {
+          setIsSubmitting(false)
         }
       })
     } catch (error) {
@@ -111,6 +114,9 @@ export const updateDailyCost = createAsyncThunk(
         dispatchRequest: () => {
           setIsSubmitting(false)
           router.push('/daily-cost-calendar')
+        },
+        cancelAction: () => {
+          setIsSubmitting(false)
         }
       })
     } catch (error) {

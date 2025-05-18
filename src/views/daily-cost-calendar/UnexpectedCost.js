@@ -115,7 +115,7 @@ export default function UnexpectedCost({ readOnly = false }) {
                     )}
                   />
                 </Grid>
-                <Grid item xs={12} sm={12}>
+                <Grid item xs={12} sm={5}>
                   <Controller
                     name={`costUnexpecteds.${index}.description`}
                     control={control}
@@ -124,8 +124,8 @@ export default function UnexpectedCost({ readOnly = false }) {
                         {...field}
                         label='Deskripsi'
                         fullWidth
-                        multiline
-                        rows={3}
+                        // multiline
+                        // rows={3}
                         error={!!error}
                         helperText={error?.message}
                         disabled={readOnly}
@@ -133,7 +133,7 @@ export default function UnexpectedCost({ readOnly = false }) {
                     )}
                   />
                 </Grid>
-                <Grid item xs={12} sm={2} display='flex' alignItems='center'>
+                <Grid item xs={12} sm={1} sx={{ display: 'flex', mt: 4 }}>
                   {!readOnly && (
                     <IconButton color='error' onClick={() => remove(index)}>
                       <Icon icon='tabler:trash' />

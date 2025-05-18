@@ -60,7 +60,7 @@ export const createConfigDailyCost = createAsyncThunk(
 export const appConfigDailyCostSlice = createSlice({
   name: 'appConfigDailyCost',
   initialState: {
-    configDailyCost: {}
+    configDailyCost: []
   },
   reducers: {},
   extraReducers: builder => {

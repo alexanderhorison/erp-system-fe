@@ -182,7 +182,17 @@ export default function DailyCostViewOnly({ selectedDate }) {
                               <Typography variant='caption' color='text.secondary'>
                                 Sales Order Code
                               </Typography>
-                              <Typography variant='body2' fontWeight='500'>
+                              <Typography
+                                variant='body2'
+                                fontWeight='500'
+                                onClick={() => window.open(`/sales-order/${item.Sales_Order.code}`, '_blank')}
+                                sx={{
+                                  cursor: 'pointer',
+                                  '&:hover': {
+                                    color: 'primary.main'
+                                  }
+                                }}
+                              >
                                 {item.Sales_Order.code || '-'}
                               </Typography>
                             </Grid>
@@ -232,48 +242,76 @@ export default function DailyCostViewOnly({ selectedDate }) {
                         </Box>
                       </Box>
                     </Grid>
-
                     <Grid item xs={12} md={8} p={2}>
                       <Grid container spacing={2}>
-                        <Grid item xs={6}>
+                        <Grid item xs={4}>
                           <Typography variant='caption' color='text.secondary'>
                             Deposit Awal
                           </Typography>
                           <Typography variant='body2'>Rp {priceFormat(item.depositBalance)}</Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={4}>
                           <Typography variant='caption' color='text.secondary'>
-                            Sisa Deposit
+                            Deposit E-Money
                           </Typography>
-                          <Typography variant='body2'>Rp {priceFormat(item.remainingDepositBalance)}</Typography>
+                          <Typography variant='body2'>Rp {priceFormat(item.eMoneyBalance)}</Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={4}>
+                          <Typography variant='caption' color='text.secondary'>
+                            Emoney Terakhir
+                          </Typography>
+                          <Typography variant='body2'>Rp {priceFormat(item.latestEMoneyBalance)}</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
                           <Typography variant='caption' color='text.secondary'>
                             Biaya Tol
                           </Typography>
                           <Typography variant='body2'>Rp {priceFormat(item.tollCost)}</Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={4}>
                           <Typography variant='caption' color='text.secondary'>
                             Biaya Bensin
                           </Typography>
                           <Typography variant='body2'>Rp {priceFormat(item.fuelCost)}</Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={4}>
                           <Typography variant='caption' color='text.secondary'>
                             Uang Jalan
                           </Typography>
                           <Typography variant='body2'>Rp {priceFormat(item.transportAllowance)}</Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={4}>
                           <Typography variant='caption' color='text.secondary'>
-                            Saldo E-Money
+                            Saldo E-Money Terakhir
                           </Typography>
-                          <Typography variant='body2'>
-                            Rp {priceFormat(item.latestEMoneyBalance)} / Rp {priceFormat(item.remainingEMoneyBalance)}
+                          <Typography variant='body2'>Rp {priceFormat(item.remainingEMoneyBalance)}</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                          <Typography variant='caption' color='text.secondary'>
+                            Sisa Deposit
                           </Typography>
+                          <Typography variant='body2'>Rp {priceFormat(item.remainingDepositBalance)}</Typography>
                         </Grid>
                       </Grid>
+                      {/* Total Cost per SO section */}
+                      <Box sx={{ mt: 3, pt: 2, borderTop: '1px dashed rgba(58, 53, 65, 0.12)' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography variant='subtitle2' color='primary.main'>
+                            Total Cost Per SO
+                          </Typography>
+                          <Typography variant='body2' fontWeight='600'>
+                            Rp{' '}
+                            {priceFormat(
+                              Number(item.tollCost || 0) +
+                                Number(item.fuelCost || 0) +
+                                Number(item.transportAllowance || 0)
+                            )}
+                          </Typography>
+                        </Box>
+                        <Typography variant='caption' color='text.secondary'>
+                          *Termasuk biaya tol, bensin, uang jalan, dan e-money
+                        </Typography>
+                      </Box>
                     </Grid>
                   </Grid>
 

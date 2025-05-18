@@ -70,21 +70,23 @@ export default function DailyCostForm({ mode = 'ADD', selectedDate, initialData 
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const defaultValue = {
+    date: selectedDate,
+    notes: '',
+    status: 'APPROVED',
+    grandTotal: 0,
+    totalCostGeneral: 0,
+    totalCostEmployee: 0,
+    totalCostUnexpected: 0,
+    costGenerals: [],
+    costEmployees: [],
+    costUnexpecteds: []
+  }
+
   // Initialize the form with default values
   const methods = useForm({
     resolver: yupResolver(schema),
-    defaultValues: {
-      date: selectedDate,
-      notes: '',
-      status: 'APPROVED',
-      grandTotal: 0,
-      totalCostGeneral: 0,
-      totalCostEmployee: 0,
-      totalCostUnexpected: 0,
-      costGenerals: [],
-      costEmployees: [],
-      costUnexpecteds: []
-    }
+    defaultValues: defaultValue
   })
 
   const formattedDate = dayjs(selectedDate).format('dddd, D MMMM YYYY')
@@ -103,7 +105,7 @@ export default function DailyCostForm({ mode = 'ADD', selectedDate, initialData 
           remainingEmoney: item.remainingEMoneyBalance,
           tollCost: item.tollCost,
           fuelCost: item.fuelCost,
-          travelMoney: item.transportAllowance,
+          transportAllowance: item.transportAllowance,
           remainingDeposit: item.remainingDepositBalance
         })),
         costEmployees: detailDailyCost.costEmployees,
@@ -124,24 +126,64 @@ export default function DailyCostForm({ mode = 'ADD', selectedDate, initialData 
     let totalCostEmployee = 0
     let totalCostUnexpected = 0
 
+    // Function to find the previous e-money balance for the same car ID
+    const findPreviousEmoneyBalance = (carId, processedEntries, currentIndex) => {
+      if (!carId) return null
+
+      // Find previous entries with the same car ID
+      const previousEntryWithSameCar = processedEntries.filter(entry => entry.carsId === carId).pop() // Get the last entry
+
+      // If found, return its remaining e-money balance
+      if (previousEntryWithSameCar) {
+        return previousEntryWithSameCar.remainingEMoneyBalance
+      }
+
+      // If we're editing and have existing data, check if there's any previous record
+      if (detailDailyCost && detailDailyCost.costGenerals) {
+        const dailyCostEntriesForCar = detailDailyCost.costGenerals
+          .filter(item => item.carsId === carId)
+          .sort((a, b) => a.id - b.id)
+
+        if (dailyCostEntriesForCar.length > 0) {
+          // Get index in the original array
+          const originalIndex = detailDailyCost.costGenerals.findIndex(
+            item => item.carsId === carId && item.id === dailyCostEntriesForCar[0].id
+          )
+
+          if (originalIndex < currentIndex) {
+            return dailyCostEntriesForCar[dailyCostEntriesForCar.length - 1].remainingEMoneyBalance
+          }
+        }
+      }
+
+      // For the first item (or if no previous records found), get the car's actual emoneyBalance
+      const selectedCar = (window.cars || []).find(car => car.id === Number(carId))
+      if (selectedCar) {
+        return selectedCar.emoneyBalance || 0
+      }
+
+      return null
+    }
+
     // COST GENERAL
     if (data.costGenerals) {
-      data.costGenerals.forEach(item => {
+      data.costGenerals.forEach((item, index) => {
         const tollCost = +item?.tollCost || 0
         const fuelCost = +item?.fuelCost || 0
-        const travelMoney = +item?.travelMoney || 0
-        totalCostGeneral += tollCost + fuelCost + travelMoney
+        const transportAllowance = +item?.transportAllowance || 0
+        totalCostGeneral += tollCost + fuelCost + transportAllowance
         costGenerals.push({
           salesOrderId: +item.salesOrderId,
           depositBalance: +item?.deposit || 0,
           driverId: +item?.employeeId,
           carsId: +item?.carsId,
-          eMoneyBalance: +item?.eMoney || 0,
-          latestEMoneyBalance: +item?.remainingEmoney || 0,
-          remainingEMoneyBalance: +item?.remainingEmoney || 0,
+          eMoneyBalance: +item?.emoney || 0,
+          // Find previous e-money balance for this car across all entries
+          latestEMoneyBalance: findPreviousEmoneyBalance(item?.carsId, costGenerals, index) || +item?.emoney || 0,
+          remainingEMoneyBalance: +item?.remainingEmoney || 0 - item?.tollCost || 0,
           tollCost: +item?.tollCost || 0,
           fuelCost: +item?.fuelCost || 0,
-          transportAllowance: +item?.travelMoney || 0,
+          transportAllowance: +item?.transportAllowance || 0,
           remainingDepositBalance: +item?.remainingDeposit || 0
         })
       })
@@ -205,7 +247,8 @@ export default function DailyCostForm({ mode = 'ADD', selectedDate, initialData 
     if (mode === 'EDIT' && selectedDate) {
       dispatch(fetchDetailDailyCostByDate({ date: selectedDate }))
     }
-  }, [])
+    methods.reset(defaultValue)
+  }, [mode, selectedDate])
 
   return (
     <FormProvider {...methods}>
@@ -218,13 +261,13 @@ export default function DailyCostForm({ mode = 'ADD', selectedDate, initialData 
       <form onSubmit={handleSubmit}>
         <Grid container spacing={4}>
           <Grid item xs={12}>
-            <GeneralCostAndDeposit readOnly={mode === 'view'} />
+            <GeneralCostAndDeposit />
           </Grid>
           <Grid item xs={12}>
-            <EmployeeCostAndBonus readOnly={mode === 'view'} />
+            <EmployeeCostAndBonus />
           </Grid>
           <Grid item xs={12}>
-            <UnexpectedCost readOnly={mode === 'view'} />
+            <UnexpectedCost />
           </Grid>
           <Grid item xs={12}>
             <SummaryCost />

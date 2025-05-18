@@ -143,12 +143,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                           handleEmployeeChange(index, newValue)
                         }}
                         renderInput={params => (
-                          <CustomTextField
-                            {...params}
-                            label='Karyawan'
-                            error={!!error}
-                            helperText={error?.message}
-                          />
+                          <CustomTextField {...params} label='Karyawan' error={!!error} helperText={error?.message} />
                         )}
                         disabled={readOnly}
                       />
@@ -222,7 +217,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                     )}
                   />
                 </Grid>
-                <Grid item xs={12} sm={1} display='flex' alignItems='center'>
+                <Grid item xs={12} sm={1} sx={{ display: 'flex', mt: 4 }}>
                   {!readOnly && (
                     <IconButton color='error' onClick={() => remove(index)}>
                       <Icon icon='tabler:trash' />

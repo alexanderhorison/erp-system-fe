@@ -37,7 +37,7 @@ export async function swalConfirmationDelete({ label, name = 'Data', axiosReques
 }
 
 // ONLY FOR ADD
-export async function swalConfirmationAdd({ label, name = 'Data', axiosRequest, dispatchRequest, title }) {
+export async function swalConfirmationAdd({ label, name = 'Data', axiosRequest, dispatchRequest, title, cancelAction }) {
   try {
     const result = await swal.fire({
       title: title ? title : `Anda akan menambahkan produk?`,
@@ -49,6 +49,7 @@ export async function swalConfirmationAdd({ label, name = 'Data', axiosRequest, 
       confirmButtonColor: '#6F4E37'
     })
     if (result.dismiss) {
+      cancelAction && cancelAction()
     } else {
       const response = await axiosRequest()
       if (dispatchRequest) {
@@ -68,7 +69,7 @@ export async function swalConfirmationAdd({ label, name = 'Data', axiosRequest, 
 }
 
 // ONLY FOR EDIT
-export async function swalConfirmationEdit({ label, name = 'Data', axiosRequest, dispatchRequest, title }) {
+export async function swalConfirmationEdit({ label, name = 'Data', axiosRequest, dispatchRequest, title, cancelAction }) {
   try {
     const result = await swal.fire({
       title: title ? title : `Anda akan merubah produk?`,
@@ -80,6 +81,7 @@ export async function swalConfirmationEdit({ label, name = 'Data', axiosRequest,
       confirmButtonColor: '#6F4E37'
     })
     if (result.dismiss) {
+      cancelAction && cancelAction()
     } else {
       const response = await axiosRequest()
       if (dispatchRequest) {
