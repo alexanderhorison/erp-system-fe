@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "PORT=3001 next start",
+    "dev": "node server.js",
+    "build": "npm run clean && next build",
+    "start": "node server.js",
     "export": "next export",
     "lint": "eslint --fix \"src/**/*.{js,jsx}\"",
     "format": "prettier --write \"src/**/*.{js,jsx}\"",
-    "build:icons": "node src/iconify-bundle/bundle-icons-react.js"
+    "build:icons": "node src/iconify-bundle/bundle-icons-react.js",
+    "clean": "rm -rf .next"
   },
   "dependencies": {
     "@babel/core": "7.21.5",
