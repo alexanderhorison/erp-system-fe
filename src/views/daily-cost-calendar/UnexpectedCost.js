@@ -7,6 +7,7 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchMasterDataUnexpectedCostCategory } from 'src/store/apps/master/unexpected-cost-category'
+import safeNumberHandler from 'src/helpers/formFormatter'
 
 export default function UnexpectedCost({ readOnly = false }) {
   const dispatch = useDispatch()
@@ -97,7 +98,7 @@ export default function UnexpectedCost({ readOnly = false }) {
                     render={({ field: { onChange, value, ...field }, fieldState: { error } }) => (
                       <CustomTextField
                         {...field}
-                        value={formatNumber(value)}
+                        value={value === null || isNaN(value) ? '0' : formatNumber(value)}
                         label='Price'
                         fullWidth
                         required
@@ -108,9 +109,7 @@ export default function UnexpectedCost({ readOnly = false }) {
                           inputMode: 'numeric'
                         }}
                         onChange={e => {
-                          const numericValue = parseNumber(e.target.value)
-                          onChange(numericValue)
-                          calculateTotal()
+                          safeNumberHandler(e.target.value, onChange, calculateTotal)
                         }}
                       />
                     )}

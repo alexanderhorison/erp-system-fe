@@ -11,6 +11,7 @@ import { fetchAllSalesOrder } from 'src/store/apps/sales-order'
 import { useRouter } from 'next/router'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { fetchConfigDailyCost } from 'src/store/apps/config/configDailyCost'
+import safeNumberHandler from 'src/helpers/formFormatter'
 
 export default function GeneralCostAndDeposit({ readOnly = false }) {
   const dispatch = useDispatch()
@@ -35,7 +36,7 @@ export default function GeneralCostAndDeposit({ readOnly = false }) {
     dispatch(fetchMasterDataEmployee({ active: true }))
     dispatch(fetchAllSalesOrder({ date: params.date }))
     dispatch(fetchConfigDailyCost())
-  }, [])
+  }, [dispatch, params.date])
 
   const calculateTotal = () => {
     const costGeneralsValues = watch('costGenerals') || []
@@ -71,10 +72,52 @@ export default function GeneralCostAndDeposit({ readOnly = false }) {
     const addedEmoney = Number(item?.emoney) || 0
     const tollCost = Number(item?.tollCost) || 0
 
-    const remainingEmoney = lastEmoney + addedEmoney - tollCost
+    // Get all cost generals to check for previous entries with the same car
+    const allCostGenerals = watch('costGenerals') || []
+    const currentCarId = item?.carsId
+
+    // If we don't have a car selected, just do the regular calculation
+    if (!currentCarId) {
+      const remainingEmoney = lastEmoney + addedEmoney - tollCost
+      setValue(`costGenerals.${index}.remainingEmoney`, remainingEmoney)
+      return remainingEmoney
+    }
+
+    // Find previous SO entries that use the same car (must have smaller index than current)
+    const previousSOWithSameCar = allCostGenerals
+      .filter((costGeneral, i) => i < index && costGeneral.carsId === currentCarId)
+      .sort((a, b) => a - b) // Sort by index to ensure proper order
+
+    let startingEmoney = lastEmoney // Default to car's master balance
+
+    // If we found a previous SO with the same car, use its remaining balance
+    if (previousSOWithSameCar.length > 0) {
+      // Get the last entry with the same car
+      const lastSOWithSameCar = previousSOWithSameCar[previousSOWithSameCar.length - 1]
+      startingEmoney = Number(lastSOWithSameCar.remainingEmoney) || lastEmoney
+    }
+
+    const remainingEmoney = startingEmoney + addedEmoney - tollCost
     setValue(`costGenerals.${index}.remainingEmoney`, remainingEmoney)
 
+    // Also update any subsequent entries with the same car
+    updateSubsequentEmoneyBalances(index, currentCarId)
+
     return remainingEmoney
+  }
+
+  // Helper to update emoney balances for all subsequent entries with the same car
+  const updateSubsequentEmoneyBalances = (currentIndex, carId) => {
+    if (!carId) return
+
+    const allCostGenerals = watch('costGenerals') || []
+
+    // Process each subsequent entry with the same car
+    allCostGenerals.forEach((costGeneral, index) => {
+      if (index > currentIndex && costGeneral.carsId === carId) {
+        calculateRemainingEmoney(index)
+      }
+    })
   }
 
   // Update the last emoney balance when car is selected
@@ -85,6 +128,14 @@ export default function GeneralCostAndDeposit({ readOnly = false }) {
     if (selectedCar) {
       setValue(`costGenerals.${index}.lastEmoneyBalance`, selectedCar.emoneyBalance || 0)
       calculateRemainingEmoney(index)
+
+      // Recalculate remaining e-money for all subsequent SOs with the same car
+      const allCostGenerals = watch('costGenerals') || []
+      allCostGenerals.forEach((costGeneral, i) => {
+        if (i > index && costGeneral.carsId === Number(carsId)) {
+          calculateRemainingEmoney(i)
+        }
+      })
     }
   }
 
@@ -170,11 +221,9 @@ export default function GeneralCostAndDeposit({ readOnly = false }) {
                       }}
                       disabled={readOnly}
                       defaultValue={configDailyCost?.find(item => item.key === 'DC_DEPOSIT')?.value || 0}
-                      value={formatNumber(value)}
+                      value={value === null || isNaN(value) ? '0' : formatNumber(value)}
                       onChange={e => {
-                        const numericValue = parseNumber(e.target.value)
-                        onChange(numericValue)
-                        calculateRemainingDeposit(index)
+                        safeNumberHandler(e.target.value, onChange, () => calculateRemainingDeposit(index))
                       }}
                       error={!!formState?.errors?.costGenerals?.[index]?.deposit}
                       helperText={formState?.errors?.costGenerals?.[index]?.deposit?.message}
@@ -259,11 +308,9 @@ export default function GeneralCostAndDeposit({ readOnly = false }) {
                         inputMode: 'numeric'
                       }}
                       disabled={readOnly}
-                      value={formatNumber(value)}
+                      value={value === null || isNaN(value) ? '0' : formatNumber(value)}
                       onChange={e => {
-                        const numericValue = parseNumber(e.target.value)
-                        onChange(numericValue)
-                        calculateRemainingEmoney(index)
+                        safeNumberHandler(e.target.value, onChange, () => calculateRemainingEmoney(index))
                       }}
                       error={!!formState?.errors?.costGenerals?.[index]?.emoney}
                       helperText={formState?.errors?.costGenerals?.[index]?.emoney?.message}
@@ -285,14 +332,12 @@ export default function GeneralCostAndDeposit({ readOnly = false }) {
                       {...field}
                       label='Biaya Tol'
                       disabled={readOnly}
-                      value={formatNumber(field.value)}
+                      value={field.value === null || isNaN(field.value) ? '0' : formatNumber(field.value)}
                       inputProps={{
                         inputMode: 'numeric'
                       }}
                       onChange={e => {
-                        const numericValue = parseNumber(e.target.value)
-                        field.onChange(numericValue)
-                        calculateRemainingEmoney(index)
+                        safeNumberHandler(e.target.value, field.onChange, () => calculateRemainingEmoney(index))
                       }}
                       error={!!formState?.errors?.costGenerals?.[index]?.tollCost}
                       helperText={formState?.errors?.costGenerals?.[index]?.tollCost?.message}
@@ -312,11 +357,9 @@ export default function GeneralCostAndDeposit({ readOnly = false }) {
                         inputMode: 'numeric'
                       }}
                       disabled={readOnly}
-                      value={formatNumber(value)}
+                      value={value === null || isNaN(value) ? '0' : formatNumber(value)}
                       onChange={e => {
-                        const numericValue = parseNumber(e.target.value)
-                        onChange(numericValue)
-                        calculateRemainingDeposit(index)
+                        safeNumberHandler(e.target.value, onChange, () => calculateRemainingDeposit(index))
                       }}
                       error={!!formState?.errors?.costGenerals?.[index]?.fuelCost}
                       helperText={formState?.errors?.costGenerals?.[index]?.fuelCost?.message}
@@ -337,11 +380,9 @@ export default function GeneralCostAndDeposit({ readOnly = false }) {
                       }}
                       disabled={readOnly}
                       defaultValue={configDailyCost?.find(item => item.key === 'DC_TRANSPORT_ALLOWANCE')?.value || 0}
-                      value={formatNumber(value)}
+                      value={value === null || isNaN(value) ? '0' : formatNumber(value)}
                       onChange={e => {
-                        const numericValue = parseNumber(e.target.value)
-                        onChange(numericValue)
-                        calculateRemainingDeposit(index)
+                        safeNumberHandler(e.target.value, onChange, () => calculateRemainingDeposit(index))
                       }}
                       error={!!formState?.errors?.costGenerals?.[index]?.travelMoney}
                       helperText={formState?.errors?.costGenerals?.[index]?.travelMoney?.message}

@@ -56,8 +56,13 @@ export default function DailyCostCalendarView({ }) {
     const grouped = {};
     expenses.forEach((expense) => {
       const date = dayjs(expense.date).format("YYYY-MM-DD");
-      if (!grouped[date]) grouped[date] = 0;
-      grouped[date] += expense.grandTotal;
+      if (!grouped[date]) grouped[date] = {
+        grandTotal: 0,
+      };
+      grouped[date] = {
+        ...expense,
+        grandTotal: grouped[date].grandTotal + expense.grandTotal,
+      };
     });
     return grouped;
   }, [expenses]);
@@ -115,7 +120,7 @@ export default function DailyCostCalendarView({ }) {
       const date = dayjs(`${selectedYear}-${selectedMonth + 1}-${dayNumber}`)
       const dateStr = date.format("YYYY-MM-DD");
       const isFuture = date.isAfter(now, 'day');
-
+      const isEmpty = expensesByDate[dateStr]?.status === "EMPTY";
       // Check if this date is today
       const isToday = dateStr === today;
 
@@ -136,19 +141,35 @@ export default function DailyCostCalendarView({ }) {
               border: isToday ? "1px solid #2196f3" : "none",
               position: "relative"
             }}>
-              {isToday && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "2px",
-                    right: "2px",
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    backgroundColor: "#2196f3"
-                  }}
-                />
-              )}
+              {isToday &&
+                (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "2px",
+                      right: "2px",
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      backgroundColor: "#2196f3"
+                    }}
+                  />
+                )}
+              {
+                isEmpty && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "2px",
+                      right: "2px",
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      backgroundColor: "#c9a355"
+                    }}
+                  />
+                )
+              }
               <CardContent sx={{ p: 1 }}>
                 {i >= startDay && (
                   <>
@@ -174,7 +195,18 @@ export default function DailyCostCalendarView({ }) {
                 )}
                 {i >= startDay && expensesByDate[dateStr] && (
                   <Typography variant="body2" color="primary" sx={{ mt: 2 }}>
-                    {priceFormatWIthCurrency(expensesByDate[dateStr])}
+                    {
+                      expensesByDate[dateStr]?.status === "APPROVED" && (
+                        priceFormatWIthCurrency(expensesByDate[dateStr]?.grandTotal)
+                      )
+                    }
+                    {
+                      expensesByDate[dateStr]?.status === "EMPTY" && (
+                        <Typography variant="body2" color="primary" sx={{ mt: 2 }}>
+                          Jumlah SO: {expensesByDate[dateStr]?.totalSo}
+                        </Typography>
+                      )
+                    }
                   </Typography>
                 )}
               </CardContent>
@@ -265,7 +297,7 @@ export default function DailyCostCalendarView({ }) {
             <Paper elevation={6} sx={{ mt: 1, width: 200 }}>
               <ClickAwayListener onClickAway={handleClickAway}>
                 <List sx={{ p: 1 }}>
-                  {!expensesByDate[selectedDate] && (
+                  {expensesByDate[selectedDate]?.status !== "APPROVED" && (
                     <ListItem
                       onClick={() => handleAction('ADD')}
                       sx={{
@@ -282,7 +314,7 @@ export default function DailyCostCalendarView({ }) {
                       <ListItemText primary="Add" />
                     </ListItem>
                   )}
-                  {expensesByDate[selectedDate] && (
+                  {expensesByDate[selectedDate]?.status === "APPROVED" && (
                     <ListItem
                       onClick={() => handleAction('VIEW')}
                       sx={{
@@ -299,36 +331,44 @@ export default function DailyCostCalendarView({ }) {
                       <ListItemText primary="View" />
                     </ListItem>
                   )}
-                  <ListItem
-                    onClick={() => handleAction('EDIT')}
-                    sx={{
-                      borderRadius: 1,
-                      cursor: 'pointer',
-                      '&:hover': {
-                        backgroundColor: 'action.hover'
-                      }
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 40 }}>
-                      <Icon icon="tabler:edit" fontSize={20} />
-                    </ListItemIcon>
-                    <ListItemText primary="Edit" />
-                  </ListItem>
-                  <ListItem
-                    onClick={() => handleAction('DELETE')}
-                    sx={{
-                      borderRadius: 1,
-                      cursor: 'pointer',
-                      '&:hover': {
-                        backgroundColor: 'action.hover'
-                      }
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 40 }}>
-                      <Icon icon="tabler:trash" fontSize={20} />
-                    </ListItemIcon>
-                    <ListItemText primary="Delete" />
-                  </ListItem>
+                  {
+                    expensesByDate[selectedDate]?.status === "APPROVED" && (
+                      <ListItem
+                        onClick={() => handleAction('EDIT')}
+                        sx={{
+                          borderRadius: 1,
+                          cursor: 'pointer',
+                          '&:hover': {
+                            backgroundColor: 'action.hover'
+                          }
+                        }}
+                      >
+                        <ListItemIcon sx={{ minWidth: 40 }}>
+                          <Icon icon="tabler:edit" fontSize={20} />
+                        </ListItemIcon>
+                        <ListItemText primary="Edit" />
+                      </ListItem>
+                    )
+                  }
+                  {
+                    expensesByDate[selectedDate]?.status === "APPROVED" && (
+                      <ListItem
+                        onClick={() => handleAction('DELETE')}
+                        sx={{
+                          borderRadius: 1,
+                          cursor: 'pointer',
+                          '&:hover': {
+                            backgroundColor: 'action.hover'
+                          }
+                        }}
+                      >
+                        <ListItemIcon sx={{ minWidth: 40 }}>
+                          <Icon icon="tabler:trash" fontSize={20} />
+                        </ListItemIcon>
+                        <ListItemText primary="Delete" />
+                      </ListItem>
+                    )
+                  }
                 </List>
               </ClickAwayListener>
             </Paper>

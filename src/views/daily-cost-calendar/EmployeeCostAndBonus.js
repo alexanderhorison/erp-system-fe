@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
 import { fetchMasterDataEmployee } from 'src/store/apps/master/employee'
+import safeNumberHandler from 'src/helpers/formFormatter'
 
 export default function EmployeeCostAndBonus({ readOnly = false }) {
   const dispatch = useDispatch()
@@ -44,8 +45,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
       bonus: 0
     })
   }
- 
-  
+
   const handleEmployeeChange = (index, selectedEmployee) => {
     // Uncheck bonus checkbox when employee changes
     setBonusCheckboxes(prev => ({ ...prev, [index]: false }))
@@ -162,7 +162,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                     render={({ field: { onChange, value, ...field }, fieldState: { error } }) => (
                       <CustomTextField
                         {...field}
-                        value={formatNumber(value)}
+                        value={value === null || isNaN(value) ? '0' : formatNumber(value)}
                         label='Gaji'
                         fullWidth
                         error={!!error}
@@ -172,9 +172,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                           inputMode: 'numeric'
                         }}
                         onChange={e => {
-                          const numericValue = parseNumber(e.target.value)
-                          onChange(numericValue)
-                          calculateTotal()
+                          safeNumberHandler(e.target.value, onChange, calculateTotal)
                         }}
                       />
                     )}
@@ -187,7 +185,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                     render={({ field: { onChange, value, ...field }, fieldState: { error } }) => (
                       <CustomTextField
                         {...field}
-                        value={formatNumber(value)}
+                        value={value === null || isNaN(value) ? '0' : formatNumber(value)}
                         label={
                           <Box
                             sx={{
@@ -218,9 +216,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                           inputMode: 'numeric'
                         }}
                         onChange={e => {
-                          const numericValue = parseNumber(e.target.value)
-                          onChange(numericValue)
-                          calculateTotal()
+                          safeNumberHandler(e.target.value, onChange, calculateTotal)
                         }}
                       />
                     )}
