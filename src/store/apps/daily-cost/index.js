@@ -121,6 +121,17 @@ export const updateDailyCost = createAsyncThunk(
   }
 )
 
+export const saveFilterMonthYear = createAsyncThunk(
+  'dailyCost/saveFilterMonthYear',
+  async ({ month, year }, { }) => {
+    try {
+      return { month, year }
+    } catch (error) {
+      return { month: new Date().getMonth(), year: new Date().getFullYear() }
+    }
+  }
+)
+
 export const appDailyCostSlice = createSlice({
   name: 'dailyCost',
   initialState: {
@@ -130,7 +141,10 @@ export const appDailyCostSlice = createSlice({
 
     detailDailyCost: {},
     loadingDetailDailyCost: false,
-    errorDetailDailyCost: null
+    errorDetailDailyCost: null,
+
+    year: new Date().getFullYear(),
+    month: new Date().getMonth(),
   },
   reducers: {},
   extraReducers: builder => {
@@ -159,6 +173,11 @@ export const appDailyCostSlice = createSlice({
         state.detailDailyCost = {}
         state.loadingDetailDailyCost = false
         state.errorDetailDailyCost = action.error.message
+      })
+
+      .addCase(saveFilterMonthYear.fulfilled, (state, action) => {
+        state.month = action.payload.month
+        state.year = action.payload.year
       })
   }
 })

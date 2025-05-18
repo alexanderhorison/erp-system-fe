@@ -27,8 +27,7 @@ import "dayjs/locale/id";
 import SettingDailyCost from "./SettingDailyCost";
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from "react-redux";
-import { deleteDailyCost, fetchAllDailyCost } from "src/store/apps/daily-cost";
-import { date } from "yup";
+import { deleteDailyCost, fetchAllDailyCost, saveFilterMonthYear } from "src/store/apps/daily-cost";
 
 dayjs.locale("id");
 
@@ -36,10 +35,12 @@ export default function DailyCostCalendarView({ }) {
   const router = useRouter();
   const now = dayjs();
   const dispatch = useDispatch();
+  const { allDailyCost: expenses, month: dailyCostMonth, year: dailyCostYear } = useSelector((state) => state.dailyCost)
+
   const { control, watch } = useForm({
     defaultValues: {
-      month: now.month(),
-      year: now.year(),
+      month: dailyCostMonth,
+      year: dailyCostYear,
     },
   });
   const [openModalSetting, setOpenModalSetting] = useState(false);
@@ -47,7 +48,6 @@ export default function DailyCostCalendarView({ }) {
   const [openModalCalendar, setOpenModalCalendar] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  const { allDailyCost: expenses } = useSelector((state) => state.dailyCost)
 
   const selectedMonth = watch("month");
   const selectedYear = watch("year");
@@ -98,6 +98,10 @@ export default function DailyCostCalendarView({ }) {
       dispatch(deleteDailyCost({ date: selectedDate }))
     }
   };
+
+  useEffect(() => {
+    dispatch(saveFilterMonthYear({ month: selectedMonth, year: selectedYear }));
+  }, [selectedMonth, selectedYear]);
 
   const renderDays = () => {
     const calendar = [];

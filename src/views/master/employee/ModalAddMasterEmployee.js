@@ -208,11 +208,24 @@ export default function ModalAddMasterEmployee({ open, setOpen, typeModal = 'ADD
                 name='dob'
                 control={control}
                 render={({ field: { value, onChange } }) => (
-                  <Box>
+                  <Box sx={{ overflow: 'visible' }}>
                     <DatePicker
                       selected={value ? new Date(value) : null}
                       showYearDropdown
                       showMonthDropdown
+                      dropdownMode="select" // This ensures full dropdown instead of scrollable menu
+                      popperPlacement="bottom-start"
+                      popperClassName="datepicker-popper"
+                      popperModifiers={[
+                        {
+                          name: 'zIndex',
+                          enabled: true,
+                          phase: 'write',
+                          fn: ({ state }) => {
+                            state.styles.popper.zIndex = '1300'; // Same as MUI Modal
+                          }
+                        }
+                      ]}
                       id='dob-picker'
                       placeholderText='DD/MM/YYYY'
                       dateFormat='dd/MM/yyyy'
