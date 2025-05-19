@@ -20,7 +20,6 @@ export default function CartProductPos({
 }) {
   const viewportHeight = window.innerHeight;
   const maxHeight = useMemo(() => {
-    console.log(viewportHeight);
     if (viewportHeight >= 1024) { // FHD
       return '50.5vh'
     }

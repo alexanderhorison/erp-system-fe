@@ -31,8 +31,6 @@ export default function AddSalesOrder({}) {
 
   const { user } = UseAuth()
 
-  console.log(user)
-
   const theme = useTheme()
   const { direction } = theme
   const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
