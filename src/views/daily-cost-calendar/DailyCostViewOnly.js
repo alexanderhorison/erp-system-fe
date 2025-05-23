@@ -1,5 +1,5 @@
 // ** MUI Imports
-import { CircularProgress, Card, CardContent, Grid, Typography, Box, Divider, Chip } from '@mui/material'
+import { CircularProgress, Card, CardContent, Grid, Typography, Box, Divider } from '@mui/material'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchDetailDailyCostByDate } from 'src/store/apps/daily-cost'
@@ -23,7 +23,7 @@ export default function DailyCostViewOnly({ selectedDate }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
-  const { detailDailyCost: data, loadingDetailDailyCost, errorDetailDailyCost } = useSelector(state => state.dailyCost)
+  const { detailDailyCost: data, loadingDetailDailyCost } = useSelector(state => state.dailyCost)
 
   useEffect(() => {
     dispatch(fetchDetailDailyCostByDate({ date: selectedDate }))
@@ -59,20 +59,6 @@ export default function DailyCostViewOnly({ selectedDate }) {
       <Grid item xs={12}>
         <Card>
           <CardContent>
-            {/* <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Box>
-                <Typography variant='h6'>Daily Cost Detail</Typography>
-                <Typography variant='body2' color='text.secondary'>
-                  {data.date}
-                </Typography>
-              </Box>
-              <Chip
-                label={data.status}
-                color={data.status === 'APPROVED' ? 'success' : 'warning'}
-                sx={{ fontWeight: 500 }}
-              />
-            </Box> */}
-
             <Grid container spacing={3}>
               <Grid item xs={12} md={4}>
                 <Box
@@ -357,6 +343,20 @@ export default function DailyCostViewOnly({ selectedDate }) {
                         <Typography variant='body2'>Rp {priceFormat(item.bonus) || '-'}</Typography>
                       </Box>
 
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant='caption' color='text.secondary'>
+                          Kasbon
+                        </Typography>
+                        <Typography variant='body2'>Rp {priceFormat(item?.amountDebt) || '-'}</Typography>
+                      </Box>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant='caption' color='text.secondary'>
+                          Kasbon Terbayar
+                        </Typography>
+                        <Typography variant='body2'>Rp {priceFormat(item?.amountDebtPaid) || '-'}</Typography>
+                      </Box>
+
                       <Divider sx={{ my: 1.5 }} />
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -364,7 +364,13 @@ export default function DailyCostViewOnly({ selectedDate }) {
                           Total
                         </Typography>
                         <Typography variant='body2' fontWeight='500'>
-                          Rp {priceFormat(Number(item.salary) + Number(item.bonus))}
+                          Rp{' '}
+                          {priceFormat(
+                            Number(item.salary) +
+                              Number(item.bonus) +
+                              Number(item?.amountDebt || 0) -
+                              Number(item?.amountDebtPaid || 0)
+                          )}
                         </Typography>
                       </Box>
                     </Box>

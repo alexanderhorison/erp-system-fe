@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Box, Card, IconButton, Typography, Chip } from '@mui/material'
+import { Box, Card, IconButton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 import CustomChip from 'src/@core/components/mui/chip'
@@ -142,7 +142,7 @@ export default function TableMasterEmployee() {
             }
           },
           {
-            flex: 0.12,
+            flex: 0.10,
             minWidth: 100,
             field: 'role',
             headerName: 'Jabatan',
@@ -181,14 +181,27 @@ export default function TableMasterEmployee() {
             }
           },
           {
-            flex: 0.12,
+            flex: 0.1,
+            minWidth: 120,
+            field: 'debt',
+            headerName: 'Kasbon',
+            renderCell: params => {
+              return (
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  {params.row.debt ? priceFormat(params.row.debt) : '-'}
+                </Typography>
+              )
+            }
+          },
+          {
+            flex: 0.08,
             minWidth: 120,
             field: 'status',
             headerName: 'Status',
             renderCell: renderChipStatus
           },
           {
-            flex: 0.1,
+            flex: 0.11,
             field: 'actions',
             headerName: 'Actions',
             renderCell: ({ row }) => <RowOptions id={row.id} name={row.nama} />

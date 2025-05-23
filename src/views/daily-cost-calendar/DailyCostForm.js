@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Button, Grid, Typography, Card, CardContent, Alert, AlertTitle, Breadcrumbs } from '@mui/material'
+import { Box, Button, Grid, Card, CardContent } from '@mui/material'
 import { useForm, FormProvider } from 'react-hook-form'
 import { useRouter } from 'next/router'
-import Link from 'next/link'
 import Icon from 'src/@core/components/icon'
 import dayjs from 'dayjs'
 import 'dayjs/locale/id'
@@ -44,9 +43,32 @@ const schema = yup.object({
     .array()
     .of(
       yup.object({
-        employeeId: yup.number().required('Karyawan harus dipilih'),
+        employeeId: yup
+          .number()
+          .required('Karyawan harus dipilih')
+          .test('unique-employee', 'Karyawan sudah dipilih', function (value) {
+            if (!value) return true
+
+            const costEmployees = this.from[1].value.costEmployees
+            if (!costEmployees) return true
+
+            const currentIndex = costEmployees.findIndex(item => item === this.parent)
+            const duplicates = costEmployees.filter(
+              (item, index) => item.employeeId === value && index !== currentIndex
+            )
+
+            // If no duplicates found, return true
+            if (duplicates.length === 0) return true
+
+            // Show error only on the duplicate entries (not on the first occurrence)
+            const firstOccurrenceIndex = costEmployees.findIndex(item => item.employeeId === value)
+            return currentIndex === firstOccurrenceIndex
+          }),
         salary: yup.number().required('Gaji harus diisi'),
-        bonus: yup.number().default(0).optional()
+        bonus: yup.number().default(0).optional(),
+        amountDebt: yup.number().default(0).optional(),
+        amountDebtPaid: yup.number().default(0).optional(),
+        notes: yup.string().optional()
       })
     )
     .optional(),
@@ -54,15 +76,35 @@ const schema = yup.object({
     .array()
     .of(
       yup.object({
-        categoryId: yup.number().required('ID kategori biaya tidak terduga harus diisi'),
-        description: yup.string().required('Deskripsi harus diisi'),
+        categoryId: yup
+          .number()
+          .required('Kategori biaya tidak terduga harus diisi')
+          .test('unique-category', 'Kategori ini sudah digunakan', function (value) {
+            if (!value) return true
+
+            const costUnexpecteds = this.from[1].value.costUnexpecteds
+            if (!costUnexpecteds) return true
+
+            const currentIndex = costUnexpecteds.findIndex(item => item === this.parent)
+            const duplicates = costUnexpecteds.filter(
+              (item, index) => item.categoryId === value && index !== currentIndex
+            )
+
+            // If no duplicates found, return true
+            if (duplicates.length === 0) return true
+
+            // Show error only on the duplicate entries (not on the first occurrence)
+            const firstOccurrenceIndex = costUnexpecteds.findIndex(item => item.categoryId === value)
+            return currentIndex === firstOccurrenceIndex
+          }),
+        description: yup.string().optional(),
         price: yup.number().required('Jumlah harus diisi')
       })
     )
     .optional()
 })
 
-export default function DailyCostForm({ mode = 'ADD', selectedDate, initialData = null }) {
+export default function DailyCostForm({ mode = 'ADD', selectedDate }) {
   const router = useRouter()
   const dispatch = useDispatch()
 
@@ -86,7 +128,9 @@ export default function DailyCostForm({ mode = 'ADD', selectedDate, initialData 
   // Initialize the form with default values
   const methods = useForm({
     resolver: yupResolver(schema),
-    defaultValues: defaultValue
+    defaultValues: defaultValue,
+    reValidateMode: 'onChange',
+    mode: 'onChange'
   })
 
   const formattedDate = dayjs(selectedDate).format('dddd, D MMMM YYYY')
@@ -199,7 +243,10 @@ export default function DailyCostForm({ mode = 'ADD', selectedDate, initialData 
           employeeId: +item.employeeId,
           employeeName: item.employeeName,
           salary: +item?.salary || 0,
-          bonus: +item?.bonus || 0
+          bonus: +item?.bonus || 0,
+          amountDebt: +item?.amountDebt || 0,
+          amountDebtPaid: +item?.amountDebtPaid || 0,
+          notes: item.notes
         })
       })
     }

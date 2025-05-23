@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { useFieldArray, useFormContext, Controller } from 'react-hook-form'
-import { Button, Card, CardContent, CardHeader, Divider, Grid, IconButton, Typography, Box } from '@mui/material'
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Divider,
+  Grid,
+  IconButton,
+  Typography,
+  Box,
+} from '@mui/material'
 import Icon from 'src/@core/components/icon'
 import axios from 'axios'
 import { formatNumber, parseNumber } from 'src/utils/formatNumber'
@@ -26,26 +36,31 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
   useEffect(() => {
     dispatch(fetchMasterDataEmployee({ active: true }))
   }, [])
-
   const calculateTotal = () => {
     const costEmployeesValues = watch('costEmployees') || []
     const total = costEmployeesValues.reduce(
-      (sum, item) => sum + (Number(item.salary) || 0) + (Number(item.bonus) || 0),
+      (sum, item) =>
+        sum +
+        (Number(item.salary) || 0) +
+        (Number(item.bonus) || 0) +
+        (Number(item.amountDebt) || 0) -
+        (Number(item.amountDebtPaid) || 0),
       0
     )
     setValue('totalCostEmployee', total)
     return total
   }
-
   const handleAddEmployee = () => {
     append({
       employeeId: null,
       employeeName: '',
       salary: 0,
-      bonus: 0
+      bonus: 0,
+      amountDebt: 0,
+      amountDebtPaid: 0,
+      notes: ''
     })
   }
-
   const handleEmployeeChange = (index, selectedEmployee) => {
     // Uncheck bonus checkbox when employee changes
     setBonusCheckboxes(prev => ({ ...prev, [index]: false }))
@@ -56,6 +71,9 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
       setValue(`costEmployees.${index}.salary`, parseNumber(selectedEmployee.salary) || 0)
       // Reset bonus to 0 when employee changes
       setValue(`costEmployees.${index}.bonus`, 0)
+      // Reset debt fields to 0
+      setValue(`costEmployees.${index}.amountDebt`, 0)
+      setValue(`costEmployees.${index}.amountDebtPaid`, 0)
 
       // Recalculate total after setting new values
       calculateTotal()
@@ -64,6 +82,8 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
       setValue(`costEmployees.${index}.employeeName`, '')
       setValue(`costEmployees.${index}.salary`, 0)
       setValue(`costEmployees.${index}.bonus`, 0)
+      setValue(`costEmployees.${index}.amountDebt`, 0)
+      setValue(`costEmployees.${index}.amountDebtPaid`, 0)
       calculateTotal()
     }
   }
@@ -101,6 +121,21 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
     }
   }, [fields.length])
 
+  // Function to check if amountDebt or amountDebtPaid has value
+  const handleDebtFieldChange = (index, field, value) => {
+    setValue(`costEmployees.${index}.${field}`, value)
+    calculateTotal()
+  }
+
+  // Handle salary deduction switch change
+  const handleSalaryDeductionChange = (index, checked) => {
+    setValue(`costEmployees.${index}.salaryDeduction`, checked)
+    calculateTotal()
+  }
+
+  // Watch for changes in the debt fields
+  const costEmployees = watch('costEmployees') || []
+
   return (
     <Card>
       <CardHeader
@@ -127,104 +162,172 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
         ) : (
           <>
             {fields.map((field, index) => (
-              <Grid container spacing={3} key={field.id} sx={{ mb: 2 }}>
-                <Grid item xs={12} sm={5}>
-                  <Controller
-                    name={`costEmployees.${index}.employeeId`}
-                    control={control}
-                    render={({ field: { value, onChange, ...field }, fieldState: { error } }) => (
-                      <CustomAutocomplete
-                        {...field}
-                        options={employees}
-                        getOptionLabel={option => option.nama || ''}
-                        value={employees.find(emp => emp.id === value) || null}
-                        onChange={(_, newValue) => {
-                          onChange(newValue?.id || null)
-                          handleEmployeeChange(index, newValue)
-                        }}
-                        renderInput={params => (
-                          <CustomTextField {...params} label='Karyawan' error={!!error} helperText={error?.message} />
-                        )}
-                        disabled={readOnly}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  <Controller
-                    name={`costEmployees.${index}.salary`}
-                    control={control}
-                    render={({ field: { onChange, value, ...field }, fieldState: { error } }) => (
-                      <CustomTextField
-                        {...field}
-                        value={value === null || isNaN(value) ? '0' : formatNumber(value)}
-                        label='Gaji'
-                        fullWidth
-                        error={!!error}
-                        helperText={error?.message}
-                        disabled={readOnly}
-                        inputProps={{
-                          inputMode: 'numeric'
-                        }}
-                        onChange={e => {
-                          safeNumberHandler(e.target.value, onChange, calculateTotal)
-                        }}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  <Controller
-                    name={`costEmployees.${index}.bonus`}
-                    control={control}
-                    render={({ field: { onChange, value, ...field }, fieldState: { error } }) => (
-                      <CustomTextField
-                        {...field}
-                        value={value === null || isNaN(value) ? '0' : formatNumber(value)}
-                        label={
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              height: '15px'
-                            }}
-                          >
-                            <input
-                              type='checkbox'
-                              checked={bonusCheckboxes[index] || false}
-                              onChange={e => handleBonusCheckboxChange(index, e.target.checked)}
-                              style={{
-                                width: '1em',
-                                height: '1em',
-                                marginRight: '8px'
+              <>
+                {index !== 0 && <Divider sx={{ mt: 6, mb: 4 }} />}
+                <Grid container spacing={3} key={field.id} sx={{ mb: 2 }}>
+                  <Grid item xs={12} sm={4}>
+                    <Controller
+                      name={`costEmployees.${index}.employeeId`}
+                      control={control}
+                      render={({ field: { value, onChange, ...field }, fieldState: { error } }) => (
+                        <CustomAutocomplete
+                          {...field}
+                          options={employees}
+                          getOptionLabel={option => option.nama || ''}
+                          value={employees.find(emp => emp.id === value) || null}
+                          onChange={(_, newValue) => {
+                            onChange(newValue?.id || null)
+                            handleEmployeeChange(index, newValue)
+                          }}
+                          renderInput={params => (
+                            <CustomTextField {...params} label='Karyawan' error={!!error} helperText={error?.message} />
+                          )}
+                          disabled={readOnly}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <Controller
+                      name={`costEmployees.${index}.salary`}
+                      control={control}
+                      render={({ field: { onChange, value, ...field }, fieldState: { error } }) => (
+                        <CustomTextField
+                          {...field}
+                          value={value === null || isNaN(value) ? '0' : formatNumber(value)}
+                          label='Gaji'
+                          fullWidth
+                          error={!!error}
+                          helperText={error?.message}
+                          disabled={readOnly}
+                          inputProps={{
+                            inputMode: 'numeric'
+                          }}
+                          onChange={e => {
+                            safeNumberHandler(e.target.value, onChange, calculateTotal)
+                          }}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <Controller
+                      name={`costEmployees.${index}.bonus`}
+                      control={control}
+                      render={({ field: { onChange, value, ...field }, fieldState: { error } }) => (
+                        <CustomTextField
+                          {...field}
+                          value={value === null || isNaN(value) ? '0' : formatNumber(value)}
+                          label={
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                height: '15px'
                               }}
-                              disabled={readOnly}
-                            />
-                            Bonus
-                          </Box>
-                        }
-                        fullWidth
-                        error={!!error}
-                        helperText={error?.message}
-                        disabled={readOnly || !bonusCheckboxes[index]}
-                        inputProps={{
-                          inputMode: 'numeric'
-                        }}
-                        onChange={e => {
-                          safeNumberHandler(e.target.value, onChange, calculateTotal)
-                        }}
-                      />
+                            >
+                              <input
+                                type='checkbox'
+                                checked={bonusCheckboxes[index] || false}
+                                onChange={e => handleBonusCheckboxChange(index, e.target.checked)}
+                                style={{
+                                  width: '1em',
+                                  height: '1em',
+                                  marginRight: '8px'
+                                }}
+                                disabled={readOnly}
+                              />
+                              Bonus
+                            </Box>
+                          }
+                          fullWidth
+                          error={!!error}
+                          helperText={error?.message}
+                          disabled={readOnly || !bonusCheckboxes[index]}
+                          inputProps={{
+                            inputMode: 'numeric'
+                          }}
+                          onChange={e => {
+                            safeNumberHandler(e.target.value, onChange, calculateTotal)
+                          }}
+                        />
+                      )}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={2}>
+                    <Controller
+                      name={`costEmployees.${index}.amountDebt`}
+                      control={control}
+                      render={({ field: { onChange, value, ...field }, fieldState: { error } }) => (
+                        <CustomTextField
+                          {...field}
+                          value={value === null || isNaN(value) ? '0' : formatNumber(value)}
+                          label='Kasbon'
+                          fullWidth
+                          error={!!error}
+                          helperText={error?.message}
+                          disabled={readOnly || costEmployees[index]?.amountDebtPaid > 0}
+                          inputProps={{
+                            inputMode: 'numeric'
+                          }}
+                          onChange={e => {
+                            const newValue = parseNumber(e.target.value) || 0
+                            handleDebtFieldChange(index, 'amountDebt', newValue)
+                          }}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={2}>
+                    <Controller
+                      name={`costEmployees.${index}.amountDebtPaid`}
+                      control={control}
+                      render={({ field: { onChange, value, ...field }, fieldState: { error } }) => (
+                        <CustomTextField
+                          {...field}
+                          value={value === null || isNaN(value) ? '0' : formatNumber(value)}
+                          label='Bayar Kasbon'
+                          fullWidth
+                          error={!!error}
+                          helperText={error?.message}
+                          disabled={readOnly || costEmployees[index]?.amountDebt > 0}
+                          inputProps={{
+                            inputMode: 'numeric'
+                          }}
+                          onChange={e => {
+                            const newValue = parseNumber(e.target.value) || 0
+                            handleDebtFieldChange(index, 'amountDebtPaid', newValue)
+                          }}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={7}>
+                    <Controller
+                      name={`costUnexpecteds.${index}.notes`}
+                      control={control}
+                      render={({ field, fieldState: { error } }) => (
+                        <CustomTextField
+                          {...field}
+                          label='Notes'
+                          fullWidth
+                          error={!!error}
+                          helperText={error?.message}
+                          disabled={readOnly}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={1} sx={{ display: 'flex', mt: 4 }}>
+                    {!readOnly && (
+                      <IconButton color='error' onClick={() => remove(index)}>
+                        <Icon icon='tabler:trash' />
+                      </IconButton>
                     )}
-                  />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={1} sx={{ display: 'flex', mt: 4 }}>
-                  {!readOnly && (
-                    <IconButton color='error' onClick={() => remove(index)}>
-                      <Icon icon='tabler:trash' />
-                    </IconButton>
-                  )}
-                </Grid>
-              </Grid>
+              </>
             ))}
 
             <Divider sx={{ mt: 4, mb: 2 }} />

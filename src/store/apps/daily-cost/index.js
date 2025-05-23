@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalConfirmationDelete, swalConfirmationEdit, swalToastError } from 'src/helpers/swalFunction'
+import {
+  swalConfirmationAdd,
+  swalConfirmationDelete,
+  swalConfirmationEdit,
+  swalToastError
+} from 'src/helpers/swalFunction'
 
 const label = 'Daily Cost'
 
@@ -29,11 +34,11 @@ export const fetchDetailDailyCostByDate = createAsyncThunk(
   'dailyCost/fetchDetailDailyCostByDate',
   async ({ date }, { rejectWithValue }) => {
     try {
-      const response = await axios({
+      const { data } = await axios({
         method: 'GET',
         url: '/daily-cost/detail/' + date
       })
-      return response.data
+      return data
     } catch (error) {
       swalToastError({ label, error })
       return rejectWithValue([])
@@ -127,16 +132,84 @@ export const updateDailyCost = createAsyncThunk(
   }
 )
 
-export const saveFilterMonthYear = createAsyncThunk(
-  'dailyCost/saveFilterMonthYear',
-  async ({ month, year }, { }) => {
-    try {
-      return { month, year }
-    } catch (error) {
-      return { month: new Date().getMonth(), year: new Date().getFullYear() }
-    }
+export const saveFilterMonthYear = createAsyncThunk('dailyCost/saveFilterMonthYear', async ({ month, year }, {}) => {
+  try {
+    return { month, year }
+  } catch (error) {
+    return { month: new Date().getMonth(), year: new Date().getFullYear() }
   }
-)
+})
+
+// const data = {
+//   id: 2,
+//   date: '2025-05-21',
+//   notes: '',
+//   status: 'APPROVED',
+//   grandTotal: '100000',
+//   totalCostGeneral: '0',
+//   totalCostEmployee: '275000',
+//   totalCostUnexpected: '0',
+//   createdAt: '2025-05-21T14:55:05.661Z',
+//   updatedAt: '2025-05-21T14:55:05.661Z',
+//   costGenerals: [],
+//   costEmployees: [
+//     {
+//       id: 1,
+//       dailyCostId: 2,
+//       employeeId: 3,
+//       employeeName: 'Alex',
+//       salary: 100000,
+//       bonus: 0,
+//       amountDebt: 50000,
+//       amountDebtPaid: 0,
+//       createdAt: '2025-05-21T14:55:05.670Z',
+//       updatedAt: '2025-05-21T14:55:05.670Z',
+//       Tm_Employee: {
+//         id: 3,
+//         nama: 'Alex',
+//         phone: '088816645',
+//         address: 'Jakarta tengah',
+//         dob: '2024-10-09T17:00:00.000Z',
+//         sex: 'Laki-laki',
+//         role: 'Manager',
+//         status: 'Tetap',
+//         salary: '50000',
+//         bonus: '100000',
+//         is_active: true,
+//         createdAt: '2025-04-30T18:48:34.429Z',
+//         updatedAt: '2025-05-01T04:20:58.834Z'
+//       }
+//     },
+//     {
+//       id: 2,
+//       dailyCostId: 2,
+//       employeeId: 6,
+//       employeeName: 'Dendi',
+//       salary: 150000,
+//       bonus: 0,
+//       amountDebt: 0,
+//       amountDebtPaid: 25000,
+//       createdAt: '2025-05-21T14:55:05.670Z',
+//       updatedAt: '2025-05-21T14:55:05.670Z',
+//       Tm_Employee: {
+//         id: 6,
+//         nama: 'Dendi',
+//         phone: null,
+//         address: null,
+//         dob: null,
+//         sex: null,
+//         role: null,
+//         status: null,
+//         salary: '50000',
+//         bonus: '200000',
+//         is_active: true,
+//         createdAt: '2025-05-16T16:55:44.211Z',
+//         updatedAt: '2025-05-16T16:55:44.211Z'
+//       }
+//     }
+//   ],
+//   costUnexpecteds: []
+// }
 
 export const appDailyCostSlice = createSlice({
   name: 'dailyCost',
@@ -150,7 +223,7 @@ export const appDailyCostSlice = createSlice({
     errorDetailDailyCost: null,
 
     year: new Date().getFullYear(),
-    month: new Date().getMonth(),
+    month: new Date().getMonth()
   },
   reducers: {},
   extraReducers: builder => {

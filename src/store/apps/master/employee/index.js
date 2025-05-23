@@ -126,6 +126,106 @@ export const deleteMasterDataEmployee = createAsyncThunk(
   }
 )
 
+// GET DEBT TRANSACTION EMPLOYEE
+export const fetchEmployeeDebt = createAsyncThunk(
+  'appMasterEmployee/fetchEmployeeDebt',
+  async ({ id, params }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/master/employee/debt/' + id,
+        params
+      })
+      return response?.data || []
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
+// POST DEBT TRANSACTION EMPLOYEE
+export const fetchAddEmployeeDebt = createAsyncThunk(
+  'appMasterEmployee/fetchAddEmployeeDebt',
+  async ({ id, data, setOpen, type }, { dispatch, rejectWithValue }) => {
+    try {
+      console.log('data', data)
+      await swalConfirmationAdd({
+        label: 'Kasbon',
+        name: 'Kasbon',
+        title: `Anda akan menambahkan ${type === 'PEMINJAMAN' ? 'peminjaman' : 'pembayaran'} kasbon?`,
+        axiosRequest: () => {
+          return axios({
+            method: 'POST',
+            url: '/master/employee/debt/' + id,
+            data
+          })
+        },
+        dispatchRequest: () => {
+          setOpen(false)
+          dispatch(fetchEmployeeDebt())
+        }
+      })
+    } catch (error) {
+      swalError({ error, label })
+      return rejectWithValue({})
+    }
+  }
+)
+
+// DELETE DEBT TRANSACTION EMPLOYEE
+export const deleteEmployeeDebt = createAsyncThunk(
+  'appMasterEmployee/deleteEmployeeDebt',
+  async ({ id, date }, { dispatch, rejectWithValue }) => {
+    try {
+      await swalConfirmationDelete({
+        label: 'Kasbon',
+        name: 'Kasbon',
+        title: `Anda akan menghapus kasbon tanggal ${date}?`,
+        axiosRequest: () => {
+          return axios({
+            method: 'DELETE',
+            url: '/master/employee/debt/' + id
+          })
+        },
+        dispatchRequest: () => {
+          dispatch(fetchEmployeeDebt())
+          dispatch(fetchMasterDataEmployeeDetail(id))
+        }
+      })
+    } catch (error) {
+      swalError({ error, label })
+      return rejectWithValue({})
+    }
+  }
+)
+
+const mockDebt = [
+  {
+    id: 1,
+    category: 'Manual',
+    date: '2023-10-01',
+    amount: 1000000,
+    type: 'PEMINJAMAN',
+    notes: 'Kasbon untuk keperluan pribadi'
+  },
+  {
+    id: 2,
+    category: 'Manual',
+    date: '2023-10-05',
+    amount: 500000,
+    type: 'PEMBAYARAN',
+    notes: 'Pembayaran kasbon bulan lalu'
+  },
+  {
+    id: 3,
+    category: 'Manual',
+    date: '2023-10-10',
+    amount: 2000000,
+    type: 'PEMINJAMAN',
+    notes: 'Kasbon untuk keperluan kesehatan'
+  }
+]
 // REDUCER MASTER EMPLOYEE
 export const appMasterEmployeeSlice = createSlice({
   name: 'appMasterEmployee',
@@ -162,7 +262,11 @@ export const appMasterEmployeeSlice = createSlice({
     loadingDetail: false,
     total: 1,
     params: {},
-    allData: []
+    allData: [],
+
+    employeeDebt: mockDebt,
+    loadingEmployeeDebt: false,
+    errorEmployeeDebt: false
   },
   reducers: {},
   extraReducers: builder => {
