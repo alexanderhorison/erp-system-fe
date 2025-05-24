@@ -180,7 +180,17 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                             handleEmployeeChange(index, newValue)
                           }}
                           renderInput={params => (
-                            <CustomTextField {...params} label='Karyawan' error={!!error} helperText={error?.message} />
+                            <CustomTextField {...params} label={
+                              <>
+                                Karyawan
+                                {watch(`constEmployees.${index}.debt`) !== null && (
+                                  <Typography component='span' variant='caption' sx={{ ml: 1, fontWeight: 'normal' }}>
+                                    | Sisa Hutang: Rp{' '}
+                                    {formatNumber(watch(`constEmployees.${index}.debt`))}
+                                  </Typography>
+                                )}
+                              </>
+                            } error={!!error} helperText={error?.message} />
                           )}
                           disabled={readOnly}
                         />
@@ -305,7 +315,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                   </Grid>
                   <Grid item xs={12} sm={7}>
                     <Controller
-                      name={`costUnexpecteds.${index}.notes`}
+                      name={`costEmployees.${index}.notes`}
                       control={control}
                       render={({ field, fieldState: { error } }) => (
                         <CustomTextField

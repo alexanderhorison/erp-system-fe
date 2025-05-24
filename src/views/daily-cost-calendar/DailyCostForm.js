@@ -67,7 +67,14 @@ const schema = yup.object({
         salary: yup.number().required('Gaji harus diisi'),
         bonus: yup.number().default(0).optional(),
         amountDebt: yup.number().default(0).optional(),
-        amountDebtPaid: yup.number().default(0).optional(),
+        amountDebtPaid: yup
+          .number()
+          .default(0)
+          .optional()
+          .test('max-salary', 'Pembayaran hutang tidak boleh melebihi gaji', function (value) {
+            const { salary } = this.parent;
+            return !value || !salary || value <= salary;
+          }),
         notes: yup.string().optional()
       })
     )
