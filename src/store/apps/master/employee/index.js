@@ -163,7 +163,7 @@ export const fetchAddEmployeeDebt = createAsyncThunk(
         },
         dispatchRequest: () => {
           setOpen(false)
-          dispatch(fetchEmployeeDebt())
+          dispatch(fetchEmployeeDebt({ id }))
         }
       })
     } catch (error) {
@@ -200,32 +200,6 @@ export const deleteEmployeeDebt = createAsyncThunk(
   }
 )
 
-const mockDebt = [
-  {
-    id: 1,
-    category: 'Manual',
-    date: '2023-10-01',
-    amount: 1000000,
-    type: 'PEMINJAMAN',
-    notes: 'Kasbon untuk keperluan pribadi'
-  },
-  {
-    id: 2,
-    category: 'Manual',
-    date: '2023-10-05',
-    amount: 500000,
-    type: 'PEMBAYARAN',
-    notes: 'Pembayaran kasbon bulan lalu'
-  },
-  {
-    id: 3,
-    category: 'Manual',
-    date: '2023-10-10',
-    amount: 2000000,
-    type: 'PEMINJAMAN',
-    notes: 'Kasbon untuk keperluan kesehatan'
-  }
-]
 // REDUCER MASTER EMPLOYEE
 export const appMasterEmployeeSlice = createSlice({
   name: 'appMasterEmployee',
@@ -264,7 +238,7 @@ export const appMasterEmployeeSlice = createSlice({
     params: {},
     allData: [],
 
-    employeeDebt: mockDebt,
+    employeeDebt: [],
     loadingEmployeeDebt: false,
     errorEmployeeDebt: false
   },
@@ -295,6 +269,20 @@ export const appMasterEmployeeSlice = createSlice({
         state.loadingDetail = false
         state.error = action.error.message
       })
+
+      .addCase(fetchEmployeeDebt.pending, state => {
+        state.loadingEmployeeDebt = true
+      })
+      .addCase(fetchEmployeeDebt.fulfilled, (state, action) => {
+        state.employeeDebt = action.payload.data.data
+        state.loadingEmployeeDebt = false
+        state.errorEmployeeDebt = false
+      })
+      .addCase(fetchEmployeeDebt.rejected, (state, action) => {
+        state.loadingEmployeeDebt = false
+        state.errorEmployeeDebt = action.error.message
+      })
+
   }
 })
 
