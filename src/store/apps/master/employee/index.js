@@ -164,6 +164,7 @@ export const fetchAddEmployeeDebt = createAsyncThunk(
         dispatchRequest: () => {
           setOpen(false)
           dispatch(fetchEmployeeDebt({ id }))
+          dispatch(fetchMasterDataEmployeeDetail(id))
         }
       })
     } catch (error) {
@@ -176,7 +177,7 @@ export const fetchAddEmployeeDebt = createAsyncThunk(
 // DELETE DEBT TRANSACTION EMPLOYEE
 export const deleteEmployeeDebt = createAsyncThunk(
   'appMasterEmployee/deleteEmployeeDebt',
-  async ({ id, date }, { dispatch, rejectWithValue }) => {
+  async ({ id, employeeId, date }, { dispatch, rejectWithValue }) => {
     try {
       await swalConfirmationDelete({
         label: 'Kasbon',
@@ -189,8 +190,8 @@ export const deleteEmployeeDebt = createAsyncThunk(
           })
         },
         dispatchRequest: () => {
-          dispatch(fetchEmployeeDebt())
-          dispatch(fetchMasterDataEmployeeDetail(id))
+          dispatch(fetchEmployeeDebt({ id: employeeId }))
+          dispatch(fetchMasterDataEmployeeDetail(employeeId))
         }
       })
     } catch (error) {
@@ -274,7 +275,7 @@ export const appMasterEmployeeSlice = createSlice({
         state.loadingEmployeeDebt = true
       })
       .addCase(fetchEmployeeDebt.fulfilled, (state, action) => {
-        state.employeeDebt = action.payload.data.data
+        state.employeeDebt = action.payload.data
         state.loadingEmployeeDebt = false
         state.errorEmployeeDebt = false
       })

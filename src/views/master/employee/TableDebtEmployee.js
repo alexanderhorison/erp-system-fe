@@ -15,14 +15,14 @@ import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import TableHeaderDebtEmployee from './TableHeaderDebtEmployee'
 import ModalFormDebt from './ModalFormDebt'
 
-const RowOptions = ({ id, date }) => {
+const RowOptions = ({ id, employeeId, date }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
   const [openModalView, setOpenModalView] = useState(false)
 
   const handleDelete = e => {
     e.stopPropagation()
-    dispatch(deleteEmployeeDebt({ id, date }))
+    dispatch(deleteEmployeeDebt({ id, employeeId, date }))
   }
 
   return (
@@ -70,7 +70,7 @@ export default function TableDebtEmployee() {
         id: +id,
         params: {
           page: paginationModel.page + 1,
-          limit: paginationModel.pageSize
+          pageSize: paginationModel.pageSize
         }
       })
     )
@@ -124,6 +124,19 @@ export default function TableDebtEmployee() {
           {
             flex: 0.1,
             minWidth: 120,
+            field: 'type',
+            headerName: 'Tipe',
+            renderCell: params => {
+              return (
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  {params.row.type}
+                </Typography>
+              )
+            }
+          },
+          {
+            flex: 0.1,
+            minWidth: 120,
             field: 'notes',
             headerName: 'Notes',
             renderCell: params => {
@@ -138,15 +151,17 @@ export default function TableDebtEmployee() {
             flex: 0.06,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} date={row.date} />
+            renderCell: ({ row }) => <RowOptions id={row.id} employeeId={id} date={row.date} />
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
+        pageSizeOptions={[5, 10]}
         paginationModel={paginationModel}
+        paginationMode='server'
+        rowCount={employeeDebt?.pagination?.total || 0}
         // onRowClick={handleRowClick}
         slots={{ toolbar: TableHeaderDebtEmployee }}
         onPaginationModelChange={setPaginationModel}
-        rows={employeeDebt}
+        rows={employeeDebt?.data || []}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
