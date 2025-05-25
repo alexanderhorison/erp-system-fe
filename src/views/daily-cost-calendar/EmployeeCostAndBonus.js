@@ -183,10 +183,10 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                             <CustomTextField {...params} label={
                               <>
                                 Karyawan
-                                {watch(`constEmployees.${index}.debt`) !== null && (
+                                {watch(`costEmployees.${index}.debt`) !== null && (
                                   <Typography component='span' variant='caption' sx={{ ml: 1, fontWeight: 'normal' }}>
                                     | Sisa Hutang: Rp{' '}
-                                    {formatNumber(watch(`constEmployees.${index}.debt`))}
+                                    {formatNumber(costEmployees[index]?.Tm_Employee?.debt || 0)}
                                   </Typography>
                                 )}
                               </>

@@ -15,7 +15,7 @@ import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import TableHeaderDebtEmployee from './TableHeaderDebtEmployee'
 import ModalFormDebt from './ModalFormDebt'
 
-const RowOptions = ({ id, employeeId, date }) => {
+const RowOptions = ({ id, employeeId, date, category }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
   const [openModalView, setOpenModalView] = useState(false)
@@ -34,9 +34,13 @@ const RowOptions = ({ id, employeeId, date }) => {
         {/* <IconButton onClick={handleEdit}>
           <Icon icon='tabler:edit' />
         </IconButton> */}
-        <IconButton onClick={handleDelete}>
-          <Icon icon='tabler:trash' />
-        </IconButton>
+        {
+          category !== 'DAILY COST' && (
+            <IconButton onClick={handleDelete}>
+              <Icon icon='tabler:trash' />
+            </IconButton>
+          )
+        }
       </Box>
       {openModalEdit && (
         <ModalAddMasterEmployee open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
@@ -151,7 +155,7 @@ export default function TableDebtEmployee() {
             flex: 0.06,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} employeeId={id} date={row.date} />
+            renderCell: ({ row }) => <RowOptions id={row.id} employeeId={id} date={row.date} category={row.category} />
           }
         ]}
         pageSizeOptions={[5, 10]}

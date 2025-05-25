@@ -149,7 +149,6 @@ export const fetchAddEmployeeDebt = createAsyncThunk(
   'appMasterEmployee/fetchAddEmployeeDebt',
   async ({ id, data, setOpen, type }, { dispatch, rejectWithValue }) => {
     try {
-      console.log('data', data)
       await swalConfirmationAdd({
         label: 'Kasbon',
         name: 'Kasbon',

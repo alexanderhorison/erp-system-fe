@@ -47,22 +47,7 @@ const schema = yup.object({
           .number()
           .required('Karyawan harus dipilih')
           .test('unique-employee', 'Karyawan sudah dipilih', function (value) {
-            if (!value) return true
-
-            const costEmployees = this.from[1].value.costEmployees
-            if (!costEmployees) return true
-
-            const currentIndex = costEmployees.findIndex(item => item === this.parent)
-            const duplicates = costEmployees.filter(
-              (item, index) => item.employeeId === value && index !== currentIndex
-            )
-
-            // If no duplicates found, return true
-            if (duplicates.length === 0) return true
-
-            // Show error only on the duplicate entries (not on the first occurrence)
-            const firstOccurrenceIndex = costEmployees.findIndex(item => item.employeeId === value)
-            return currentIndex === firstOccurrenceIndex
+            return true
           }),
         salary: yup.number().required('Gaji harus diisi'),
         bonus: yup.number().default(0).optional(),
@@ -75,7 +60,7 @@ const schema = yup.object({
             const { salary } = this.parent;
             return !value || !salary || value <= salary;
           }),
-        notes: yup.string().optional()
+        notes: yup.string().optional().nullable()
       })
     )
     .optional(),
@@ -87,22 +72,7 @@ const schema = yup.object({
           .number()
           .required('Kategori biaya tidak terduga harus diisi')
           .test('unique-category', 'Kategori ini sudah digunakan', function (value) {
-            if (!value) return true
-
-            const costUnexpecteds = this.from[1].value.costUnexpecteds
-            if (!costUnexpecteds) return true
-
-            const currentIndex = costUnexpecteds.findIndex(item => item === this.parent)
-            const duplicates = costUnexpecteds.filter(
-              (item, index) => item.categoryId === value && index !== currentIndex
-            )
-
-            // If no duplicates found, return true
-            if (duplicates.length === 0) return true
-
-            // Show error only on the duplicate entries (not on the first occurrence)
-            const firstOccurrenceIndex = costUnexpecteds.findIndex(item => item.categoryId === value)
-            return currentIndex === firstOccurrenceIndex
+            return true
           }),
         description: yup.string().optional(),
         price: yup.number().required('Jumlah harus diisi')
@@ -245,7 +215,10 @@ export default function DailyCostForm({ mode = 'ADD', selectedDate }) {
       data.costEmployees.forEach(item => {
         const salary = +item?.salary || 0
         const bonus = +item?.bonus || 0
-        totalCostEmployee += salary + bonus
+        const amountDebt = +item?.amountDebt || 0
+        const amountDebtPaid = +item?.amountDebtPaid || 0
+
+        totalCostEmployee += salary + bonus - amountDebtPaid + amountDebt
         costEmployees.push({
           employeeId: +item.employeeId,
           employeeName: item.employeeName,
