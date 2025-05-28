@@ -40,6 +40,9 @@ export default function DetailCustomer({ data, loading }) {
         <Typography variant='h5' sx={{ mb: 2.5 }}>
           {data.name}
         </Typography>
+        <Typography variant='body2' sx={{ mb: 2.5 }}>
+          {data.alias}
+        </Typography>
         <Grid container spacing={2} mt={2} justifyContent='center'>
           <Grid item>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

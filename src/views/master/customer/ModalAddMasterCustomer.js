@@ -60,6 +60,7 @@ export default function ModalAddMasterCustomer({ open, setOpen, typeModal, id })
     gender: yup.string().required('Jenis kelamin harus diisi'),
     notes: yup.string().optional(),
     rankId: yup.number().required('Rank harus dipilih'),
+    alias: yup.string().optional()
   })
 
   // REACT FORM
@@ -132,6 +133,16 @@ export default function ModalAddMasterCustomer({ open, setOpen, typeModal, id })
                       errors={errors}
                       disabled={typeModal === 'VIEW'}
                       placeholder='Masukkan Name Customer'
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={12}>
+                    <FormInputText
+                      label={'Alias Customer'}
+                      name={'alias'}
+                      control={control}
+                      errors={errors}
+                      disabled={typeModal === 'VIEW'}
+                      placeholder='Masukkan Alias Customer'
                     />
                   </Grid>
                   <Grid item xs={12} sm={12}>
