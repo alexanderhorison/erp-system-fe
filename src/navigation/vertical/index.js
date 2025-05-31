@@ -1,4 +1,4 @@
-import { defaultMenuVuexy, listMenu, listMenu2, oldMenu } from 'src/data/listMenu'
+import { defaultMenuVuexy, listMenu } from 'src/data/listMenu'
 import { UseAuth } from 'src/hooks/useAuth'
 
 const navigation = () => {
@@ -6,9 +6,6 @@ const navigation = () => {
   /**
    * Add menuId Based on Id in menuId database
   */
-
-  // List Menu V1
-  // const deploy = oldMenu
 
   // List Menu V2
   const deploy = listMenu

@@ -6,12 +6,6 @@ export const listMenu = [
     menuId: 27
   },
   {
-    title: 'Daily Cost Calendar',
-    path: '/daily-cost-calendar/',
-    icon: 'tabler:calendar',
-    menuId: 33
-  },
-  {
     sectionTitle: 'Inventory',
     menuId: [4, 5, 12, 3, 6, 13],
   },
@@ -201,26 +195,40 @@ export const listMenu = [
     ]
   },
   {
-    sectionTitle: 'Master Data',
-    menuId: [29, 31, 32]
+    sectionTitle: 'Daily Cost',
+    menuId: [29, 31, 32, 33]
   },
   {
-    title: 'Cost Tak Terduga',
-    icon: 'tabler:cash',
-    path: '/master/unexpected-cost-category',
-    menuId: 29
-  },
-  {
-    title: 'Mobil',
-    icon: 'tabler:car',
+    title: 'Master Data',
     path: '/master/car',
-    menuId: 31
+    icon: 'tabler:database',
+    menudId: [31],
+    children: [
+      {
+        title: 'Mobil',
+        // icon: 'tabler:car',
+        path: '/master/car',
+        menuId: 31
+      },
+      {
+        title: 'Karyawan',
+        // icon: 'tabler:users',
+        path: '/master/employee',
+        menuId: 32
+      },
+      {
+        title: 'Cost Tak Terduga',
+        // icon: 'tabler:cash',
+        path: '/master/unexpected-cost-category',
+        menuId: 29
+      },
+    ]
   },
   {
-    title: 'Karyawan',
-    icon: 'tabler:users',
-    path: '/master/employee',
-    menuId: 32
+    title: 'Daily Cost Calendar',
+    path: '/daily-cost-calendar/',
+    icon: 'tabler:calendar',
+    menuId: 33
   },
   {
     sectionTitle: 'Report',
@@ -256,145 +264,6 @@ export const listMenu = [
   }
 ];
 
-
-export const oldMenu = [
-  {
-    title: 'Master Data',
-    icon: 'tabler:server-cog',
-    children: [
-      {
-        title: 'Produk',
-        path: '/master/products',
-        menuId: 5
-      },
-      {
-        title: 'Tipe Produk',
-        path: '/master/types',
-        menuId: 4
-      },
-      {
-        title: 'Satuan Produk',
-        path: '/master/units',
-        menuId: 12
-      },
-      {
-        title: 'Kategori Produk',
-        path: '/master/categories',
-        menuId: 3
-      },
-      {
-        title: 'Gudang',
-        path: '/master/warehouses',
-        menuId: 6
-      },
-      {
-        title: 'Company',
-        path: '/master/company',
-        menuId: 13
-      },
-      {
-        title: 'Customer',
-        path: '/master/customer',
-        menuId: 21
-      },
-      {
-        title: 'Rank',
-        path: '/master/rank',
-        menuId: 22
-      },
-      {
-        title: 'Vendor',
-        path: '/master/vendor',
-        menuId: 24
-      }
-    ]
-  },
-  {
-    title: 'Manajemen Stok',
-    icon: 'tabler:server-cog',
-    children: [
-      {
-        title: 'List Produk Gudang',
-        path: '/product-warehouse/product',
-        menuId: 8
-      },
-      {
-        title: 'Penyesuaian Stok Produk Gudang',
-        path: '/product-warehouse/warehouse',
-        menuId: 9
-      },
-      {
-        title: 'Barang Masuk',
-        path: '/adjustment/goods-in',
-        menuId: 16
-      },
-      {
-        title: 'Barang Keluar',
-        path: '/adjustment/goods-out',
-        menuId: 17
-      },
-      {
-        title: 'Internal Transfer',
-        path: '/internal-transfer',
-        menuId: 18
-      },
-    ]
-  },
-  {
-    title: 'Stock Opname',
-    path: '/stock-opname/',
-    icon: 'tabler:server-cog',
-    menuId: 15
-  },
-  {
-    title: 'Surat Jalan',
-    icon: 'tabler:server-cog',
-    children: [
-      {
-        title: 'Surat Jalan',
-        path: '/delivery-order',
-        menuId: 10
-      },
-      {
-        title: 'Penerimaan Surat Jalan',
-        path: '/receive-order',
-        menuId: 11
-      },
-      {
-        title: 'Produk Outstanding',
-        path: '/receipt-order-outstanding',
-        menuId: 19
-      }
-    ]
-  },
-  {
-    title: 'Sales Order',
-    icon: 'tabler:server-cog',
-    children: [
-      {
-        title: 'Sales Order',
-        path: '/sales-order',
-        menuId: 23
-      },
-    ]
-  },
-  {
-    sectionTitle: 'Pengguna & Otoritas',
-    menuId: [1, 2]
-  },
-  {
-    title: 'Pengguna',
-    icon: 'tabler:user',
-    path: '/settings/user',
-    menuId: 1
-  },
-  {
-    title: 'Otoritas',
-    icon: 'tabler:settings',
-    path: '/settings/roles',
-    menuId: 2
-  }
-]
 
 export const defaultMenuVuexy = [
   {
