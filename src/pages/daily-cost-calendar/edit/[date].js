@@ -3,9 +3,8 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
-import DailyCostForm from 'src/views/daily-cost-calendar/DailyCostForm';
 import DateFormatError from 'src/views/daily-cost-calendar/DateFormatError';
-import UserLayout from 'src/layouts/UserLayout';
+import DailyCostFormWizard from 'src/views/daily-cost-calendar/DailyCostFormWizard';
 
 dayjs.locale('id');
 
@@ -40,7 +39,6 @@ export default function EditDailyCost() {
         setSelectedDate(parsedDate.format('YYYY-MM-DD'));
         setIsValidDate(true);
       } catch (error) {
-        console.error('Error parsing date:', error);
         setIsValidDate(false);
       }
     }
@@ -55,7 +53,7 @@ export default function EditDailyCost() {
   }
 
   return selectedDate ? (
-    <DailyCostForm mode="EDIT" selectedDate={selectedDate} />
+    <DailyCostFormWizard mode="EDIT" selectedDate={selectedDate} />
   ) : (
     <div>Loading...</div>
   );

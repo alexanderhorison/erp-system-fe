@@ -1,16 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useFieldArray, useFormContext, Controller } from 'react-hook-form'
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Divider,
-  Grid,
-  IconButton,
-  Typography,
-  Box,
-} from '@mui/material'
+import { Button, Card, CardContent, CardHeader, Divider, Grid, IconButton, Typography, Box } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 import axios from 'axios'
 import { formatNumber, parseNumber } from 'src/utils/formatNumber'
@@ -23,7 +13,7 @@ import safeNumberHandler from 'src/helpers/formFormatter'
 export default function EmployeeCostAndBonus({ readOnly = false }) {
   const dispatch = useDispatch()
 
-  const { control, watch, setValue, formState } = useFormContext()
+  const { control, watch, setValue, formState, trigger } = useFormContext()
   const { data: employees } = useSelector(state => state.masterEmployee)
 
   const { fields, append, remove } = useFieldArray({
@@ -61,37 +51,37 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
       notes: ''
     })
   }
+
   const handleEmployeeChange = (index, selectedEmployee) => {
     // Uncheck bonus checkbox when employee changes
     setBonusCheckboxes(prev => ({ ...prev, [index]: false }))
     if (selectedEmployee) {
-      setValue(`costEmployees.${index}.employeeId`, selectedEmployee.id)
-      setValue(`costEmployees.${index}.employeeName`, selectedEmployee.nama)
+      setValue(`costEmployees.${index}.employeeId`, selectedEmployee.id, { shouldValidate: true })
+      setValue(`costEmployees.${index}.employeeName`, selectedEmployee.nama, { shouldValidate: true })
       // Auto-fill salary from employee data
-      setValue(`costEmployees.${index}.salary`, parseNumber(selectedEmployee.salary) || 0)
+      setValue(`costEmployees.${index}.salary`, parseNumber(selectedEmployee.salary) || 0, { shouldValidate: true })
       // Reset bonus to 0 when employee changes
-      setValue(`costEmployees.${index}.bonus`, 0)
+      setValue(`costEmployees.${index}.bonus`, 0, { shouldValidate: true })
       // Reset debt fields to 0
-      setValue(`costEmployees.${index}.amountDebt`, 0)
-      setValue(`costEmployees.${index}.amountDebtPaid`, 0)
+      setValue(`costEmployees.${index}.amountDebt`, 0, { shouldValidate: true })
+      setValue(`costEmployees.${index}.amountDebtPaid`, 0, { shouldValidate: true })
 
       // Recalculate total after setting new values
       calculateTotal()
     } else {
-      setValue(`costEmployees.${index}.employeeId`, null)
-      setValue(`costEmployees.${index}.employeeName`, '')
-      setValue(`costEmployees.${index}.salary`, 0)
-      setValue(`costEmployees.${index}.bonus`, 0)
-      setValue(`costEmployees.${index}.amountDebt`, 0)
-      setValue(`costEmployees.${index}.amountDebtPaid`, 0)
+      setValue(`costEmployees.${index}.employeeId`, null, { shouldValidate: true })
+      setValue(`costEmployees.${index}.employeeName`, '', { shouldValidate: true })
+      setValue(`costEmployees.${index}.salary`, 0, { shouldValidate: true })
+      setValue(`costEmployees.${index}.bonus`, 0, { shouldValidate: true })
+      setValue(`costEmployees.${index}.amountDebt`, 0, { shouldValidate: true })
+      setValue(`costEmployees.${index}.amountDebtPaid`, 0, { shouldValidate: true })
       calculateTotal()
     }
   }
-
   const handleBonusCheckboxChange = (index, checked) => {
     setBonusCheckboxes(prev => ({ ...prev, [index]: checked }))
     if (!checked) {
-      setValue(`costEmployees.${index}.bonus`, 0)
+      setValue(`costEmployees.${index}.bonus`, 0, { shouldValidate: true })
       calculateTotal()
     } else {
       // If checked, update bonus from the selected employee if available
@@ -100,7 +90,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
       if (employeeId) {
         const selectedEmployee = employees.find(emp => emp.id === employeeId)
         if (selectedEmployee) {
-          setValue(`costEmployees.${index}.bonus`, parseNumber(selectedEmployee.bonus) || 0)
+          setValue(`costEmployees.${index}.bonus`, parseNumber(selectedEmployee.bonus) || 0, { shouldValidate: true })
           calculateTotal()
         }
       }
@@ -122,14 +112,24 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
   }, [fields.length])
 
   // Function to check if amountDebt or amountDebtPaid has value
-  const handleDebtFieldChange = (index, field, value) => {
-    setValue(`costEmployees.${index}.${field}`, value)
+  const handleDebtFieldChange = async (index, field, value) => {
+    setValue(`costEmployees.${index}.${field}`, value, { shouldValidate: true })
     calculateTotal()
+    try {
+      // Trigger validation for the specific field and the entire costEmployees array
+      await trigger([
+        `costEmployees.${index}.${field}`,
+        `costEmployees.${index}.amountDebtPaid`, // Always validate amountDebtPaid when debt fields change
+        `costEmployees.${index}.salary`, // Validate salary as it's related to the validation rule
+        'costEmployees'
+      ])
+    } catch (error) {
+      console.warn('Validation trigger error:', error)
+    }
   }
-
   // Handle salary deduction switch change
   const handleSalaryDeductionChange = (index, checked) => {
-    setValue(`costEmployees.${index}.salaryDeduction`, checked)
+    setValue(`costEmployees.${index}.salaryDeduction`, checked, { shouldValidate: true })
     calculateTotal()
   }
 
@@ -180,17 +180,21 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                             handleEmployeeChange(index, newValue)
                           }}
                           renderInput={params => (
-                            <CustomTextField {...params} label={
-                              <>
-                                Karyawan
-                                {watch(`costEmployees.${index}.debt`) !== null && (
-                                  <Typography component='span' variant='caption' sx={{ ml: 1, fontWeight: 'normal' }}>
-                                    | Sisa Hutang: Rp{' '}
-                                    {formatNumber(costEmployees[index]?.Tm_Employee?.debt || 0)}
-                                  </Typography>
-                                )}
-                              </>
-                            } error={!!error} helperText={error?.message} />
+                            <CustomTextField
+                              {...params}
+                              label={
+                                <>
+                                  Karyawan
+                                  {watch(`costEmployees.${index}.debt`) !== null && (
+                                    <Typography component='span' variant='caption' sx={{ ml: 1, fontWeight: 'normal' }}>
+                                      | Sisa Hutang: Rp {formatNumber(costEmployees[index]?.Tm_Employee?.debt || 0)}
+                                    </Typography>
+                                  )}
+                                </>
+                              }
+                              error={!!error}
+                              helperText={error?.message}
+                            />
                           )}
                           disabled={readOnly}
                         />
@@ -281,9 +285,9 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                           inputProps={{
                             inputMode: 'numeric'
                           }}
-                          onChange={e => {
+                          onChange={async e => {
                             const newValue = parseNumber(e.target.value) || 0
-                            handleDebtFieldChange(index, 'amountDebt', newValue)
+                            await handleDebtFieldChange(index, 'amountDebt', newValue)
                           }}
                         />
                       )}
@@ -305,9 +309,13 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                           inputProps={{
                             inputMode: 'numeric'
                           }}
-                          onChange={e => {
+                          onChange={async e => {
                             const newValue = parseNumber(e.target.value) || 0
-                            handleDebtFieldChange(index, 'amountDebtPaid', newValue)
+                            await handleDebtFieldChange(index, 'amountDebtPaid', newValue)
+                            // Explicitly trigger validation for this field and related fields
+                            setTimeout(() => {
+                              onChange(newValue)
+                            }, 0)
                           }}
                         />
                       )}

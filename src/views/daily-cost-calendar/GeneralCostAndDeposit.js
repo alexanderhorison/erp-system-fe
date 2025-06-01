@@ -21,7 +21,7 @@ export default function GeneralCostAndDeposit() {
 
   const { data: cars } = useSelector(state => state.masterCar)
   const { data: employees } = useSelector(state => state.masterEmployee)
-  const { dataSalesOrder: salesOrders } = useSelector(state => state.salesOrder)
+  const { dataSalesOrder: salesOrders, loadingDataSalesOrder } = useSelector(state => state.salesOrder)
   const { configDailyCost } = useSelector(state => state.configDailyCost)
 
   const [loading, setLoading] = useState(false)
@@ -48,13 +48,19 @@ export default function GeneralCostAndDeposit() {
   const calculateTotal = () => {
     const costGeneralsValues = watch('costGenerals') || []
     let totals = 0
+    let grandTotal = 0
     costGeneralsValues.forEach(item => {
       totals += Number(item.tollCost) || 0
       totals += Number(item.fuelCost) || 0
       totals += Number(item.transportAllowance) || 0
     })
+    grandTotal = totals + getValues('totalCostEmployee') + getValues('totalCostUnexpected')
+    if (salesOrders.length === 0) {
+      totals = 0
+      grandTotal = 0
+    }
     setValue('totalCostGeneral', totals)
-    setValue('grandTotal', totals + getValues('totalCostEmployee') + getValues('totalCostUnexpected'))
+    setValue('grandTotal', grandTotal)
     return totals
   }
 
@@ -156,7 +162,7 @@ export default function GeneralCostAndDeposit() {
   }
 
   useEffect(() => {
-    if (salesOrders && salesOrders.length > 0 && configDailyCost) {
+    if (salesOrders.length > 0 && configDailyCost) {
       salesOrders.forEach((order, index) => {
         setValue(`costGenerals.${index}.salesOrderId`, order.id)
 
@@ -179,8 +185,13 @@ export default function GeneralCostAndDeposit() {
 
         calculateRemainingDeposit(index)
       })
+
+    } else {
+      // If no sales orders, initialize costGenerals with an empty array
+      setValue('costGenerals', [])
+      calculateTotal()
     }
-  }, [salesOrders, configDailyCost, setValue, watch, params.date])
+  }, [salesOrders, configDailyCost, setValue, watch, params.date, loadingDataSalesOrder])
 
   if (salesOrders?.length === 0) {
     return (
