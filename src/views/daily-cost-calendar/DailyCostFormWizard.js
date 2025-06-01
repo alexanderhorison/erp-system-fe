@@ -451,7 +451,6 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
       </Box>
 
       <Grid container spacing={4} sx={{ height: '100%' }}>
-        {' '}
         {/* Left Sidebar - Stepper */}
         <Grid item xs={12} lg={3} md={4}>
           <Paper
@@ -465,7 +464,7 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
           >
             <Typography variant='h6' gutterBottom sx={{ color: 'primary.main' }}>
               Progress
-            </Typography>{' '}
+            </Typography>
             <Stepper
               activeStep={activeStep}
               orientation={isLargeScreen ? 'vertical' : 'horizontal'}
@@ -565,7 +564,7 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
             <Grid item xs={12}>
               <Paper elevation={2} sx={{ p: { xs: 2, md: 4 }, minHeight: { xs: '400px', md: '500px' } }}>
                 {/* Step Header */}
-                <Box sx={{ mb: { xs: 3, md: 4 }, pb: 2, borderBottom: '2px solid', borderColor: 'primary.100' }}>
+                <Box sx={{ mb: { xs: 3, md: 4 }, pb: 2 }}>
                   <Box
                     sx={{
                       display: 'flex',
@@ -590,7 +589,7 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
                       }}
                     >
                       {activeStep + 1}
-                    </Box>{' '}
+                    </Box>
                     <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
                       <Typography variant='h5' color='primary.main' fontWeight={700}>
                         {steps[activeStep].title}
@@ -618,11 +617,11 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
                       {Math.round(((activeStep + 1) / steps.length) * 100)}%
                     </Typography>
                   </Box>
-                </Box>{' '}
+                </Box>
                 {/* Step Content */}
                 <Box sx={{ minHeight: '400px' }}>{renderStepContent(activeStep)}</Box>
               </Paper>
-            </Grid>{' '}
+            </Grid>
             {/* Navigation Buttons */}
             <Grid item xs={12}>
               <Card elevation={1}>
@@ -655,7 +654,7 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
                         Previous
                       </Button>
                     )}
-                  </Box>{' '}
+                  </Box>
                   <Box
                     sx={{ display: 'flex', gap: 2, order: { xs: 1, sm: 2 }, flexDirection: { xs: 'row', sm: 'row' } }}
                   >
