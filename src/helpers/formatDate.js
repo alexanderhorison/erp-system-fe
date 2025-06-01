@@ -39,8 +39,21 @@ function returnFormatDateDay(dateString) {
   return formattedDate;
 }
 
+function returnFormatDateIsoString(dateStr = new Date()) {
+  return new Date(dateStr).toISOString();
+};
+
+function returnToLocaleDateString(dateStr, format = 'en-GB') {
+  if (!dateStr) {
+    return '';
+  }
+  return new Date(dateStr).toLocaleDateString(format);
+}
+
 module.exports = {
   returnFormatDate,
   returnFormatTime,
-  returnFormatDateDay
+  returnFormatDateDay,
+  returnFormatDateIsoString,
+  returnToLocaleDateString
 }

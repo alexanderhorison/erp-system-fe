@@ -121,10 +121,10 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
                 Tagihan Kepada
               </Typography>
               <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>
-                {data?.customer?.name.toUpperCase() || ''}
+                {data?.customer?.name?.toUpperCase() || ''}
               </Typography>
               <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>
-                {data?.customer?.address.toUpperCase() || ''}
+                {data?.customer?.address?.toUpperCase() || ''}
               </Typography>
             </Box>
           </Grid>

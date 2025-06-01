@@ -15,7 +15,7 @@ import TableCell from '@mui/material/TableCell'
 
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
-import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
+import { returnToLocaleDateString } from 'src/helpers/formatDate'
 import { companyInfo } from 'src/data/companyInfo'
 import { Status } from 'src/@core/components/common'
 import { priceFormat } from 'src/helpers/priceFormatter'
@@ -82,6 +82,12 @@ const DetailPageSalesOrder = ({ data }) => {
                       <MUITableCell>
                         <Typography variant='h6'>Tgl. Jatuh Tempo</Typography>
                         <Typography variant='h6'>{`${data.dueDate}`}</Typography>
+                      </MUITableCell>
+                    </TableRow>
+                    <TableRow>
+                      <MUITableCell>
+                        <Typography variant='h6'>Tgl. Pengiriman</Typography>
+                        <Typography variant='h6'>{`${returnToLocaleDateString(data.shippingDate) || data.dueDate}`}</Typography>
                       </MUITableCell>
                     </TableRow>
                     <TableRow>

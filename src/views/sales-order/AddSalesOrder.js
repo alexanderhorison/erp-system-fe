@@ -24,6 +24,7 @@ import ModalTransformProductSalesOrder from './ModalTransformProductSalesOrder'
 import ModalAddMasterCustomer from '../master/customer/ModalAddMasterCustomer'
 import { fetchOneMasterDataModal } from 'src/store/apps/master/modal'
 import { UseAuth } from 'src/hooks/useAuth'
+import { returnFormatDateIsoString } from 'src/helpers/formatDate'
 
 export default function AddSalesOrder({}) {
   const dispatch = useDispatch()
@@ -35,6 +36,7 @@ export default function AddSalesOrder({}) {
   const { direction } = theme
   const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
   const [date, setDate] = useState(new Date())
+  const [shippingDate, setShippingDate] = useState(new Date())
   const [customerData, setCustomerData] = useState({})
   const [openModalTransformation, setOpenModalTransformation] = useState(false)
   const [openModalCustomer, setOpenModalCustomer] = useState(false)
@@ -52,6 +54,7 @@ export default function AddSalesOrder({}) {
     grandTotalCustomer: yup.number().typeError('Total Sales order harus ada'),
     grandTotalBarter: yup.number().typeError('Total Barter harus ada'),
     notes: yup.string().optional(),
+    shippingDate: yup.date().typeError('Tanggal Pengiriman harus diisi'),
     data: yup.array().of(
       yup.object({
         warehouseId: yup.number().typeError('Gudang asal harus ada'),
@@ -196,6 +199,7 @@ export default function AddSalesOrder({}) {
         grandTotalCustomer: data.grandTotalCustomer,
         grandTotalBarter: data.grandTotalBarter,
         dueDate: date.toLocaleDateString('en-GB'),
+        shippingDate: returnFormatDateIsoString(shippingDate),
         notes: data.notes,
         listProduct: listItems,
         listBarterProduct: listBarter
@@ -342,9 +346,8 @@ export default function AddSalesOrder({}) {
 
   const titleProductInfo = index => {
     const infos = {
-      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${
-        getValues(`data[${index}].unitName`) || '-'
-      }`,
+      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${getValues(`data[${index}].unitName`) || '-'
+        }`,
       titleQuantity: `QTY: ${getValues(`data[${index}].qty`) || '-'}`,
       titleTransformation: getValues(`data[${index}].quantity`) > 0 ? '| Transformasi Produk' : ''
     }
@@ -353,9 +356,8 @@ export default function AddSalesOrder({}) {
 
   const titleBarterInfo = index => {
     const infos = {
-      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${
-        getValues(`barterProduct[${index}].unitName`) || '-'
-      }`,
+      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${getValues(`barterProduct[${index}].unitName`) || '-'
+        }`,
       titleQuantity: `QTY: ${getValues(`barterProduct[${index}].qty`) || '-'}`
     }
     return infos
@@ -537,14 +539,29 @@ export default function AddSalesOrder({}) {
           <Grid item xs={12} md={6} sx={{ textAlign: 'left' }}>
             <Card sx={{ height: '100%' }}>
               <CardContent>
-                <DatePicker
-                  selected={date}
-                  id='basic'
-                  popperPlacement={popperPlacement}
-                  onChange={date => setDate(date)}
-                  fullWidth
-                  customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
-                />
+                <Grid container spacing={6} >
+                  <Grid item xs={12} md={4}>
+                    <DatePicker
+                      selected={date}
+                      id='basic'
+                      popperPlacement={popperPlacement}
+                      onChange={date => setDate(date)}
+                      fullWidth
+                      customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <DatePicker
+                      selected={shippingDate}
+                      id='basic'
+                      popperPlacement={popperPlacement}
+                      onChange={date => setShippingDate(date)}
+                      fullWidth
+                      customInput={<PickersComponent
+                        label='Tanggal Pengiriman' />}
+                    />
+                  </Grid>
+                </Grid>
               </CardContent>
             </Card>
           </Grid>
@@ -792,7 +809,7 @@ export default function AddSalesOrder({}) {
                                     onChange
                                   })
                                 }}
-                                sx={{ display: 'block' }}
+                                sx={{ display: 'block', zIndex: 0 }}
                                 error={Boolean(errors?.data?.[index]?.modal)}
                                 {...(errors?.data?.[index]?.modal && {
                                   helperText: errors?.data?.[index]?.modal.message
@@ -814,7 +831,7 @@ export default function AddSalesOrder({}) {
                               value={priceFormat(value || 0)}
                               disabled
                               type='text'
-                              sx={{ display: 'block' }}
+                              sx={{ display: 'block', zIndex: 0 }}
                               error={Boolean(errors?.data?.[index]?.subTotal)}
                               {...(errors?.data?.[index]?.subTotal && {
                                 helperText: errors?.data?.[index]?.subTotal.message

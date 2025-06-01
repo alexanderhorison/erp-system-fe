@@ -15,6 +15,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { Box } from '@mui/system'
 import { UseAuth } from 'src/hooks/useAuth'
+import { returnFormatDateIsoString } from 'src/helpers/formatDate'
 
 export default function EditSalesOrderPage({ data, salesOrderCode }) {
   const dispatch = useDispatch()
@@ -25,6 +26,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
   const { direction } = theme
   const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
   const [date, setDate] = useState(new Date())
+  const [shippingDate, setShippingDate] = useState(new Date())
   const [customer, setCustomer] = useState({})
 
   const schema = yup.object({
@@ -32,6 +34,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
     grandTotal: yup.number().typeError('Grand Total harus ada'),
     grandTotalCustomer: yup.number().typeError('Total Sales order harus ada'),
     grandTotalBarter: yup.number().typeError('Total Barter harus ada'),
+    shippingDate: yup.date().typeError('Tanggal Pengiriman harus diisi'),
     notes: yup.string().optional(),
     data: yup.array().of(
       yup.object({
@@ -179,6 +182,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
         grandTotalCustomer: data.grandTotalCustomer,
         grandTotalBarter: data.grandTotalBarter,
         dueDate: date.toLocaleDateString('en-GB'),
+        shippingDate: returnFormatDateIsoString(shippingDate),
         notes: data.notes,
         listProduct: listItems,
         listBarterProduct: listBarter
@@ -231,7 +235,9 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
         })
       })
     }
+    const shipDate = data?.shippingDate || new Date()
     setDate(formatDate(data?.dueDate))
+    setShippingDate(new Date(shipDate))
     setValue('customerId', data?.customer?.id)
     setValue('grandTotal', data?.grandTotal)
     setValue('notes', data?.notes)
@@ -333,11 +339,12 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={6}>
-          <Grid item xs={12}>
+          {/* left Card */}
+          <Grid item xs={12} md={6}>
             <Card>
               <CardContent>
-                <Grid container display='flex' gap={4} justifyContent='space-between'>
-                  <Grid item xs={12} md={4}>
+                <Box display='flex' alignItems='center' flexDirection='column'>
+                  <Box display='flex' alignItems='center' width='100%' mb={2}>
                     <Controller
                       name={`customerId`}
                       control={control}
@@ -351,8 +358,24 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                         />
                       )}
                     />
-                  </Grid>
-                  <Grid item xs={12} md={2}>
+                  </Box>
+                  <Box sx={{ textAlign: 'left', width: '100%', mt: 2 }}>
+                    <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.email}</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.address}</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.phoneNumber}</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.rankName}</Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Right Card */}
+          <Grid item xs={12} md={6} sx={{ textAlign: 'left' }}>
+            <Card sx={{ height: '100%' }}>
+              <CardContent>
+                <Grid container spacing={6} >
+                  <Grid item xs={12} md={4}>
                     <DatePicker
                       selected={date}
                       id='basic'
@@ -362,15 +385,16 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                       customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
                     />
                   </Grid>
-                </Grid>
-                <Grid container display='flex' gap={3} sx={{ marginTop: '1rem' }}>
                   <Grid item xs={12} md={4}>
-                    <Box sx={{ display: 'flex-column', alignItems: 'left', textAlign: 'left' }}>
-                      <Typography sx={{ color: 'text.secondary' }}>{customer?.email}</Typography>
-                      <Typography sx={{ color: 'text.secondary' }}>{customer?.address}</Typography>
-                      <Typography sx={{ color: 'text.secondary' }}>{customer?.phoneNumber}</Typography>
-                      <Typography sx={{ color: 'text.secondary' }}>{customer?.rankName}</Typography>
-                    </Box>
+                    <DatePicker
+                      selected={shippingDate}
+                      id='basic'
+                      popperPlacement={popperPlacement}
+                      onChange={date => setShippingDate(date)}
+                      fullWidth
+                      customInput={<PickersComponent
+                        label='Tanggal Pengiriman' />}
+                    />
                   </Grid>
                 </Grid>
               </CardContent>
