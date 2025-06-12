@@ -446,7 +446,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={1}>
+                      <Grid item xs={5} md={1.5}>
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}
@@ -552,7 +552,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                           />
                         </Grid>
                       )}
-                      <Grid item xs={5} md={2}>
+                      <Grid item xs={5} md={2.5}>
                         <Controller
                           name={`data[${index}].subTotal`}
                           control={control}
@@ -580,8 +580,8 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
               ))}
               <CardContent>
                 <Grid container spacing={6}>
-                  <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}></Grid>
-                  <Grid item xs={12} md={2}>
+                  <Grid item xs={12} md={9.5} sx={{ marginTop: '1rem' }}></Grid>
+                  <Grid item xs={12} md={2.5}>
                     <Controller
                       name={`grandTotalCustomer`}
                       control={control}
@@ -671,7 +671,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                             )}
                           />
                         </Grid>
-                        <Grid item xs={5} md={2}>
+                        <Grid item xs={5} md={1.5}>
                           <Controller
                             name={`barterProduct[${index}].quantity`}
                             control={control}
@@ -743,7 +743,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                             )}
                           />
                         </Grid>
-                        <Grid item xs={5} md={3}>
+                        <Grid item xs={5} md={4.5}>
                           <Controller
                             name={`barterProduct[${index}].subTotal`}
                             control={control}
@@ -770,8 +770,8 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                 ))}
                 <CardContent>
                   <Grid container spacing={6}>
-                    <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}></Grid>
-                    <Grid item xs={12} md={2}>
+                    <Grid item xs={12} md={9.5} sx={{ marginTop: '1rem' }}></Grid>
+                    <Grid item xs={12} md={2.5}>
                       <Controller
                         name={`grandTotalBarter`}
                         control={control}
@@ -800,8 +800,8 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
             <Card>
               <CardContent>
                 <Grid container spacing={6}>
-                  <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}></Grid>
-                  <Grid item xs={12} md={2}>
+                  <Grid item xs={12} md={9.5} sx={{ marginTop: '1rem' }}></Grid>
+                  <Grid item xs={12} md={2.5}>
                     <Controller
                       name={`grandTotal`}
                       control={control}

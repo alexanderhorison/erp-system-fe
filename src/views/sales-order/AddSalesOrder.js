@@ -711,7 +711,7 @@ export default function AddSalesOrder({}) {
                           }}
                         />
                       </Grid>
-                      <Grid key={getValues(`data[${index}].warehouseProductId`)} item xs={5} md={isAdmin ? 1 : 3}>
+                      <Grid key={getValues(`data[${index}].warehouseProductId`)} item xs={5} md={isAdmin ? 1.5 : 3}>
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}
@@ -840,7 +840,7 @@ export default function AddSalesOrder({}) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={1} md={1} sx={{ marginTop: '1.2rem' }}>
+                      <Grid item xs={1} md={0.5} sx={{ marginTop: '1.2rem', ml: -4 }}>
                         {fields.length > 1 && (
                           <IconButton onClick={() => deleteItem(index)} sx={{ color: 'text.primary' }}>
                             <Icon icon='tabler:trash' />
@@ -854,7 +854,7 @@ export default function AddSalesOrder({}) {
               ))}
               <CardContent>
                 <Grid container spacing={6}>
-                  <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}>
+                  <Grid item xs={12} md={9.5} sx={{ marginTop: '1rem' }}>
                     <Button onClick={addMore} startIcon={<Icon icon='tabler:plus' />}>
                       Tambahkan produk
                     </Button>
@@ -1015,7 +1015,7 @@ export default function AddSalesOrder({}) {
                           }}
                         />
                       </Grid>
-                      <Grid item xs={5} md={2}>
+                      <Grid item xs={5} md={1.5}>
                         <Controller
                           name={`barterProduct[${index}].quantity`}
                           control={control}
@@ -1089,7 +1089,7 @@ export default function AddSalesOrder({}) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={3}>
+                      <Grid item xs={5} md={4}>
                         <Controller
                           name={`barterProduct[${index}].subTotal`}
                           control={control}
@@ -1110,7 +1110,7 @@ export default function AddSalesOrder({}) {
                           )}
                         />
                       </Grid>
-                      <Grid item xs={1} md={1} sx={{ marginTop: '1.2rem' }}>
+                      <Grid item xs={0.5} md={0.5} sx={{ marginTop: '1.2rem', ml: -4 }}>
                         <IconButton onClick={() => removeBarterProduct(index)} sx={{ color: 'text.primary' }}>
                           <Icon icon='tabler:trash' />
                         </IconButton>
@@ -1122,7 +1122,7 @@ export default function AddSalesOrder({}) {
               ))}
               <CardContent>
                 <Grid container spacing={6}>
-                  <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}>
+                  <Grid item xs={12} md={9.5} sx={{ marginTop: '1rem' }}>
                     <Button
                       onClick={() =>
                         appendBarterProduct({
@@ -1167,7 +1167,7 @@ export default function AddSalesOrder({}) {
             <Card>
               <CardContent>
                 <Grid container spacing={6}>
-                  <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}></Grid>
+                  <Grid item xs={12} md={9.5} sx={{ marginTop: '1rem' }}></Grid>
                   <Grid item xs={12} md={2}>
                     <Controller
                       name={`grandTotal`}
