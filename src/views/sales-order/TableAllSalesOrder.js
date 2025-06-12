@@ -150,6 +150,24 @@ export default function TableAllSalesOrder({ timeFilter }) {
             }
           },
           {
+            flex: 0.15,
+            minWidth: 120,
+            field: 'shippingDate',
+            headerName: 'Tanggal Dikirim',
+            renderCell: params => {
+              return (
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                    {params.row.shippingDate}
+                  </Typography>
+                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
+                    {returnFormatTime(params.row.shippingTime)}
+                  </Typography>
+                </Box>
+              )
+            }
+          },
+          {
             flex: 0.16,
             minWidth: 120,
             field: 'createdBy',
