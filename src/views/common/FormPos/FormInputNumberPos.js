@@ -1,49 +1,48 @@
-import { Controller } from "react-hook-form";
-import CustomTextField from "src/@core/components/mui/text-field";
-import { InputAdornment } from "@mui/material";
-import Icon from "src/@core/components/icon";
+import { Controller } from 'react-hook-form'
+import CustomTextField from 'src/@core/components/mui/text-field'
+import { InputAdornment } from '@mui/material'
+import Icon from 'src/@core/components/icon'
 
 export default function FormInputNumberPos({
-  label1 = "Quantity",
+  label1 = 'Quantity',
   label,
   name,
   control,
   errors,
   disabled,
-  placeholder = "",
+  placeholder = '',
   fullWidth = true,
   min = 0,
   max,
-  step = 1,
+  step = 1
 }) {
-
-  const buttonWidth = '70px';
-  const buttonHeight = '36px';
+  const buttonWidth = '70px'
+  const buttonHeight = '36px'
 
   return (
     <Controller
       name={name}
       control={control}
       rules={{
-        required: true,
+        required: true
       }}
       render={({ field: { value, onChange } }) => (
         <>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <label htmlFor={name} style={{ fontSize: "0.8125rem", lineHeight: "1.154", marginBottom: "0.25rem" }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label htmlFor={name} style={{ fontSize: '0.8125rem', lineHeight: '1.154', marginBottom: '0.25rem' }}>
               {label1}
             </label>
-            <span style={{ fontSize: "0.8125rem", color: "gray" }}>{label}</span>
+            <span style={{ fontSize: '0.8125rem', color: 'gray' }}>{label}</span>
           </div>
           <CustomTextField
-            type="number"
+            type='number'
             fullWidth={fullWidth}
-            value={value ?? ""} // Ensures an empty value doesn't cause issues
+            value={value ?? ''} // Ensures an empty value doesn't cause issues
             // label={label}
             placeholder={placeholder}
-            onChange={(e) => {
-              const val = e.target.value;
-              onChange(val ? Number(val) : ""); // Convert to number or empty string
+            onChange={e => {
+              const val = e.target.value
+              onChange(val ? Number(val) : '') // Convert to number or empty string
             }}
             disabled={disabled}
             error={Boolean(errors[name])}
@@ -53,52 +52,54 @@ export default function FormInputNumberPos({
               max,
               step,
               sx: {
-                padding: 0, // Ensures no padding inside the input
+                padding: 0 // Ensures no padding inside the input
               },
               startAdornment: (
-                <InputAdornment position="start">
+                <InputAdornment position='start'>
                   <Icon
-                    icon="tabler:minus"
+                    icon='tabler:minus'
                     onClick={() => {
-                      const newValue = (value || 0) - step;
-                      if (min === undefined || newValue >= min) onChange(newValue);
+                      const currentValue = Number(value) || 0
+                      const newValue = currentValue - step
+                      if (min === undefined || newValue >= min) onChange(newValue)
                     }}
                     style={{
-                      backgroundColor: "rgba(0, 0, 0, 0.1)",
+                      backgroundColor: 'rgba(0, 0, 0, 0.1)',
                       width: buttonWidth,
                       height: buttonHeight,
-                      borderRadius: "5px",
-                      padding: "0px", // Add padding for better appearance
-                      cursor: disabled || (min !== undefined && value <= min) ? "not-allowed" : "pointer",
-                      opacity: disabled || (min !== undefined && value <= min) ? 0.5 : 1,
+                      borderRadius: '5px',
+                      padding: '0px', // Add padding for better appearance
+                      cursor: disabled || (min !== undefined && Number(value) <= min) ? 'not-allowed' : 'pointer',
+                      opacity: disabled || (min !== undefined && Number(value) <= min) ? 0.5 : 1
                     }}
                   />
                 </InputAdornment>
               ),
               endAdornment: (
-                <InputAdornment position="end">
+                <InputAdornment position='end'>
                   <Icon
-                    icon="tabler:plus"
+                    icon='tabler:plus'
                     onClick={() => {
-                      const newValue = (value || 0) + step;
-                      if (max === undefined || newValue <= max) onChange(newValue);
+                      const currentValue = Number(value) || 0
+                      const newValue = currentValue + step
+                      if (max === undefined || newValue <= max) onChange(newValue)
                     }}
                     style={{
-                      backgroundColor: "rgba(0, 0, 0, 0.1)",
+                      backgroundColor: 'rgba(0, 0, 0, 0.1)',
                       width: buttonWidth,
                       height: buttonHeight,
-                      borderRadius: "5px",
-                      cursor: disabled || (max !== undefined && value >= max) ? "not-allowed" : "pointer",
-                      opacity: disabled || (max !== undefined && value >= max) ? 0.5 : 1,
+                      borderRadius: '5px',
+                      cursor: disabled || (max !== undefined && Number(value) >= max) ? 'not-allowed' : 'pointer',
+                      opacity: disabled || (max !== undefined && Number(value) >= max) ? 0.5 : 1
                     }}
                   />
                 </InputAdornment>
-              ),
+              )
             }}
             {...(errors[name] && { helperText: errors[name].message })}
           />
         </>
       )}
     />
-  );
+  )
 }
