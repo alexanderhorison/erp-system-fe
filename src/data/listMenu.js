@@ -235,34 +235,34 @@ export const listMenu = [
     menuId: [34, 35, 36]
   },
   {
-    title: 'Aset Lancar',
-    icon: 'tabler:database',
+    title: 'Aset Lancar Bulanan',
+    icon: 'tabler:calendar-month',
     menuId: [34],
     children: [
       {
-        title: 'Produk',
+        title: 'Aset Lancar Bulanan',
         path: '/asset/current',
         menuId: 34,
-        icon: 'tabler:box'
+        icon: 'tabler:circle'
       }
     ]
   },
   {
-    title: 'Aset Tak Lancar',
-    icon: 'tabler:database',
+    title: 'Aset Tidak Lancar',
+    icon: 'tabler:calendar-month',
     menuId: [35, 36],
     children: [
       {
-        title: 'Master Aset Tak Lancar',
+        title: 'Master Aset Tidak Lancar',
         path: '/asset/master-non-current',
         menuId: 35,
-        icon: 'tabler:box'
+        icon: 'tabler:circle'
       },
       {
-        title: 'Transaksi Aset Tak Lancar',
+        title: 'Aset Tidak Lancar Bulanan',
         path: '/asset/non-current',
         menuId: 36,
-        icon: 'tabler:box'
+        icon: 'tabler:circle'
       }
     ]
   },

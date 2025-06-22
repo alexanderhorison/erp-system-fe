@@ -214,19 +214,19 @@ export default function DetailRole() {
                 />
                 <MenuTitle name={'Asset'} />
                 <MenuItem
-                  name={'Asset Lancar'}
+                  name={'Aset Lancar Bulanan'}
                   menuId={34}
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
                 />
                 <MenuItem
-                  name={'Asset Tidak Lancar'}
+                  name={'Master Aset Tidak Lancar'}
                   menuId={35}
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
                 />
                 <MenuItem
-                  name={'Transaksi Asset Tidak Lancar'}
+                  name={'Aset Tidak Lancar Bulanan'}
                   menuId={36}
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
