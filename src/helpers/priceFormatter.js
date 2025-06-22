@@ -7,12 +7,15 @@ const priceFormat = value => {
   return numberFormatter.format(value)
 }
 
-const priceFormatWIthCurrency = value => {
-
+const priceFormatWIthCurrency = (value, addComa = true) => {
+  if (isNaN(value)) {
+    return ''
+  }
   const numberFormatter = new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
-    currencyDisplay: 'symbol'
+    currencyDisplay: 'symbol',
+    minimumFractionDigits: addComa ? 2 : 0,
   })
 
   return `Rp.${numberFormatter.format(value).replace('Rp', '')}`
