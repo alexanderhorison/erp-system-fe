@@ -47,6 +47,7 @@ import masterUnexpectedCostCategory from './apps/master/unexpected-cost-category
 import exportReport from './apps/export'
 import configDailyCost from './apps/config/configDailyCost'
 import dailyCost from "./apps/daily-cost"
+import assetCurrent from "./apps/asset/current"
 
 export const store = configureStore({
   reducer: {
@@ -94,6 +95,7 @@ export const store = configureStore({
     exportReport,
     configDailyCost,
     dailyCost,
+    assetCurrent
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
