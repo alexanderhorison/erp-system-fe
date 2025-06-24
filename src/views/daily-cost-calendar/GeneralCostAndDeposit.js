@@ -34,7 +34,7 @@ export default function GeneralCostAndDeposit() {
   useEffect(() => {
     dispatch(fetchMasterDataCar({ active: true }))
     dispatch(fetchMasterDataEmployee({ active: true }))
-    dispatch(fetchAllSalesOrder({ date: params.date, sort: 'ASC' }))
+    dispatch(fetchAllSalesOrder({ date: params.date, sort: 'ASC', status: 'APPROVED' }))
     dispatch(fetchConfigDailyCost())
   }, [dispatch, params.date])
 
