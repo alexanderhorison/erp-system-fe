@@ -50,10 +50,20 @@ function returnToLocaleDateString(dateStr, format = 'en-GB') {
   return new Date(dateStr).toLocaleDateString(format);
 }
 
+function returnFormatMonthYear(dateStr) {
+  if (!dateStr) {
+    return '';
+  }
+  const date = new Date(dateStr);
+  const options = { month: 'short', year: 'numeric' };
+  return date.toLocaleDateString('en-US', options);
+}
+
 module.exports = {
   returnFormatDate,
   returnFormatTime,
   returnFormatDateDay,
   returnFormatDateIsoString,
-  returnToLocaleDateString
+  returnToLocaleDateString,
+  returnFormatMonthYear
 }

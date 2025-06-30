@@ -2,15 +2,15 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
 import { swalConfirmationAdd, swalConfirmationEdit, swalToastError } from 'src/helpers/swalFunction'
 
-const label = 'Master Data Aset Tidak Lancar'
-// GET ALL MASTER NON-CURRENT ASSET
-export const fetchMasterNonCurrentAsset = createAsyncThunk(
-  'masterNonCurrentAsset/fetchMasterNonCurrentAsset',
+const label = 'Aset Tidak Lancar'
+// GET ALL ASET TIDAL LANCAR BULANAN
+export const fetchMonthlyNonCurrentAsset = createAsyncThunk(
+  'monthlyNonCurrentAsset/fetchMonthlyNonCurrentAsset',
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
-        url: '/asset/master-non-current/all'
+        url: '/asset/non-current/all'
       })
       return response.data
     } catch (error) {
@@ -20,14 +20,14 @@ export const fetchMasterNonCurrentAsset = createAsyncThunk(
   }
 )
 
-// GET DETAIL MASTER NON-CURRENT ASSET
-export const fetchDetailMasterNonCurrentAsset = createAsyncThunk(
-  'masterNonCurrentAsset/fetchDetailMasterNonCurrentAsset',
+// GET DETAIL ASET TIDAL LANCAR BULANAN
+export const fetchDetailMonthlyNonCurrentAsset = createAsyncThunk(
+  'monthlyNonCurrentAsset/fetchDetailMonthlyNonCurrentAsset',
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'GET',
-        url: '/asset/master-non-current/' + id
+        url: '/asset/non-current/' + id
       })
       return response.data
     } catch (error) {
@@ -37,24 +37,24 @@ export const fetchDetailMasterNonCurrentAsset = createAsyncThunk(
   }
 )
 
-// CREATE MASTER NON-CURRENT ASSET
-export const createMasterNonCurrentAsset = createAsyncThunk(
-  'masterNonCurrentAsset/createMasterNonCurrentAsset',
+// CREATE ASET TIDAL LANCAR BULANAN
+export const createMonthlyNonCurrentAsset = createAsyncThunk(
+  'monthlyNonCurrentAsset/createMonthlyNonCurrentAsset',
   async ({ data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
       await swalConfirmationAdd({
-        label: 'Master Data Aset Tidak Lancar',
-        name: 'Aset Tidak Lancar',
-        title: 'Anda akan membuat master data aset tidak lancar?',
+        label: 'Aset Tidak Lancar Bulanan',
+        name: 'Aset Tidak Lancar Bulanan',
+        title: 'Anda akan membuat data aset tidak lancar bulanan?',
         axiosRequest: () => {
           return axios({
             method: 'POST',
-            url: '/asset/master-non-current/',
+            url: '/asset/non-current/',
             data
           })
         },
         dispatchRequest: () => {
-          dispatch(fetchMasterNonCurrentAsset())
+          dispatch(fetchMonthlyNonCurrentAsset())
           setOpen(false)
         }
       })
@@ -64,36 +64,8 @@ export const createMasterNonCurrentAsset = createAsyncThunk(
   }
 )
 
-// UPDATE MASTER NON-CURRENT ASSET
-export const updateMasterNonCurrentAsset = createAsyncThunk(
-  'masterNonCurrentAsset/updateMasterNonCurrentAsset',
-  async ({ id, data, setOpen }, { dispatch, rejectWithValue }) => {
-    try {
-      await swalConfirmationEdit({
-        label: 'Master Data Aset Tidak Lancar',
-        name: 'Aset Tidak Lancar',
-        title: 'Anda akan mengubah master data aset tidak lancar?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/asset/master-non-current/' + id,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          dispatch(fetchMasterNonCurrentAsset())
-          setOpen(false)
-        }
-      })
-    } catch (error) {
-      swalToastError({ label, error })
-      return rejectWithValue({})
-    }
-  }
-)
-
-export const appMasterProductSlice = createSlice({
-  name: 'masterNonCurrentAsset',
+export const appMonthlyNonCurrentAssetSlice = createSlice({
+  name: 'monthlyNonCurrentAsset',
   initialState: {
     allData: [],
     loadingAllData: false,
@@ -101,32 +73,32 @@ export const appMasterProductSlice = createSlice({
 
     detailData: {},
     loadingDetailData: false,
-    errorDetailData: null,
+    errorDetailData: null
   },
   reducers: {},
   extraReducers: builder => {
     builder
-      .addCase(fetchMasterNonCurrentAsset.pending, (state, action) => {
+      .addCase(fetchMonthlyNonCurrentAsset.pending, (state, action) => {
         state.loadingAllData = true
       })
-      .addCase(fetchMasterNonCurrentAsset.fulfilled, (state, action) => {
+      .addCase(fetchMonthlyNonCurrentAsset.fulfilled, (state, action) => {
         state.allData = action.payload.data
         state.loadingAllData = false
       })
-      .addCase(fetchMasterNonCurrentAsset.rejected, (state, action) => {
+      .addCase(fetchMonthlyNonCurrentAsset.rejected, (state, action) => {
         state.allData = []
         state.loadingAllData = false
         state.errorAllData = action.error.message
       })
 
-      .addCase(fetchDetailMasterNonCurrentAsset.pending, (state, action) => {
+      .addCase(fetchDetailMonthlyNonCurrentAsset.pending, (state, action) => {
         state.loadingDetailData = true
       })
-      .addCase(fetchDetailMasterNonCurrentAsset.fulfilled, (state, action) => {
+      .addCase(fetchDetailMonthlyNonCurrentAsset.fulfilled, (state, action) => {
         state.detailData = action.payload.data
         state.loadingDetailData = false
       })
-      .addCase(fetchDetailMasterNonCurrentAsset.rejected, (state, action) => {
+      .addCase(fetchDetailMonthlyNonCurrentAsset.rejected, (state, action) => {
         state.detailData = {}
         state.loadingDetailData = false
         state.errorDetailData = action.error.message
@@ -134,4 +106,4 @@ export const appMasterProductSlice = createSlice({
   }
 })
 
-export default appMasterProductSlice.reducer
+export default appMonthlyNonCurrentAssetSlice.reducer

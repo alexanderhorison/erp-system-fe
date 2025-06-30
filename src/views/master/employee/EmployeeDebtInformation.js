@@ -6,7 +6,6 @@ import TableDebtEmployee from './TableDebtEmployee'
 export default function EmployeeDebtInformation({}) {
   const router = useRouter()
   const { id } = router.query
-  console.log('id', id)
 
   return (
     <Grid item xs={12} md={12}>

@@ -10,7 +10,6 @@ import { Status } from 'src/@core/components/common'
 
 export default function ModalViewTransaction({ open, setOpen }) {
   const { detailPointOfSale: data, errorDetailPointOfSale, loadingDetailPointOfSale } = useSelector(state => state.pos)
-  console.log(data)
 
   return (
     <Card>

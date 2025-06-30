@@ -1,7 +1,6 @@
 import { Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import TableMasterNonCurrentAsset from 'src/views/asset/master-non-current/TableMasterNonCurrentAsset'
-import TableAllSalesOrder from 'src/views/sales-order/TableAllSalesOrder'
 
 export default function MasterNonCurrentAsset() {
   return (

@@ -22,8 +22,7 @@ import Icon from 'src/@core/components/icon'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import CustomTextField from 'src/@core/components/mui/text-field'
-import { updateMasterNonCurrentAsset } from 'src/store/apps/asset/master-non-current'
-import { createMasterNonCurrentAsset } from 'src/store/apps/asset/non-current'
+import { createMasterNonCurrentAsset, updateMasterNonCurrentAsset } from 'src/store/apps/asset/master-non-current'
 import { nonCurrentAssetsType } from 'src/data/nonCurrentAssetsType'
 import { priceFormat } from 'src/helpers/priceFormatter'
 
@@ -160,10 +159,12 @@ export default function ModalFormMasterNonCurrentAssets({ open, setOpen, typeMod
   }, [isDepreciationDisabled, setValue, watch])
 
   const onSubmit = data => {
-    // Format acquisitionDate to YYYY-MM-DD
+    // Format acquisitionDate to YYYY-MM-DD using local timezone
     const formattedData = {
       ...data,
-      acquisitionDate: data.acquisitionDate ? new Date(data.acquisitionDate).toISOString().split('T')[0] : ''
+      acquisitionDate: data.acquisitionDate 
+        ? `${data.acquisitionDate.getFullYear()}-${String(data.acquisitionDate.getMonth() + 1).padStart(2, '0')}-${String(data.acquisitionDate.getDate()).padStart(2, '0')}`
+        : ''
     }
 
     if (typeModal === 'EDIT') {
@@ -197,7 +198,7 @@ export default function ModalFormMasterNonCurrentAssets({ open, setOpen, typeMod
             <Box sx={{ mb: 4, textAlign: 'center' }}>
               <Typography variant='h3' sx={{ mb: 3 }}>
                 {typeModal === 'ADD'
-                  ? 'Tambahkan Aset Tidak Lancar Baru'
+                  ? 'Tambahkan Aset Tidak Lancar'
                   : typeModal === 'VIEW'
                   ? 'Detail Aset Tidak Lancar'
                   : 'Ubah Aset Tidak Lancar'}
@@ -298,7 +299,7 @@ export default function ModalFormMasterNonCurrentAssets({ open, setOpen, typeMod
                       type='number'
                       value={isDepreciationDisabled ? '' : value || ''}
                       defaultValue=''
-                      label='Waktu Depresiasi'
+                      label='Waktu Depresiasi (Bulan)'
                       onChange={onChange}
                       error={Boolean(errors.depreciationMonths)}
                       disabled={typeModal === 'VIEW' || isDepreciationDisabled}
@@ -318,7 +319,6 @@ export default function ModalFormMasterNonCurrentAssets({ open, setOpen, typeMod
                   rules={{ required: true }}
                   render={({ field: { value, onChange } }) => (
                     <Box sx={{ overflow: 'visible', position: 'relative', zIndex: 1500 }}>
-                      {' '}
                       <DatePicker
                         selected={value ? new Date(value) : null}
                         onChange={onChange}

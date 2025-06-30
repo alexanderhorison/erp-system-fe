@@ -40,7 +40,7 @@ export const fetchDetailMasterNonCurrentAsset = createAsyncThunk(
 // CREATE MASTER NON-CURRENT ASSET
 export const createMasterNonCurrentAsset = createAsyncThunk(
   'masterNonCurrentAsset/createMasterNonCurrentAsset',
-  async ({ data, router }, { dispatch, rejectWithValue }) => {
+  async ({ data, router, setOpen }, { dispatch, rejectWithValue }) => {
     try {
       await swalConfirmationAdd({
         label: 'Master Data Aset Tidak Lancar',
@@ -55,6 +55,7 @@ export const createMasterNonCurrentAsset = createAsyncThunk(
         },
         dispatchRequest: () => {
           dispatch(fetchMasterNonCurrentAsset())
+          setOpen(false)
         }
       })
     } catch (error) {

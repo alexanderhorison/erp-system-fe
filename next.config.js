@@ -5,8 +5,15 @@ const withPWA = require('next-pwa')({
   register: true,
   skipWaiting: true,
   disableDevLogs: true,
-  disable: !process.env.NEXT_PUBLIC_ENABLE_PWA,
-  cacheStartUrl: false // Jangan cache halaman utama
+  disable: process.env.NODE_ENV === 'development',
+  cacheStartUrl: false, // Jangan cache halaman utama
+  buildExcludes: [/middleware-manifest\.json$/],
+  // Workbox options at the top level
+  swDest: 'public/sw.js',
+  cleanupOutdatedCaches: true,
+  clientsClaim: true,
+  // Reduce the frequency of SW regeneration in watch mode
+  exclude: [/\.map$/, /manifest$/, /\.htaccess$/, /service-worker\.js$/, /sw\.js$/]
 })
 
 /** @type {import('next').NextConfig} */

@@ -13,7 +13,7 @@ import { fetchMasterNonCurrentAsset } from 'src/store/apps/asset/master-non-curr
 import TableHeaderMasterNonCurrentAsset from './TableHeaderMasterNonCurrentAsset'
 import { nonCurrentAssetsType } from 'src/data/nonCurrentAssetsType'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
-import { returnFormatDate } from 'src/helpers/formatDate'
+import { returnFormatDate, returnFormatMonthYear } from 'src/helpers/formatDate'
 import ModalFormMasterNonCurrentAssets from './ModalFormMasterNonCurrentAssets'
 
 const RowOptions = ({ handleView, handleEdit }) => {
@@ -37,7 +37,6 @@ export default function TableMasterNonCurrentAsset() {
   const [openModal, setOpenModal] = useState(false)
   const [typeModal, setTypeModal] = useState('ADD')
   const [selectedRow, setSelectedRow] = useState(null)
-
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
@@ -85,7 +84,12 @@ export default function TableMasterNonCurrentAsset() {
 
   return (
     <Card>
-      <ModalFormMasterNonCurrentAssets open={openModal} setOpen={setOpenModal} typeModal={typeModal} data={selectedRow} />
+      <ModalFormMasterNonCurrentAssets
+        open={openModal}
+        setOpen={setOpenModal}
+        typeModal={typeModal}
+        data={selectedRow}
+      />
       <DataGrid
         autoHeight
         loading={loading}
@@ -191,7 +195,7 @@ export default function TableMasterNonCurrentAsset() {
             flex: 2,
             minWidth: 120,
             field: 'acquisitionDate',
-            headerName: 'Tanggal Akuisisi',
+            headerName: 'Waktu Akuisisi',
             headerAlign: 'left',
             renderCell: params => {
               return (
@@ -200,7 +204,7 @@ export default function TableMasterNonCurrentAsset() {
                     variant='body2'
                     sx={{ color: 'text.primary', whiteSpace: 'normal', wordWrap: 'break-word' }}
                   >
-                    {returnFormatDate(params.row.acquisitionDate)}
+                    {returnFormatMonthYear(params.row.acquisitionDate)}
                   </Typography>
                 </Box>
               )
@@ -210,26 +214,7 @@ export default function TableMasterNonCurrentAsset() {
             flex: 2,
             minWidth: 120,
             field: 'depreciationMonths',
-            headerName: 'Waktu Depresiasi',
-            headerAlign: 'left',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography
-                    variant='body2'
-                    sx={{ color: 'text.primary', whiteSpace: 'normal', wordWrap: 'break-word' }}
-                  >
-                    {params.row?.depreciationMonths ? `${params.row.depreciationMonths} bulan` : '-'}
-                  </Typography>
-                </Box>
-              )
-            }
-          },
-          {
-            flex: 0.2,
-            minWidth: 120,
-            field: 'depreciationValue',
-            headerName: 'Nilai Depresiasi',
+            headerName: 'Jumlah Depresiasi',
             headerAlign: 'left',
             renderCell: params => {
               return (
@@ -239,6 +224,9 @@ export default function TableMasterNonCurrentAsset() {
                     sx={{ color: 'text.primary', whiteSpace: 'normal', wordWrap: 'break-word' }}
                   >
                     {priceFormatWIthCurrency(params.row.depreciationValue, false)}
+                  </Typography>
+                  <Typography variant='caption' sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
+                    Per Bulan
                   </Typography>
                 </Box>
               )
