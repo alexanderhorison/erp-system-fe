@@ -52,7 +52,7 @@ export default function ModalDetailMonthlyNonCurrentAsset({ open, setOpen, selec
             <Grid item xs={12} sm={6}>
               <Box sx={{ mb: 2 }}>
                 <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
-                  Depresiasi Kendaraan
+                  Total Aset Kendaraan
                 </Typography>
                 <Typography variant='h6' sx={{ fontWeight: 600 }}>
                   {priceFormatWIthCurrency(selectedRow.vehicleValue, false)}
@@ -63,7 +63,7 @@ export default function ModalDetailMonthlyNonCurrentAsset({ open, setOpen, selec
             <Grid item xs={12} sm={6}>
               <Box sx={{ mb: 2 }}>
                 <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
-                  Depresiasi Bangunan
+                  Total Aset Bangunan
                 </Typography>
                 <Typography variant='h6' sx={{ fontWeight: 600 }}>
                   {priceFormatWIthCurrency(selectedRow.buildingValue, false)}
