@@ -148,7 +148,7 @@ export default function ModalFormMasterNonCurrentAssets({ open, setOpen, typeMod
         ...data
       })
     }
-  }, [dataDetail, defaultValue, reset, typeModal, data])
+  }, [dataDetail, defaultValue, typeModal, data, open])
   
 
   // Clear depreciationMonths when assetType is VEHICLE or BUILDING

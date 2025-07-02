@@ -10,6 +10,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import CustomCloseButton from 'src/views/common/CustomCloseButton'
 import { createMonthlyNonCurrentAsset } from 'src/store/apps/asset/non-current'
+import { useEffect } from 'react'
 
 // Global styles for DatePicker
 const datePickerStyles = `
@@ -107,6 +108,13 @@ export default function ModalFormGenerateNonCurrentAssets({ open, setOpen }) {
       })
     )
   }
+
+  useEffect(() => {
+    // Reset form when modal opens
+    if (open) {
+      reset(defaultValues)
+    }
+  }, [open, reset])
 
   return (
     <Card>
