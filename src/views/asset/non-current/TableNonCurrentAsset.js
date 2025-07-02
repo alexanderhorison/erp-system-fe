@@ -13,15 +13,28 @@ import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { returnFormatMonthYear } from 'src/helpers/formatDate'
 import TableHeaderNonCurrentAsset from './TableHeaderNonCurrentAsset'
 import ModalFormGenerateNonCurrentAssets from './ModalFormGenerateNonCurrentAsset'
-import { fetchMonthlyNonCurrentAsset } from 'src/store/apps/asset/non-current'
+import { fetchDeleteMonthlyNonCurrentAsset, fetchMonthlyNonCurrentAsset } from 'src/store/apps/asset/non-current'
 import ModalDetailMonthlyNonCurrentAsset from './ModalDetailMonthlyNonCurrentAsset'
 
-const RowOptions = ({ handleView }) => {
+const RowOptions = ({ handleView, handleDelete }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={() => handleView()}>
+        <IconButton
+          onClick={e => {
+            e.stopPropagation()
+            handleView()
+          }}
+        >
           <Icon icon='tabler:eye' />
+        </IconButton>
+        <IconButton
+          onClick={e => {
+            e.stopPropagation()
+            handleDelete()
+          }}
+        >
+          <Icon icon='tabler:trash' />
         </IconButton>
       </Box>
     </>
@@ -62,6 +75,10 @@ export default function TableNonCurrentAsset() {
     setSelectedRow(null)
     setTypeModal('ADD')
     setOpenModal(true)
+  }
+
+  const handleDelete = row => {
+    dispatch(fetchDeleteMonthlyNonCurrentAsset({id: row.id, date: row.date}))
   }
 
   useEffect(() => {
@@ -156,13 +173,15 @@ export default function TableNonCurrentAsset() {
             headerName: 'Actions',
             headerAlign: 'left',
             renderCell: ({ row }) => (
-              <RowOptions handleView={() => handleView(row)} />
+              <RowOptions handleView={() => handleView(row)} handleDelete={() => handleDelete(row)} />
             )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
-        onCellClick={params => handleView(params.row)}
+        onCellClick={params => {
+          handleView(params.row)
+        }}
         slots={{ toolbar: TableHeaderNonCurrentAsset }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}

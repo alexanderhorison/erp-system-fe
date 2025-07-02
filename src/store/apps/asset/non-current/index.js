@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalConfirmationEdit, swalToastError } from 'src/helpers/swalFunction'
+import {
+  swalConfirmationAdd,
+  swalConfirmationEdit,
+  swalConfirmationDelete,
+  swalToastError
+} from 'src/helpers/swalFunction'
 
 const label = 'Aset Tidak Lancar'
 // GET ALL ASET TIDAL LANCAR BULANAN
@@ -60,6 +65,31 @@ export const createMonthlyNonCurrentAsset = createAsyncThunk(
       })
     } catch (error) {
       return rejectWithValue({})
+    }
+  }
+)
+
+// DELETE ASET TIDAL LANCAR BULANAN
+export const fetchDeleteMonthlyNonCurrentAsset = createAsyncThunk(
+  'monthlyNonCurrentAsset/fetchDeleteMonthlyNonCurrentAsset',
+  async ({ id, date }, { rejectWithValue, dispatch }) => {
+    try {
+      await swalConfirmationDelete({
+        label,
+        name: date,
+        axiosRequest: () => {
+          return axios({
+            method: 'DELETE',
+            url: '/asset/non-current/' + id
+          })
+        },
+        dispatchRequest: () => {
+          return dispatch(fetchMonthlyNonCurrentAsset())
+        }
+      })
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
     }
   }
 )
