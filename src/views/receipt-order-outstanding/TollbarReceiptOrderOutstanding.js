@@ -57,7 +57,7 @@ const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAdd
       <Card>
         <CardContent>
           <DownloadButton url={'delivery-order-receive-outstanding'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
-          <Button
+          {/* <Button
             fullWidth
             sx={{ mb: 2, '& svg': { mr: 2 } }}
             target='_blank'
@@ -67,7 +67,7 @@ const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAdd
           >
             <Icon fontSize='1.125rem' icon='tabler:printer' />
             Cetak / Print
-          </Button>
+          </Button> */}
           {status == 'PENDING' ? (
             <>
               <Button

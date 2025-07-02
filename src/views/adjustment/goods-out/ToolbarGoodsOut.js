@@ -29,7 +29,7 @@ const ToolbarGoodsOut = ({ id, status }) => {
     <Card>
       <CardContent>
         <DownloadButton url={'adjustment-goods-out'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
-        <Button
+        {/* <Button
           fullWidth
           sx={{ mb: 2, '& svg': { mr: 2 } }}
           target='_blank'
@@ -39,7 +39,7 @@ const ToolbarGoodsOut = ({ id, status }) => {
         >
           <Icon fontSize='1.125rem' icon='tabler:printer' />
           Cetak / Print
-        </Button>
+        </Button> */}
         {[1, 3].includes(auth?.user?.roleId) && status == 'PENDING' ? (
           <>
             <Button
