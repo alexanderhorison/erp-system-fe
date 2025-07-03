@@ -35,6 +35,7 @@ export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) 
     advancePayments: yup.string().required("Uang Muka wajib diisi"),
     tax: yup.string().required("Pajak wajib diisi"),
     grandTotal: yup.string().required("Total Keseluruhan wajib diisi"),
+    notes: yup.string().optional().default(''),
   })
 
   const { loadingPiutangUsaha, detailAssetCurrent, loadingDetailAssetCurrent } = useSelector(state => state.assetCurrent)
@@ -53,6 +54,7 @@ export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) 
       advancePayments: asset.advancePayments || '',
       tax: asset.tax || '',
       grandTotal: asset.grandTotal || '',
+      notes: asset.notes || '',
     };
   }
 
@@ -182,83 +184,107 @@ export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) 
             </CustomCloseButton>
             <Box sx={{ mb: 4, textAlign: 'center' }}>
               <Typography variant='h3' sx={{ mb: 3 }}>
-                {typeModal === 'ADD' ? 'Tambahkan Asset Baru' : typeModal === 'VIEW' ? 'Detail Asset' : 'Ubah Asset'}
+                {typeModal === 'ADD' ? 'Tambahkan Asset Lancar' : typeModal === 'VIEW' ? 'Detail Asset Lancar' : 'Ubah Asset Lancar'}
               </Typography>
             </Box>
             {
               loadingDetailAssetCurrent && typeModal !== 'ADD' ? <CircularProgress /> :
-                <Grid container spacing={6}>
-                  <Grid item xs={12} md={6}>
-                    <Controller
-                      name="period"
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { ref, value, ...rest }, fieldState }) => (
-                        <DatePicker
-                          {...rest}
-                          selected={value}
-                          onChange={rest.onChange}
-                          dateFormat="yyyy-MM"
-                          showMonthYearPicker
-                          placeholderText="Pilih Periode"
-                          maxDate={endOfMonth(subMonths(new Date(), 1))}
-                          // disabled={["VIEW", "EDIT"].includes(typeModal)}
-                          customInput={
-                            <CustomTextField
-                              fullWidth
-                              label="Periode (Bulan & Tahun)"
-                              error={Boolean(fieldState.error)}
-                              helperText={fieldState.error?.message}
-                              inputRef={ref}
-                              inputProps={{ readOnly: true }}
-                            />
-                          }
-                        />
-                      )}
-                    />
-                    <Typography variant="caption" sx={{ color: 'text.secondary', mt: 1 }}>
-                      Perhatian: Jika input bulan maka data yang diambil pada piutang usaha adalah bulan tersebut.
-                    </Typography>
-                  </Grid>
-
-                  {[
-                    { name: "accountsReceivable", label: "Piutang Usaha", disabled: true },
-                    { name: "cashAndBank", label: "Kas dan Bank" },
-                    { name: "thirdPartyReceivable", label: "Pihak Ketiga" },
-                    { name: "otherReceivables", label: "Piutang Lain" },
-                    { name: "inventory", label: "Persediaan" },
-                    { name: "advancePayments", label: "Uang Muka" },
-                    { name: "tax", label: "Pajak" },
-                    { name: "grandTotal", label: "Grand Total", disabled: true, md: 12 },
-                  ].map((fieldItem) => (
-                    <Grid item xs={12} md={fieldItem.md ? fieldItem.md : 6} key={fieldItem.name}>
+                <>
+                  <Grid container spacing={6}>
+                    <Grid item xs={12} md={6}>
                       <Controller
-                        name={fieldItem.name}
+                        name="period"
                         control={control}
-                        render={({ field }) => (
-                          <CustomTextField
-                            fullWidth
-                            type="text"
-                            sx={{ zIndex: 0, display: 'block' }}
-                            value={field.value ? priceFormat(field.value) : ''}
-                            label={fieldItem.label}
-                            onChange={e => {
-                              handlePriceFieldChange({
-                                event: e,
-                                onChange: field.onChange
-                              })
-                            }}
-                            disabled={typeModal === 'VIEW' || fieldItem.disabled}
-                            error={Boolean(errors[fieldItem?.name])}
-                            {...(errors[fieldItem?.name] && {
-                              helperText: errors[fieldItem?.name]?.message
-                            })}
+                        rules={{ required: true }}
+                        render={({ field: { ref, value, ...rest }, fieldState }) => (
+                          <DatePicker
+                            {...rest}
+                            selected={value}
+                            onChange={rest.onChange}
+                            dateFormat="yyyy-MM"
+                            showMonthYearPicker
+                            placeholderText="Pilih Periode"
+                            maxDate={endOfMonth(subMonths(new Date(), 1))}
+                            disabled={["VIEW", "EDIT"].includes(typeModal)}
+                            customInput={
+                              <CustomTextField
+                                fullWidth
+                                label="Periode (Bulan & Tahun)"
+                                error={Boolean(fieldState.error)}
+                                helperText={fieldState.error?.message}
+                                inputRef={ref}
+                                inputProps={{ readOnly: true }}
+                              />
+                            }
                           />
                         )}
                       />
+                      <Typography variant="caption" sx={{ color: 'text.secondary', mt: 1 }}>
+                        Perhatian: Jika input bulan maka data yang diambil pada piutang usaha adalah bulan tersebut.
+                      </Typography>
                     </Grid>
-                  ))}
-                </Grid>
+
+                    {[
+                      { name: "accountsReceivable", label: "Piutang Usaha", disabled: true },
+                      { name: "cashAndBank", label: "Kas dan Bank" },
+                      { name: "thirdPartyReceivable", label: "Pihak Ketiga" },
+                      { name: "otherReceivables", label: "Piutang Lain" },
+                      { name: "inventory", label: "Persediaan" },
+                      { name: "advancePayments", label: "Uang Muka" },
+                      { name: "tax", label: "Pajak" },
+                      { name: "grandTotal", label: "Grand Total", disabled: true, md: 12 },
+                    ].map((fieldItem) => (
+                      <Grid item xs={12} md={fieldItem.md ? fieldItem.md : 6} key={fieldItem.name}>
+                        <Controller
+                          name={fieldItem.name}
+                          control={control}
+                          render={({ field }) => (
+                            <CustomTextField
+                              fullWidth
+                              type="text"
+                              sx={{ zIndex: 0, display: 'block' }}
+                              value={field.value ? priceFormat(field.value) : ''}
+                              label={fieldItem.label}
+                              onChange={e => {
+                                handlePriceFieldChange({
+                                  event: e,
+                                  onChange: field.onChange
+                                })
+                              }}
+                              disabled={typeModal === 'VIEW' || fieldItem.disabled}
+                              error={Boolean(errors[fieldItem?.name])}
+                              {...(errors[fieldItem?.name] && {
+                                helperText: errors[fieldItem?.name]?.message
+                              })}
+                            />
+                          )}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+                  <Grid item xs={12} sx={{ mt: 4 }}>
+                    <Controller
+                      name='notes'
+                      control={control}
+                      render={({ field: { value, onChange } }) => (
+                        <CustomTextField
+                          fullWidth
+                          multiline
+                          rows={3}
+                          value={value || ''}
+                          label='Catatan'
+                          onChange={onChange}
+                          placeholder='Masukkan Catatan (Opsional)'
+                          disabled={typeModal === 'VIEW'}
+                          error={Boolean(errors?.notes)}
+                          {...(errors?.notes && {
+                            helperText: errors.notes?.message
+                          })}
+                        />
+                      )}
+                    />
+                  </Grid>
+                </>
             }
 
           </DialogContent>

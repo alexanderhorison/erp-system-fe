@@ -90,6 +90,31 @@ export const editAsset = createAsyncThunk(
   }
 )
 
+// DELETE ASSET
+export const deleteAsset = createAsyncThunk(
+  'assetCurrent/deleteAsset',
+  async ({ id, period }, { dispatch, rejectWithValue }) => {
+    try {
+      await swalConfirmationDelete({
+        label,
+        name: period,
+        axiosRequest: () => {
+          return axios({
+            method: 'DELETE',
+            url: '/asset/current/' + id
+          })
+        },
+        dispatchRequest: () => {
+          return dispatch(fetchAsset())
+        }
+      })
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
 export const appMasterAssetCurrent = createSlice({
   name: 'assetCurrent',
   initialState: {

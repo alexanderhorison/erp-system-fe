@@ -1,4 +1,4 @@
-import { defaultMenuVuexy, listMenu } from 'src/data/listMenu'
+import { listMenu } from 'src/data/listMenu'
 import { UseAuth } from 'src/hooks/useAuth'
 
 const navigation = () => {
@@ -9,8 +9,6 @@ const navigation = () => {
 
   // List Menu V2
   const deploy = listMenu
-  // FOR DEVELOPMENT DEFAULT MENU VUEXY
-  const menu = defaultMenuVuexy
 
   const selectedMenu = []
   // default menu
@@ -68,11 +66,7 @@ const navigation = () => {
     })
   }
 
-  if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true') {
-    return menu
-  } else {
-    return selectedMenu
-  }
+  return selectedMenu
 }
 
 export default navigation

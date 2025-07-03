@@ -3,11 +3,12 @@ import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchAsset, fetchAssetDetail } from 'src/store/apps/asset/current'
+import { deleteAsset, fetchAsset, fetchAssetDetail } from 'src/store/apps/asset/current'
 import TableHeaderCurrentAsset from './TableHeaderMasterProduct'
 import ModalFormCurrentAsset from './ModalFormCurrentAsset'
+import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 
-const RowOptions = ({ id }) => {
+const RowOptions = ({ id, period }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
   const [openModalView, setOpenModalView] = useState(false)
@@ -22,6 +23,10 @@ const RowOptions = ({ id }) => {
     setOpenModalView(true)
   }
 
+  const handleDelete = () => {
+    dispatch(deleteAsset({ id, period }))
+  }
+
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', ml: -3 }}>
@@ -30,6 +35,14 @@ const RowOptions = ({ id }) => {
         </IconButton>
         <IconButton onClick={handleEdit}>
           <Icon icon='tabler:edit' />
+        </IconButton>
+        <IconButton
+          onClick={e => {
+            e.stopPropagation()
+            handleDelete()
+          }}
+        >
+          <Icon icon='tabler:trash' />
         </IconButton>
       </Box>
       {openModalEdit && <ModalFormCurrentAsset open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />}
@@ -71,12 +84,38 @@ export default function TableCurrentAsset() {
             }
           },
           {
+            flex: 0.2,
+            minWidth: 200,
+            field: 'grandTotal',
+            headerName: 'Total Aset',
+            renderCell: params => {
+              return (
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  {priceFormatWIthCurrency(params.row.grandTotal)}
+                </Typography>
+              )
+            }
+          },
+          {
+            flex: 0.2,
+            minWidth: 200,
+            field: 'notes',
+            headerName: 'Catatan',
+            renderCell: params => {
+              return (
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  {params.row.notes}
+                </Typography>
+              )
+            }
+          },
+          {
             flex: 0.1,
             minWidth: 120,
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} />
+            renderCell: ({ row }) => <RowOptions id={row.id} period={row.period} />
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
