@@ -7,20 +7,15 @@ import { deleteAsset, fetchAsset, fetchAssetDetail } from 'src/store/apps/asset/
 import TableHeaderCurrentAsset from './TableHeaderMasterProduct'
 import ModalFormCurrentAsset from './ModalFormCurrentAsset'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
+import ModalViewCurrentAsset from './ModalViewCurrentAsset'
 
-const RowOptions = ({ id, period }) => {
+const RowOptions = ({ handleView, id, period }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
-  const [openModalView, setOpenModalView] = useState(false)
 
   const handleEdit = () => {
     dispatch(fetchAssetDetail(id))
     setOpenModalEdit(true)
-  }
-
-  const handleView = () => {
-    dispatch(fetchAssetDetail(id))
-    setOpenModalView(true)
   }
 
   const handleDelete = () => {
@@ -30,7 +25,10 @@ const RowOptions = ({ id, period }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', ml: -3 }}>
-        <IconButton onClick={handleView}>
+        <IconButton onClick={e => {
+          e.stopPropagation()
+          handleView()
+        }}>
           <Icon icon='tabler:eye' />
         </IconButton>
         <IconButton onClick={handleEdit}>
@@ -46,7 +44,6 @@ const RowOptions = ({ id, period }) => {
         </IconButton>
       </Box>
       {openModalEdit && <ModalFormCurrentAsset open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />}
-      {openModalView && <ModalFormCurrentAsset open={openModalView} setOpen={setOpenModalView} typeModal={'VIEW'} id={id} />}
     </>
   )
 }
@@ -58,6 +55,13 @@ export default function TableCurrentAsset() {
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
 
   const [openModalAdd, setOpenModalAdd] = useState(false)
+  const [openModalDetail, setOpenModalDetail] = useState(false)
+  const [selectedRow, setSelectedRow] = useState(null)
+
+  const handleView = (row) => {
+    setOpenModalDetail(true)
+    setSelectedRow(row)
+  }
 
   useEffect(() => {
     dispatch(fetchAsset())
@@ -65,6 +69,11 @@ export default function TableCurrentAsset() {
 
   return (
     <Card>
+      <ModalViewCurrentAsset
+        open={openModalDetail}
+        setOpen={setOpenModalDetail}
+        selectedRow={selectedRow}
+      />
       {openModalAdd && <ModalFormCurrentAsset open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
       <Divider sx={{ marginBottom: '1rem' }} />
       <DataGrid
@@ -115,7 +124,9 @@ export default function TableCurrentAsset() {
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} period={row.period} />
+            renderCell: ({ row }) => (
+              <RowOptions handleView={() => handleView(row)} id={row.id} period={row.period} />
+            )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
