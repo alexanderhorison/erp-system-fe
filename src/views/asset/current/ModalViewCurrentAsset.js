@@ -52,7 +52,7 @@ export default function ModalViewCurrentAsset({ open, setOpen, selectedRow }) {
               { name: "tax", label: "Pajak" },
               { name: "grandTotal", label: "Grand Total", },
             ].map((fieldItem) => (
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6} key={fieldItem.name}>
                 <Box sx={{ mb: 2 }}>
                   <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
                     {fieldItem.label}
