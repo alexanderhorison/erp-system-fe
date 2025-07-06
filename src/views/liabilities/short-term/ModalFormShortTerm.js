@@ -10,51 +10,47 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from "src/helpers/priceFormatter"
 import { useEffect } from "react"
-import { addAsset, editAsset, getPiutangUsaha, resetAssetCurrentState } from "../../../store/apps/asset/current"
 import { subMonths, endOfMonth } from 'date-fns';
 import parsePeriodString from "src/helpers/parsePeriodString"
+import { addShortTerm, editShortTerm, getPiutangUsaha, resetShortTermState } from "src/store/apps/liabilities/short-term"
+import { addLongTerm } from "src/store/apps/liabilities/long-term"
 
 function getPeriodValue(value) {
   if (!value) return ''
   const year = value.getFullYear()
   const month = (value.getMonth() + 1).toString().padStart(2, '0') // add 1 since JS months are 0-based
-  return `${year}-${month}` // => "2025-06"
+  return `${year}-${month}-01` // => "2025-06"
 }
 
 
-export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) {
+export default function ModalFormShortTerm({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
 
   const schema = yup.object().shape({
-    period: yup.string().required("Periode wajib diisi"), // e.g., 2025-02
-    cashAndBank: yup.string().required("Kas dan Bank wajib diisi"),
-    accountsReceivable: yup.string().required("Piutang Usaha wajib diisi"),
-    thirdPartyReceivable: yup.string().required("Piutang Pihak Ketiga wajib diisi"),
-    otherReceivables: yup.string().required("Piutang Lainnya wajib diisi"),
-    inventory: yup.string().required("Persediaan wajib diisi"),
-    advancePayments: yup.string().required("Uang Muka wajib diisi"),
-    tax: yup.string().required("Pajak wajib diisi"),
-    grandTotal: yup.string().required("Total Keseluruhan wajib diisi"),
+    date: yup.date().required().typeError('Tanggal harus diisi'), // e.g., 2025-02-01
+    tradePayables: yup.string().required("Hutang Usaha wajib diisi"),
+    nonTradePayables: yup.string().required("Hutang Bukan Usaha wajib diisi"),
+    accruedExpenses: yup.string().required("Biaya Masih Harus Dibayar wajib diisi"),
+    taxPayables: yup.string().required("Hutang Pajak wajib diisi"),
+    totalShortTermLiabilities: yup.string().required("Total Keseluruhan wajib diisi"),
     notes: yup.string().optional().default(''),
   })
 
-  const { loadingPiutangUsaha, detailAssetCurrent, loadingDetailAssetCurrent } = useSelector(state => state.assetCurrent)
+  const { loadingPiutangUsaha, detailShortTerm, loadingDetailShortTerm } = useSelector(state => state.shortTerm)
 
-  function transformDetailAsset(asset) {
-    if (!asset) return null;
+  function transformDetailShortTerm(data) {
+    if (!data) return null;
 
     return {
-      ...asset,
-      period: parsePeriodString(asset.period),
-      cashAndBank: asset.cashAndBank || '',
-      accountsReceivable: asset.accountsReceivable || '',
-      thirdPartyReceivable: asset.thirdPartyReceivable || '',
-      otherReceivables: asset.otherReceivables || '',
-      inventory: asset.inventory || '',
-      advancePayments: asset.advancePayments || '',
-      tax: asset.tax || '',
-      grandTotal: asset.grandTotal || '',
-      notes: asset.notes || '',
+      ...data,
+      date: parsePeriodString(data.date),
+      tradePayables: data.tradePayables || '',
+      nonTradePayables: data.nonTradePayables || '',
+      accruedExpenses: data.accruedExpenses || '',
+      taxPayables: data.taxPayables || '',
+      inventory: data.inventory || '',
+      totalShortTermLiabilities: data.totalShortTermLiabilities || '',
+      notes: data.notes || '',
     };
   }
 
@@ -72,28 +68,25 @@ export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) 
 
   // Fetch Data Value
   useEffect(() => {
-    if (!loadingDetailAssetCurrent && ["EDIT", "VIEW"].includes(typeModal)) {
-      const transformedData = transformDetailAsset(detailAssetCurrent)
+    if (!loadingDetailShortTerm && ["EDIT", "VIEW"].includes(typeModal)) {
+      const transformedData = transformDetailShortTerm(detailShortTerm)
       reset(transformedData)
     }
-  }, [detailAssetCurrent, loadingDetailAssetCurrent, typeModal])
+  }, [detailShortTerm, loadingDetailShortTerm, typeModal])
 
 
-  const period = watch('period')
+  const date = watch('date')
 
   const values = watch([
-    'cashAndBank',
-    'accountsReceivable',
-    'thirdPartyReceivable',
-    'otherReceivables',
-    'inventory',
-    'advancePayments',
-    'tax'
+    'tradePayables',
+    'nonTradePayables',
+    'accruedExpenses',
+    'taxPayables',
   ])
 
   // CLOSE MODAL AND RESET FORM
   const handleClose = () => {
-    dispatch(resetAssetCurrentState())   // reset piutangUsaha & detailAssetCurrent
+    dispatch(resetShortTermState())   // reset piutangUsaha & detailAssetCurrent
     reset()
     setOpen(false)
   }
@@ -101,15 +94,15 @@ export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) 
   const onSubmit = data => {
     const transformedData = {
       ...data,
-      period: getPeriodValue(new Date(data.period)), // Transform date to "YYYY-MM" format
+      date: getPeriodValue(new Date(data.date)), // Transform date to "YYYY-MM" format
     }
 
     if (typeModal === 'ADD') {
-      dispatch(addAsset(transformedData))
+      dispatch(addShortTerm(transformedData))
     } else {
-      dispatch(editAsset({ id, data: transformedData }))
+      dispatch(editShortTerm({ id, data: transformedData }))
     }
-    dispatch(resetAssetCurrentState())   // reset piutangUsaha & detailAssetCurrent
+    dispatch(resetShortTermState())   // reset piutangUsaha & detailAssetCurrent
     reset()
     setOpen(false)
   }
@@ -143,14 +136,14 @@ export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) 
   }
 
   useEffect(() => {
-    if (period && ["ADD", "EDIT"].includes(typeModal)) {
-      const formatted = getPeriodValue(period) // => "2025-06"
+    if (date && ["ADD", "EDIT"].includes(typeModal)) {
+      const formatted = getPeriodValue(date) // => "2025-06"
       dispatch(getPiutangUsaha(formatted)).then(res => {
         const total = res?.payload?.data || 0
-        setValue('accountsReceivable', total)
+        setValue('tradePayables', total)
       })
     }
-  }, [dispatch, period])
+  }, [dispatch, date])
 
   useEffect(() => {
     const total = values.reduce((sum, val) => {
@@ -158,7 +151,7 @@ export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) 
       return sum + (isNaN(numericVal) ? 0 : numericVal)
     }, 0)
 
-    setValue('grandTotal', total)
+    setValue('totalShortTermLiabilities', total)
   }, [values, setValue])
 
   return (
@@ -184,16 +177,16 @@ export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) 
             </CustomCloseButton>
             <Box sx={{ mb: 4, textAlign: 'center' }}>
               <Typography variant='h3' sx={{ mb: 3 }}>
-                {typeModal === 'ADD' ? 'Tambahkan Asset Lancar' : typeModal === 'VIEW' ? 'Detail Asset Lancar' : 'Ubah Asset Lancar'}
+                {typeModal === 'ADD' ? 'Tambahkan Liabilitas Jangka Pendek' : typeModal === 'VIEW' ? 'Detail Liabilitas Jangka Pendek' : 'Ubah Liabilitas Jangka Pendek'}
               </Typography>
             </Box>
             {
-              loadingDetailAssetCurrent && typeModal !== 'ADD' ? <CircularProgress /> :
+              loadingDetailShortTerm && typeModal !== 'ADD' ? <CircularProgress /> :
                 <>
                   <Grid container spacing={6}>
                     <Grid item xs={12} md={6}>
                       <Controller
-                        name="period"
+                        name="date"
                         control={control}
                         rules={{ required: true }}
                         render={({ field: { ref, value, ...rest }, fieldState }) => (
@@ -203,13 +196,13 @@ export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) 
                             onChange={rest.onChange}
                             dateFormat="MMM yyyy"
                             showMonthYearPicker
-                            placeholderText="Pilih Periode"
+                            placeholderText="Pilih Bulan & Tahun"
                             maxDate={endOfMonth(subMonths(new Date(), 1))}
                             disabled={["VIEW", "EDIT"].includes(typeModal)}
                             customInput={
                               <CustomTextField
                                 fullWidth
-                                label="Periode (Bulan & Tahun)"
+                                label="Date (Bulan & Tahun)"
                                 error={Boolean(fieldState.error)}
                                 helperText={fieldState.error?.message}
                                 inputRef={ref}
@@ -220,19 +213,16 @@ export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) 
                         )}
                       />
                       <Typography variant="caption" sx={{ color: 'text.secondary', mt: 1 }}>
-                        Perhatian: Jika input bulan maka data yang diambil pada piutang usaha adalah bulan tersebut.
+                        Perhatian: Jika input bulan maka data yang diambil pada hutang usaha adalah bulan tersebut.
                       </Typography>
                     </Grid>
 
                     {[
-                      { name: "accountsReceivable", label: "Piutang Usaha", disabled: true },
-                      { name: "cashAndBank", label: "Kas dan Bank" },
-                      { name: "thirdPartyReceivable", label: "Pihak Ketiga" },
-                      { name: "otherReceivables", label: "Piutang Lain" },
-                      { name: "inventory", label: "Persediaan" },
-                      { name: "advancePayments", label: "Uang Muka" },
-                      { name: "tax", label: "Pajak" },
-                      { name: "grandTotal", label: "Grand Total", disabled: true, md: 12 },
+                      { name: "tradePayables", label: "Hutang Usaha", disabled: true },
+                      { name: "nonTradePayables", label: "Hutang Bukan Usaha" },
+                      { name: "accruedExpenses", label: "Biaya Masih Harus Dibayar" },
+                      { name: "taxPayables", label: "Hutang Pajak" },
+                      { name: "totalShortTermLiabilities", label: "Grand Total", disabled: true, md: 12 },
                     ].map((fieldItem) => (
                       <Grid item xs={12} md={fieldItem.md ? fieldItem.md : 6} key={fieldItem.name}>
                         <Controller

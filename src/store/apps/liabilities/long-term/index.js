@@ -19,22 +19,6 @@ export const fetchAllLongTerm = createAsyncThunk('longTerm/fetchData', async (pa
   }
 })
 
-export const getPiutangUsaha = createAsyncThunk('longTerm/getPiutangUsaha', async (date, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/liabilities/long-term/piutang-po',
-      params: {
-        date // date=2025-06-01 (format YYYY-MM-DD)
-      }
-    })
-    return response.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
-  }
-})
-
 // GET DETAIL LIABILITAS JANGKA PANJANG
 export const fetchLongTermDetail = createAsyncThunk(
   'longTerm/fetchLongTermDetail',
@@ -129,12 +113,6 @@ export const appMasterLongTerm = createSlice({
     loadingPiutangUsaha: false,
     errorPiutangUsaha: null,
   },
-  reducers: {
-    resetLongTermState: (state) => {
-      state.piutangUsaha = 0
-      state.detailLongTerm = {}
-    }
-  },
   extraReducers: builder => {
     builder
       .addCase(fetchAllLongTerm.pending, (state, action) => {
@@ -148,19 +126,6 @@ export const appMasterLongTerm = createSlice({
         state.allLongTerm = []
         state.loadingAllLongTerm = false
         state.errorAllLongTerm = action.error.message
-      })
-
-      .addCase(getPiutangUsaha.pending, (state, action) => {
-        state.loadingPiutangUsaha = true
-      })
-      .addCase(getPiutangUsaha.fulfilled, (state, action) => {
-        state.piutangUsaha = action.payload.data
-        state.loadingPiutangUsaha = false
-      })
-      .addCase(getPiutangUsaha.rejected, (state, action) => {
-        state.piutangUsaha = {}
-        state.loadingPiutangUsaha = false
-        state.errorPiutangUsaha = action.error.message
       })
 
       .addCase(fetchLongTermDetail.pending, (state, action) => {
@@ -179,5 +144,4 @@ export const appMasterLongTerm = createSlice({
   }
 })
 
-export const { resetLongTermState } = appMasterLongTerm.actions;
 export default appMasterLongTerm.reducer

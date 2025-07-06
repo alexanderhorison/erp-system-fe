@@ -55,6 +55,22 @@ export const addShortTerm = createAsyncThunk(
   }
 )
 
+export const getPiutangUsaha = createAsyncThunk('shortTerm/getPiutangUsaha', async (date, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/liabilities/short-term/piutang-po',
+      params: {
+        date // date=2025-06-01 (format YYYY-MM-DD)
+      }
+    })
+    return response.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
 export const editShortTerm = createAsyncThunk(
   'shortTerm/editShortTerm',
   async ({ id, data }, { dispatch, rejectWithValue }) => {
@@ -76,11 +92,11 @@ export const editShortTerm = createAsyncThunk(
 // DELETE LIABILITAS JANGKA PANJANG
 export const deleteShortTerm = createAsyncThunk(
   'shortTerm/deleteShortTerm',
-  async ({ id, period }, { dispatch, rejectWithValue }) => {
+  async ({ id, date }, { dispatch, rejectWithValue }) => {
     try {
       await swalConfirmationDelete({
         label,
-        name: period,
+        name: date,
         axiosRequest: () => {
           return axios({
             method: 'DELETE',
@@ -108,6 +124,16 @@ export const appMasterShortTerm = createSlice({
     detailShortTerm: {},
     loadingDetailShortTerm: false,
     errorDetailShortTerm: null,
+
+    piutangUsaha: 0,
+    loadingPiutangUsaha: false,
+    errorPiutangUsaha: null,
+  },
+  reducers: {
+    resetShortTermState: (state) => {
+      state.piutangUsaha = 0
+      state.detailShortTerm = {}
+    }
   },
   extraReducers: builder => {
     builder
@@ -137,7 +163,20 @@ export const appMasterShortTerm = createSlice({
         state.errorDetailShortTerm = action.error.message
       })
 
+      .addCase(getPiutangUsaha.pending, (state, action) => {
+        state.loadingPiutangUsaha = true
+      })
+      .addCase(getPiutangUsaha.fulfilled, (state, action) => {
+        state.piutangUsaha = action.payload.data
+        state.loadingPiutangUsaha = false
+      })
+      .addCase(getPiutangUsaha.rejected, (state, action) => {
+        state.piutangUsaha = {}
+        state.loadingPiutangUsaha = false
+        state.errorPiutangUsaha = action.error.message
+      })
   }
 })
 
+export const { resetShortTermState } = appMasterShortTerm.actions;
 export default appMasterShortTerm.reducer
