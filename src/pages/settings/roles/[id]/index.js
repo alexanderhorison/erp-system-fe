@@ -231,6 +231,26 @@ export default function DetailRole() {
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
                 />
+                <MenuTitle name={'Liabilitas Bulanan'} />
+                <MenuItem
+                  name={'Jangka Pendek Bulanan'}
+                  menuId={37}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={'Jangka Panjang Bulanan'}
+                  menuId={38}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuTitle name={'Ekuitas Bulanan'} />
+                <MenuItem
+                  name={'Ekuitas Bulanan'}
+                  menuId={39}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
               </List>
             </Grid>
             <Grid item md={4} xs={12}>

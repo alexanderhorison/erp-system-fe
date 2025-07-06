@@ -267,6 +267,46 @@ export const listMenu = [
     ]
   },
   {
+    sectionTitle: 'Liabilitas Bulanan',
+    menuId: [37, 38]
+  },
+  {
+    title: 'Liabilitas Bulanan',
+    icon: 'tabler:calendar-month',
+    menuId: [37, 38],
+    children: [
+      {
+        title: 'Jangka Pendek',
+        path: '/liabilities/short-term',
+        menuId: 37,
+        icon: 'tabler:circle'
+      },
+      {
+        title: 'Jangka Panjang',
+        path: '/liabilities/long-term',
+        menuId: 38,
+        icon: 'tabler:circle'
+      }
+    ]
+  },
+  {
+    sectionTitle: 'Ekuitas Bulanan',
+    menuId: [39]
+  },
+  {
+    title: 'Ekuitas Bulanan',
+    icon: 'tabler:calendar-month',
+    menuId: [39],
+    children: [
+      {
+        title: 'Ekuitas',
+        path: '/equity',
+        menuId: 39,
+        icon: 'tabler:circle'
+      },
+    ]
+  },
+  {
     sectionTitle: 'Report',
     menuId: [30]
   },

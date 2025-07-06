@@ -50,6 +50,8 @@ import dailyCost from "./apps/daily-cost"
 import assetCurrent from "./apps/asset/current"
 import masterNonCurrentAsset from './apps/asset/master-non-current'
 import nonCurrentAsset from './apps/asset/non-current'
+import longTerm from './apps/liabilities/long-term'
+import shortTerm from './apps/liabilities/short-term'
 
 export const store = configureStore({
   reducer: {
@@ -99,7 +101,9 @@ export const store = configureStore({
     dailyCost,
     assetCurrent,
     masterNonCurrentAsset,
-    nonCurrentAsset
+    nonCurrentAsset,
+    longTerm,
+    shortTerm
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
