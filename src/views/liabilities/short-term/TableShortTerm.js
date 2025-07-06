@@ -169,6 +169,7 @@ export default function TableShortTerm() {
             variant: 'outlined'
           },
           toolbar: {
+            value: searchText,
             placeholder: 'Cari bulan',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
