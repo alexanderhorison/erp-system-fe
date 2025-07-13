@@ -37,7 +37,7 @@ export default function ModalViewShortTerm({ open, setOpen, selectedRow }) {
               Detail Liabilitas Jangka Pendek
             </Typography>
             <Typography variant='body2' color='text.secondary'>
-              Tanggal: {returnFormatMonthYear(selectedRow.date)}
+              Periode: {returnFormatMonthYear(selectedRow.date)}
             </Typography>
           </Box>
 
