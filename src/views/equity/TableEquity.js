@@ -1,27 +1,27 @@
-import { Box, Card, Divider, IconButton, Typography } from '@mui/material'
+import { Box, Card, CardHeader, Divider, IconButton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import TableHeaderEquity from './TableHeaderEquity'
+import ModalFormEquity from './ModalFormEquity'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
-import { returnFormatMonthYear } from 'src/helpers/formatDate'
+import ModalViewEquity from './ModalViewEquity'
+import { deleteEquity, fetchAllEquity, fetchEquityDetail } from 'src/store/apps/equity'
 import HandleSearch from 'src/helpers/handleSearch'
-import { fetchAllLongTerm, fetchLongTermDetail, deleteLongTerm } from 'src/store/apps/liabilities/long-term'
-import ModalFormLongTerm from './ModalFormLongTerm'
-import ModalViewLongTerm from './ModalViewLongTerm'
-import TableHeaderLongTerm from './TableHeaderLongTerm'
+import { returnFormatMonthYear } from 'src/helpers/formatDate'
 
-const RowOptions = ({ handleView, id, date }) => {
+const RowOptions = ({ handleView, id, period }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
 
   const handleEdit = () => {
-    dispatch(fetchLongTermDetail(id))
+    dispatch(fetchEquityDetail(id))
     setOpenModalEdit(true)
   }
 
   const handleDelete = () => {
-    dispatch(deleteLongTerm({ id, period: date }))
+    dispatch(deleteEquity({ id, period }))
   }
 
   return (
@@ -47,20 +47,16 @@ const RowOptions = ({ handleView, id, date }) => {
           <Icon icon='tabler:trash' />
         </IconButton>
       </Box>
-      {openModalEdit && (
-        <ModalFormLongTerm open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
-      )}
+      {openModalEdit && <ModalFormEquity open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />}
     </>
   )
 }
 
-export default function TableLongTerm() {
+export default function TableEquity() {
   const dispatch = useDispatch()
 
-  const { allLongTerm } = useSelector(state => state.longTerm)
+  const { allEquity } = useSelector(state => state.equity)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
-
-  console.log('allLongTerm', allLongTerm)
 
   const [openModalAdd, setOpenModalAdd] = useState(false)
   const [openModalDetail, setOpenModalDetail] = useState(false)
@@ -72,7 +68,7 @@ export default function TableLongTerm() {
   const handleSearch = searchValue => {
     setSearchText(searchValue)
     HandleSearch({
-      data: allLongTerm,
+      data: allEquity,
       keys: ['date', 'notes'],
       searchValue,
       setData: setFilteredData
@@ -85,19 +81,20 @@ export default function TableLongTerm() {
   }
 
   useEffect(() => {
-    dispatch(fetchAllLongTerm())
+    dispatch(fetchAllEquity())
   }, [dispatch])
 
   useEffect(() => {
-    if (allLongTerm) {
-      setFilteredData(allLongTerm)
+    if (allEquity) {
+      setFilteredData(allEquity)
     }
-  }, [allLongTerm])
+  }, [allEquity])
+  console.log('allEquity', allEquity)
 
   return (
     <Card>
-      <ModalViewLongTerm open={openModalDetail} setOpen={setOpenModalDetail} selectedRow={selectedRow} />
-      {openModalAdd && <ModalFormLongTerm open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
+      <ModalViewEquity open={openModalDetail} setOpen={setOpenModalDetail} selectedRow={selectedRow} />
+      {openModalAdd && <ModalFormEquity open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
       <Divider sx={{ marginBottom: '1rem' }} />
       <DataGrid
         autoHeight
@@ -118,12 +115,13 @@ export default function TableLongTerm() {
           {
             flex: 0.25,
             minWidth: 250,
-            field: 'totalLongtermLiabilities',
-            headerName: 'Jumlah Liabilitas Jangka Panjang',
+            field: 'totalEquity',
+            headerName: 'Total Ekuitas',
+            headerAlign: 'center',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                  {priceFormatWIthCurrency(params.row.totalLongtermLiabilities)}
+                  {params.row.totalEquity ? priceFormatWIthCurrency(params.row.totalEquity) : '-'}
                 </Typography>
               )
             }
@@ -135,17 +133,7 @@ export default function TableLongTerm() {
             headerName: 'Catatan',
             renderCell: params => {
               return (
-                <Typography
-                  variant='body2'
-                  sx={{
-                    color: 'text.primary',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    maxWidth: '100%'
-                  }}
-                  title={params.row.notes || '-'}
-                >
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
                   {params.row.notes || '-'}
                 </Typography>
               )
@@ -157,27 +145,36 @@ export default function TableLongTerm() {
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions handleView={() => handleView(row)} id={row.id} date={row.date} />
+            renderCell: ({ row }) => (
+              <RowOptions handleView={() => handleView(row)} id={row.id} period={returnFormatMonthYear(row.date)} />
+            )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderLongTerm }}
+        slots={{ toolbar: TableHeaderEquity }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
           },
-          '& .MuiDataGrid-columnHeaderTitle': {
-            whiteSpace: 'normal',
-            lineHeight: '1.2',
-            wordWrap: 'break-word',
+          '& .MuiDataGrid-columnHeader': {
+            whiteSpace: 'normal !important',
+            wordWrap: 'break-word !important',
+            lineHeight: '1.2 !important',
+            overflow: 'visible !important',
             textAlign: 'center'
           },
-          '& .MuiDataGrid-columnHeader': {
-            height: 'auto !important',
-            minHeight: '56px'
+          '& .MuiDataGrid-columnHeaderTitle': {
+            whiteSpace: 'normal !important',
+            overflow: 'visible !important',
+            lineHeight: '1.2 !important',
+            fontWeight: 600
+          },
+          '& .MuiDataGrid-columnHeaders': {
+            minHeight: '56px !important',
+            maxHeight: 'none !important'
           }
         }}
         slotProps={{

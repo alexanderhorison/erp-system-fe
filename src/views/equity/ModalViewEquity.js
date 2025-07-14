@@ -7,8 +7,8 @@ import {
   DialogContent,
   Divider,
   Grid,
-  IconButton,
-  Typography
+  Typography,
+  IconButton
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import Icon from 'src/@core/components/icon'
@@ -30,7 +30,7 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   }
 }))
 
-export default function ModalViewLongTerm({ open, setOpen, selectedRow }) {
+export default function ModalViewEquity({ open, setOpen, selectedRow }) {
   const handleClose = () => {
     setOpen(false)
   }
@@ -59,7 +59,7 @@ export default function ModalViewLongTerm({ open, setOpen, selectedRow }) {
           </CustomCloseButton>
           <Box sx={{ mb: 4, textAlign: 'center' }}>
             <Typography variant='h4' sx={{ mb: 2 }}>
-              Detail Liabilitas Jangka Panjang
+              Detail Ekuitas
             </Typography>
             <Typography variant='body2' color='text.secondary'>
               Periode: {returnFormatMonthYear(selectedRow.date)}
@@ -68,10 +68,11 @@ export default function ModalViewLongTerm({ open, setOpen, selectedRow }) {
 
           <Grid container spacing={3}>
             {[
-              { name: 'shareHolderLoans', label: 'Pinjaman Kepada Pemegang Saham' },
-              { name: 'longTermBankLoans', label: 'Hutang Bank Jangka Panjang' },
-              { name: 'otherLongtermLiabilities', label: 'Kewajiban Jangka Panjang Lainnya' },
-              { name: 'totalLongtermLiabilities', label: 'Jumlah Liabilitas Jangka Panjang' }
+              { name: 'shareCapital', label: 'Modal Saham' },
+              { name: 'retainedEarningsPreviousYear', label: 'Saldo Laba Tahun Lalu' },
+              { name: 'retainedEarningsCurrentYear', label: 'Saldo Laba Tahun Berjalan' },
+              { name: 'retainedEarningsThisMonth', label: 'Saldo Laba Bulan Ini' },
+              { name: 'totalEquity', label: 'Total Ekuitas' }
             ].map(fieldItem => (
               <Grid item xs={12} sm={6} key={fieldItem.name}>
                 <Box sx={{ mb: 2 }}>
@@ -79,7 +80,7 @@ export default function ModalViewLongTerm({ open, setOpen, selectedRow }) {
                     {fieldItem.label}
                   </Typography>
                   <Typography variant='h6' sx={{ fontWeight: 600 }}>
-                    {priceFormatWIthCurrency(selectedRow[fieldItem.name], false)}
+                    {selectedRow[fieldItem.name] ? priceFormatWIthCurrency(selectedRow[fieldItem.name], false) : '-'}
                   </Typography>
                 </Box>
               </Grid>

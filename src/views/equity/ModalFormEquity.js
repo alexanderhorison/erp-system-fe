@@ -10,7 +10,7 @@ import Icon from 'src/@core/components/icon'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import CustomTextField from 'src/@core/components/mui/text-field'
-import { addLongTerm, editLongTerm, fetchLongTermDetail } from 'src/store/apps/liabilities/long-term'
+import { addEquity, editEquity, fetchEquityDetail } from 'src/store/apps/equity'
 import { priceFormat } from 'src/helpers/priceFormatter'
 
 // Global styles for DatePicker
@@ -82,48 +82,34 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   }
 }))
 
-export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id }) {
+export default function ModalFormEquity({ open, setOpen, typeModal = 'ADD', id }) {
   const dispatch = useDispatch()
-  const { detailLongTerm, loadingDetailLongTerm } = useSelector(state => state.longTerm)
+  const { detailEquity, loadingDetailEquity } = useSelector(state => state.equity)
 
   const schema = yup.object({
     date: yup
       .date()
       .required()
       .typeError('Tanggal harus diisi')
-      .test('is-previous-month', 'Hanya dapat memilih bulan sebelum bulan ini', function (value) {
+      .test('is-past-month', 'Hanya bisa memilih bulan sebelumnya atau lebih lama', function (value) {
         if (!value) return false
-        const now = new Date()
-        const currentMonth = now.getMonth()
-        const currentYear = now.getFullYear()
-        const selectedMonth = value.getMonth()
+        const currentDate = new Date()
+        const currentYear = currentDate.getFullYear()
+        const currentMonth = currentDate.getMonth()
         const selectedYear = value.getFullYear()
+        const selectedMonth = value.getMonth()
 
-        // Allow previous months in current year or any month in previous years
+        // Allow if selected date is before current month
         return selectedYear < currentYear || (selectedYear === currentYear && selectedMonth < currentMonth)
       }),
-    shareholderLoans: yup
+    shareCapital: yup
       .number()
       .transform(value => (isNaN(value) ? null : value))
-      .required('Pinjaman Kepada Pemegang Saham harus diisi')
-      .min(0, 'Nilai harus bernilai positif'),
-    longTermBankLoans: yup
-      .number()
-      .transform(value => (isNaN(value) ? null : value))
-      .required('Hutang Bank Jangka Panjang harus diisi')
-      .min(0, 'Nilai harus bernilai positif'),
-    otherLongtermLiabilities: yup
-      .number()
-      .transform(value => (isNaN(value) ? null : value))
-      .required('Kewajiban Jangka Panjang Lainnya harus diisi')
-      .min(0, 'Nilai harus bernilai positif'),
-    totalLongtermLiabilities: yup
-      .number()
-      .transform(value => (isNaN(value) ? null : value))
-      .required('Jumlah Liabilitas Jangka Panjang harus diisi')
+      .required('Modal Saham harus diisi')
       .min(0, 'Nilai harus bernilai positif'),
     notes: yup.string().nullable()
   })
+
   const {
     control,
     handleSubmit,
@@ -136,34 +122,39 @@ export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id
     resolver: yupResolver(schema)
   })
 
-  // Watch values for calculating total
-  const watchedValues = watch(['shareholderLoans', 'longTermBankLoans', 'otherLongtermLiabilities'])
-
-  // Calculate total automatically
-  useEffect(() => {
-    const [shareholders, bankLoans, otherLiabilities] = watchedValues
-    const total = [shareholders, bankLoans, otherLiabilities].reduce((sum, value) => {
-      const numericValue = typeof value === 'string' ? parseInt(value.replace(/\D/g, ''), 10) : value
-      return sum + (isNaN(numericValue) ? 0 : numericValue)
-    }, 0)
-    setValue('totalLongtermLiabilities', total)
-  }, [watchedValues, setValue])
-
   const handleClose = () => {
     reset()
     setOpen(false)
   }
 
+  // Clear detail equity when modal opens to prevent stale data
+  useEffect(() => {
+    if (open && typeModal === 'ADD') {
+      // Clear any existing detail equity data
+      dispatch({ type: 'equity/clearDetailEquity' })
+    }
+  }, [open, typeModal, dispatch])
+
   // Format date transformation helper
-  const transformDetailLongTerm = data => {
+  const transformDetailEquity = data => {
     if (!data) return null
+
+    console.log('Raw detail equity data:', data) // Debug log
+
+    // Ensure date is properly formatted
+    let transformedDate = null
+    if (data.date) {
+      transformedDate = new Date(data.date)
+      // If invalid date, try alternative parsing
+      if (isNaN(transformedDate.getTime())) {
+        transformedDate = new Date(data.date.replace(/-/g, '/'))
+      }
+    }
+
     return {
       ...data,
-      date: data.date ? new Date(data.date) : null,
-      shareholderLoans: data.shareHolderLoans || '',
-      longTermBankLoans: data.longTermBankLoans || '',
-      otherLongtermLiabilities: data.otherLongtermLiabilities || '',
-      totalLongtermLiabilities: data.totalLongtermLiabilities || '',
+      date: transformedDate,
+      shareCapital: data.shareCapital ? String(data.shareCapital) : '',
       notes: data.notes || ''
     }
   }
@@ -172,25 +163,30 @@ export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id
     if (typeModal === 'ADD') {
       reset({
         date: null,
-        shareholderLoans: '',
-        longTermBankLoans: '',
-        otherLongtermLiabilities: '',
-        totalLongtermLiabilities: '',
+        shareCapital: '',
         notes: ''
       })
-    } else if (typeModal === 'EDIT' && id) {
-      dispatch(fetchLongTermDetail(id))
+    } else if ((typeModal === 'EDIT' || typeModal === 'VIEW') && id) {
+      console.log('Fetching equity detail for ID:', id) // Debug log
+      dispatch(fetchEquityDetail(id))
     }
-  }, [typeModal, id, dispatch, reset])
+  }, [typeModal, id, dispatch, reset, open]) // Add open to dependency
 
   useEffect(() => {
-    if (typeModal === 'EDIT' && detailLongTerm) {
-      const transformedData = transformDetailLongTerm(detailLongTerm)
+    console.log('DetailEquity changed:', detailEquity, 'Loading:', loadingDetailEquity) // Debug log
+    if ((typeModal === 'EDIT' || typeModal === 'VIEW') && detailEquity && !loadingDetailEquity && id) {
+      const transformedData = transformDetailEquity(detailEquity)
       if (transformedData) {
-        reset(transformedData)
+        console.log('Setting form data:', transformedData) // Debug log
+        // Use reset instead of individual setValue calls
+        reset({
+          date: transformedData.date,
+          shareCapital: transformedData.shareCapital,
+          notes: transformedData.notes
+        })
       }
     }
-  }, [detailLongTerm, typeModal, reset])
+  }, [detailEquity, typeModal, loadingDetailEquity, id, reset]) // Use reset instead of setValue
 
   const onSubmit = data => {
     // Format date to YYYY-MM-DD using local timezone
@@ -201,27 +197,20 @@ export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id
             data.date.getDate()
           ).padStart(2, '0')}`
         : '',
-      shareHolderLoans: data.shareholderLoans, // Backend expects shareHolderLoans
-      longTermBankLoans: data.longTermBankLoans,
-      otherLongtermLiabilities: data.otherLongtermLiabilities,
-      totalLongtermLiabilities: data.totalLongtermLiabilities,
+      shareCapital: data.shareCapital,
       notes: data.notes
     }
 
-    // Remove frontend-only fields
-    delete formattedData.shareholderLoans
-
     if (typeModal === 'EDIT') {
-      dispatch(editLongTerm({ id, data: formattedData }))
+      dispatch(editEquity({ id, data: formattedData, setOpen }))
     } else {
-      dispatch(addLongTerm(formattedData))
+      dispatch(addEquity({ data: formattedData, setOpen }))
     }
-
-    handleClose()
   }
 
   return (
     <Card>
+      <style dangerouslySetInnerHTML={{ __html: datePickerStyles }} />
       <Dialog
         fullWidth
         open={open}
@@ -243,11 +232,7 @@ export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id
             </CustomCloseButton>
             <Box sx={{ mb: 4, textAlign: 'center' }}>
               <Typography variant='h3' sx={{ mb: 3 }}>
-                {typeModal === 'ADD'
-                  ? 'Tambahkan Liabilitas Jangka Panjang'
-                  : typeModal === 'VIEW'
-                  ? 'Detail Liabilitas Jangka Panjang'
-                  : 'Ubah Liabilitas Jangka Panjang'}
+                {typeModal === 'ADD' ? 'Tambahkan Ekuitas' : typeModal === 'VIEW' ? 'Detail Ekuitas' : 'Ubah Ekuitas'}
               </Typography>
             </Box>
             <Grid container spacing={6}>
@@ -265,25 +250,23 @@ export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id
                         showMonthYearPicker
                         showFullMonthYearPicker={false}
                         disabled={typeModal === 'VIEW'}
-                        placeholderText='Pilih bulan sebelum bulan ini'
-                        maxDate={new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)}
+                        placeholderText='Pilih bulan & tahun'
+                        maxDate={new Date(new Date().getFullYear(), new Date().getMonth() - 1, 0)} // End of previous month
                         filterDate={date => {
-                          const now = new Date()
-                          const currentMonth = now.getMonth()
-                          const currentYear = now.getFullYear()
-                          const dateMonth = date.getMonth()
-                          const dateYear = date.getFullYear()
+                          const currentDate = new Date()
+                          const currentYear = currentDate.getFullYear()
+                          const currentMonth = currentDate.getMonth()
 
-                          // Only allow previous months
-                          return dateYear < currentYear || (dateYear === currentYear && dateMonth < currentMonth)
+                          // Only allow dates that are before current month
+                          return date < new Date(currentYear, currentMonth, 1)
                         }}
                         customInput={
                           <CustomTextField
                             fullWidth
-                            label='Tanggal'
-                            placeholder='Pilih bulan sebelum bulan ini'
+                            label='Pilih Bulan'
+                            placeholder='Pilih bulan & tahun'
                             error={Boolean(errors.date)}
-                            helperText={errors.date?.message || 'Hanya dapat memilih bulan sebelum bulan ini'}
+                            helperText={errors.date?.message}
                             InputProps={{
                               style: { cursor: 'pointer' }
                             }}
@@ -320,96 +303,23 @@ export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Controller
-                  name='shareholderLoans'
+                  name='shareCapital'
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { value, onChange } }) => (
                     <CustomTextField
                       fullWidth
-                      label='Pinjaman Kepada Pemegang Saham'
+                      label='Modal Saham'
                       onChange={e => {
                         const numericValue = e.target.value.replace(/[^\d]/g, '')
                         onChange(numericValue)
                       }}
-                      error={Boolean(errors.shareholderLoans)}
+                      error={Boolean(errors.shareCapital)}
                       disabled={typeModal === 'VIEW'}
-                      placeholder='Masukkan nilai pinjaman'
-                      helperText={errors.shareholderLoans?.message}
+                      placeholder='Masukkan modal saham'
+                      helperText={errors.shareCapital?.message}
                       InputProps={{
                         value: value ? priceFormat(value) : ''
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Controller
-                  name='longTermBankLoans'
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange } }) => (
-                    <CustomTextField
-                      fullWidth
-                      label='Hutang Bank Jangka Panjang'
-                      onChange={e => {
-                        const numericValue = e.target.value.replace(/[^\d]/g, '')
-                        onChange(numericValue)
-                      }}
-                      error={Boolean(errors.longTermBankLoans)}
-                      disabled={typeModal === 'VIEW'}
-                      placeholder='Masukkan hutang bank'
-                      helperText={errors.longTermBankLoans?.message}
-                      InputProps={{
-                        value: value ? priceFormat(value) : ''
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Controller
-                  name='otherLongtermLiabilities'
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange } }) => (
-                    <CustomTextField
-                      fullWidth
-                      label='Kewajiban Jangka Panjang Lainnya'
-                      onChange={e => {
-                        const numericValue = e.target.value.replace(/[^\d]/g, '')
-                        onChange(numericValue)
-                      }}
-                      error={Boolean(errors.otherLongtermLiabilities)}
-                      disabled={typeModal === 'VIEW'}
-                      placeholder='Masukkan kewajiban lainnya'
-                      helperText={errors.otherLongtermLiabilities?.message}
-                      InputProps={{
-                        value: value ? priceFormat(value) : ''
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Controller
-                  name='totalLongtermLiabilities'
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange } }) => (
-                    <CustomTextField
-                      fullWidth
-                      label='Jumlah Liabilitas Jangka Panjang'
-                      disabled={true}
-                      placeholder='Total akan dihitung otomatis'
-                      helperText={errors.totalLongtermLiabilities?.message}
-                      InputProps={{
-                        value: value ? priceFormat(value) : ''
-                      }}
-                      sx={{
-                        '& .MuiInputBase-input.Mui-disabled': {
-                          color: 'text.primary',
-                          WebkitTextFillColor: 'text.primary'
-                        }
                       }}
                     />
                   )}
@@ -419,17 +329,16 @@ export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id
                 <Controller
                   name='notes'
                   control={control}
-                  render={({ field: { value, onChange } }) => (
+                  render={({ field }) => (
                     <CustomTextField
-                      fullWidth
+                      {...field}
+                      rows={4}
                       multiline
-                      rows={3}
-                      value={value || ''}
+                      fullWidth
                       label='Catatan'
-                      onChange={onChange}
-                      error={Boolean(errors.notes)}
                       disabled={typeModal === 'VIEW'}
-                      placeholder='Masukkan Catatan (Opsional)'
+                      placeholder='Masukkan catatan (opsional)'
+                      error={Boolean(errors.notes)}
                       helperText={errors.notes?.message}
                     />
                   )}
@@ -437,6 +346,7 @@ export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id
               </Grid>
             </Grid>
           </DialogContent>
+
           <DialogActions
             sx={{
               px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
@@ -445,10 +355,10 @@ export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id
           >
             {typeModal !== 'VIEW' && (
               <>
-                <Button variant='tonal' color='secondary' onClick={handleClose} hidden={typeModal === 'VIEW'}>
+                <Button variant='tonal' color='secondary' onClick={handleClose}>
                   Cancel
                 </Button>
-                <Button type='submit' variant='contained' hidden={typeModal === 'VIEW'}>
+                <Button type='submit' variant='contained'>
                   Submit
                 </Button>
               </>
@@ -456,9 +366,6 @@ export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id
           </DialogActions>
         </form>
       </Dialog>
-      <style jsx global>
-        {datePickerStyles}
-      </style>
     </Card>
   )
 }
