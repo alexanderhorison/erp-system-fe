@@ -107,7 +107,7 @@ export default function TableShortTerm() {
             flex: 0.2,
             minWidth: 200,
             field: 'date',
-            headerName: 'Bulan',
+            headerName: 'Periode',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
