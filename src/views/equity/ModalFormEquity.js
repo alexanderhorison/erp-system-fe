@@ -91,7 +91,7 @@ export default function ModalFormEquity({ open, setOpen, typeModal = 'ADD', id }
       .date()
       .required()
       .typeError('Tanggal harus diisi')
-      .test('is-past-month', 'Hanya bisa memilih bulan sebelumnya atau lebih lama', function (value) {
+      .test('is-current-or-past-month', 'Hanya bisa memilih bulan ini atau sebelumnya', function (value) {
         if (!value) return false
         const currentDate = new Date()
         const currentYear = currentDate.getFullYear()
@@ -99,8 +99,8 @@ export default function ModalFormEquity({ open, setOpen, typeModal = 'ADD', id }
         const selectedYear = value.getFullYear()
         const selectedMonth = value.getMonth()
 
-        // Allow if selected date is before current month
-        return selectedYear < currentYear || (selectedYear === currentYear && selectedMonth < currentMonth)
+        // Allow if selected date is current month or before
+        return selectedYear < currentYear || (selectedYear === currentYear && selectedMonth <= currentMonth)
       }),
     shareCapital: yup
       .number()
@@ -251,14 +251,14 @@ export default function ModalFormEquity({ open, setOpen, typeModal = 'ADD', id }
                         showFullMonthYearPicker={false}
                         disabled={typeModal === 'VIEW'}
                         placeholderText='Pilih bulan & tahun'
-                        maxDate={new Date(new Date().getFullYear(), new Date().getMonth() - 1, 0)} // End of previous month
+                        maxDate={new Date(new Date().getFullYear(), new Date().getMonth(), 0)} // End of current month
                         filterDate={date => {
                           const currentDate = new Date()
                           const currentYear = currentDate.getFullYear()
                           const currentMonth = currentDate.getMonth()
 
-                          // Only allow dates that are before current month
-                          return date < new Date(currentYear, currentMonth, 1)
+                          // Allow dates up to and including current month
+                          return date <= new Date(currentYear, currentMonth + 1, 0)
                         }}
                         customInput={
                           <CustomTextField
