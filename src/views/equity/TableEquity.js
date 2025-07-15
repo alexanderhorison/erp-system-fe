@@ -3,33 +3,36 @@ import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { deleteAsset, fetchAsset, fetchAssetDetail } from 'src/store/apps/asset/current'
-import TableHeaderCurrentAsset from './TableHeaderMasterProduct'
-import ModalFormCurrentAsset from './ModalFormCurrentAsset'
+import TableHeaderEquity from './TableHeaderEquity'
+import ModalFormEquity from './ModalFormEquity'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
-import ModalViewCurrentAsset from './ModalViewCurrentAsset'
+import ModalViewEquity from './ModalViewEquity'
+import { deleteEquity, fetchAllEquity, fetchEquityDetail } from 'src/store/apps/equity'
 import HandleSearch from 'src/helpers/handleSearch'
+import { returnFormatMonthYear } from 'src/helpers/formatDate'
 
 const RowOptions = ({ handleView, id, period }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
 
   const handleEdit = () => {
-    dispatch(fetchAssetDetail(id))
+    dispatch(fetchEquityDetail(id))
     setOpenModalEdit(true)
   }
 
   const handleDelete = () => {
-    dispatch(deleteAsset({ id, period }))
+    dispatch(deleteEquity({ id, period }))
   }
 
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', ml: -3 }}>
-        <IconButton onClick={e => {
-          e.stopPropagation()
-          handleView()
-        }}>
+        <IconButton
+          onClick={e => {
+            e.stopPropagation()
+            handleView()
+          }}
+        >
           <Icon icon='tabler:eye' />
         </IconButton>
         <IconButton onClick={handleEdit}>
@@ -44,119 +47,134 @@ const RowOptions = ({ handleView, id, period }) => {
           <Icon icon='tabler:trash' />
         </IconButton>
       </Box>
-      {openModalEdit && <ModalFormCurrentAsset open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />}
+      {openModalEdit && <ModalFormEquity open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />}
     </>
   )
 }
 
-export default function TableCurrentAsset() {
+export default function TableEquity() {
   const dispatch = useDispatch()
 
-  const { allAssetCurrent } = useSelector(state => state.assetCurrent)
+  const { allEquity } = useSelector(state => state.equity)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
 
   const [openModalAdd, setOpenModalAdd] = useState(false)
   const [openModalDetail, setOpenModalDetail] = useState(false)
   const [selectedRow, setSelectedRow] = useState(null)
+
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
     HandleSearch({
-      data: allAssetCurrent,
-      keys: ['period'],
+      data: allEquity,
+      keys: ['date', 'notes'],
       searchValue,
       setData: setFilteredData
     })
   }
 
-  const handleView = (row) => {
+  const handleView = row => {
     setOpenModalDetail(true)
     setSelectedRow(row)
   }
 
   useEffect(() => {
-    dispatch(fetchAsset())
+    dispatch(fetchAllEquity())
   }, [dispatch])
 
   useEffect(() => {
-    if (allAssetCurrent) {
-      setFilteredData(allAssetCurrent)
+    if (allEquity) {
+      setFilteredData(allEquity)
     }
-  }, [allAssetCurrent])
+  }, [allEquity])
+  console.log('allEquity', allEquity)
 
   return (
     <Card>
-      <ModalViewCurrentAsset
-        open={openModalDetail}
-        setOpen={setOpenModalDetail}
-        selectedRow={selectedRow}
-      />
-      {openModalAdd && <ModalFormCurrentAsset open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
+      <ModalViewEquity open={openModalDetail} setOpen={setOpenModalDetail} selectedRow={selectedRow} />
+      {openModalAdd && <ModalFormEquity open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
       <Divider sx={{ marginBottom: '1rem' }} />
       <DataGrid
         autoHeight
         columns={[
           {
-            flex: 0.2,
-            minWidth: 200,
-            field: 'period',
-            headerName: 'Bulan',
+            flex: 0.15,
+            minWidth: 150,
+            field: 'date',
+            headerName: 'Periode',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.period}
+                  {returnFormatMonthYear(params.row.date)}
                 </Typography>
               )
             }
           },
           {
-            flex: 0.2,
-            minWidth: 200,
-            field: 'grandTotal',
-            headerName: 'Total Aset',
+            flex: 0.25,
+            minWidth: 250,
+            field: 'totalEquity',
+            headerName: 'Total Ekuitas',
+            headerAlign: 'center',
             renderCell: params => {
               return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {priceFormatWIthCurrency(params.row.grandTotal)}
+                <Typography variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
+                  {params.row.totalEquity ? priceFormatWIthCurrency(params.row.totalEquity) : '-'}
                 </Typography>
               )
             }
           },
           {
-            flex: 0.2,
+            flex: 0.3,
             minWidth: 200,
             field: 'notes',
             headerName: 'Catatan',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.notes}
+                  {params.row.notes || '-'}
                 </Typography>
               )
             }
           },
           {
-            flex: 0.1,
+            flex: 0.15,
             minWidth: 120,
             sortable: false,
             field: 'actions',
             headerName: 'Actions',
             renderCell: ({ row }) => (
-              <RowOptions handleView={() => handleView(row)} id={row.id} period={row.period} />
+              <RowOptions handleView={() => handleView(row)} id={row.id} period={returnFormatMonthYear(row.date)} />
             )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderCurrentAsset }}
+        slots={{ toolbar: TableHeaderEquity }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
+          },
+          '& .MuiDataGrid-columnHeader': {
+            whiteSpace: 'normal !important',
+            wordWrap: 'break-word !important',
+            lineHeight: '1.2 !important',
+            overflow: 'visible !important',
+            textAlign: 'center'
+          },
+          '& .MuiDataGrid-columnHeaderTitle': {
+            whiteSpace: 'normal !important',
+            overflow: 'visible !important',
+            lineHeight: '1.2 !important',
+            fontWeight: 600
+          },
+          '& .MuiDataGrid-columnHeaders': {
+            minHeight: '56px !important',
+            maxHeight: 'none !important'
           }
         }}
         slotProps={{
@@ -166,7 +184,7 @@ export default function TableCurrentAsset() {
           },
           toolbar: {
             value: searchText,
-            placeholder: 'Cari bulan',
+            placeholder: 'Cari periode atau catatan',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
             openModalAdd: setOpenModalAdd

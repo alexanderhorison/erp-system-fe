@@ -112,7 +112,7 @@ export default function TableNonCurrentAsset() {
             flex: 2,
             minWidth: 120,
             field: 'date',
-            headerName: 'Bulan',
+            headerName: 'Periode',
             headerAlign: 'left',
             renderCell: params => {
               return (

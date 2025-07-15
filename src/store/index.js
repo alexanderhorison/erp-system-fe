@@ -46,10 +46,13 @@ import masterEmployee from './apps/master/employee'
 import masterUnexpectedCostCategory from './apps/master/unexpected-cost-category'
 import exportReport from './apps/export'
 import configDailyCost from './apps/config/configDailyCost'
-import dailyCost from "./apps/daily-cost"
-import assetCurrent from "./apps/asset/current"
+import dailyCost from './apps/daily-cost'
+import assetCurrent from './apps/asset/current'
 import masterNonCurrentAsset from './apps/asset/master-non-current'
 import nonCurrentAsset from './apps/asset/non-current'
+import longTerm from './apps/liabilities/long-term'
+import shortTerm from './apps/liabilities/short-term'
+import equity from './apps/equity'
 
 export const store = configureStore({
   reducer: {
@@ -99,7 +102,10 @@ export const store = configureStore({
     dailyCost,
     assetCurrent,
     masterNonCurrentAsset,
-    nonCurrentAsset
+    nonCurrentAsset,
+    longTerm,
+    shortTerm,
+    equity
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

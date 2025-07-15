@@ -3,24 +3,26 @@ import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { deleteAsset, fetchAsset, fetchAssetDetail } from 'src/store/apps/asset/current'
-import TableHeaderCurrentAsset from './TableHeaderMasterProduct'
-import ModalFormCurrentAsset from './ModalFormCurrentAsset'
+import TableHeaderShortTerm from './TableHeaderShortTerm'
+import ModalFormCurrentAsset from './ModalFormShortTerm'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
-import ModalViewCurrentAsset from './ModalViewCurrentAsset'
+import ModalViewCurrentAsset from './ModalViewShortTerm'
+import { deleteShortTerm, fetchAllShortTerm, fetchShortTermDetail } from 'src/store/apps/liabilities/short-term'
+import ModalFormShortTerm from './ModalFormShortTerm'
+import ModalViewShortTerm from './ModalViewShortTerm'
 import HandleSearch from 'src/helpers/handleSearch'
 
-const RowOptions = ({ handleView, id, period }) => {
+const RowOptions = ({ handleView, id, date }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
 
   const handleEdit = () => {
-    dispatch(fetchAssetDetail(id))
+    dispatch(fetchShortTermDetail(id))
     setOpenModalEdit(true)
   }
 
   const handleDelete = () => {
-    dispatch(deleteAsset({ id, period }))
+    dispatch(deleteShortTerm({ id, date }))
   }
 
   return (
@@ -44,20 +46,21 @@ const RowOptions = ({ handleView, id, period }) => {
           <Icon icon='tabler:trash' />
         </IconButton>
       </Box>
-      {openModalEdit && <ModalFormCurrentAsset open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />}
+      {openModalEdit && <ModalFormShortTerm open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />}
     </>
   )
 }
 
-export default function TableCurrentAsset() {
+export default function TableShortTerm() {
   const dispatch = useDispatch()
 
-  const { allAssetCurrent } = useSelector(state => state.assetCurrent)
+  const { allShortTerm } = useSelector(state => state.shortTerm)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
 
   const [openModalAdd, setOpenModalAdd] = useState(false)
   const [openModalDetail, setOpenModalDetail] = useState(false)
   const [selectedRow, setSelectedRow] = useState(null)
+
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
 
@@ -65,8 +68,8 @@ export default function TableCurrentAsset() {
   const handleSearch = searchValue => {
     setSearchText(searchValue)
     HandleSearch({
-      data: allAssetCurrent,
-      keys: ['period'],
+      data: allShortTerm,
+      keys: ['date'],
       searchValue,
       setData: setFilteredData
     })
@@ -78,23 +81,24 @@ export default function TableCurrentAsset() {
   }
 
   useEffect(() => {
-    dispatch(fetchAsset())
+    dispatch(fetchAllShortTerm())
   }, [dispatch])
 
+
   useEffect(() => {
-    if (allAssetCurrent) {
-      setFilteredData(allAssetCurrent)
+    if (allShortTerm) {
+      setFilteredData(allShortTerm)
     }
-  }, [allAssetCurrent])
+  }, [allShortTerm])
 
   return (
     <Card>
-      <ModalViewCurrentAsset
+      <ModalViewShortTerm
         open={openModalDetail}
         setOpen={setOpenModalDetail}
         selectedRow={selectedRow}
       />
-      {openModalAdd && <ModalFormCurrentAsset open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
+      {openModalAdd && <ModalFormShortTerm open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
       <Divider sx={{ marginBottom: '1rem' }} />
       <DataGrid
         autoHeight
@@ -102,12 +106,12 @@ export default function TableCurrentAsset() {
           {
             flex: 0.2,
             minWidth: 200,
-            field: 'period',
-            headerName: 'Bulan',
+            field: 'date',
+            headerName: 'Periode',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.period}
+                  {params.row.date}
                 </Typography>
               )
             }
@@ -115,12 +119,12 @@ export default function TableCurrentAsset() {
           {
             flex: 0.2,
             minWidth: 200,
-            field: 'grandTotal',
-            headerName: 'Total Aset',
+            field: 'totalShortTermLiabilities',
+            headerName: 'Total Liabilitas',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {priceFormatWIthCurrency(params.row.grandTotal)}
+                  {priceFormatWIthCurrency(params.row.totalShortTermLiabilities)}
                 </Typography>
               )
             }
@@ -145,13 +149,13 @@ export default function TableCurrentAsset() {
             field: 'actions',
             headerName: 'Actions',
             renderCell: ({ row }) => (
-              <RowOptions handleView={() => handleView(row)} id={row.id} period={row.period} />
+              <RowOptions handleView={() => handleView(row)} id={row.id} date={row.date} />
             )
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderCurrentAsset }}
+        slots={{ toolbar: TableHeaderShortTerm }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
         sx={{
