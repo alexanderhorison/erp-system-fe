@@ -253,6 +253,50 @@ export const fetchDashboardPurchaseOrderOverDueDate = createAsyncThunk('appDashb
   }
 })
 
+export const fetchDashboardFinanceRevenue = createAsyncThunk('appDashboard/fetchDashboardFinanceRevenue', async (query, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/finance/revenue',
+      params: query
+    })
+
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
+export const fetchDashboardFinanceProfitLoss = createAsyncThunk('appDashboard/fetchDashboardFinanceProfitLoss', async (query, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/finance/profit-loss',
+      params: query
+    })
+
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
+export const fetchDashboardFinanceProfitLossYearly = createAsyncThunk('appDashboard/fetchDashboardFinanceProfitLossYearly', async (query, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/dashboard/finance/profit-loss-yearly',
+      params: query
+    })
+    return response.data.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
 // REDUCER DASHBOARD
 export const appMasterRankSlice = createSlice({
   name: 'appDashboard',
@@ -341,6 +385,18 @@ export const appMasterRankSlice = createSlice({
     loadingDashboardPurchaseOrderOverDueDate: false,
     errorDashboardPurchaseOrderOverDueDate: false,
 
+    // DASHBOARD FINANCE
+    dataDashboardFinanceRevenue: [],
+    loadingDashboardFinanceRevenue: false,
+    errorDashboardFinanceRevenue: false,
+
+    dataDashboardFinanceProfitLoss: [],
+    loadingDashboardFinanceProfitLoss: false,
+    errorDashboardFinanceProfitLoss: false,
+
+    dataDashboardFinanceProfitLossYearly: [],
+    loadingDashboardFinanceProfitLossYearly: false,
+    errorDashboardFinanceProfitLossYearly: false,
   },
   reducers: {},
   extraReducers: builder => {
@@ -538,6 +594,43 @@ export const appMasterRankSlice = createSlice({
       .addCase(fetchDashboardPurchaseOrderOverDueDate.rejected, (state, action) => {
         state.loadingDashboardPurchaseOrderOverDueDate = false
         state.errorDashboardPurchaseOrderOverDueDate = true
+      })
+
+      // DATA DASHBOARD FINANCE REVENUE
+      .addCase(fetchDashboardFinanceRevenue.pending, (state, action) => {
+        state.loadingDashboardFinanceRevenue = true
+      })
+      .addCase(fetchDashboardFinanceRevenue.fulfilled, (state, action) => {
+        state.loadingDashboardFinanceRevenue = false
+        state.dataDashboardFinanceRevenue = action.payload
+      })
+      .addCase(fetchDashboardFinanceRevenue.rejected, (state, action) => {
+        state.loadingDashboardFinanceRevenue = false
+        state.errorDashboardFinanceRevenue = true
+      })
+      // DATA DASHBOARD FINANCE PROFIT LOSS
+      .addCase(fetchDashboardFinanceProfitLoss.pending, (state, action) => {
+        state.loadingDashboardFinanceProfitLoss = true
+      })
+      .addCase(fetchDashboardFinanceProfitLoss.fulfilled, (state, action) => {
+        state.loadingDashboardFinanceProfitLoss = false
+        state.dataDashboardFinanceProfitLoss = action.payload
+      })
+      .addCase(fetchDashboardFinanceProfitLoss.rejected, (state, action) => {
+        state.loadingDashboardFinanceProfitLoss = false
+        state.errorDashboardFinanceProfitLoss = true
+      })
+      // DATA DASHBOARD FINANCE PROFIT LOSS YEARLY
+      .addCase(fetchDashboardFinanceProfitLossYearly.pending, (state, action) => {
+        state.loadingDashboardFinanceProfitLossYearly = true
+      })
+      .addCase(fetchDashboardFinanceProfitLossYearly.fulfilled, (state, action) => {
+        state.loadingDashboardFinanceProfitLossYearly = false
+        state.dataDashboardFinanceProfitLossYearly = action.payload
+      })
+      .addCase(fetchDashboardFinanceProfitLossYearly.rejected, (state, action) => {
+        state.loadingDashboardFinanceProfitLossYearly = false
+        state.errorDashboardFinanceProfitLossYearly = true
       })
   }
 })
