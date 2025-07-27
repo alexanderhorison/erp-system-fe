@@ -31,6 +31,11 @@ const navigation = () => {
         title: "Purchase Order",
         path: "/dashboards/purchase-order",
         menuId: 1,
+      },
+      {
+        title: "Finance",
+        path: "/dashboards/finance",
+        menuId: 1
       }
     ]
   })
