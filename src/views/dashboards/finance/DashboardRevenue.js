@@ -231,7 +231,7 @@ export default function DashboardRevenue() {
                       fontWeight: 'bold'
                     }}
                   >
-                    -{safeData.percentChange.cost} dari bulan sebelumnya
+                    {safeData.percentChange.cost} dari bulan sebelumnya
                   </Typography>
                 </CardContent>
               </Card>

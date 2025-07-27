@@ -28,7 +28,7 @@ export default function DashboardProfitLossYearly() {
       const years = dataDashboardFinanceProfitLossYearly.map(item => item.year.toString())
       const hargaJual = dataDashboardFinanceProfitLossYearly.map(item => item.hargaJual / 1000000000) // Convert to billions
       const hargaModal = dataDashboardFinanceProfitLossYearly.map(item => item.hargaModal / 1000000000) // Convert to billions
-      const pendapatan = dataDashboardFinanceProfitLossYearly.map(item => item.pendapatan / 1000000000) // Convert to billions
+      const gainLoss = dataDashboardFinanceProfitLossYearly.map(item => item.gainLoss / 1000000000) // Convert to billions
 
       // Format currency helper function
       const formatCurrency = value => {
@@ -64,8 +64,8 @@ export default function DashboardProfitLossYearly() {
               barThickness: 40
             },
             {
-              label: 'Pendapatan',
-              data: pendapatan,
+              label: 'Gain/Loss',
+              data: gainLoss,
               backgroundColor: 'rgba(75, 192, 192, 0.8)',
               borderColor: 'rgba(75, 192, 192, 1)',
               borderWidth: 1,

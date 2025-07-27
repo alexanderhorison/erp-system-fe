@@ -109,8 +109,8 @@ export default function DashboardProfitLoss() {
         barThickness: 40
       },
       {
-        label: 'Pendapatan',
-        data: dataDashboardFinanceProfitLoss?.map(item => item.pendapatan / 1000000000) || [], // Convert to billions
+        label: 'Gain/Loss',
+        data: dataDashboardFinanceProfitLoss?.map(item => item.gainLoss / 1000000000) || [], // Convert to billions
         backgroundColor: 'rgba(75, 192, 192, 0.8)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
@@ -191,30 +191,6 @@ export default function DashboardProfitLoss() {
   const lineChartData = {
     labels: dataDashboardFinanceProfitLoss?.map(item => item.labelMonth) || [],
     datasets: [
-      {
-        label: 'Harga Jual',
-        data: dataDashboardFinanceProfitLoss?.map(item => item.hargaJual / 1000000000) || [], // Convert to billions
-        borderColor: 'rgba(54, 162, 235, 1)',
-        backgroundColor: 'rgba(54, 162, 235, 0.1)',
-        tension: 0.4,
-        fill: false
-      },
-      {
-        label: 'Harga Modal',
-        data: dataDashboardFinanceProfitLoss?.map(item => item.hargaModal / 1000000000) || [], // Convert to billions
-        borderColor: 'rgba(255, 99, 132, 1)',
-        backgroundColor: 'rgba(255, 99, 132, 0.1)',
-        tension: 0.4,
-        fill: false
-      },
-      {
-        label: 'Gain/Loss',
-        data: dataDashboardFinanceProfitLoss?.map(item => item.gainLoss / 1000000000) || [], // Convert to billions
-        borderColor: 'rgba(255, 159, 64, 1)',
-        backgroundColor: 'rgba(255, 159, 64, 0.1)',
-        tension: 0.4,
-        fill: false
-      },
       {
         label: 'Pendapatan',
         data: dataDashboardFinanceProfitLoss?.map(item => item.pendapatan / 1000000000) || [], // Convert to billions
