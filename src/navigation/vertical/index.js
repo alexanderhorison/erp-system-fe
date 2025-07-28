@@ -11,35 +11,6 @@ const navigation = () => {
   const deploy = listMenu
 
   const selectedMenu = []
-  // default menu
-  selectedMenu.push({
-    title: 'Dashboard',
-    icon: 'tabler:home',
-    path: '/home',
-    children: [
-      {
-        title: "Inventory",
-        path: "/home",
-        menuId: 1
-      },
-      {
-        title: "Sales Order",
-        path: "/dashboards/sales-order",
-        menuId: 1,
-      },
-      {
-        title: "Purchase Order",
-        path: "/dashboards/purchase-order",
-        menuId: 1,
-      },
-      {
-        title: "Finance",
-        path: "/dashboards/finance",
-        menuId: 1
-      }
-    ]
-  })
-
 
   if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'false') {
     deploy?.forEach(item => {

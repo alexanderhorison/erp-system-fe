@@ -66,6 +66,31 @@ export default function DetailRole() {
           <Grid container spacing={2}>
             <Grid item md={4} xs={12}>
               <List sx={{ padding: '1px' }}>
+                <MenuTitle name={'Dashboard'} />
+                <MenuItem
+                  name={'Inventory'}
+                  menuId={40}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={'Sales Order'}
+                  menuId={41}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={'Purchase Order'}
+                  menuId={42}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={'Finance'}
+                  menuId={43}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
                 <MenuTitle name={'Inventory'} />
                 <MenuSubTitle name={'Data Inventory'} />
                 <MenuItem
