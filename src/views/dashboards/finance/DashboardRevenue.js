@@ -77,6 +77,12 @@ export default function DashboardRevenue() {
     return numericValue >= 0 ? '#4caf50' : '#f44336'
   }
 
+  const getPercentageColorCost = (percent) => {
+    if (!percent || typeof percent !== 'string') return '#000'; // fallback color
+    const numericValue = percent.split('%')[0]
+    return numericValue.includes('-') || numericValue == 0 ? '#4caf50' : '#f44336';
+  };
+
   useEffect(() => {
     // Dispatch dengan query params
     dispatch(
@@ -90,16 +96,18 @@ export default function DashboardRevenue() {
   // Additional safety check for nested properties
   const safeData = {
     current: {
-      revenue: dataDashboardFinanceRevenue?.current?.revenue + 1000000000000 || 0,
+      revenue: dataDashboardFinanceRevenue?.current?.revenue || 0,
       grossProfit: dataDashboardFinanceRevenue?.current?.grossProfit || 0,
       cost: dataDashboardFinanceRevenue?.current?.cost || 0,
-      netProfit: dataDashboardFinanceRevenue?.current?.netProfit || 0
+      netProfit: dataDashboardFinanceRevenue?.current?.netProfit || 0,
+      margin: dataDashboardFinanceRevenue?.current?.margin || '0%'
     },
     percentChange: {
       revenue: dataDashboardFinanceRevenue?.percentChange?.revenue || '0%',
       grossProfit: dataDashboardFinanceRevenue?.percentChange?.grossProfit || '0%',
       cost: dataDashboardFinanceRevenue?.percentChange?.cost || '0%',
-      netProfit: dataDashboardFinanceRevenue?.percentChange?.netProfit || '0%'
+      netProfit: dataDashboardFinanceRevenue?.percentChange?.netProfit || '0%',
+      margin: dataDashboardFinanceRevenue?.percentChange?.margin || '0%'
     }
   }
 
@@ -139,7 +147,7 @@ export default function DashboardRevenue() {
           {/* Cards Section */}
           <Grid container spacing={3}>
             {/* Total Revenue Card */}
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={4}>
               <Card
                 sx={{
                   background: '#ffffff',
@@ -171,8 +179,107 @@ export default function DashboardRevenue() {
               </Card>
             </Grid>
 
+            {/* Total Net Profit Card */}
+            <Grid item xs={12} sm={6} md={4}>
+              <Card
+                sx={{
+                  background: '#ffffff',
+                  borderRadius: 2,
+                  boxShadow: 2
+                }}
+              >
+                <CardContent>
+                  <Typography variant='subtitle2' color='text.secondary' gutterBottom>
+                    Total Net Profit
+                  </Typography>
+                  <Typography
+                    variant='h6'
+                    component='div'
+                    sx={{ fontWeight: 'bold', mb: 1, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' } }}
+                  >
+                    {formatCurrency(safeData.current.netProfit)}
+                  </Typography>
+                  <Typography
+                    variant='body2'
+                    sx={{
+                      color: getPercentageColor(safeData.percentChange.netProfit),
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    {formatPercentage(safeData.percentChange.netProfit)} dari bulan sebelumnya
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Total Margin */}
+            <Grid item xs={12} sm={6} md={4}>
+              <Card
+                sx={{
+                  background: '#ffffff',
+                  borderRadius: 2,
+                  boxShadow: 2
+                }}
+              >
+                <CardContent>
+                  <Typography variant='subtitle2' color='text.secondary' gutterBottom>
+                    Margin
+                  </Typography>
+                  <Typography
+                    variant='h6'
+                    component='div'
+                    sx={{ fontWeight: 'bold', mb: 2, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' } }}
+                  >
+                    {safeData.current.margin}
+                  </Typography>
+                  <Typography
+                    variant='body2'
+                    sx={{
+                      color: `${safeData.percentChange.margin.includes('-') ? '#f44336' : '#4caf50'}`, // Cost increase is negative
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    {safeData.percentChange.margin.includes('-') ? `${safeData.percentChange.margin}` : `+${safeData.percentChange.margin}`} dari bulan sebelumnya
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Total Cost Card */}
+            <Grid item xs={12} sm={6} md={4}>
+              <Card
+                sx={{
+                  background: '#ffffff',
+                  borderRadius: 2,
+                  boxShadow: 2
+                }}
+              >
+                <CardContent>
+                  <Typography variant='subtitle2' color='text.secondary' gutterBottom>
+                    Total Cost
+                  </Typography>
+                  <Typography
+                    variant='h6'
+                    component='div'
+                    sx={{ fontWeight: 'bold', mb: 1, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' } }}
+                  >
+                    {formatCurrency(safeData.current.cost)}
+                  </Typography>
+                  <Typography
+                    variant='body2'
+                    sx={{
+                      color: getPercentageColorCost(`${safeData.percentChange.cost}`), // Cost increase is negative
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    {safeData.percentChange.cost} dari bulan sebelumnya
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
             {/* Total Gross Profit Card */}
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={12} sm={6} md={4}>
               <Card
                 sx={{
                   background: '#ffffff',
@@ -204,77 +311,12 @@ export default function DashboardRevenue() {
               </Card>
             </Grid>
 
-            {/* Total Cost Card */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card
-                sx={{
-                  background: '#ffffff',
-                  borderRadius: 2,
-                  boxShadow: 2
-                }}
-              >
-                <CardContent>
-                  <Typography variant='subtitle2' color='text.secondary' gutterBottom>
-                    Total Cost
-                  </Typography>
-                  <Typography
-                    variant='h6'
-                    component='div'
-                    sx={{ fontWeight: 'bold', mb: 1, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' } }}
-                  >
-                    {formatCurrency(safeData.current.cost)}
-                  </Typography>
-                  <Typography
-                    variant='body2'
-                    sx={{
-                      color: getPercentageColor(`-${safeData.percentChange.cost}`), // Cost increase is negative
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    {safeData.percentChange.cost} dari bulan sebelumnya
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Total Net Profit Card */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card
-                sx={{
-                  background: '#ffffff',
-                  borderRadius: 2,
-                  boxShadow: 2
-                }}
-              >
-                <CardContent>
-                  <Typography variant='subtitle2' color='text.secondary' gutterBottom>
-                    Total Net Profit
-                  </Typography>
-                  <Typography
-                    variant='h6'
-                    component='div'
-                    sx={{ fontWeight: 'bold', mb: 1, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' } }}
-                  >
-                    {formatCurrency(safeData.current.netProfit)}
-                  </Typography>
-                  <Typography
-                    variant='body2'
-                    sx={{
-                      color: getPercentageColor(safeData.percentChange.netProfit),
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    {formatPercentage(safeData.percentChange.netProfit)} dari bulan sebelumnya
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
           </Grid>
 
           {/* Pie Charts Section */}
           <Grid container spacing={3} sx={{ mt: 3 }}>
             {/* Gross Profit vs Cost Pie Chart */}
-            <Grid item xs={12} md={6}>
+            {/* <Grid item xs={12} md={6}>
               <Card
                 sx={{
                   background: '#ffffff',
@@ -370,10 +412,10 @@ export default function DashboardRevenue() {
                   </Box>
                 </CardContent>
               </Card>
-            </Grid>
+            </Grid> */}
 
             {/* Revenue vs Net Profit Pie Chart */}
-            <Grid item xs={12} md={6}>
+            {/* <Grid item xs={12} md={6}>
               <Card
                 sx={{
                   background: '#ffffff',
@@ -469,7 +511,7 @@ export default function DashboardRevenue() {
                   </Box>
                 </CardContent>
               </Card>
-            </Grid>
+            </Grid> */}
           </Grid>
         </Box>
       </CardContent>

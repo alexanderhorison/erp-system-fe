@@ -26,9 +26,9 @@ export default function DashboardProfitLossYearly() {
 
       // Prepare data for chart
       const years = dataDashboardFinanceProfitLossYearly.map(item => item.year.toString())
-      const hargaJual = dataDashboardFinanceProfitLossYearly.map(item => item.hargaJual / 1000000000) // Convert to billions
-      const hargaModal = dataDashboardFinanceProfitLossYearly.map(item => item.hargaModal / 1000000000) // Convert to billions
-      const gainLoss = dataDashboardFinanceProfitLossYearly.map(item => item.gainLoss / 1000000000) // Convert to billions
+      // const hargaJual = dataDashboardFinanceProfitLossYearly.map(item => item.hargaJual / 1000000000) // Convert to billions
+      // const hargaModal = dataDashboardFinanceProfitLossYearly.map(item => item.hargaModal / 1000000000) // Convert to billions
+      const gainLoss = dataDashboardFinanceProfitLossYearly.map(item => item.gainLoss / 1000000) // Convert to billions
 
       // Format currency helper function
       const formatCurrency = value => {
@@ -38,7 +38,7 @@ export default function DashboardProfitLossYearly() {
           minimumFractionDigits: 0,
           maximumFractionDigits: 0
         })
-          .format(value * 1000000000)
+          .format(value * 1000000)
           .replace('IDR', 'Rp')
       }
 
@@ -47,22 +47,22 @@ export default function DashboardProfitLossYearly() {
         data: {
           labels: years,
           datasets: [
-            {
-              label: 'Harga Jual',
-              data: hargaJual,
-              backgroundColor: 'rgba(54, 162, 235, 0.8)',
-              borderColor: 'rgba(54, 162, 235, 1)',
-              borderWidth: 1,
-              barThickness: 40
-            },
-            {
-              label: 'Harga Modal',
-              data: hargaModal,
-              backgroundColor: 'rgba(255, 99, 132, 0.8)',
-              borderColor: 'rgba(255, 99, 132, 1)',
-              borderWidth: 1,
-              barThickness: 40
-            },
+            // {
+            //   label: 'Harga Jual',
+            //   data: hargaJual,
+            //   backgroundColor: 'rgba(54, 162, 235, 0.8)',
+            //   borderColor: 'rgba(54, 162, 235, 1)',
+            //   borderWidth: 1,
+            //   barThickness: 40
+            // },
+            // {
+            //   label: 'Harga Modal',
+            //   data: hargaModal,
+            //   backgroundColor: 'rgba(255, 99, 132, 0.8)',
+            //   borderColor: 'rgba(255, 99, 132, 1)',
+            //   borderWidth: 1,
+            //   barThickness: 40
+            // },
             {
               label: 'Gain/Loss',
               data: gainLoss,
@@ -109,11 +109,12 @@ export default function DashboardProfitLossYearly() {
               beginAtZero: true,
               title: {
                 display: true,
-                text: 'Nilai (Miliar Rupiah)'
+                text: 'Nilai (Ratusan Juta Rupiah)'
               },
               ticks: {
+                stepSize: 20,
                 callback: function (value) {
-                  return 'Rp ' + value.toFixed(0) + ' juta'
+                  return 'Rp ' + value + ' juta'
                 }
               }
             },

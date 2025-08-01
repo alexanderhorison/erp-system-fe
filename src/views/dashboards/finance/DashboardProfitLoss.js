@@ -92,25 +92,25 @@ export default function DashboardProfitLoss() {
   const chartData = {
     labels: dataDashboardFinanceProfitLoss?.map(item => item.labelMonth) || [],
     datasets: [
-      {
-        label: 'Harga Jual',
-        data: dataDashboardFinanceProfitLoss?.map(item => item.hargaJual / 1000000000) || [], // Convert to billions
-        backgroundColor: 'rgba(54, 162, 235, 0.8)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1,
-        barThickness: 40
-      },
-      {
-        label: 'Harga Modal',
-        data: dataDashboardFinanceProfitLoss?.map(item => item.hargaModal / 1000000000) || [], // Convert to billions
-        backgroundColor: 'rgba(255, 99, 132, 0.8)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 1,
-        barThickness: 40
-      },
+      // {
+      //   label: 'Harga Jual',
+      //   data: dataDashboardFinanceProfitLoss?.map(item => item.hargaJual / 1000000000) || [], // Convert to billions
+      //   backgroundColor: 'rgba(54, 162, 235, 0.8)',
+      //   borderColor: 'rgba(54, 162, 235, 1)',
+      //   borderWidth: 1,
+      //   barThickness: 40
+      // },
+      // {
+      //   label: 'Harga Modal',
+      //   data: dataDashboardFinanceProfitLoss?.map(item => item.hargaModal / 1000000000) || [], // Convert to billions
+      //   backgroundColor: 'rgba(255, 99, 132, 0.8)',
+      //   borderColor: 'rgba(255, 99, 132, 1)',
+      //   borderWidth: 1,
+      //   barThickness: 40
+      // },
       {
         label: 'Gain/Loss',
-        data: dataDashboardFinanceProfitLoss?.map(item => item.gainLoss / 1000000000) || [], // Convert to billions
+        data: dataDashboardFinanceProfitLoss?.map(item => item.gainLoss / 1000000) || [], // Convert to billions
         backgroundColor: 'rgba(75, 192, 192, 0.8)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
@@ -125,9 +125,8 @@ export default function DashboardProfitLoss() {
     plugins: {
       title: {
         display: true,
-        text: `Grafik Laba Rugi - ${
-          selectedTypeOfMonth.charAt(0).toUpperCase() + selectedTypeOfMonth.slice(1)
-        } ${selectedPeriod} Tahun ${selectedYear}`,
+        text: `Grafik Laba Rugi - ${selectedTypeOfMonth.charAt(0).toUpperCase() + selectedTypeOfMonth.slice(1)
+          } ${selectedPeriod} Tahun ${selectedYear}`,
         font: {
           size: 16,
           weight: 'bold'
@@ -147,7 +146,7 @@ export default function DashboardProfitLoss() {
           label: function (context) {
             const label = context.dataset.label || ''
             const value = context.parsed.y || 0
-            const originalValue = value * 1000000000 // Convert back to original value
+            const originalValue = value * 1000000 // Convert back to original value
             const formattedValue = new Intl.NumberFormat('id-ID', {
               style: 'currency',
               currency: 'IDR',
@@ -166,11 +165,11 @@ export default function DashboardProfitLoss() {
         beginAtZero: true,
         title: {
           display: true,
-          text: 'Nilai (Miliar Rupiah)'
+          text: 'Nilai (Ratusan Juta Rupiah)'
         },
         ticks: {
           callback: function (value) {
-            return 'Rp ' + value.toFixed(0) + ' M'
+            return 'Rp ' + value.toFixed(0) + ' J'
           }
         }
       },
@@ -193,14 +192,37 @@ export default function DashboardProfitLoss() {
     datasets: [
       {
         label: 'Pendapatan',
-        data: dataDashboardFinanceProfitLoss?.map(item => item.pendapatan / 1000000000) || [], // Convert to billions
+        data: dataDashboardFinanceProfitLoss?.map(item => item.pendapatan / 1_000_000_000) || [], // Convert to billions
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.1)',
         tension: 0.4,
-        fill: false
+        fill: false,
+        yAxisID: 'y'
+      },
+      {
+        label: 'Pengeluaran',
+        data: dataDashboardFinanceProfitLoss?.map(item => item.pengeluaran / 1_000_000_000) || [], // Convert to billions
+        borderColor: 'rgba(204, 28, 95, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+        tension: 0.4,
+        fill: false,
+        yAxisID: 'y1'
       }
     ]
   }
+
+  // Dynamic min Max
+  // const allValuesInBillion = dataDashboardFinanceProfitLoss?.flatMap(item => [
+  //   item.pendapatan / 1_000_000_000,
+  //   item.pengeluaran / 1_000_000_000
+  // ]) || []
+
+  // const minValue = Math.min(...allValuesInBillion)
+  // const maxValue = Math.max(...allValuesInBillion)
+
+  // // Optionally round min/max to nearest whole number
+  // const suggestedMin = Math.floor(minValue)
+  // const suggestedMax = Math.ceil(maxValue)
 
   const lineChartOptions = {
     responsive: true,
@@ -208,9 +230,8 @@ export default function DashboardProfitLoss() {
     plugins: {
       title: {
         display: true,
-        text: `Pendapatan Bulanan - ${
-          selectedTypeOfMonth.charAt(0).toUpperCase() + selectedTypeOfMonth.slice(1)
-        } ${selectedPeriod} Tahun ${selectedYear}`,
+        text: `Pendapatan Bulanan - ${selectedTypeOfMonth.charAt(0).toUpperCase() + selectedTypeOfMonth.slice(1)
+          } ${selectedPeriod} Tahun ${selectedYear}`,
         font: {
           size: 16,
           weight: 'bold'
@@ -246,16 +267,27 @@ export default function DashboardProfitLoss() {
     },
     scales: {
       y: {
-        beginAtZero: true,
+        type: 'linear',
+        position: 'left',
         title: {
           display: true,
-          text: 'Nilai (Miliar Rupiah)'
+          text: 'Pendapatan (Miliar)'
         },
         ticks: {
-          callback: function (value) {
-            return 'Rp ' + value.toFixed(0) + ' M'
-          }
-        }
+          callback: value => `Rp ${value} M`
+        },
+        suggestedMin: 5, // Or compute this dynamically based on your min value
+        suggestedMax: 10
+      },
+      y1: {
+        type: 'linear',
+        position: 'right',
+        grid: {
+          drawOnChartArea: true // only show left grid
+        },
+        ticks: {
+          callback: value => `Rp ${value} M`
+        },
       },
       x: {
         title: {
@@ -263,10 +295,6 @@ export default function DashboardProfitLoss() {
           text: 'Bulan'
         }
       }
-    },
-    interaction: {
-      intersect: false,
-      mode: 'index'
     }
   }
 
