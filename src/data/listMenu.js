@@ -1,5 +1,37 @@
 export const listMenu = [
   {
+    title: 'Dashboard',
+    icon: 'tabler:home',
+    path: '/home',
+    menuId: [40, 41, 42, 43],
+    children: [
+      {
+        title: "Inventory",
+        path: "/home",
+        icon: "tabler:building-warehouse",
+        menuId: 40
+      },
+      {
+        title: "Sales Order",
+        path: "/dashboards/sales-order",
+        icon: "tabler:shopping-cart",
+        menuId: 41,
+      },
+      {
+        title: "Purchase Order",
+        path: "/dashboards/purchase-order",
+        icon: "tabler:basket-dollar",
+        menuId: 42,
+      },
+      {
+        title: "Finance",
+        path: "/dashboards/finance",
+        icon: "tabler:report-money",
+        menuId: 43
+      }
+    ]
+  },
+  {
     title: 'Point of Sale',
     path: '/point-of-sale/',
     icon: 'tabler:clipboard-check',
