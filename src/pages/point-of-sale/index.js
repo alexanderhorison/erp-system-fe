@@ -20,7 +20,10 @@ export default function PointOfSale() {
   const { user } = UseAuth()
 
   const [showFilter, setShowFilter] = useState(true)
-  const [warehouse, setWarehouse] = useState(localStorage.getItem('warehousePos') ? JSON.parse(localStorage.getItem('warehousePos')) : {})
+  const [warehouse, setWarehouse] = useState({
+    warehouseId: 6, // Hardcode gudang depan
+    warehouseName: 'GUDANG DEPAN'
+  })
   const [scriptEpos, setScriptEpos] = useState(false)
 
   const { printerStatus } = useSelector(state => state.printer)
@@ -45,16 +48,6 @@ export default function PointOfSale() {
   }, [warehouse])
 
   useEffect(() => {
-    if (user?.warehouseId) {
-      setWarehouse({
-        warehouseId: user?.warehouseId,
-        warehouseName: user?.warehouseName
-      })
-      localStorage.setItem('warehousePos', JSON.stringify({ warehouseId: user?.warehouseId, warehouseName: user?.warehouseName }))
-    }
-  }, [user])
-
-  useEffect(() => {
     if (printerPos && !printerStatus.connected) {
       connectToPrinter({ printerConfig: printerPos, dispatch })
     }
@@ -64,18 +57,25 @@ export default function PointOfSale() {
     <Grid container spacing={3}>
       <Grid item xs={12} gap={2}>
         <Box sx={{ height: '12vh' }}>
-          <Grid container spacing={2} >
+          <Grid container spacing={2}>
             <Grid item xs={8}>
-              <MenuPosV2 showFilter={showFilter} setShowFilter={setShowFilter} setSelectedMenu={setSelectedMenu} selectedMenu={selectedMenu} />
+              <MenuPosV2
+                showFilter={showFilter}
+                setShowFilter={setShowFilter}
+                setSelectedMenu={setSelectedMenu}
+                selectedMenu={selectedMenu}
+              />
             </Grid>
-            <Grid item xs={4} >
+            <Grid item xs={4}>
               <DetailUserPos
                 user={user}
                 warehouse={warehouse}
-                setOpenSetting={() => setSelectedMenu({
-                  name: 'Setting',
-                  code: 'SETTING'
-                })}
+                setOpenSetting={() =>
+                  setSelectedMenu({
+                    name: 'Setting',
+                    code: 'SETTING'
+                  })
+                }
               />
             </Grid>
           </Grid>
@@ -95,14 +95,13 @@ export default function PointOfSale() {
 
             {selectedMenu?.code === 'TRANSACTION' && <TransactionLayout warehouseId={warehouse.warehouseId} />}
 
-            {selectedMenu?.code === 'OPEN_BILL' && <OpenBillLayout setSelectedMenu={setSelectedMenu} warehouse={warehouse}>Open Bill</OpenBillLayout>}
+            {selectedMenu?.code === 'OPEN_BILL' && (
+              <OpenBillLayout setSelectedMenu={setSelectedMenu} warehouse={warehouse}>
+                Open Bill
+              </OpenBillLayout>
+            )}
 
-            {
-              selectedMenu?.code === 'SETTING' && <SettingPosLayout
-                setWarehouse={setWarehouse}
-                user={user}
-              />
-            }
+            {selectedMenu?.code === 'SETTING' && <SettingPosLayout setWarehouse={setWarehouse} user={user} />}
           </Box>
         </Card>
       </Grid>

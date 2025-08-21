@@ -78,8 +78,12 @@ const AuthProvider = ({ children }) => {
         localStorage.setItem(authConfig.storageRefreshTokenKeyName, response.data.data.refreshToken)
         localStorage.setItem(authConfig.onTokenExpiration, response.data.data.refreshToken)
         localStorage.setItem('userData', JSON.stringify({ ...response.data.data.userInfo, role: 'admin' }))
-        const returnUrl = router.query.returnUrl
+        let returnUrl = router.query.returnUrl
         setUser({ ...response.data.data.userInfo, role: 'admin' })
+        // HardCode for menu point of sale
+        if (response.data.data.userInfo.role.name == 'Point of Sale') {
+          returnUrl = '/point-of-sale'
+        }
         const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
         router.replace(redirectURL)
       })

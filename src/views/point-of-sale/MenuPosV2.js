@@ -1,7 +1,7 @@
-import { Badge, Grid, Typography } from "@mui/material"
-import { Box } from "@mui/system"
-import { useMemo } from "react";
-import Icon from 'src/@core/components/icon';
+import { Badge, Grid, Typography } from '@mui/material'
+import { Box } from '@mui/system'
+import { useMemo } from 'react'
+import Icon from 'src/@core/components/icon'
 
 const MenuBox = ({ icon, title, action, selected, disable, notification = false }) => {
   return (
@@ -11,52 +11,46 @@ const MenuBox = ({ icon, title, action, selected, disable, notification = false 
         bgcolor={disable ? '#f0f0f0' : selected ? '#d6bdab' : 'white'}
         boxShadow={1}
         borderRadius={1}
-        height="100%"
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
+        height='100%'
+        display='flex'
+        flexDirection='column'
+        alignItems='center'
+        justifyContent='center'
         onClick={!disable ? action : undefined} // Hanya panggil action jika tidak disable
         style={{
           opacity: disable ? 0.5 : 1,
-          pointerEvents: disable ? 'none' : 'auto',
+          pointerEvents: disable ? 'none' : 'auto'
         }}
       >
         <Badge
-          color="error"
-          variant="dot"
+          color='error'
+          variant='dot'
           invisible={!notification}
           anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          overlap="circular"
+          overlap='circular'
         >
           <Icon icon={icon} width={24} height={24} />
         </Badge>
-        <Typography variant="body2" fontSize={'0.75rem'} mt={1}>
+        <Typography variant='body2' fontSize={'0.75rem'} mt={1}>
           {title}
         </Typography>
       </Box>
     </Grid>
-  );
-};
+  )
+}
 
-export default function MenuPosV2({
-  showFilter,
-  setShowFilter,
-  selectedMenu,
-  setSelectedMenu,
-}) {
-  const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
-  const printer = JSON.parse(localStorage.getItem("printerPos"))
+export default function MenuPosV2({ showFilter, setShowFilter, selectedMenu, setSelectedMenu }) {
+  const printer = JSON.parse(localStorage.getItem('printerPos'))
 
   const notificationBadge = useMemo(() => {
-    if (warehouse && printer) {
+    if (printer) {
       return false
     }
     return true
-  }, [warehouse, printer])
+  }, [printer])
 
   return (
-    <Grid container height={'100%'} columnSpacing={2} >
+    <Grid container height={'100%'} columnSpacing={2}>
       <MenuBox
         icon={showFilter ? 'tabler:filter-off' : 'tabler:filter'}
         title={showFilter ? 'Hide Filter' : 'Show Filter'}
@@ -66,8 +60,8 @@ export default function MenuPosV2({
         disable={selectedMenu.code !== 'POS'}
       />
       <MenuBox
-        icon="tabler:http-post"
-        title="POS"
+        icon='tabler:http-post'
+        title='POS'
         action={() => {
           setSelectedMenu({
             name: 'POS',
@@ -77,8 +71,8 @@ export default function MenuPosV2({
         selected={selectedMenu.code === 'POS'}
       />
       <MenuBox
-        icon="tabler:credit-card-pay"
-        title="Transaction"
+        icon='tabler:credit-card-pay'
+        title='Transaction'
         action={() => {
           setSelectedMenu({
             name: 'Transaction',
@@ -88,8 +82,8 @@ export default function MenuPosV2({
         selected={selectedMenu.code === 'TRANSACTION'}
       />
       <MenuBox
-        icon="tabler:file-invoice"
-        title="Open Bill"
+        icon='tabler:file-invoice'
+        title='Open Bill'
         action={() => {
           setSelectedMenu({
             name: 'Open Bill',
@@ -99,7 +93,7 @@ export default function MenuPosV2({
         selected={selectedMenu.code === 'OPEN_BILL'}
       />
       <MenuBox
-        icon="tabler:settings"
+        icon='tabler:settings'
         title={'Setting'}
         action={() => {
           setSelectedMenu({
@@ -110,12 +104,7 @@ export default function MenuPosV2({
         selected={selectedMenu.code === 'SETTING'}
         notification={notificationBadge}
       />
-      <MenuBox
-        icon="tabler:credit-card-pay"
-        title="Other"
-        selected={selectedMenu.code === 'OTHER'}
-        disable
-      />
+      <MenuBox icon='tabler:credit-card-pay' title='Other' selected={selectedMenu.code === 'OTHER'} disable />
     </Grid>
   )
 }
