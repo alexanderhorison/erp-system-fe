@@ -81,6 +81,14 @@ export default function MenuPosV2({ showFilter, setShowFilter, selectedMenu, set
         }}
         selected={selectedMenu.code === 'TRANSACTION'}
       />
+      <MenuBox icon='tabler:credit-card-pay' title='Product Request'
+        action={() => {
+          setSelectedMenu({
+            name: 'Product Request',
+            code: 'REQUEST_BARANG'
+          })
+        }}
+        selected={selectedMenu.code === 'REQUEST_BARANG'} />
       <MenuBox
         icon='tabler:file-invoice'
         title='Open Bill'
@@ -104,7 +112,6 @@ export default function MenuPosV2({ showFilter, setShowFilter, selectedMenu, set
         selected={selectedMenu.code === 'SETTING'}
         notification={notificationBadge}
       />
-      <MenuBox icon='tabler:credit-card-pay' title='Other' selected={selectedMenu.code === 'OTHER'} disable />
     </Grid>
   )
 }

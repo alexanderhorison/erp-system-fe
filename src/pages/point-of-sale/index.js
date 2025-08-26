@@ -14,6 +14,7 @@ import MenuPosV2 from 'src/views/point-of-sale/MenuPosV2'
 import DetailUserPos from 'src/views/point-of-sale/DetailUserPos'
 import SettingPosLayout from 'src/views/point-of-sale/setting/SettingPosLayout'
 import { connectToPrinter } from 'src/utils/printerHelper'
+import RequestProductLayout from 'src/views/point-of-sale/request-product/RequestProductLayout'
 
 export default function PointOfSale() {
   const dispatch = useDispatch()
@@ -45,6 +46,8 @@ export default function PointOfSale() {
     if (warehouse?.warehouseId) {
       dispatch(fetchListProductPos({ id: warehouse.warehouseId }))
     }
+    // Save to localstorage
+    localStorage.setItem('warehousePos', JSON.stringify(warehouse))
   }, [warehouse])
 
   useEffect(() => {
@@ -102,6 +105,8 @@ export default function PointOfSale() {
             )}
 
             {selectedMenu?.code === 'SETTING' && <SettingPosLayout setWarehouse={setWarehouse} user={user} />}
+
+            {selectedMenu?.code === 'REQUEST_BARANG' && <RequestProductLayout warehouseId={warehouse.warehouseId} />}
           </Box>
         </Card>
       </Grid>

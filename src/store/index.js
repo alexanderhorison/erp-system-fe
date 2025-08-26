@@ -53,6 +53,7 @@ import nonCurrentAsset from './apps/asset/non-current'
 import longTerm from './apps/liabilities/long-term'
 import shortTerm from './apps/liabilities/short-term'
 import equity from './apps/equity'
+import productRequest from './apps/product-request-order'
 
 export const store = configureStore({
   reducer: {
@@ -105,7 +106,8 @@ export const store = configureStore({
     nonCurrentAsset,
     longTerm,
     shortTerm,
-    equity
+    equity,
+    productRequest
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
