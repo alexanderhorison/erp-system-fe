@@ -27,6 +27,7 @@ import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import { createRequestOrder, updateFormRequestOrder } from 'src/store/apps/product-request-order'
+import data from 'src/@fake-db/components/data'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -69,7 +70,9 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
     control,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
+    setError,
+    clearErrors,
   } = useForm({
     defaultValues: {
       data: [
@@ -83,6 +86,42 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
 
   // ON SUBMIT
   const onSubmit = val => {
+
+    // Check Duplicates
+    const lastIndexMap = new Map()
+    let hasDuplicate = false
+    clearErrors();
+    const listItems = val.data
+    listItems.forEach((item, index) => {
+      const key = `${item.productId}-${item.unitId}`
+      if (lastIndexMap.has(key)) {
+        hasDuplicate = true
+        const firstIndex = lastIndexMap.get(key)
+        // Mark both duplicates with errors
+        setError(`data[${firstIndex}].productId`, {
+          type: 'duplicate',
+          message: 'Produk dan Satuan sudah dipilih'
+        })
+        setError(`data[${firstIndex}].unitId`, {
+          type: 'duplicate',
+          message: 'Produk dan Satuan sudah dipilih'
+        })
+        setError(`data[${index}].productId`, {
+          type: 'duplicate',
+          message: 'Produk dan Satuan sudah dipilih'
+        })
+        setError(`data[${index}].unitId`, {
+          type: 'duplicate',
+          message: 'Produk dan Satuan sudah dipilih'
+        })
+        return
+      } else {
+        lastIndexMap.set(key, index)
+      }
+    })
+
+    if (hasDuplicate) return
+
     if (typeModal === 'ADD') {
       dispatch(createRequestOrder(val))
     } else {
