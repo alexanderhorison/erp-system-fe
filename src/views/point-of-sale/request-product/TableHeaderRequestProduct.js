@@ -48,20 +48,24 @@ export default function TableHeaderRequestProduct(props) {
           }
         }}
       />
-      <Button
-        onClick={() => props.handleAdd()}
-        variant='contained'
-        sx={{
-          width: '100%',
-          '@media (min-width: 600px)': {
-            width: 'auto'
-          },
-          '& svg': { mr: 2 }
-        }}
-      >
-        <Icon fontSize='1.125rem' icon='tabler:plus' />
-        Buat Product Request
-      </Button>
+      {
+        props?.handleAdd && (
+          <Button
+            onClick={() => props.handleAdd()}
+            variant='contained'
+            sx={{
+              width: '100%',
+              '@media (min-width: 600px)': {
+                width: 'auto'
+              },
+              '& svg': { mr: 2 }
+            }}
+          >
+            <Icon fontSize='1.125rem' icon='tabler:plus' />
+            Buat Product Request
+          </Button>
+        )
+      }
     </Box>
   )
 }

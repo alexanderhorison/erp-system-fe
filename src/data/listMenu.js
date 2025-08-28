@@ -133,6 +133,12 @@ export const listMenu = [
     icon: 'tabler:clipboard-check',
     menuId: 15
   },
+  { 
+    title: 'Product Request',
+    path: '/product-request/',
+    icon: 'tabler:clipboard-text',
+    menuId: 44
+  },
   {
     title: 'Surat Jalan',
     icon: 'tabler:file-invoice',

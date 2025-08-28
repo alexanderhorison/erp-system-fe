@@ -91,11 +91,11 @@ export const updateFormRequestOrder = createAsyncThunk(
 // TERIMA / TOLAK PRODUCT REQUEST ORDER
 export const updateRequestOrder = createAsyncThunk(
   'productRequestOrder/updateRequestOrder',
-  async ({ code, type, router }, { dispatch, rejectWithValue }) => {
+  async ({ code, type }, { dispatch, rejectWithValue }) => {
     try {
       await swalConfirmationAdd({
         label,
-        name: 'Surat',
+        name: 'Product Request',
         title: type == 'approve' ? 'Anda akan menerima Product Request?' : 'Anda akan tolak Product Request?',
         axiosRequest: () => {
           return axios({
@@ -105,6 +105,9 @@ export const updateRequestOrder = createAsyncThunk(
             url: `/product-request-order/${type}/${code}`
           })
         },
+        dispatchRequest: () => {
+          return dispatch(fetchAllRequestOrder())
+        }
       })
     } catch (error) {
       swalToastError({ label, error })
@@ -112,6 +115,44 @@ export const updateRequestOrder = createAsyncThunk(
     }
   }
 )
+
+// PROCESS PRODUCT REQUEST ORDER
+export const processRequestOrder = createAsyncThunk(
+  'productRequestOrder/processRequestOrder',
+  async ({ data, router }, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: '/product-request-order/process-request',
+        data
+      })
+      dispatch(fetchAllRequestOrder())
+      router.push(`/product-request`)
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
+// GET DETAIL PRODUCT REQUEST ORDER
+export const fetchDetailProcessRequestOrder = createAsyncThunk(
+  'productRequestOrder/fetchDetailProcessRequestOrder',
+  async (code, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/product-request-order/process-request/' + code
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
 
 
 export const appMasterProductSlice = createSlice({
@@ -134,7 +175,11 @@ export const appMasterProductSlice = createSlice({
 
     dataRequestOrderCustomer: [],
     loadingDataRequestOrderCustomer: true,
-    errorDataRequestOrderCustomer: false
+    errorDataRequestOrderCustomer: false,
+
+    detailProcessRequestOrder: {},
+    loadingDetailProcessRequestOrder: false,
+    errorDetailProcessRequestOrder: false,
   },
   reducers: {},
   extraReducers: builder => {
@@ -174,6 +219,19 @@ export const appMasterProductSlice = createSlice({
       .addCase(updateRequestOrder.rejected, (state, action) => {
         state.loadingUpdateRequestOrder = false
         state.errorUpdateRequestOrder = action.error.message
+      })
+
+      .addCase(fetchDetailProcessRequestOrder.pending, (state, action) => {
+        state.loadingDetailProcessRequestOrder = true
+      })
+      .addCase(fetchDetailProcessRequestOrder.fulfilled, (state, action) => {
+        state.detailProcessRequestOrder = action.payload.data
+        state.loadingDetailProcessRequestOrder = false
+      })
+      .addCase(fetchDetailProcessRequestOrder.rejected, (state, action) => {
+        state.detailProcessRequestOrder = {}
+        state.loadingDetailProcessRequestOrder = false
+        state.errorDetailProcessRequestOrder = action.error.message
       })
   }
 })
