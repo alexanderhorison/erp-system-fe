@@ -5,18 +5,16 @@ import Link from 'next/link'
 import { fetchDetailProcessRequestOrder } from 'src/store/apps/product-request-order'
 import ViewDetailProductRequest from 'src/views/product-request/ViewDetailProductRequest'
 import ButtonBack from 'src/views/common/ButtonBack'
-import { CircularProgress, Grid } from '@mui/material'
+import { Alert, CircularProgress, Grid } from '@mui/material'
 
-export default function DetailProductRequest({ }) {
+export default function DetailProductRequest({}) {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id
 
-  const {
-    detailProcessRequestOrder,
-    loadingDetailProcessRequestOrder,
-    errorDetailProcessRequestOrder
-  } = useSelector(state => state.productRequest)
+  const { detailProcessRequestOrder, loadingDetailProcessRequestOrder, errorDetailProcessRequestOrder } = useSelector(
+    state => state.productRequest
+  )
 
   useEffect(() => {
     if (id) {
@@ -26,7 +24,7 @@ export default function DetailProductRequest({ }) {
 
   if (loadingDetailProcessRequestOrder) {
     return (
-      <Grid container justifyContent="center" alignItems="center" sx={{ height: '50vh' }}>
+      <Grid container justifyContent='center' alignItems='center' sx={{ height: '50vh' }}>
         <CircularProgress />
       </Grid>
     )
