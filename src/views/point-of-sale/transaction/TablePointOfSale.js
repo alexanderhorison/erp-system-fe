@@ -83,7 +83,7 @@ export default function TablePointOfSale({ timeFilter }) {
 
   return (
     <>
-      <Card sx={{ height: '70vh' }}>
+      <Card sx={{ height: '30vh' }}>
         <DataGrid
           loading={loadingDataPointOfSale}
           columns={[

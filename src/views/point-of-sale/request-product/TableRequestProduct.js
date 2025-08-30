@@ -15,16 +15,18 @@ import ModalAddRequestProduct from './ModalAddRequestProduct'
 import { fetchDetailRequestOrder } from 'src/store/apps/product-request-order'
 
 
-const RowOptions = ({ handleView, handleEdit }) => {
+const RowOptions = ({ handleView, handleEdit, status }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <IconButton onClick={handleView}>
           <Icon icon='tabler:eye' />
         </IconButton>
-        <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton>
+        {status === 'PENDING' && (
+          <IconButton onClick={handleEdit}>
+            <Icon icon='tabler:edit' />
+          </IconButton>
+        )}
       </Box>
     </>
   )
@@ -87,7 +89,7 @@ export default function TableRequestProduct({ timeFilter }) {
 
   return (
     <>
-      <Card sx={{ height: '70vh' }}>
+      <Card sx={{ height: '30vh' }}>
         <DataGrid
           loading={loadingDataRequestOrder}
           columns={[
@@ -188,13 +190,14 @@ export default function TableRequestProduct({ timeFilter }) {
                   <RowOptions
                     handleView={() => handleView(row)}
                     handleEdit={() => handleEdit(row)}
+                    status={row.status}
                   />
                 </div>
               )
             }
           ]}
           pageSizeOptions={[5, 10]}
-          onCellClick={e => handleRowClick(e)}
+          onCellClick={({ row }) => handleView(row)}
           paginationModel={paginationModel}
           slots={{ toolbar: TableHeaderRequestProduct }}
           onPaginationModelChange={setPaginationModel}

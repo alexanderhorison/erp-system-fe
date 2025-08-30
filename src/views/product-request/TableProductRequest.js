@@ -23,24 +23,12 @@ const RowOptions = ({ handleView, handleProcess, status, handleReject }) => {
         {
           status === 'PENDING' && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <CustomChip
-                onClick={handleProcess}
-                rounded
-                size='small'
-                skin='light'
-                color='success'
-                label='Process'
-                sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
-              />
-              <CustomChip
-                onClick={handleReject}
-                rounded
-                size='small'
-                skin='light'
-                color='error'
-                label='Reject'
-                sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
-              />
+              <Button color={'success'} variant='contained' size='small' onClick={handleProcess}>
+                Process
+              </Button>
+              <Button color={'error'} variant='contained' size='small' onClick={handleReject}>
+                Reject
+              </Button>
             </Box>
           )
         }

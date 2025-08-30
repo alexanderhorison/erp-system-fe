@@ -36,9 +36,6 @@ export default function ProcessProductRequest() {
     notes: yup.string().optional(),
     data: yup.array().of(
       yup.object().shape({
-        productWarehouseId: yup.number()
-          .typeError("Product Warehouse Id harus diisi")
-          .required("Product Warehouse Id harus diisi"),
         warehouseId: yup
           .number()
           .typeError("Gudang harus diisi")
@@ -52,7 +49,7 @@ export default function ProcessProductRequest() {
           .number()
           .typeError("Kuantitas Diberikan harus diisi")
           .required("Kuantitas Diberikan harus diisi")
-          .min(1, "Kuantitas minimal 1")
+          .min(0, "Kuantitas minimal 0")
           .test(
             "qty-give-not-exceed-stock", // unique test name
             "Kuantitas tidak boleh lebih dari stok", // error message
@@ -119,7 +116,7 @@ export default function ProcessProductRequest() {
       code: detailRequestOrder.code,
       warehouseDestinationId: detailRequestOrder.warehouseDestinationId,
     }
-    dispatch(processRequestOrder({data: dataSend, router}))
+    dispatch(processRequestOrder({ data: dataSend, router }))
   }
 
   const handleFindProductWarehouse = (productId, unitId, warehouseId, index) => {
@@ -140,15 +137,16 @@ export default function ProcessProductRequest() {
         <Grid item xs={12}>
           <Card>
             <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
-              Gudang Tujuan : {detailRequestOrder?.warehouseDestination}
+              Produk Request  #{detailRequestOrder?.code}
             </Typography>
             <CardContent>
               {fields.map((field, index) => (
                 <Grid container spacing={6} key={field.id} sx={{ mb: 2 }}>
                   {/* Product Name */}
-                  <Grid item xs={12} md={4}>
+                  <Grid item xs={12} md={3}>
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
-                      <DisplayField title="Produk" value={field.productName} secondValue={field.unitName} />
+                      <Typography fontSize="0.85rem">Produk</Typography>
+                      <Typography fontSize="1 rem" sx={{ mt: 2 }}>{`${field.productName} (${field.unitName})`}</Typography>
                     </Box>
                   </Grid>
 
@@ -167,7 +165,7 @@ export default function ProcessProductRequest() {
                       control={control}
                       render={({ field: { value, onChange } }) => (
                         <CustomAutocomplete
-                          options={masterWarehouse}
+                          options={masterWarehouse.filter((data) => data.id !== 6)} // hardcode warehouse gudang depan
                           getOptionLabel={option => option.name || ""}
                           onChange={(e, newVal) => {
                             handleFindProductWarehouse(field.productId, field.unitId, newVal?.id, index)
