@@ -39,7 +39,7 @@ const listFilter = [
   },
 ]
 
-const height = '62vh'
+const height = '18rem'
 
 export default function PointOfSaleLayout({
   showFilter,
@@ -381,7 +381,7 @@ export default function PointOfSaleLayout({
       >
         <Box
           sx={{
-            maxHeight: 500,
+            maxHeight: height,
             overflowY: 'auto',
             height: height,
           }}
@@ -392,7 +392,7 @@ export default function PointOfSaleLayout({
                 fullWidth={true}
                 variant={filterForm.typeValue === "ALL" ? 'contained' : 'outlined'}
                 sx={{
-                  height: 60,
+                  height: 40,
                   textWrap: 'wrap',
                   textAlign: 'center'
                 }}
@@ -413,7 +413,7 @@ export default function PointOfSaleLayout({
                   fullWidth={true}
                   variant={filterForm.typeValue === data?.id ? 'contained' : 'outlined'}
                   sx={{
-                    height: 60,
+                    height: 40,
                     textWrap: 'wrap',
                     textAlign: 'center'
                   }}
@@ -458,7 +458,7 @@ export default function PointOfSaleLayout({
                     p: 3,
                     textAlign: 'center',
                     width: '100%', // Ensures buttons expand horizontALLy
-                    height: 100,
+                    height: '5.5rem',
                     backgroundColor: 'primary',
                     textWrap: 'wrap'
                   }}

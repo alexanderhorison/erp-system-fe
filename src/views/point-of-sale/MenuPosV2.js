@@ -11,7 +11,7 @@ const MenuBox = ({ icon, title, action, selected, disable, notification = false 
         bgcolor={disable ? '#f0f0f0' : selected ? '#d6bdab' : 'white'}
         boxShadow={1}
         borderRadius={1}
-        height='100%'
+        height='6rem'
         display='flex'
         flexDirection='column'
         alignItems='center'
@@ -50,7 +50,7 @@ export default function MenuPosV2({ showFilter, setShowFilter, selectedMenu, set
   }, [printer])
 
   return (
-    <Grid container height={'100%'} columnSpacing={2}>
+    <Grid container height={'4rem'} columnSpacing={2}>
       <MenuBox
         icon={showFilter ? 'tabler:filter-off' : 'tabler:filter'}
         title={showFilter ? 'Hide Filter' : 'Show Filter'}
@@ -81,7 +81,7 @@ export default function MenuPosV2({ showFilter, setShowFilter, selectedMenu, set
         }}
         selected={selectedMenu.code === 'TRANSACTION'}
       />
-      <MenuBox icon='tabler:credit-card-pay' title='Product Request'
+      <MenuBox icon='tabler:building-warehouse' title='Product Request'
         action={() => {
           setSelectedMenu({
             name: 'Product Request',

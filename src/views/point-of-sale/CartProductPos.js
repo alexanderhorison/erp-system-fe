@@ -19,18 +19,10 @@ export default function CartProductPos({
   handleDeleteCustom,
 }) {
   const viewportHeight = window.innerHeight;
-  const maxHeight = useMemo(() => {
-    if (viewportHeight >= 1024) { // FHD
-      return '50.5vh'
-    }
-    if (viewportHeight >= 768) {
-      return '45.9vh'
-    }
-    if (viewportHeight >= 600) {
-      return '40.9vh'
-    }
-    return '35.9vh'
-  }, [viewportHeight])
+
+  const minHeight = '8rem'
+  const maxHeight = '9.6rem'
+
   const handleOpenEditProduct = (item, index) => {
     if (item?.isCustom) {
       swalConfirmationOnly({
@@ -60,7 +52,7 @@ export default function CartProductPos({
         border: 1,
         maxHeight: maxHeight,
         overflowY: 'auto',
-        minHeight: 150
+        minHeight: minHeight
       }}
     >
       {

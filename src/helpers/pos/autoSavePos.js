@@ -4,6 +4,7 @@ export const autoSavePos = () => {
   const selectedCustomer = JSON.parse(localStorage.getItem('selectedCustomerPos'))
   const selectedWarehouse = JSON.parse(localStorage.getItem('warehousePos'))
   const listOpenBIll = JSON.parse(localStorage.getItem('openBill')) || []
+  const createdBy = JSON.parse(localStorage.getItem('userData'))?.name || 'Unknown'
 
   const subTotalPrices = () => listProduct.reduce((total, item) => total + item.subTotal, 0)
   const totalItem = () => listProduct.length
@@ -19,7 +20,8 @@ export const autoSavePos = () => {
       warehouse: selectedWarehouse,
       subTotalPrice: subTotalPrices(),
       totalItem: totalItem(),
-      totalQuantity: totalQuantity()
+      totalQuantity: totalQuantity(),
+      createdBy: createdBy
     }
   } else {
     newBill.push({ // Tambahkan data baru jika tidak ditemukan
@@ -29,7 +31,8 @@ export const autoSavePos = () => {
       warehouse: selectedWarehouse,
       subTotalPrice: subTotalPrices(),
       totalItem: totalItem(),
-      totalQuantity: totalQuantity()
+      totalQuantity: totalQuantity(),
+      createdBy: createdBy
     })
   }
   localStorage.setItem('openBill', JSON.stringify(newBill))

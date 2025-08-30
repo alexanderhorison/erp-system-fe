@@ -62,8 +62,7 @@ export const updateFavoriteProductPos = createAsyncThunk(
           })
         },
         dispatchRequest: () => {
-          // setOpen(false)
-          // dispatch(fetchMasterDataVendor())
+          dispatch(fetchListProductPos({ id: data.warehouseId }))
         }
       })
     } catch (error) {

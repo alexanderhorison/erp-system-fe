@@ -19,6 +19,7 @@ import RequestProductLayout from 'src/views/point-of-sale/request-product/Reques
 export default function PointOfSale() {
   const dispatch = useDispatch()
   const { user } = UseAuth()
+  const heightBody = '22.5rem'
 
   const [showFilter, setShowFilter] = useState(true)
   const [warehouse, setWarehouse] = useState({
@@ -59,7 +60,7 @@ export default function PointOfSale() {
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} gap={2}>
-        <Box sx={{ height: '12vh' }}>
+        <Box sx={{ height: '6.5rem' }}>
           <Grid container spacing={2}>
             <Grid item xs={8}>
               <MenuPosV2
@@ -84,15 +85,16 @@ export default function PointOfSale() {
           </Grid>
         </Box>
       </Grid>
-      <Grid item xs={12} sx={{ mt: 2 }}>
-        <Card>
-          <Box sx={{ display: 'flex', flexDirection: 'column', height: '70.5vh', p: 2 }}>
+      <Grid item xs={12}>
+        <Card sx={{ height: heightBody, backgroundColor: '' }}>
+          <Box sx={{ display: 'grid', flexDirection: 'column', p: 2 }}>
             {selectedMenu?.code === 'POS' && (
               <PointOfSaleLayout
                 showFilter={showFilter}
                 setShowFilter={setShowFilter}
                 warehouse={warehouse}
                 setScriptEpos={setScriptEpos}
+                heightBody={heightBody}
               />
             )}
 
@@ -113,3 +115,5 @@ export default function PointOfSale() {
     </Grid>
   )
 }
+
+PointOfSale.appBarContent = false

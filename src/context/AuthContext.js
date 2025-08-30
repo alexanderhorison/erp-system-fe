@@ -44,6 +44,11 @@ const AuthProvider = ({ children }) => {
           .then(async response => {
             setLoading(false)
             setUser({ ...response.data.data.userInfo, role: 'admin' })
+
+            // Redirect to point-of-sale if menuId is only [27]
+            if (response.data.data.userInfo.menuId.length === 1 && response.data.data.userInfo.menuId[0] === 27) {
+              router.replace('/point-of-sale')
+            }
           })
           .catch(err => {
             console.log(err, 'error auth')
@@ -59,6 +64,15 @@ const AuthProvider = ({ children }) => {
     initAuth()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Route guard effect - redirect to point-of-sale when accessing other routes
+  useEffect(() => {
+    if (user && user.menuId && user.menuId.length === 1 && user.menuId[0] === 27) {
+      if (router.pathname !== '/point-of-sale' && router.pathname !== '/login') {
+        router.replace('/point-of-sale')
+      }
+    }
+  }, [router.pathname, user])
 
   const handleLogin = (params, errorCallback) => {
     axios({
@@ -80,10 +94,11 @@ const AuthProvider = ({ children }) => {
         localStorage.setItem('userData', JSON.stringify({ ...response.data.data.userInfo, role: 'admin' }))
         let returnUrl = router.query.returnUrl
         setUser({ ...response.data.data.userInfo, role: 'admin' })
-        // HardCode for menu point of sale
-        if (response.data.data.userInfo.role.name == 'Point of Sale') {
+        // Redirect to point-of-sale if menuId is only [27]
+        if (response.data.data.userInfo.menuId.length === 1 && response.data.data.userInfo.menuId[0] === 27) {
           returnUrl = '/point-of-sale'
         }
+
         const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
         router.replace(redirectURL)
       })

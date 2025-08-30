@@ -17,12 +17,12 @@ import 'react-credit-cards/es/styles-compiled.css'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { CircularProgress, IconButton } from '@mui/material'
+import { CircularProgress, IconButton, Checkbox, FormControlLabel } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { fetchDetailProductPos, updateFavoriteProductPos } from 'src/store/apps/pos'
+import { fetchDetailProductPos, fetchListProductPos, updateFavoriteProductPos } from 'src/store/apps/pos'
 import FormInputText from '../common/Form/FormInputText'
 import FormInputNumberPos from '../common/FormPos/FormInputNumberPos'
 import FormInputPricePos from '../common/FormPos/FormInputPricePos'
@@ -38,13 +38,13 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   color: 'grey.500',
   position: 'absolute',
   boxShadow: theme.shadows[2],
-  transform: 'translate(10px, -10px)',
+  transform: 'translate(-10px, 10px)',
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: `${theme.palette.background.paper} !important`,
-  transition: 'transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out',
-  '&:hover': {
-    transform: 'translate(7px, -5px)'
-  }
+  backgroundColor: `${theme.palette.background.paper} !important`
+  // transition: 'transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out',
+  // '&:hover': {
+  //   transform: 'translate(7px, -5px)'
+  // }
 }))
 
 const saveToLocalStorage = data => localStorage.setItem('listProductPos', JSON.stringify(data))
@@ -55,6 +55,7 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
 
   const [selected, setSelected] = useState(null)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [showNotes, setShowNotes] = useState(false)
 
   const [openModalTransform, setOpenModalTransform] = useState(false)
   const [dataTransformation, setDataTransformation] = useState({})
@@ -148,10 +149,17 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
         <Dialog
           fullWidth
           open={open}
-          maxWidth='sm'
-          scroll='body'
+          scroll='paper'
+          maxWidth='md'
           onClose={handleClose}
-          sx={{ '& .MuiDialog-paper': { overflow: 'visible' }, zoom: 1.2 }}
+          sx={{
+            '& .MuiDialog-paper': {
+              overflow: 'hidden',
+              height: '30rem',
+              maxHeight: '30rem',
+              position: 'relative'
+            }
+          }}
         >
           {loadingDetailProductPos && (
             <Box
@@ -174,164 +182,260 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
           <form onSubmit={handleSubmit(onSubmit)}>
             <DialogContent
               sx={{
-                pb: theme => `${theme.spacing(8)} !important`,
-                px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`]
-                // pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+                pb: theme => `${theme.spacing(12)} !important`, // Reduced bottom padding for fixed buttons
+                px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`], // Reduced horizontal padding
+                overflowY: 'auto',
+                height: 'calc(30rem - 60px)', // Adjusted height for smaller padding
+                maxHeight: 'calc(30rem - 60px)',
+                pt: theme => [`${theme.spacing(16)} !important`, `${theme.spacing(16)} !important`] // Increased top padding for fixed header
               }}
             >
-              <CustomCloseButton onClick={handleClose}>
-                <Icon icon='tabler:x' fontSize='1.25rem' />
-              </CustomCloseButton>
-              <Box sx={{ textAlign: 'center' }}>
+              {/* FIXED PRODUCT NAME HEADER WITHIN MODAL */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  zIndex: 2,
+                  backgroundColor: 'background.paper',
+                  borderBottom: '1px solid',
+                  borderColor: 'divider',
+                  px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`],
+                  py: theme => `${theme.spacing(3)} !important`,
+                  textAlign: 'center',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: 2
+                }}
+              >
                 <Typography
                   variant='h4'
                   sx={{
-                    marginBottom: 2
+                    margin: 0
                   }}
                 >
                   {data?.productName}
                 </Typography>
+                <IconButton
+                  onClick={handleFav}
+                  sx={{
+                    margin: 0,
+                    color: isFavorite ? 'orange' : 'grey.500',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 152, 0, 0.1)'
+                    }
+                  }}
+                >
+                  <Icon
+                    icon={isFavorite ? 'tabler:star-filled' : 'tabler:star'}
+                    fontSize='1.5rem'
+                    style={{
+                      color: isFavorite ? 'orange' : 'inherit'
+                    }}
+                  />
+                </IconButton>
               </Box>
-              {/* BUTTON FAV AND SAVE */}
-              <DialogActions
-                sx={{
-                  px: theme => [`${theme.spacing(0)} !important`, `${theme.spacing(0)} !important`]
-                }}
-              >
-                <Grid container spacing={6}>
-                  <Grid item xs={6}>
-                    <Button
-                      fullWidth
-                      variant='outlined'
-                      color='secondary'
-                      onClick={handleFav}
-                      startIcon={
-                        <Icon
-                          icon={isFavorite ? 'tabler:star-filled' : 'tabler:star'} // Gunakan ikon sesuai status
-                          fontSize='1.25rem' // Ukuran ikon
-                          style={{
-                            color: isFavorite ? 'orange' : 'inherit' // Warna kuning jika favorit
-                          }}
-                        />
-                      }
-                      sx={{
-                        borderColor: isFavorite ? 'orange' : 'secondary.main', // Border tombol dinamis
-                        color: isFavorite ? 'orange' : 'secondary.main' // Warna teks tombol dinamis
-                      }}
-                    >
-                      Favourite
-                    </Button>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Button fullWidth type='submit' variant='contained' disabled={!selected ? true : false}>
-                      Save
-                    </Button>
-                  </Grid>
-                </Grid>
-              </DialogActions>
-              <Grid container spacing={6} mt={0.5}>
-                <Grid item xs={12}>
-                  <Typography variant='h6' sx={{ marginBottom: 1 }}>
-                    PILIH UNIT
-                  </Typography>
-                  <Grid container spacing={6} alignItems={'center'}>
-                    {detailProductPos?.map((item, index) => (
-                      <Grid item key={index} xs={6}>
-                        <Button
-                          fullWidth
-                          variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'}
-                          onClick={() => setSelected(item)}
-                        >
-                          {item.unitName}
-                        </Button>
-                      </Grid>
-                    ))}
-                  </Grid>
-                  {!selected?.unitName && (
-                    <Typography mt={2} variant='body2' sx={{ color: 'error.main' }}>
-                      *Silahkan pilih satuan
-                    </Typography>
-                  )}
-                  <Grid container spacing={6} alignItems={'center'}>
-                    <Grid item xs={6}>
-                      <Typography
-                        variant='subtitle2'
-                        sx={{
-                          cursor: 'pointer',
-                          color: 'text.secondary',
-                          ':hover': { color: 'blue', textDecoration: 'underline' },
-                          marginTop: 3
-                        }}
-                        onClick={() => {
-                          setOpenModalBasePrice(true)
-                        }}
-                      >
-                        Add Base price
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Typography
-                        variant='subtitle2'
-                        sx={{
-                          cursor: 'pointer',
-                          color: 'text.secondary',
-                          ':hover': { color: 'blue', textDecoration: 'underline' },
-                          marginTop: 3
-                        }}
-                        onClick={() => {
-                          handleTransformation()
-                        }}
-                      >
-                        {getValues('quantity') > 0 && selected ? 'Transformasi Produk' : ''}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </Grid>
 
+              <Grid container spacing={4} mt={0.5}>
+                {/* NEW GRID LAYOUT: Left side (Unit + Notes) and Right side (Quantity, Price, Subtotal) */}
                 <Grid item xs={12}>
-                  <Grid container spacing={6}>
+                  <Grid container spacing={4} alignItems='flex-start'>
+                    {/* LEFT SIDE: Pilih Unit dan Notes (6 columns) */}
                     <Grid item xs={6}>
-                      <FormInputPricePos
-                        control={control}
-                        name='price'
-                        errors={errors}
-                        label='Harga'
-                        disabled={selected?.basePrice !== 0 || !selected}
-                        fullWidth
-                      />
+                      <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        {/* Unit Selection Area */}
+                        <Box>
+                          <Typography variant='h6' sx={{ marginBottom: 1 }}>
+                            Pilih Unit {!selected?.unitName && <span style={{ color: 'red' }}>*</span>}
+                          </Typography>
+                          <Grid container spacing={2}>
+                            {detailProductPos?.map((item, index) => (
+                              <Grid item key={index} xs={12} sm={12}>
+                                <Button
+                                  fullWidth
+                                  variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'}
+                                  onClick={() => setSelected(item)}
+                                  sx={{
+                                    mb: 1,
+                                    height: '4rem',
+                                    fontSize: '1rem',
+                                    fontWeight: 'medium'
+                                  }}
+                                >
+                                  {item.unitName}
+                                </Button>
+                              </Grid>
+                            ))}
+                          </Grid>
+                        </Box>
+
+                        {/* Notes Section */}
+                        <Box sx={{ mt: 1, minHeight: 120 }}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={showNotes}
+                                onChange={e => setShowNotes(e.target.checked)}
+                                disabled={!selected}
+                              />
+                            }
+                            label='Catatan'
+                          />
+                          {showNotes && (
+                            <Box sx={{ mt: 0 }}>
+                              <FormInputText
+                                multiline
+                                rows={4}
+                                control={control}
+                                name='notes'
+                                errors={errors}
+                                label=''
+                                disabled={selected ? false : true}
+                                fullWidth
+                              />
+                            </Box>
+                          )}
+                        </Box>
+                      </Box>
                     </Grid>
+
+                    {/* RIGHT SIDE: Kuantiti, Harga, dan Subtotal (6 columns) */}
                     <Grid item xs={6}>
-                      <FormInputNumberPos
-                        multiline
-                        rows={1}
-                        control={control}
-                        name='quantity'
-                        errors={errors}
-                        label={`Stock: ${tempQuantity()}`}
-                        max={tempQuantity()}
-                        disabled={tempQuantity() === 'Kosong' ? true : selected ? false : true}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                        Sub Total: {priceFormatWIthCurrency(calculateSubTotal)}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <FormInputText
-                        multiline
-                        rows={3}
-                        control={control}
-                        name='notes'
-                        errors={errors}
-                        label='Notes'
-                        disabled={selected ? false : true}
-                      />
+                      <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        {/* Quantity Input */}
+                        <Box sx={{ flex: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                            <Typography variant='h6' sx={{ color: 'text.primary' }}>
+                              Kuantiti (Stock: {tempQuantity()})
+                            </Typography>
+                            {getValues('quantity') > 0 && selected && (
+                              <Typography
+                                variant='subtitle2'
+                                sx={{
+                                  cursor: 'pointer',
+                                  color: 'text.secondary',
+                                  textDecoration: 'underline',
+                                  fontSize: '0.8rem'
+                                }}
+                                onClick={() => {
+                                  handleTransformation()
+                                }}
+                              >
+                                Transformasi Produk
+                              </Typography>
+                            )}
+                          </Box>
+                          <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                              <Box sx={{ mb: 1 }}>
+                                <FormInputNumberPos
+                                  control={control}
+                                  name='quantity'
+                                  errors={errors}
+                                  label1={null}
+                                  label={null}
+                                  placeholder=''
+                                  max={tempQuantity()}
+                                  disabled={tempQuantity() === 'Kosong' ? true : selected ? false : true}
+                                  fullWidth
+                                />
+                              </Box>
+                            </Grid>
+                          </Grid>
+                        </Box>
+
+                        {/* Price Input with Add Base Price */}
+                        <Box sx={{ mt: 2 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                            <Typography variant='h6' sx={{ color: 'text.primary' }}>
+                              Harga
+                            </Typography>
+                            <Typography
+                              variant='subtitle2'
+                              sx={{
+                                cursor: 'pointer',
+                                color: 'text.secondary',
+                                textDecoration: 'underline',
+                                fontSize: '0.8rem'
+                              }}
+                              onClick={() => {
+                                setOpenModalBasePrice(true)
+                              }}
+                            >
+                              Add Base Price
+                            </Typography>
+                          </Box>
+                          <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                              <FormInputPricePos
+                                control={control}
+                                name='price'
+                                errors={errors}
+                                label=''
+                                disabled={selected?.basePrice !== 0 || !selected}
+                                fullWidth
+                              />
+                            </Grid>
+                          </Grid>
+                        </Box>
+
+                        {/* Subtotal Display */}
+                        <Box
+                          sx={{
+                            mt: 2,
+                            p: 2,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderRadius: 1,
+                            backgroundColor: 'grey.50'
+                          }}
+                        >
+                          <Typography variant='h6' sx={{ color: 'text.primary', textAlign: 'center' }}>
+                            Sub Total
+                          </Typography>
+                          <Typography
+                            variant='h5'
+                            sx={{ color: 'primary.main', textAlign: 'center', fontWeight: 'bold' }}
+                          >
+                            {priceFormatWIthCurrency(calculateSubTotal)}
+                          </Typography>
+                        </Box>
+                      </Box>
                     </Grid>
                   </Grid>
                 </Grid>
               </Grid>
             </DialogContent>
+            {/* FIXED BUTTONS AT BOTTOM */}
+            <DialogActions
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: 'background.paper',
+                borderTop: '1px solid',
+                borderColor: 'divider',
+                px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`], // Reduced horizontal padding
+                py: theme => `${theme.spacing(2)} !important`, // Reduced vertical padding
+                zIndex: 1
+              }}
+            >
+              <Grid container spacing={6}>
+                <Grid item xs={6}>
+                  <Button fullWidth variant='outlined' onClick={handleClose}>
+                    Cancel
+                  </Button>
+                </Grid>
+                <Grid item xs={6}>
+                  <Button fullWidth type='submit' variant='contained' disabled={!selected ? true : false}>
+                    Save
+                  </Button>
+                </Grid>
+              </Grid>
+            </DialogActions>
           </form>
         </Dialog>
       </Card>
