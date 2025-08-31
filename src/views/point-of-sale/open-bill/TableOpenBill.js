@@ -20,9 +20,9 @@ const RowOptions = ({ handleView, data }) => {
   )
 }
 
-export default function TableOpenBill({ setSelectedMenu, warehouse }) {
+export default function TableOpenBill({ setSelectedMenu, warehouse, isMobile, isTablet, isLowHeight }) {
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: isLowHeight ? 5 : 10 })
   const [selectedData, setSelectedData] = useState({})
   const [openModalDetail, setOpenModalDetail] = useState(false)
 
@@ -39,7 +39,12 @@ export default function TableOpenBill({ setSelectedMenu, warehouse }) {
   }, [openModalDetail, warehouse])
 
   return (
-    <Card sx={{ height: '70vh' }}>
+    <Card sx={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
+    }}>
       <ModalDetailOpenBill
         open={openModalDetail}
         setOpen={setOpenModalDetail}
@@ -133,18 +138,26 @@ export default function TableOpenBill({ setSelectedMenu, warehouse }) {
             )
           }
         ]}
-        pageSizeOptions={[5, 10]}
+        pageSizeOptions={isLowHeight ? [5, 10] : [5, 10, 25]}
         onCellClick={e => handleRowClick(e?.row)}
         paginationModel={paginationModel}
         // slots={{ toolbar: TableHeaderPointOfSale }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
         sx={{
+          height: '100%',
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
           },
           '& .MuiDataGrid-cell': {
             cursor: 'pointer'
+          },
+          '& .MuiDataGrid-footerContainer': {
+            borderTop: '1px solid rgba(224, 224, 224, 1)',
+            minHeight: isLowHeight ? '40px' : '52px'
+          },
+          '& .MuiTablePagination-root': {
+            fontSize: isLowHeight ? '0.75rem' : '0.875rem'
           }
         }}
       // slotProps={{

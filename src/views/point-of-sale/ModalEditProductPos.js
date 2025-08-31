@@ -17,7 +17,7 @@ import 'react-credit-cards/es/styles-compiled.css'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { CircularProgress, IconButton } from '@mui/material'
+import { CircularProgress, IconButton, Checkbox, FormControlLabel } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -45,25 +45,20 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   }
 }))
 
-const saveToLocalStorage = (data) => localStorage.setItem('listProductPos', JSON.stringify(data))
+const saveToLocalStorage = data => localStorage.setItem('listProductPos', JSON.stringify(data))
 
-export default function ModalEditProductPos({
-  open,
-  setOpen,
-  data,
-  updateProduct,
-  removeProduct,
-}) {
+export default function ModalEditProductPos({ open, setOpen, data, updateProduct, removeProduct }) {
   const dispatch = useDispatch()
   const { detailProductPos, loadingDetailProductPos } = useSelector(state => state.pos)
 
   const [selected, setSelected] = useState(null)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [showNotes, setShowNotes] = useState(false)
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
     price: yup.string().required('Harga harus diisi'),
-    quantity: yup.string().required('Kuantiti harus diisi'),
+    quantity: yup.string().required('Kuantiti harus diisi')
   })
 
   // REACT FORM
@@ -72,11 +67,11 @@ export default function ModalEditProductPos({
     handleSubmit,
     getValues,
     formState: { errors },
-    watch,
+    watch
   } = useForm({
     values: {
       price: selected?.price || null,
-      quantity: selected?.quantity || null,
+      quantity: selected?.quantity || null
     },
     mode: 'onChange',
     resolver: yupResolver(schema)
@@ -96,14 +91,12 @@ export default function ModalEditProductPos({
       unitName: selected?.unitName,
       productName: selected?.productName,
       notes: val?.notes,
-      title: val?.title || "",
-      productId: selected?.productId,
+      title: val?.title || '',
+      productId: selected?.productId
     }
     updateProduct(data?.index, tempProduct)
     const listProductPos = JSON.parse(localStorage.getItem('listProductPos'))
-    const updatedArray = listProductPos.map((item, i) =>
-      i === data?.index ? tempProduct : item
-    );
+    const updatedArray = listProductPos.map((item, i) => (i === data?.index ? tempProduct : item))
     saveToLocalStorage(updatedArray)
     autoSavePos()
     setOpen(false)
@@ -129,12 +122,12 @@ export default function ModalEditProductPos({
         localStorage.setItem('listProductPos', JSON.stringify(updatedFields))
         autoSavePos()
         setOpen(false)
-      },
+      }
     })
   }
 
   const tempQuantity = useCallback(() => {
-    return selected?.qty || "Kosong"
+    return selected?.qty || 'Kosong'
   }, [selected])
 
   const calculateSubTotal = useMemo(() => {
@@ -152,10 +145,17 @@ export default function ModalEditProductPos({
       <Dialog
         fullWidth
         open={open}
-        maxWidth='sm'
-        scroll='body'
+        scroll='paper'
+        maxWidth='xl'
         onClose={handleClose}
-        sx={{ '& .MuiDialog-paper': { overflow: 'visible' }, zoom: 1.2 }}
+        sx={{
+          '& .MuiDialog-paper': {
+            overflow: 'hidden',
+            height: '30rem',
+            maxHeight: '30rem',
+            position: 'relative'
+          }
+        }}
       >
         {loadingDetailProductPos && (
           <Box
@@ -169,7 +169,7 @@ export default function ModalEditProductPos({
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              bgcolor: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: 'rgba(255, 255, 255, 0.8)'
             }}
           >
             <CircularProgress />
@@ -178,84 +178,71 @@ export default function ModalEditProductPos({
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogContent
             sx={{
-              pb: theme => `${theme.spacing(8)} !important`,
-              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-              // pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+              pb: theme => `${theme.spacing(12)} !important`, // Reduced bottom padding for fixed buttons
+              px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`], // Reduced horizontal padding
+              overflowY: 'auto',
+              height: 'calc(30rem - 60px)', // Adjusted height for smaller padding
+              maxHeight: 'calc(30rem - 60px)',
+              pt: theme => [`${theme.spacing(16)} !important`, `${theme.spacing(16)} !important`] // Increased top padding for fixed header
             }}
           >
-            <CustomCloseButton onClick={handleClose}>
-              <Icon icon='tabler:x' fontSize='1.25rem' />
-            </CustomCloseButton>
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant='h4' sx={{}}>
+            {/* FIXED PRODUCT NAME HEADER WITHIN MODAL */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 2,
+                backgroundColor: 'background.paper',
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+                px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`],
+                py: theme => `${theme.spacing(3)} !important`,
+                textAlign: 'center',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 2
+              }}
+            >
+              <Typography
+                variant='h4'
+                sx={{
+                  margin: 0
+                }}
+              >
                 {data?.productName}
               </Typography>
             </Box>
-            {/* BUTTON FAV AND SAVE */}
-            <DialogActions
-              sx={{
-                px: theme => [`${theme.spacing(0)} !important`, `${theme.spacing(0)} !important`],
-              }}
-            >
-              <Grid container spacing={6}>
-                <Grid item xs={6}>
-                  <Button
-                    fullWidth
-                    variant='outlined'
-                    color='secondary'
-                    onClick={handleRemoveProduct}
-                    startIcon={
-                      <Icon
-                        icon={'tabler:trash'} // Gunakan ikon sesuai status
-                        fontSize="1.25rem" // Ukuran ikon
-                        style={{
-                          color: isFavorite ? 'orange' : 'inherit', // Warna kuning jika favorit
-                        }}
-                      />
-                    }
-                    sx={{
-                      borderColor: isFavorite ? 'orange' : 'secondary.main', // Border tombol dinamis
-                      color: isFavorite ? 'orange' : 'secondary.main', // Warna teks tombol dinamis
-                    }}
-                  >
-                    Hapus Dari Keranjang
-                  </Button>
-                </Grid>
-                <Grid item xs={6}>
-                  <Button fullWidth type='submit' variant='contained' disabled={!selected ? true : false}>
-                    Save
-                  </Button>
-                </Grid>
-              </Grid>
-            </DialogActions>
-            <Grid container spacing={6} mt={0.5}>
+
+            <Grid container spacing={6}>
               <Grid item xs={12}>
+                <Typography variant='h6' sx={{ marginBottom: 1 }}>
+                  PILIH UNIT {!selected?.unitName && <span style={{ color: 'red' }}>*</span>}
+                </Typography>
                 <Grid container spacing={6} alignItems={'center'}>
-                  {
-                    detailProductPos?.map((item, index) => (
-                      <Grid item key={index} xs={6}>
-                        <Button fullWidth variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'} onClick={() => {
+                  {detailProductPos?.map((item, index) => (
+                    <Grid item key={index} xs={6}>
+                      <Button
+                        fullWidth
+                        variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'}
+                        onClick={() => {
                           setSelected({
                             ...selected,
                             unitName: item?.unitName,
                             unitId: item?.unitId,
                             qty: item?.quantity,
-                            quantity: "",
+                            quantity: '',
                             price: item?.basePrice
                           })
-                        }
-                        }>{item.unitName}</Button>
-                      </Grid>
-                    ))
-                  }
+                        }}
+                      >
+                        {item.unitName}
+                      </Button>
+                    </Grid>
+                  ))}
                 </Grid>
-                {
-                  !selected?.unitName && (
-                    <Typography mt={2} variant='body2' sx={{ color: 'error.main' }}>
-                      *Silahkan pilih satuan
-                    </Typography>
-                  )
-                }
               </Grid>
               <Grid item xs={12}>
                 <Grid container spacing={6}>
@@ -278,7 +265,7 @@ export default function ModalEditProductPos({
                       errors={errors}
                       label={`Stock: ${tempQuantity()}`}
                       max={tempQuantity()}
-                      disabled={tempQuantity() === "Kosong" ? true : selected ? false : true}
+                      disabled={tempQuantity() === 'Kosong' ? true : selected ? false : true}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -287,20 +274,68 @@ export default function ModalEditProductPos({
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <FormInputText
-                      multiline
-                      rows={3}
-                      control={control}
-                      name='notes'
-                      errors={errors}
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={showNotes}
+                          onChange={e => setShowNotes(e.target.checked)}
+                          disabled={!selected}
+                        />
+                      }
                       label='Notes'
-                      disabled={selected ? false : true}
                     />
+                    {showNotes && (
+                      <Box sx={{ mt: 2 }}>
+                        <FormInputText
+                          multiline
+                          rows={3}
+                          control={control}
+                          name='notes'
+                          errors={errors}
+                          label='Notes'
+                          disabled={selected ? false : true}
+                        />
+                      </Box>
+                    )}
                   </Grid>
                 </Grid>
               </Grid>
             </Grid>
           </DialogContent>
+          {/* FIXED BUTTONS AT BOTTOM */}
+          <DialogActions
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: 'background.paper',
+              borderTop: '1px solid',
+              borderColor: 'divider',
+              px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`], // Reduced horizontal padding
+              py: theme => `${theme.spacing(2)} !important`, // Reduced vertical padding
+              zIndex: 1
+            }}
+          >
+            <Grid container spacing={6}>
+              <Grid item xs={6}>
+                <Button
+                  fullWidth
+                  variant='outlined'
+                  color='secondary'
+                  onClick={handleRemoveProduct}
+                  startIcon={<Icon icon={'tabler:trash'} fontSize='1.25rem' />}
+                >
+                  Hapus Dari Keranjang
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button fullWidth type='submit' variant='contained' disabled={!selected ? true : false}>
+                  Save
+                </Button>
+              </Grid>
+            </Grid>
+          </DialogActions>
         </form>
       </Dialog>
     </Card>

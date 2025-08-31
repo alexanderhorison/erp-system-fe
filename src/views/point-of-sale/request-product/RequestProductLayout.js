@@ -1,12 +1,12 @@
 import { Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import TimeFilter from 'src/pages/components/filter/FilterTime'
-import { fetchAllPointOfSaleByWarehouseId } from 'src/store/apps/pos'
-import TablePointOfSale from './TablePointOfSale'
+import { fetchAllRequestOrder } from 'src/store/apps/product-request-order'
+import TableRequestProduct from './TableRequestProduct'
 
-export default function TransactionLayout({ warehouseId, isMobile, isTablet, isLowHeight }) {
+export default function RequestProductLayout({ warehouseId, isMobile, isTablet, isLowHeight }) {
   const dispatch = useDispatch()
   const [timeFilter, setTimeFilter] = useState({
     month: '',
@@ -15,7 +15,7 @@ export default function TransactionLayout({ warehouseId, isMobile, isTablet, isL
 
   useEffect(() => {
     if (warehouseId) {
-      dispatch(fetchAllPointOfSaleByWarehouseId(warehouseId))
+      dispatch(fetchAllRequestOrder())
     }
   }, [warehouseId])
 
@@ -41,14 +41,14 @@ export default function TransactionLayout({ warehouseId, isMobile, isTablet, isL
           fontSize={isLowHeight ? 14 : { xs: 16, md: 20 }}
           sx={{ ml: { xs: 0, md: '10px' } }}
         >
-          Daftar Point of Sale
+          Daftar Product Request
         </Typography>
         <TimeFilter timeFilter={timeFilter} setTimeFilter={setTimeFilter} />
       </Box>
 
       {/* Table Section */}
       <Box sx={{ flex: 1, minHeight: 0 }}>
-        <TablePointOfSale
+        <TableRequestProduct
           timeFilter={timeFilter}
           isMobile={isMobile}
           isTablet={isTablet}

@@ -1,6 +1,6 @@
 import { Button, Divider, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Status } from 'src/@core/components/common'
 import { priceFormat, priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import TablePorductOpenBill from './TableProductOpenBill'
@@ -10,6 +10,7 @@ import ModalSendEmailCustomer from '../ModalSendEmailCustomer'
 
 export default function DetailOpenBillAndTransaction({ data, type }) {
   const [openModalEmail, setOpenModalEmail] = useState(false)
+  const [userData, setUserData] = useState(null)
 
   const title = {
     openBill: 'Bill Details',
@@ -36,7 +37,8 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
       temp.subTotal = data?.subTotalPrice
       temp.grandTotal = data?.subTotalPrice
       temp.totalDiscount = data?.totalDiscount || 0
-      temp.createdAt = new Date(+data?.id.split('-')[1])
+      temp.createdAt = new Date(+data?.id.split('-')[1]),
+      temp.createdBy = data?.createdBy || 'Unknown User'
     }
     if (type === 'transaction') {
       temp.products = data?.listProducts
@@ -46,6 +48,7 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
       temp.totalQuantity = data?.totalItems
       temp.change = data?.totalPayment - data?.grandTotal
       temp.createdAt = data?.createdAt
+      temp.createdBy = data?.createdBy || 'Unknown User'
     }
     return temp
   }, [data, type])
@@ -53,7 +56,6 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
   const handleEmailReceipt = () => {
     setOpenModalEmail(true)
   }
-
 
   return (
     <>
@@ -106,7 +108,7 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
             <Typography variant='subtitle1' fontWeight='bold'>
               Cashier
             </Typography>
-            <Typography variant='body1'>Michael Santoso</Typography>
+            <Typography variant='body1'>{mappedData?.createdBy || 'Unknown Cashier'}</Typography>
           </Grid>
           <Divider style={{ width: '100%', margin: '20px 0' }} />
 

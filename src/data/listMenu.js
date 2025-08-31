@@ -6,37 +6,37 @@ export const listMenu = [
     menuId: [40, 41, 42, 43],
     children: [
       {
-        title: "Inventory",
-        path: "/home",
-        icon: "tabler:building-warehouse",
+        title: 'Inventory',
+        path: '/home',
+        icon: 'tabler:building-warehouse',
         menuId: 40
       },
       {
-        title: "Sales Order",
-        path: "/dashboards/sales-order",
-        icon: "tabler:shopping-cart",
-        menuId: 41,
+        title: 'Sales Order',
+        path: '/dashboards/sales-order',
+        icon: 'tabler:shopping-cart',
+        menuId: 41
       },
       {
-        title: "Purchase Order",
-        path: "/dashboards/purchase-order",
-        icon: "tabler:basket-dollar",
-        menuId: 42,
+        title: 'Purchase Order',
+        path: '/dashboards/purchase-order',
+        icon: 'tabler:basket-dollar',
+        menuId: 42
       },
       {
-        title: "Finance",
-        path: "/dashboards/finance",
-        icon: "tabler:report-money",
+        title: 'Finance',
+        path: '/dashboards/finance',
+        icon: 'tabler:report-money',
         menuId: 43
       }
     ]
   },
-  {
-    title: 'Point of Sale',
-    path: '/point-of-sale/',
-    icon: 'tabler:clipboard-check',
-    menuId: 27
-  },
+  // {
+  //   title: 'Point of Sale',
+  //   path: '/point-of-sale/',
+  //   icon: 'tabler:clipboard-check',
+  //   menuId: 27
+  // },
   {
     sectionTitle: 'Inventory',
     menuId: [4, 5, 12, 3, 6, 13]
@@ -132,6 +132,12 @@ export const listMenu = [
     path: '/stock-opname/',
     icon: 'tabler:clipboard-check',
     menuId: 15
+  },
+  { 
+    title: 'Product Request',
+    path: '/product-request/',
+    icon: 'tabler:clipboard-text',
+    menuId: 44
   },
   {
     title: 'Surat Jalan',
@@ -335,7 +341,7 @@ export const listMenu = [
         path: '/equity',
         menuId: 39,
         icon: 'tabler:circle'
-      },
+      }
     ]
   },
   {

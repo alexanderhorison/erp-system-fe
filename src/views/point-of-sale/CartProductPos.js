@@ -17,20 +17,24 @@ export default function CartProductPos({
   selectedProductEdit,
   setSelectedProductEdit,
   handleDeleteCustom,
+  isMobile,
+  isTablet,
+  heightBody,
+  isLowHeight
 }) {
   const viewportHeight = window.innerHeight;
-  const maxHeight = useMemo(() => {
-    if (viewportHeight >= 1024) { // FHD
-      return '50.5vh'
+
+  // Responsive height calculation for cart
+  const getCartHeight = () => {
+    return {
+      minHeight: '200px',
+      maxHeight: '100%',
+      height: '100%'
     }
-    if (viewportHeight >= 768) {
-      return '45.9vh'
-    }
-    if (viewportHeight >= 600) {
-      return '40.9vh'
-    }
-    return '35.9vh'
-  }, [viewportHeight])
+  }
+
+  const cartHeight = getCartHeight();
+
   const handleOpenEditProduct = (item, index) => {
     if (item?.isCustom) {
       swalConfirmationOnly({
@@ -58,9 +62,11 @@ export default function CartProductPos({
     <Card
       sx={{
         border: 1,
-        maxHeight: maxHeight,
+        height: cartHeight.height,
         overflowY: 'auto',
-        minHeight: 150
+        minHeight: cartHeight.minHeight,
+        display: 'flex',
+        flexDirection: 'column'
       }}
     >
       {
@@ -77,8 +83,8 @@ export default function CartProductPos({
           <CardContent onClick={() => {
             if (item?.isCustom) return
             handleOpenEditProduct(item, index)
-          }} sx={{ paddingY: 4 }}>
-            <Grid container spacing={6}>
+          }} sx={{ paddingY: isLowHeight ? 1 : { xs: 2, md: 4 } }}>
+            <Grid container spacing={isLowHeight ? 1 : { xs: 2, md: 6 }}>
               <Grid item xs={12} md={6}>
                 <Controller
                   name={`formData[${index}].productName`}

@@ -9,9 +9,9 @@ import CardContent from '@mui/material/CardContent'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 import { useRouter } from 'next/router'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { UseAuth } from 'src/hooks/useAuth'
-import { CardHeader, Typography } from '@mui/material'
+import { CardHeader, Typography, CircularProgress, Box } from '@mui/material'
 import CustomChip from 'src/@core/components/mui/chip'
 import { sendEmail, updateSalesOrder } from 'src/store/apps/sales-order'
 import { priceFormat } from 'src/helpers/priceFormatter'
@@ -20,6 +20,8 @@ import GeneratePdfSalesOrder from './GeneratePdfSalesOrder'
 import { swalInfo, swalNotifError, swalNotifSuccess } from 'src/helpers/swalFunction'
 import { pdfFormData } from 'src/helpers/generatePdfFormData'
 import DownloadButton from 'src/views/components/buttons/ButtonDownload'
+import Script from 'next/script'
+import { printSalesOrder } from 'src/utils/printerDotMatrix'
 
 const ToolbarSalesOrder = ({ id, data }) => {
   const auth = UseAuth()
@@ -27,24 +29,14 @@ const ToolbarSalesOrder = ({ id, data }) => {
   const router = useRouter()
   const [sending, setIsSending] = useState(false)
   const [isShow, setIsShow] = useState(false)
-  const cardRef = useRef(null) // Create a ref for the element
-  // const [isDownload, setIsDownload] = useState(false)
-  // const [isDownloading, setIsDownloading] = useState(false)
+  const cardRef = useRef(null)
   const [isLoading, setIsLoading] = useState(false)
 
+  // Get printer status from Redux store
+  const { printerStatus } = useSelector(state => state.printer)
   const handleClick = async () => {
     setIsShow(true)
   }
-
-  // const handleClickDownload = () => {
-  //   setIsDownload(true)
-  //   setIsDownloading(true)
-  //   setIsShow(true)
-  // }
-
-  // const handleDownload = async cardElement => {
-  //   downloadPdf(cardElement, id, setIsShow, setIsDownload, setIsDownloading)
-  // }
 
   const generatePdf = async cardElement => {
     if (!sending && cardElement) {
@@ -69,42 +61,35 @@ const ToolbarSalesOrder = ({ id, data }) => {
         } else {
           swalNotifError({ message: 'Gagal generate pdf' })
         }
-      }, 300) // Delay to allow rendering, adjust if necessary
+      }, 300)
 
       return () => clearTimeout(timer)
     }
-    // else if (isShow && isDownload) {
-    //   const timer = setTimeout(() => {
-    //     if (cardRef.current) {
-    //       handleDownload(cardRef.current)
-    //     } else {
-    //       swalNotifError({ message: 'Gagal generate pdf' })
-    //     }
-    //   }, 300) // Delay to allow rendering, adjust if necessary
-    //   return () => clearTimeout(timer)
-    // }
-  }, [isShow]) // Run this effect when isShow changes
+  }, [isShow])
 
   const onUpdateSalesOrder = (code, type, e) => {
     dispatch(updateSalesOrder({ code, type, router }))
+  }
+
+  const handlePrint = async () => {
+    printSalesOrder(dispatch, id)
   }
 
   return (
     <>
       <Card>
         <CardContent>
+          <Button fullWidth sx={{ mb: 2 }} variant='contained' onClick={handlePrint} disabled={printerStatus?.printing}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              {printerStatus?.printing ? (
+                <CircularProgress size={16} thickness={4} color='inherit' />
+              ) : (
+                <Icon fontSize='1.125rem' icon='tabler:printer' />
+              )}
+              <span>{printerStatus?.printing ? 'Mencetak...' : 'Cetak / Print'}</span>
+            </Box>
+          </Button>
           <DownloadButton url={'sales-order'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
-          {/* <Button
-            fullWidth
-            sx={{ mb: 2, '& svg': { mr: 2 } }}
-            target='_blank'
-            variant='contained'
-            component={Link}
-            href={`/sales-order/print/${id}`}
-          >
-            <Icon fontSize='1.125rem' icon='tabler:printer' />
-            Cetak / Print
-          </Button> */}
           <Button fullWidth sx={{ mb: 2, '& svg': { mr: 2 } }} variant='contained' onClick={handleClick}>
             <Icon fontSize='1.125rem' icon='tabler:mail' />
             Kirim Email
@@ -158,8 +143,8 @@ const ToolbarSalesOrder = ({ id, data }) => {
                   data?.amountDebt == 0
                     ? 'LUNAS'
                     : data?.grandTotal === data?.amountDebt
-                      ? 'BELUM LUNAS'
-                      : 'SEBAGIAN LUNAS'
+                    ? 'BELUM LUNAS'
+                    : 'SEBAGIAN LUNAS'
                 }
                 skin='light'
                 color={data?.amountDebt == 0 ? 'success' : data?.grandTotal === data?.amountDebt ? 'error' : 'warning'}
@@ -181,6 +166,7 @@ const ToolbarSalesOrder = ({ id, data }) => {
           <GeneratePdfSalesOrder id='print-sales-order' data={data} ref={cardRef} />
         </div>
       )}
+      <Script src='https://cdn.jsdelivr.net/npm/qz-tray/qz-tray.js'></Script>
     </>
   )
 }

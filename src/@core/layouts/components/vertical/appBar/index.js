@@ -37,6 +37,11 @@ const LayoutAppBar = props => {
   // ** Vars
   const { skin, appBar, appBarBlur, contentWidth } = settings
 
+  // Hide entire app bar for point-of-sale pages
+  if (typeof window !== 'undefined' && window.location.pathname.includes('/point-of-sale')) {
+    return null
+  }
+
   const appBarBlurEffect = appBarBlur && {
     '&:after': {
       top: 0,

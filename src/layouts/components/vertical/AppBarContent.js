@@ -142,11 +142,11 @@ const AppBarContent = props => {
         {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && auth.user && (
           <Autocomplete hidden={hidden} settings={settings} />
         )}
-        {
+        {/* {
           title.includes('Point of Sale') && (
             <ButtonBack name='' />
           )
-        }
+        } */}
         <Typography>{title}</Typography>
       </Box>
       <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>

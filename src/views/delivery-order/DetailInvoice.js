@@ -19,6 +19,7 @@ import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
 import { transformColor } from 'src/helpers/transformColor'
 import CustomChip from 'src/@core/components/mui/chip'
 import { companyInfo } from 'src/data/companyInfo'
+import { LinkStyled } from 'src/pages/components/swiper'
 
 const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
@@ -116,6 +117,23 @@ const DetailInvoice = ({ data }) => {
                       <MUITableCell>
                         <Typography variant='h6'>Surat Jalan</Typography>
                         <Typography variant='h6'>{`#${data.code}`}</Typography>
+                      </MUITableCell>
+                    </TableRow>
+                    <TableRow>
+                      <MUITableCell>
+                        {data?.productRequestCode && (
+                          <>
+                            <Typography variant='h6' sx={{ mt: 1 }}>
+                              Produk Request
+                            </Typography>
+                            <Typography variant='h6'>
+                              <LinkStyled href={`/product-request/${data.productRequestCode}`} target='_blank'>
+                                {`#${data.productRequestCode}`}
+                              </LinkStyled>
+                            </Typography>
+                          </>
+                        )
+                        }
                       </MUITableCell>
                     </TableRow>
                     {/* <TableRow>

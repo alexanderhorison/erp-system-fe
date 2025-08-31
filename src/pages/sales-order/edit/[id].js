@@ -24,7 +24,6 @@ export default function EditSalesOrder() {
       dispatch(fetchDetailSalesOrder(id))
     }
   }, [id, dispatch])
-  console.log(data)
 
   if (loadingDetailSalesOrder) {
     return (

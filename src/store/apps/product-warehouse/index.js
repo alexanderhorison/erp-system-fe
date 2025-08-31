@@ -366,6 +366,21 @@ export const exportAllStock = createAsyncThunk(
   }
 )
 
+// GET PRODUCT WAREHOUSE BY PRODUCT ID, UNIT ID, AND WAREHOUSE ID
+export const findProductWarehouse = createAsyncThunk('appProductWarehouse/find', async (query, { rejectWithValue }) => {
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: '/product-warehouse/find',
+      params: query
+    })
+    return response.data
+  } catch (error) {
+    swalToastError({ label, error })
+    return rejectWithValue([])
+  }
+})
+
 export const appMasterProductSlice = createSlice({
   name: 'appProductWarehouse',
   initialState: {
@@ -398,7 +413,11 @@ export const appMasterProductSlice = createSlice({
 
     // Export
     isExporting: false,
-    exportError: null
+    exportError: null,
+
+    singleProductWarehouse: {},
+    loadingSingleProductWarehouse: false,
+    errorSingleProductWarehouse: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -497,6 +516,19 @@ export const appMasterProductSlice = createSlice({
       .addCase(exportAllStock.rejected, (state, action) => {
         state.isExporting = false
         state.exportError = action.payload
+      })
+
+      .addCase(findProductWarehouse.pending, (state, action) => {
+        state.loadingSingleProductWarehouse = true
+      })
+      .addCase(findProductWarehouse.fulfilled, (state, action) => {
+        state.singleProductWarehouse = action.payload.data
+        state.loadingSingleProductWarehouse = false
+      })
+      .addCase(findProductWarehouse.rejected, (state, action) => {
+        state.loadingSingleProductWarehouse = false
+        state.errorSingleProductWarehouse = action.error.message
+        state.singleProductWarehouse = {}
       })
   }
 })

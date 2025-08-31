@@ -10,36 +10,38 @@ import { DataGrid } from '@mui/x-data-grid'
 import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
-import TableHeaderPointOfSale from './TableHeaderPointOfSale'
-import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
-import { fetchDetailPointOfSale } from 'src/store/apps/pos'
-import ModalViewTransactionV2 from './ModalViewTransactionV2'
-import { printPointOfSale } from 'src/utils/printerHelper'
+import TableHeaderRequestProduct from './TableHeaderRequestProduct'
+import ModalAddRequestProduct from './ModalAddRequestProduct'
+import { fetchDetailRequestOrder } from 'src/store/apps/product-request-order'
 
 
-const RowOptions = ({ handleView, handlePrint }) => {
+const RowOptions = ({ handleView, handleEdit, status }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <IconButton onClick={handleView}>
           <Icon icon='tabler:eye' />
         </IconButton>
-        <IconButton onClick={handlePrint}>
-          <Icon icon='tabler:printer' />
-        </IconButton>
+        {status === 'PENDING' && (
+          <IconButton onClick={handleEdit}>
+            <Icon icon='tabler:edit' />
+          </IconButton>
+        )}
       </Box>
     </>
   )
 }
 
-export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLowHeight }) {
+export default function TableRequestProduct({ timeFilter, isMobile, isTablet, isLowHeight }) {
   const dispatch = useDispatch()
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: isLowHeight ? 5 : 10 })
-  const [openModalDetail, setOpenModalDetail] = useState(false)
+  const [openModalForm, setOpenModalForm] = useState(false)
+  const [typeModal, setTypeModal] = useState('ADD')
 
-  const { dataPointOfSale: data, loadingDataPointOfSale } = useSelector(state => state.pos)
+
+  const { dataRequestOrder: data, loadingDataRequestOrder } = useSelector(state => state.productRequest)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
@@ -52,15 +54,23 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
     })
   }
 
-  const handleRowClick = params => {
-    const id = params?.code || params?.row?.code
-    setOpenModalDetail(true)
-    dispatch(fetchDetailPointOfSale(id))
+  const handleEdit = row => {
+    dispatch(fetchDetailRequestOrder(row.code))
+    setTypeModal('EDIT')
+    setOpenModalForm(true)
   }
 
-  const handleRowPrint = async (params) => {
-    printPointOfSale(dispatch, params.code)
-  };
+
+
+  const handleView = row => {
+    dispatch(fetchDetailRequestOrder(row.code))
+    setTypeModal('VIEW')
+    setOpenModalForm(true)
+  }
+
+  const handleRowClick = row => {
+    handleView(row)
+  }
 
   useEffect(() => {
     if (timeFilter && timeFilter.year) {
@@ -90,7 +100,7 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
         overflow: 'hidden'
       }}>
         <DataGrid
-          loading={loadingDataPointOfSale}
+          loading={loadingDataRequestOrder}
           columns={[
             {
               flex: 0.1,
@@ -129,7 +139,7 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
             {
               flex: 0.16,
               minWidth: 120,
-              field: 'creator',
+              field: 'createdBy',
               headerName: 'Dibuat Oleh',
               renderCell: params => {
                 const { row } = params
@@ -137,10 +147,10 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                       <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                        {row.creator.name}
+                        {row.createdBy.name}
                       </Typography>
                       <Typography noWrap variant='caption'>
-                        {row.creator.role}
+                        {row.createdBy.role}
                       </Typography>
                     </Box>
                   </Box>
@@ -150,26 +160,21 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
             {
               flex: 0.16,
               minWidth: 120,
-              field: 'grandTotal',
-              headerName: 'Total Pembelian',
+              field: 'approvedBy',
+              headerName: 'Diproses Oleh',
               renderCell: params => {
+                const { row } = params
                 return (
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {priceFormatWIthCurrency(params.row.grandTotal)}
-                  </Typography>
-                )
-              }
-            },
-            {
-              flex: 0.16,
-              minWidth: 120,
-              field: 'totalItems',
-              headerName: 'Total Item',
-              renderCell: params => {
-                return (
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.totalItems}
-                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
+                        {row.approvedBy.name}
+                      </Typography>
+                      <Typography noWrap variant='caption'>
+                        {row.approvedBy.role}
+                      </Typography>
+                    </Box>
+                  </Box>
                 )
               }
             },
@@ -192,22 +197,23 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
               renderCell: ({ row }) => (
                 <div onClick={e => e.stopPropagation()}>
                   <RowOptions
-                    handleView={() => handleRowClick(row)}
-                    handlePrint={() => handleRowPrint(row)}
-                    data={row}
+                    handleView={() => handleView(row)}
+                    handleEdit={() => handleEdit(row)}
+                    status={row.status}
                   />
                 </div>
               )
             }
           ]}
           pageSizeOptions={isLowHeight ? [5, 10] : [5, 10, 25]}
-          onCellClick={e => handleRowClick(e)}
+          onCellClick={({ row }) => handleView(row)}
           paginationModel={paginationModel}
-          slots={{ toolbar: TableHeaderPointOfSale }}
+          slots={{ toolbar: TableHeaderRequestProduct }}
           onPaginationModelChange={setPaginationModel}
           rows={filteredData}
           sx={{
             height: '100%',
+            width: '100%',
             '& .MuiSvgIcon-root': {
               fontSize: '1.125rem'
             },
@@ -216,10 +222,17 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
             },
             '& .MuiDataGrid-footerContainer': {
               borderTop: '1px solid rgba(224, 224, 224, 1)',
-              minHeight: isLowHeight ? '40px' : '52px'
+              minHeight: isLowHeight ? '40px' : '52px',
+              maxHeight: isLowHeight ? '40px' : '52px'
             },
             '& .MuiTablePagination-root': {
               fontSize: isLowHeight ? '0.75rem' : '0.875rem'
+            },
+            '& .MuiDataGrid-main': {
+              overflow: 'hidden'
+            },
+            '& .MuiDataGrid-virtualScroller': {
+              overflow: 'auto'
             }
           }}
           slotProps={{
@@ -229,13 +242,17 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
             },
             toolbar: {
               value: searchText,
-              placeholder: 'Cari point of sale',
+              placeholder: 'Cari request produk',
               clearSearch: () => handleSearch(''),
-              onChange: event => handleSearch(event.target.value)
+              onChange: event => handleSearch(event.target.value),
+              handleAdd: () => {
+                setOpenModalForm(true)
+                setTypeModal('ADD')
+              }
             }
           }}
         />
-        <ModalViewTransactionV2 setOpen={setOpenModalDetail} open={openModalDetail} />
+        <ModalAddRequestProduct open={openModalForm} setOpen={setOpenModalForm} typeModal={typeModal} />
       </Card>
     </>
   )

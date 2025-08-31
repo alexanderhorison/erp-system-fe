@@ -1,45 +1,60 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
+import { Box, Button, Card, IconButton, Typography } from '@mui/material'
 
 import Icon from 'src/@core/components/icon'
+import CustomChip from 'src/@core/components/mui/chip'
 
 import { DataGrid } from '@mui/x-data-grid'
 
 import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
-import TableHeaderPointOfSale from './TableHeaderPointOfSale'
-import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
-import { fetchDetailPointOfSale } from 'src/store/apps/pos'
-import ModalViewTransactionV2 from './ModalViewTransactionV2'
-import { printPointOfSale } from 'src/utils/printerHelper'
+import { fetchDetailRequestOrder, updateRequestOrder } from 'src/store/apps/product-request-order'
+import TableHeaderRequestProduct from '../point-of-sale/request-product/TableHeaderRequestProduct'
+import { useRouter } from 'next/router'
 
 
-const RowOptions = ({ handleView, handlePrint }) => {
+const RowOptions = ({ handleView, handleProcess, status, handleReject }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleView}>
-          <Icon icon='tabler:eye' />
-        </IconButton>
-        <IconButton onClick={handlePrint}>
-          <Icon icon='tabler:printer' />
-        </IconButton>
+        {
+          status === 'PENDING' && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Button color={'success'} variant='contained' size='small' onClick={handleProcess}>
+                Process
+              </Button>
+              <Button color={'error'} variant='contained' size='small' onClick={handleReject}>
+                Reject
+              </Button>
+            </Box>
+          )
+        }
+        {
+          status !== 'PENDING' && (
+            <IconButton onClick={handleView}>
+              <Icon icon='tabler:eye' />
+            </IconButton>
+          )
+        }
       </Box>
     </>
   )
 }
 
-export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLowHeight }) {
+export default function TableRequestProduct({ timeFilter }) {
   const dispatch = useDispatch()
+  const router = useRouter()
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: isLowHeight ? 5 : 10 })
-  const [openModalDetail, setOpenModalDetail] = useState(false)
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [openModalForm, setOpenModalForm] = useState(false)
+  const [typeModal, setTypeModal] = useState('ADD')
 
-  const { dataPointOfSale: data, loadingDataPointOfSale } = useSelector(state => state.pos)
+
+  const { dataRequestOrder: data, loadingDataRequestOrder } = useSelector(state => state.productRequest)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
@@ -52,15 +67,19 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
     })
   }
 
-  const handleRowClick = params => {
-    const id = params?.code || params?.row?.code
-    setOpenModalDetail(true)
-    dispatch(fetchDetailPointOfSale(id))
+  const handleProcessRequest = row => {
+    const id = row?.code;
+    router.push(`/product-request/process/${id}`)
   }
 
-  const handleRowPrint = async (params) => {
-    printPointOfSale(dispatch, params.code)
-  };
+  const handleView = row => {
+    const id = row?.code;
+    router.push(`/product-request/${id}`)
+  }
+
+  const handleRejectRequest = (code) => {
+    dispatch(updateRequestOrder({ code, type: 'REJECT' }))
+  }
 
   useEffect(() => {
     if (timeFilter && timeFilter.year) {
@@ -83,14 +102,10 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
 
   return (
     <>
-      <Card sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden'
-      }}>
+      <Card >
         <DataGrid
-          loading={loadingDataPointOfSale}
+          autoHeight
+          loading={loadingDataRequestOrder}
           columns={[
             {
               flex: 0.1,
@@ -129,7 +144,7 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
             {
               flex: 0.16,
               minWidth: 120,
-              field: 'creator',
+              field: 'createdBy',
               headerName: 'Dibuat Oleh',
               renderCell: params => {
                 const { row } = params
@@ -137,10 +152,10 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                       <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                        {row.creator.name}
+                        {row.createdBy.name}
                       </Typography>
                       <Typography noWrap variant='caption'>
-                        {row.creator.role}
+                        {row.createdBy.role}
                       </Typography>
                     </Box>
                   </Box>
@@ -150,26 +165,21 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
             {
               flex: 0.16,
               minWidth: 120,
-              field: 'grandTotal',
-              headerName: 'Total Pembelian',
+              field: 'approvedBy',
+              headerName: 'Diproses Oleh',
               renderCell: params => {
+                const { row } = params
                 return (
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {priceFormatWIthCurrency(params.row.grandTotal)}
-                  </Typography>
-                )
-              }
-            },
-            {
-              flex: 0.16,
-              minWidth: 120,
-              field: 'totalItems',
-              headerName: 'Total Item',
-              renderCell: params => {
-                return (
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.totalItems}
-                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
+                        {row.approvedBy.name}
+                      </Typography>
+                      <Typography noWrap variant='caption'>
+                        {row.approvedBy.role}
+                      </Typography>
+                    </Box>
+                  </Box>
                 )
               }
             },
@@ -184,42 +194,37 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
               }
             },
             {
-              flex: 0.01,
+              flex: 0.15,
               minWidth: 100,
               sortable: false,
               field: 'actions',
+              headerAlign: 'center',
+              align: 'center',
               headerName: 'Actions',
               renderCell: ({ row }) => (
                 <div onClick={e => e.stopPropagation()}>
                   <RowOptions
-                    handleView={() => handleRowClick(row)}
-                    handlePrint={() => handleRowPrint(row)}
-                    data={row}
+                    handleView={() => handleView(row)}
+                    handleProcess={() => handleProcessRequest(row)}
+                    status={row.status}
+                    handleReject={() => handleRejectRequest(row.code)}
                   />
                 </div>
               )
             }
           ]}
-          pageSizeOptions={isLowHeight ? [5, 10] : [5, 10, 25]}
+          pageSizeOptions={[5, 10]}
           onCellClick={e => handleRowClick(e)}
           paginationModel={paginationModel}
-          slots={{ toolbar: TableHeaderPointOfSale }}
+          slots={{ toolbar: TableHeaderRequestProduct }}
           onPaginationModelChange={setPaginationModel}
           rows={filteredData}
           sx={{
-            height: '100%',
             '& .MuiSvgIcon-root': {
               fontSize: '1.125rem'
             },
             '& .MuiDataGrid-cell': {
               cursor: 'pointer'
-            },
-            '& .MuiDataGrid-footerContainer': {
-              borderTop: '1px solid rgba(224, 224, 224, 1)',
-              minHeight: isLowHeight ? '40px' : '52px'
-            },
-            '& .MuiTablePagination-root': {
-              fontSize: isLowHeight ? '0.75rem' : '0.875rem'
             }
           }}
           slotProps={{
@@ -229,13 +234,13 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
             },
             toolbar: {
               value: searchText,
-              placeholder: 'Cari point of sale',
+              placeholder: 'Cari request produk',
               clearSearch: () => handleSearch(''),
-              onChange: event => handleSearch(event.target.value)
+              onChange: event => handleSearch(event.target.value),
             }
           }}
         />
-        <ModalViewTransactionV2 setOpen={setOpenModalDetail} open={openModalDetail} />
+        {/* <ModalAddRequestProduct open={openModalForm} setOpen={setOpenModalForm} typeModal={typeModal} /> */}
       </Card>
     </>
   )
