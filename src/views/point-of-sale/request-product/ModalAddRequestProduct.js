@@ -61,7 +61,9 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
           .typeError('Kuantitas harus diisi')
           .required('Kuantitas harus diisi')
           .min(1, 'Kuantitas minimal 1'),
-      })),
+      }))
+      .required('Data Produk Request tidak boleh kosong')   // 🔹 array must exist
+      .min(1, 'Minimal 1 produk request harus diisi'),
     notes: yup.string().optional()
   })
 
@@ -131,15 +133,16 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
         code: detailRequestOrder.code
       }))
     }
-    reset()
-    remove()
+    reset({
+      data: [{ productId: '', unitId: '', quantityRequested: '' }],
+      notes: ''
+    })
     setOpen(false)
   }
 
   // CLOSE MODAL AND RESET FORM
   const handleClose = () => {
     reset()
-    remove()
     setOpen(false)
   }
 
@@ -400,7 +403,8 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
               </Grid>
               <DialogActions
                 sx={{
-                  px: theme => [`${theme.spacing(0)} !important`, `${theme.spacing(0)} !important`]
+                  px: theme => [`${theme.spacing(0)} !important`, `${theme.spacing(0)} !important`],
+                  marginTop: '20px'
                 }}
               >
                 {typeModal !== 'VIEW' && (
