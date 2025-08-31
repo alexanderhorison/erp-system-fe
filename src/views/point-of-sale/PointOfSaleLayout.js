@@ -39,14 +39,18 @@ const listFilter = [
   },
 ]
 
-const height = '18rem'
 
 export default function PointOfSaleLayout({
   showFilter,
   setShowFilter,
   warehouse,
   setScriptEpos,
+  heightBody,
+  isMobile,
+  isTablet,
+  isLowHeight
 }) {
+  const height = heightBody || (isMobile ? '16rem' : isTablet ? '18rem' : '20rem')
   const { data: companyData, loading } = useSelector(state => state.company)
   const { data: typeData } = useSelector(state => state.type)
   const { data: categoryData } = useSelector(state => state.category)
@@ -253,9 +257,383 @@ export default function PointOfSaleLayout({
   }, [])
 
   return (
-    <Grid container spacing={3}>
-      {
-        openModalProduct &&
+    <Box
+      sx={{
+        height: '100%',
+        maxHeight: '100%',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
+      {/* =============== HEADER SECTION ================= */}
+      <Box sx={{ flexShrink: 0, mb: isLowHeight ? 0.5 : 1 }}>
+        <Grid container spacing={isLowHeight ? 1 : 2}>
+          {/* FILTER */}
+          <Grid item xs={12} md={2} sx={{ display: showFilter ? 'block' : 'none' }}>
+            <Controller
+              name='typeFilter'
+              control={controlFilter}
+              render={({ field: { value, onChange } }) => (
+                <CustomTextField
+                  select
+                  fullWidth
+                  SelectProps={{
+                    value: value,
+                    onChange: e => {
+                      onChange(e)
+                      setFilter({
+                        ...filter,
+                        type: e.target.value
+                      })
+
+                    }
+                  }}
+                >
+                  {listFilter?.map((data, index) => {
+                    return (
+                      <MenuItem key={index} value={data.value}>
+                        {data.name}
+                      </MenuItem>
+                    )
+                  })}
+                </CustomTextField>
+              )}
+            />
+          </Grid>
+          {/* FILTER BODY PRODUCT */}
+          <Grid item xs={12} md={6}>
+            <Grid container spacing={{ xs: 1, md: 3 }} justifyContent="center" alignItems="center">
+              <Grid item xs={4} md={4}>
+                <Button
+                  fullWidth
+                  variant={filterForm.typeProduct === 'ALL' ? 'contained' : 'outlined'}
+                  onClick={handleClickAll}
+                  disabled={warehouse?.warehouseId ? false : true}
+                >
+                  All
+                </Button>
+              </Grid>
+              <Grid item xs={4} md={4}>
+                <Button
+                  fullWidth
+                  variant={filterForm.typeProduct === 'favorite' ? 'contained' : 'outlined'}
+                  onClick={handleClickFavorite}
+                  disabled={warehouse?.warehouseId ? false : true}
+                >
+                  Favorite
+                </Button>
+              </Grid>
+              <Grid item xs={4} md={4}>
+                <Button
+                  fullWidth
+                  variant={filterForm.typeProduct === 'custom' ? 'contained' : 'outlined'}
+                  onClick={handleClickCustom}
+                  disabled={warehouse?.warehouseId ? false : true}
+                >
+                  Custom
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+          {/* ADD CUSTOMER */}
+          <Grid item xs={12} md={showFilter ? 4 : 6}>
+            <Button fullWidth variant='contained' onClick={handleClickAddCustomer}>
+              {
+                selectedCustomerPos?.name ? selectedCustomerPos.name : 'Add Customer'
+              }
+            </Button>
+          </Grid>
+        </Grid>
+      </Box>
+
+      {/* =============== BODY SECTION ================= */}
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflow: 'hidden',
+          minHeight: 0,
+          height: '100%'
+        }}
+      >
+        <Grid
+          container
+          spacing={isLowHeight ? 1 : 2}
+          sx={{
+            height: '100%',
+            maxHeight: '100%',
+            overflow: 'hidden'
+          }}
+        >
+          {/* Section Filter */}
+          <Grid
+            item
+            xs={12}
+            md={2}
+            sx={{
+              display: showFilter ? 'flex' : 'none',
+              height: '100%',
+              maxHeight: '100%',
+              flexDirection: 'column'
+            }}
+          >
+            <Box
+              sx={{
+                height: '100%',
+                flex: 1,
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                paddingBottom: 2
+              }}
+            >
+              <Grid container direction='column' spacing={2}>
+                <Grid item xs={6} sm={4} md={4} key={999}>
+                  <Button
+                    fullWidth={true}
+                    variant={filterForm.typeValue === "ALL" ? 'contained' : 'outlined'}
+                    sx={{
+                      height: 40,
+                      textWrap: 'wrap',
+                      textAlign: 'center'
+                    }}
+                    onClick={() => {
+                      setValueFilter('typeValue', "ALL")
+                      setFilter({
+                        ...filter,
+                        typeValue: "ALL"
+                      })
+                    }}
+                  >
+                    ALL
+                  </Button>
+                </Grid>
+                {listLeftFilter?.map((data, index) => (
+                  <Grid item xs={6} sm={4} md={4} key={index}>
+                    <Button
+                      fullWidth={true}
+                      variant={filterForm.typeValue === data?.id ? 'contained' : 'outlined'}
+                      sx={{
+                        height: 40,
+                        textWrap: 'wrap',
+                        textAlign: 'center'
+                      }}
+                      onClick={() => {
+                        setValueFilter('typeValue', data?.id)
+                        setFilter({
+                          ...filter,
+                          typeValue: data?.id
+                        })
+                      }}
+                    >
+                      {data.name}
+                    </Button>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          </Grid>
+          {/** Products */}
+          <Grid
+            item
+            xs={12}
+            md={6}
+            sx={{
+              height: '100%',
+              maxHeight: '100%',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            {/* All Product */}
+            <Box
+              sx={{
+                height: '100%',
+                flex: 1,
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                display: showProduct ? 'block' : 'none',
+                paddingBottom: 2
+              }}
+            >
+              <Grid container spacing={{ xs: 1, md: 2 }} sx={{ paddingBottom: 2 }}>
+                {filteredProducts?.map((data, index) => (
+                  <Grid item xs={6} sm={4} md={4} key={index}>
+                    <Button
+                      fullWidth
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSelectedProduct(data)
+                        handleClickProduct()
+                      }}
+                      sx={{
+                        maxWidth: '300px',
+                        border: '1px solid',
+                        p: 3,
+                        textAlign: 'center',
+                        width: '100%',
+                        height: '5.5rem',
+                        backgroundColor: 'primary',
+                        textWrap: 'wrap',
+                        marginBottom: 1
+                      }}
+                    >
+                      {data.productName}
+                    </Button>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+            {/* Custom Product */}
+            <Box
+              sx={{
+                height: '100%',
+                flex: 1,
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                display: showProduct ? 'none' : 'block',
+                paddingBottom: 2
+              }}
+            >
+              <ProductCustomField append={append} control={control} errors={errors} fields={fields} />
+            </Box>
+          </Grid>
+          {/* Cart */}
+          <Grid
+            item
+            xs={12}
+            md={showFilter ? 4 : 6}
+            sx={{
+              height: '100%',
+              maxHeight: '100%',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <Grid container spacing={{ xs: 1, md: 2 }} sx={{ height: '100%' }}>
+              <Grid item xs={12} sx={{ height: isLowHeight ? 'calc(100% - 120px)' : 'calc(100% - 180px)' }}>
+                <CartProductPos
+                  data={fields}
+                  control={control}
+                  helperTextPrice={helperTextPrice}
+                  setOpenEditProduct={() => setOpenModalEditProduct(true)}
+                  selectedProductEdit={selectedProductEdit}
+                  setSelectedProductEdit={setSelectedProductEdit}
+                  handleDeleteCustom={handleDeleteCustom}
+                  isMobile={isMobile}
+                  isTablet={isTablet}
+                  heightBody={heightBody}
+                  isLowHeight={isLowHeight}
+                />
+              </Grid>
+              <Grid item xs={12} sx={{ height: isLowHeight ? '120px' : '180px', flexShrink: 0 }}>
+                <Grid container spacing={{ xs: 1, md: 1 }} sx={{ height: '100%' }}>
+                  <Grid item xs={12} sx={{ height: isLowHeight ? '25px' : '40px' }}>
+                    <Grid container flex flexDirection={'row'} justifyContent={'space-between'} px={isLowHeight ? 2 : 6}>
+                      <Grid item>
+                        <Typography
+                          align='center'
+                          variant={isLowHeight ? 'body2' : 'h6'}
+                          sx={{
+                            marginTop: isLowHeight ? '2px' : '4px',
+                            fontWeight: 'bold',
+                            textWrap: 'wrap'
+                          }}
+                        >
+                          Total:
+                        </Typography>
+                      </Grid>
+                      <Grid item>
+                        <Typography
+                          align='center'
+                          variant={isLowHeight ? 'body2' : 'h6'}
+                          sx={{
+                            marginTop: isLowHeight ? '2px' : '4px',
+                            fontWeight: 'bold',
+                            textWrap: 'wrap'
+                          }}
+                        >
+                          {priceFormat(subTotalPrice()) || "-"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  <Grid item xs={12} sx={{ height: isLowHeight ? '60px' : '80px' }}>
+                    <Grid container spacing={{ xs: 2, md: 4 }} sx={{ height: '100%' }}>
+                      <Grid item xs={6}>
+                        <Button
+                          disabled={disableButtonCharge}
+                          fullWidth
+                          variant={'outlined'}
+                          onClick={handleSaveBill}
+                          sx={{
+                            height: '100%',
+                            fontSize: isLowHeight ? '0.7rem' : 'inherit'
+                          }}
+                        >
+                          Next Bill {isLowHeight ? '' : priceFormat(getValues('grandTotal'))}
+                        </Button>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Button
+                          disabled={disableButtonCharge}
+                          fullWidth
+                          variant={'contained'}
+                          onClick={handleClickCharge}
+                          sx={{
+                            height: '100%',
+                            fontSize: isLowHeight ? '0.7rem' : 'inherit'
+                          }}
+                        >
+                          Charge {isLowHeight ? '' : priceFormat(getValues('grandTotal'))}
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  <Grid item xs={12} sx={{ height: isLowHeight ? '35px' : '60px' }}>
+                    <Button
+                      disabled={disableButtonClear}
+                      fullWidth
+                      sx={{
+                        backgroundColor: '#d6bdab',
+                        height: '100%',
+                        fontSize: isLowHeight ? '0.7rem' : 'inherit'
+                      }}
+                      onClick={() => {
+                        swalConfirmationOnly({
+                          title: 'Yakin menghapus keranjang?',
+                          text: 'Anda akan menghapus keranjang',
+                          icon: 'warning',
+                          showCancelButton: true,
+                          onClickYes: () => {
+                            remove()
+                            localStorage.setItem('listProductPos', JSON.stringify([]))
+                          }
+                        })
+                      }}
+                    >
+                      Clear
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+
+          <Script
+            src="/epos-2.27.0.js"
+            strategy="afterInteractive"
+            onLoad={() => {
+              setScriptEpos(true)
+              console.log("📜 ePOS SDK Loaded")
+            }}
+          />
+        </Grid>
+      </Box>
+
+      {/* Modals */}
+      {openModalProduct && (
         <ModalAddProductPos
           open={openModalProduct}
           setOpen={setOpenModalProduct}
@@ -264,18 +642,16 @@ export default function PointOfSaleLayout({
           addProduct={append}
           fields={fields}
         />
-      }
-      {
-        openModalAddCustomer &&
+      )}
+      {openModalAddCustomer && (
         <ModalAddCustomerPos
           open={openModalAddCustomer}
           setOpen={setOpenModalAddCustomer}
           setSelectedCustomerPos={setSelectedCustomerPos}
           selectedCustomer={selectedCustomerPos}
         />
-      }
-      {
-        openModalCharge &&
+      )}
+      {openModalCharge && (
         <ModalChargePos
           open={openModalCharge}
           setOpen={setOpenModalCharge}
@@ -285,9 +661,8 @@ export default function PointOfSaleLayout({
           resetAllField={resetAllField}
           warehouse={warehouse}
         />
-      }
-      {
-        openModalEditProduct &&
+      )}
+      {openModalEditProduct && (
         <ModalEditProductPos
           open={openModalEditProduct}
           setOpen={setOpenModalEditProduct}
@@ -295,265 +670,7 @@ export default function PointOfSaleLayout({
           updateProduct={update}
           removeProduct={remove}
         />
-      }
-      {/* =============== HEADER ================= */}
-      {/* FILTER */}
-      <Grid item md={2} sx={{ display: showFilter ? 'block' : 'none' }}>
-        <Controller
-          name='typeFilter'
-          control={controlFilter}
-          render={({ field: { value, onChange } }) => (
-            <CustomTextField
-              select
-              fullWidth
-              SelectProps={{
-                value: value,
-                onChange: e => {
-                  onChange(e)
-                  setFilter({
-                    ...filter,
-                    type: e.target.value
-                  })
-
-                }
-              }}
-            >
-              {listFilter?.map((data, index) => {
-                return (
-                  <MenuItem key={index} value={data.value}>
-                    {data.name}
-                  </MenuItem>
-                )
-              })}
-            </CustomTextField>
-          )}
-        />
-      </Grid>
-      {/* FILTER BODY PRODUCT */}
-      <Grid item md={6} >
-        <Grid container spacing={3} justifyContent="center" alignItems="center">
-          <Grid item md={4} >
-            <Button
-              fullWidth
-              variant={filterForm.typeProduct === 'ALL' ? 'contained' : 'outlined'}
-              onClick={handleClickAll}
-              disabled={warehouse?.warehouseId ? false : true}
-            >
-              All
-            </Button>
-          </Grid>
-          <Grid item md={4}>
-            <Button
-              fullWidth
-              variant={filterForm.typeProduct === 'favorite' ? 'contained' : 'outlined'}
-              onClick={handleClickFavorite}
-              disabled={warehouse?.warehouseId ? false : true}
-            >
-              Favorite
-            </Button>
-          </Grid>
-          <Grid item md={4}>
-            <Button
-              fullWidth
-              variant={filterForm.typeProduct === 'custom' ? 'contained' : 'outlined'}
-              onClick={handleClickCustom}
-              disabled={warehouse?.warehouseId ? false : true}
-            >
-              Custom
-            </Button>
-          </Grid>
-        </Grid>
-      </Grid>
-      {/* ADD CUSTOMER */}
-      <Grid item md={showFilter ? 4 : 6}>
-        <Button fullWidth variant='contained' onClick={handleClickAddCustomer}>
-          {
-            selectedCustomerPos?.name ? selectedCustomerPos.name : 'Add Customer'
-          }
-        </Button>
-      </Grid>
-      {/* =============== BODY ================ */}
-      {/* Section Filter */}
-      <Grid
-        item
-        xs={2}
-        style={{ display: showFilter ? 'block' : 'none', transition: 'display 0.5s ease-in-out' }}
-      >
-        <Box
-          sx={{
-            maxHeight: height,
-            overflowY: 'auto',
-            height: height,
-          }}
-        >
-          <Grid container direction='column' spacing={2}>
-            <Grid item xs={6} sm={4} md={4} key={999}>
-              <Button
-                fullWidth={true}
-                variant={filterForm.typeValue === "ALL" ? 'contained' : 'outlined'}
-                sx={{
-                  height: 40,
-                  textWrap: 'wrap',
-                  textAlign: 'center'
-                }}
-                onClick={() => {
-                  setValueFilter('typeValue', "ALL")
-                  setFilter({
-                    ...filter,
-                    typeValue: "ALL"
-                  })
-                }}
-              >
-                ALL
-              </Button>
-            </Grid>
-            {listLeftFilter?.map((data, index) => (
-              <Grid item xs={6} sm={4} md={4} key={index}>
-                <Button
-                  fullWidth={true}
-                  variant={filterForm.typeValue === data?.id ? 'contained' : 'outlined'}
-                  sx={{
-                    height: 40,
-                    textWrap: 'wrap',
-                    textAlign: 'center'
-                  }}
-                  onClick={() => {
-                    setValueFilter('typeValue', data?.id)
-                    setFilter({
-                      ...filter,
-                      typeValue: data?.id
-                    })
-                  }}
-                >
-                  {data.name}
-                </Button>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      </Grid>
-      {/** Products */}
-      <Grid item xs={6}>
-        {/* All Product */}
-        <Box
-          sx={{
-            height: height,
-            overflowY: 'auto',
-            display: showProduct ? 'block' : 'none',
-          }}
-        >
-          <Grid container spacing={2}>
-            {filteredProducts?.map((data, index) => (
-              <Grid item md={4} key={index}>
-                <Button
-                  fullWidth
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSelectedProduct(data)
-                    handleClickProduct()
-                  }}
-                  sx={{
-                    maxWidth: '300px',
-                    border: '1px solid',
-                    p: 3,
-                    textAlign: 'center',
-                    width: '100%', // Ensures buttons expand horizontALLy
-                    height: '5.5rem',
-                    backgroundColor: 'primary',
-                    textWrap: 'wrap'
-                  }}
-                >
-                  {data.productName}
-                </Button>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-        {/* Custom Product */}
-        <Box
-          sx={{
-            height: height,
-            overflowY: 'auto',
-            display: showProduct ? 'none' : 'block',
-          }}
-        >
-          <ProductCustomField append={append} control={control} errors={errors} fields={fields} />
-        </Box>
-      </Grid>
-      {/* Cart */}
-      <Grid item md={showFilter ? 4 : 6}>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <CartProductPos
-              data={fields}
-              control={control}
-              helperTextPrice={helperTextPrice}
-              setOpenEditProduct={() => setOpenModalEditProduct(true)}
-              selectedProductEdit={selectedProductEdit}
-              setSelectedProductEdit={setSelectedProductEdit}
-              handleDeleteCustom={handleDeleteCustom}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Grid container flex flexDirection={'row'} justifyContent={'space-between'} px={6}>
-              <Grid item>
-                <Typography align='center' variant='h6' sx={{ marginTop: '4px', fontWeight: 'bold', textWrap: 'wrap' }}>
-                  Total:
-                </Typography>
-              </Grid>
-              <Grid item>
-                <Typography align='center' variant='h6' sx={{ marginTop: '4px', fontWeight: 'bold', textWrap: 'wrap' }}>
-                  {priceFormat(subTotalPrice()) || "-"}
-                </Typography>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item xs={12}>
-            <Grid container spacing={4}>
-              <Grid item xs={6}>
-                <Button disabled={disableButtonCharge} fullWidth variant={'outlined'} onClick={handleSaveBill}>
-                  Next Bill {priceFormat(getValues('grandTotal'))}
-                </Button>
-              </Grid>
-              <Grid item xs={6}>
-                <Button disabled={disableButtonCharge} fullWidth variant={'contained'} onClick={handleClickCharge}>
-                  Charge {priceFormat(getValues('grandTotal'))}
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              disabled={disableButtonClear}
-              fullWidth
-              // variant={'contained'}
-              sx={{ backgroundColor: '#d6bdab' }}
-              onClick={() => {
-                swalConfirmationOnly({
-                  title: 'Yakin menghapus keranjang?',
-                  text: 'Anda akan menghapus keranjang',
-                  icon: 'warning',
-                  showCancelButton: true,
-                  onClickYes: () => {
-                    remove()
-                    localStorage.setItem('listProductPos', JSON.stringify([]))
-                  }
-                })
-              }}
-            >
-              Clear
-            </Button>
-          </Grid>
-        </Grid>
-      </Grid>
-      <Script
-        src="/epos-2.27.0.js"
-        strategy="afterInteractive"
-        onLoad={() => {
-          setScriptEpos(true)
-          console.log("📜 ePOS SDK Loaded")
-        }}
-      />
-    </Grid>
+      )}
+    </Box>
   )
 }

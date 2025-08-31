@@ -30,11 +30,11 @@ const RowOptions = ({ handleView, handleEdit }) => {
   )
 }
 
-export default function TableRequestProduct({ timeFilter }) {
+export default function TableRequestProduct({ timeFilter, isMobile, isTablet, isLowHeight }) {
   const dispatch = useDispatch()
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: isLowHeight ? 5 : 10 })
   const [openModalForm, setOpenModalForm] = useState(false)
   const [typeModal, setTypeModal] = useState('ADD')
 
@@ -66,6 +66,10 @@ export default function TableRequestProduct({ timeFilter }) {
     setOpenModalForm(true)
   }
 
+  const handleRowClick = row => {
+    handleView(row)
+  }
+
   useEffect(() => {
     if (timeFilter && timeFilter.year) {
       const filtered = data.filter(item => {
@@ -87,7 +91,12 @@ export default function TableRequestProduct({ timeFilter }) {
 
   return (
     <>
-      <Card sx={{ height: '70vh' }}>
+      <Card sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
+      }}>
         <DataGrid
           loading={loadingDataRequestOrder}
           columns={[
@@ -193,18 +202,34 @@ export default function TableRequestProduct({ timeFilter }) {
               )
             }
           ]}
-          pageSizeOptions={[5, 10]}
+          pageSizeOptions={isLowHeight ? [5, 10] : [5, 10, 25]}
           onCellClick={e => handleRowClick(e)}
           paginationModel={paginationModel}
           slots={{ toolbar: TableHeaderRequestProduct }}
           onPaginationModelChange={setPaginationModel}
           rows={filteredData}
           sx={{
+            height: '100%',
+            width: '100%',
             '& .MuiSvgIcon-root': {
               fontSize: '1.125rem'
             },
             '& .MuiDataGrid-cell': {
               cursor: 'pointer'
+            },
+            '& .MuiDataGrid-footerContainer': {
+              borderTop: '1px solid rgba(224, 224, 224, 1)',
+              minHeight: isLowHeight ? '40px' : '52px',
+              maxHeight: isLowHeight ? '40px' : '52px'
+            },
+            '& .MuiTablePagination-root': {
+              fontSize: isLowHeight ? '0.75rem' : '0.875rem'
+            },
+            '& .MuiDataGrid-main': {
+              overflow: 'hidden'
+            },
+            '& .MuiDataGrid-virtualScroller': {
+              overflow: 'auto'
             }
           }}
           slotProps={{

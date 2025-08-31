@@ -17,11 +17,23 @@ export default function CartProductPos({
   selectedProductEdit,
   setSelectedProductEdit,
   handleDeleteCustom,
+  isMobile,
+  isTablet,
+  heightBody,
+  isLowHeight
 }) {
   const viewportHeight = window.innerHeight;
 
-  const minHeight = '8rem'
-  const maxHeight = '9.6rem'
+  // Responsive height calculation for cart
+  const getCartHeight = () => {
+    return {
+      minHeight: '200px',
+      maxHeight: '100%',
+      height: '100%'
+    }
+  }
+
+  const cartHeight = getCartHeight();
 
   const handleOpenEditProduct = (item, index) => {
     if (item?.isCustom) {
@@ -50,9 +62,11 @@ export default function CartProductPos({
     <Card
       sx={{
         border: 1,
-        maxHeight: maxHeight,
+        height: cartHeight.height,
         overflowY: 'auto',
-        minHeight: minHeight
+        minHeight: cartHeight.minHeight,
+        display: 'flex',
+        flexDirection: 'column'
       }}
     >
       {
@@ -69,8 +83,8 @@ export default function CartProductPos({
           <CardContent onClick={() => {
             if (item?.isCustom) return
             handleOpenEditProduct(item, index)
-          }} sx={{ paddingY: 4 }}>
-            <Grid container spacing={6}>
+          }} sx={{ paddingY: isLowHeight ? 1 : { xs: 2, md: 4 } }}>
+            <Grid container spacing={isLowHeight ? 1 : { xs: 2, md: 6 }}>
               <Grid item xs={12} md={6}>
                 <Controller
                   name={`formData[${index}].productName`}

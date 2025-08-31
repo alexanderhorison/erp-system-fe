@@ -8,7 +8,7 @@ import Icon from 'src/@core/components/icon'
 import SettingSectionPrinter from './SettingSectionPrinter'
 import { changePrinter, connectToPrinter } from 'src/utils/printerHelper'
 
-export default function SettingPosLayout({ setWarehouse, user }) {
+export default function SettingPosLayout({ setWarehouse, user, isMobile, isTablet, isLowHeight }) {
   const dispatch = useDispatch()
   // const { data: warehouseList } = useSelector(state => state.warehouse)
   const { listPrinter, loadingListPrinter } = useSelector(state => state.printer)
@@ -75,26 +75,41 @@ export default function SettingPosLayout({ setWarehouse, user }) {
   }
 
   return (
-    <Grid container spacing={3} p={3}>
-      <Grid item xs={12}>
+    <Box sx={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+      p: isLowHeight ? 1 : { xs: 1, md: 3 }
+    }}>
+      {/* Header Section */}
+      <Box sx={{ flexShrink: 0, mb: isLowHeight ? 1 : 2 }}>
         <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-          <Typography fontSize={20}>Setting POS</Typography>
+          <Typography fontSize={isLowHeight ? 14 : { xs: 16, md: 20 }}>Setting POS</Typography>
         </Box>
         <Divider />
-      </Grid>
-      <Grid item xs={12}>
-        <Grid container spacing={3}>
-          <Grid item xs={6}>
-            <Box sx={{ bgcolor: '#f0f0f0', overflowY: 'auto', height: '57vh', p: 3, borderRadius: 2 }}>
-              <Grid container spacing={2}>
+      </Box>
+
+      {/* Content Section */}
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        <Grid container spacing={{ xs: 1, md: 3 }} sx={{ height: '100%' }}>
+          <Grid item xs={12} md={6} sx={{ height: '100%' }}>
+            <Box sx={{
+              bgcolor: '#f0f0f0',
+              overflowY: 'auto',
+              height: '100%',
+              p: isLowHeight ? 1 : { xs: 2, md: 3 },
+              borderRadius: 2
+            }}>
+              <Grid container spacing={{ xs: 1, md: 2 }}>
                 {menus.map(menu => (
-                  <Grid item xs={3} key={menu.value}>
+                  <Grid item xs={6} md={3} key={menu.value}>
                     <Box
                       border={0}
                       bgcolor={selectedSettings === menu.value ? '#d6bdab' : 'white'}
                       boxShadow={1}
                       borderRadius={1}
-                      height={100}
+                      height={{ xs: 80, md: 100 }}
                       display='flex'
                       flexDirection='column'
                       alignItems='center'
@@ -102,11 +117,12 @@ export default function SettingPosLayout({ setWarehouse, user }) {
                       onClick={() => handleSelectMenu(menu.value)} // Hanya panggil action jika tidak disable
                       style={{
                         opacity: 1,
-                        pointerEvents: 'auto'
+                        pointerEvents: 'auto',
+                        cursor: 'pointer'
                       }}
                     >
-                      <Icon icon={menu.icon} width={24} height={24} />
-                      <Typography variant='body2' fontSize={'0.75rem'} mt={1}>
+                      <Icon icon={menu.icon} width={isMobile ? 20 : 24} height={isMobile ? 20 : 24} />
+                      <Typography variant='body2' fontSize={{ xs: '0.65rem', md: '0.75rem' }} mt={1} textAlign="center">
                         {menu.label}
                       </Typography>
                     </Box>
@@ -115,8 +131,14 @@ export default function SettingPosLayout({ setWarehouse, user }) {
               </Grid>
             </Box>
           </Grid>
-          <Grid item xs={6}>
-            <Box sx={{ bgcolor: '#f0f0f0', overflowY: 'auto', height: '57vh', p: 3, borderRadius: 2 }}>
+          <Grid item xs={12} md={6} sx={{ height: '100%' }}>
+            <Box sx={{
+              bgcolor: '#f0f0f0',
+              overflowY: 'auto',
+              height: '100%',
+              p: isLowHeight ? 1 : { xs: 2, md: 3 },
+              borderRadius: 2
+            }}>
               {/* {selectedSettings === 'SETTING_WAREHOUSE' && (
                 <SettingSectionWarehouse warehouseList={warehouseList} handleSelectWarehouse={handleSelectWarehouse} />
               )} */}
@@ -127,7 +149,7 @@ export default function SettingPosLayout({ setWarehouse, user }) {
             </Box>
           </Grid>
         </Grid>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   )
 }

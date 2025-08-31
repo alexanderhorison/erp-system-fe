@@ -6,7 +6,7 @@ import TimeFilter from 'src/pages/components/filter/FilterTime'
 import { fetchAllPointOfSaleByWarehouseId } from 'src/store/apps/pos'
 import TablePointOfSale from './TablePointOfSale'
 
-export default function TransactionLayout({ warehouseId }) {
+export default function TransactionLayout({ warehouseId, isMobile, isTablet, isLowHeight }) {
   const dispatch = useDispatch()
   const [timeFilter, setTimeFilter] = useState({
     month: '',
@@ -20,16 +20,41 @@ export default function TransactionLayout({ warehouseId }) {
   }, [warehouseId])
 
   return (
-    <Grid container spacing={3}>
-      <Grid item xs={12}>
-        <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', paddingY: 3 }}>
-          <Typography fontSize={20} sx={{ ml: '10px' }}>
-            Daftar Point of Sale
-          </Typography>
-          <TimeFilter timeFilter={timeFilter} setTimeFilter={setTimeFilter} />
-        </Box>
-        <TablePointOfSale timeFilter={timeFilter} />
-      </Grid>
-    </Grid>
+    <Box sx={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
+    }}>
+      {/* Header Section */}
+      <Box sx={{
+        flexShrink: 0,
+        gap: 1,
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        paddingY: isLowHeight ? 1 : { xs: 2, md: 3 },
+        marginBottom: isLowHeight ? 1 : 2,
+        flexDirection: { xs: 'column', sm: 'row' }
+      }}>
+        <Typography
+          fontSize={isLowHeight ? 14 : { xs: 16, md: 20 }}
+          sx={{ ml: { xs: 0, md: '10px' } }}
+        >
+          Daftar Point of Sale
+        </Typography>
+        <TimeFilter timeFilter={timeFilter} setTimeFilter={setTimeFilter} />
+      </Box>
+
+      {/* Table Section */}
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        <TablePointOfSale
+          timeFilter={timeFilter}
+          isMobile={isMobile}
+          isTablet={isTablet}
+          isLowHeight={isLowHeight}
+        />
+      </Box>
+    </Box>
   )
 }

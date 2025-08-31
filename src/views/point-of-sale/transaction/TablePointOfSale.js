@@ -32,11 +32,11 @@ const RowOptions = ({ handleView, handlePrint }) => {
   )
 }
 
-export default function TablePointOfSale({ timeFilter }) {
+export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLowHeight }) {
   const dispatch = useDispatch()
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: isLowHeight ? 5 : 10 })
   const [openModalDetail, setOpenModalDetail] = useState(false)
 
   const { dataPointOfSale: data, loadingDataPointOfSale } = useSelector(state => state.pos)
@@ -83,7 +83,12 @@ export default function TablePointOfSale({ timeFilter }) {
 
   return (
     <>
-      <Card sx={{ height: '70vh' }}>
+      <Card sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
+      }}>
         <DataGrid
           loading={loadingDataPointOfSale}
           columns={[
@@ -195,18 +200,26 @@ export default function TablePointOfSale({ timeFilter }) {
               )
             }
           ]}
-          pageSizeOptions={[5, 10]}
+          pageSizeOptions={isLowHeight ? [5, 10] : [5, 10, 25]}
           onCellClick={e => handleRowClick(e)}
           paginationModel={paginationModel}
           slots={{ toolbar: TableHeaderPointOfSale }}
           onPaginationModelChange={setPaginationModel}
           rows={filteredData}
           sx={{
+            height: '100%',
             '& .MuiSvgIcon-root': {
               fontSize: '1.125rem'
             },
             '& .MuiDataGrid-cell': {
               cursor: 'pointer'
+            },
+            '& .MuiDataGrid-footerContainer': {
+              borderTop: '1px solid rgba(224, 224, 224, 1)',
+              minHeight: isLowHeight ? '40px' : '52px'
+            },
+            '& .MuiTablePagination-root': {
+              fontSize: isLowHeight ? '0.75rem' : '0.875rem'
             }
           }}
           slotProps={{

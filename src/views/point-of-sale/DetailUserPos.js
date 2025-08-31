@@ -57,8 +57,9 @@ export default function DetailUserPos({ user, warehouse, setOpenSetting }) {
   return (
     <Card
       sx={{
-        p: 2.5,
-        height: '6rem',
+        p: { xs: 1.5, md: 2.5 },
+        height: { xs: 'auto', md: '6rem' },
+        minHeight: { xs: '4rem', md: '6rem' },
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -72,11 +73,11 @@ export default function DetailUserPos({ user, warehouse, setOpenSetting }) {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1 }}>
           <Avatar
             sx={{
-              width: 28,
-              height: 28,
+              width: { xs: 24, md: 28 },
+              height: { xs: 24, md: 28 },
               bgcolor: 'white',
               color: 'text.primary',
-              fontSize: '0.75rem',
+              fontSize: { xs: '0.65rem', md: '0.75rem' },
               fontWeight: 600,
               border: '1px solid',
               borderColor: 'divider'

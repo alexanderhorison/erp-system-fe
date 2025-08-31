@@ -5,13 +5,13 @@ import Icon from 'src/@core/components/icon'
 
 const MenuBox = ({ icon, title, action, selected, disable, notification = false }) => {
   return (
-    <Grid item xs={2}>
+    <Grid item xs={6} sm={4} md={2}>
       <Box
         border={0}
         bgcolor={disable ? '#f0f0f0' : selected ? '#d6bdab' : 'white'}
         boxShadow={1}
         borderRadius={1}
-        height='6rem'
+        height={{ xs: '4rem', md: '6rem' }}
         display='flex'
         flexDirection='column'
         alignItems='center'
@@ -19,7 +19,15 @@ const MenuBox = ({ icon, title, action, selected, disable, notification = false 
         onClick={!disable ? action : undefined} // Hanya panggil action jika tidak disable
         style={{
           opacity: disable ? 0.5 : 1,
-          pointerEvents: disable ? 'none' : 'auto'
+          pointerEvents: disable ? 'none' : 'auto',
+          cursor: !disable ? 'pointer' : 'default'
+        }}
+        sx={{
+          '&:hover': !disable && {
+            boxShadow: 2,
+            transform: 'translateY(-1px)',
+            transition: 'all 0.2s ease-in-out'
+          }
         }}
       >
         <Badge
@@ -31,7 +39,7 @@ const MenuBox = ({ icon, title, action, selected, disable, notification = false 
         >
           <Icon icon={icon} width={24} height={24} />
         </Badge>
-        <Typography variant='body2' fontSize={'0.75rem'} mt={1}>
+        <Typography variant='body2' fontSize={{ xs: '0.65rem', md: '0.75rem' }} mt={1} textAlign="center">
           {title}
         </Typography>
       </Box>
@@ -50,7 +58,7 @@ export default function MenuPosV2({ showFilter, setShowFilter, selectedMenu, set
   }, [printer])
 
   return (
-    <Grid container height={'4rem'} columnSpacing={2}>
+    <Grid container height={{ xs: 'auto', md: '4rem' }} spacing={{ xs: 1, md: 2 }}>
       <MenuBox
         icon={showFilter ? 'tabler:filter-off' : 'tabler:filter'}
         title={showFilter ? 'Hide Filter' : 'Show Filter'}
