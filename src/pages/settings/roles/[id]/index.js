@@ -17,6 +17,7 @@ import { fetchMenus } from 'src/store/apps/menu'
 import { editRole, fetchOneRole } from 'src/store/apps/role'
 import ButtonBack from 'src/views/common/ButtonBack'
 import Icon from 'src/@core/components/icon'
+import CustomTextField from 'src/@core/components/mui/text-field'
 
 export default function DetailRole() {
   const dispatch = useDispatch()
@@ -26,18 +27,30 @@ export default function DetailRole() {
 
   const { detailRole, loadingDetail, errorDetail } = useSelector(state => state.role)
 
+  const [inputField, setInputField] = useState({
+    name: '',
+    description: '',
+  })
+
   const handleSubmit = async event => {
     event.preventDefault()
-    const data = {
-      name: detailRole.name,
-      description: detailRole.description,
-      menuId: checkedMenuIds
+    if (!inputField.name) {
+    } else {
+      const data = {
+        ...inputField,
+        menuId: checkedMenuIds
+      }
+      dispatch(editRole({ id, data, router }))
     }
-    dispatch(editRole({ id, data, router }))
   }
 
   useEffect(() => {
-    dispatch(fetchOneRole(id))
+    dispatch(fetchOneRole(id)).then((result) => {
+      setInputField({
+        name: result.payload.data.name ?? "",
+        description: result.payload.data.description ?? "",
+      })
+    })
     dispatch(fetchMenus())
   }, [id])
 
@@ -50,12 +63,24 @@ export default function DetailRole() {
       <ButtonBack name='Role Details' />
       <Card sx={{ padding: 2, marginBottom: 2 }}>
         <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Typography variant='body1' component='p'>
-            <strong>Nama:</strong> {detailRole.name}
-          </Typography>
-          <Typography variant='body1' component='p'>
-            <strong>Deskripsi:</strong> {detailRole.description}
-          </Typography>
+          <CustomTextField
+            fullWidth
+            value={inputField.name}
+            sx={{ mb: 4 }}
+            label='Nama'
+            onChange={e => setInputField(prev => ({ ...prev, name: e.target.value }))}
+            error={Boolean(!inputField.name)}
+            {...(!inputField.name && { helperText: "Nama Role harus ada" })}
+          />
+          <CustomTextField
+            fullWidth
+            value={inputField.description}
+            sx={{ mb: 4 }}
+            label='Deskripsi'
+            onChange={e => setInputField(prev => ({ ...prev, description: e.target.value }))}
+            multiline
+            rows={3}
+          />
         </CardContent>
       </Card>
       <Card>
