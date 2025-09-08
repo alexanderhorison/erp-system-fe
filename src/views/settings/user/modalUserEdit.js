@@ -1,18 +1,13 @@
 // Mui import
 import {
-  Dialog,
-  DialogContent,
   Box,
-  Typography,
-  Fade,
   Grid,
   MenuItem,
   Button,
   InputAdornment,
   IconButton,
-  DialogActions
 } from '@mui/material'
-import { forwardRef, useState } from 'react'
+import { useState } from 'react'
 
 // Custom Component
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -24,15 +19,11 @@ import { Controller, useForm } from 'react-hook-form'
 
 // Store
 import { useSelector, useDispatch } from 'react-redux'
-import { CustomCloseButton } from 'src/views/pages/dialog-examples/DialogEditUserInfo'
 import Icon from 'src/@core/components/icon'
 import { editUser } from 'src/store/apps/user'
-import { defaultValues, showErrors } from './modalUserAdd'
 import encrypt from 'src/utils/encrypt'
-
-export const Transition = forwardRef(function Transition(props, ref) {
-  return <Fade ref={ref} {...props} />
-})
+import { defaultValues, showErrors } from './TableHeader'
+import BaseModal from 'src/views/common/BaseModal'
 
 export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
   // store
@@ -123,47 +114,18 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
 
   return (
     <>
-      <Dialog
-        fullWidth
+      <BaseModal
         open={isOpen}
         onClose={closePress}
-        maxWidth='sm'
-        scroll='body'
-        TransitionComponent={Transition}
-        onBackdropClick={closePress}
-        sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
+        onSubmit={handleSubmit(onSubmitEdit)}
+        title={'Edit Pengguna'}
+        size="sm"
+        showActions={true}
       >
-        <DialogContent
-          sx={{
-            pb: theme => `${theme.spacing(8)} !important`,
-            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-            pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-          }}
-        >
-          <CustomCloseButton onClick={closePress}>
-            <Icon icon='tabler:x' fontSize='1.25rem' />
-          </CustomCloseButton>
-          <Box sx={{ mb: 8, textAlign: 'center' }}>
-            {isView ? (
-              <>
-                <Typography variant='h3' sx={{ mb: 3 }}>
-                  Informasi Akun {data?.name}
-                </Typography>
-              </>
-            ) : (
-              <>
-                <Typography variant='h3' sx={{ mb: 3 }}>
-                  Sunting Informasi Akun
-                </Typography>
-                <Typography variant='h6' sx={{ mb: 3 }}>
-                  Anda akan menyunting akun {data?.name}
-                </Typography>
-              </>
-            )}
-          </Box>
-          <form onSubmit={handleSubmit(onSubmitEdit)}>
-            <Grid container spacing={1}>
-              <Grid item sm={12} xs={12}>
+        <Grid container spacing={6}>
+          <Grid item xs={12}>
+            <Grid container spacing={6}>
+              <Grid item xs={12}>
                 <Controller
                   name='name'
                   control={control}
@@ -172,7 +134,6 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                     <CustomTextField
                       fullWidth
                       value={value}
-                      sx={{ mb: 4 }}
                       label='Nama'
                       onChange={onChange}
                       disabled={isView}
@@ -192,7 +153,6 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                     <CustomTextField
                       fullWidth
                       value={value}
-                      sx={{ mb: 4 }}
                       label='Username'
                       onChange={onChange}
                       disabled={isView}
@@ -215,7 +175,6 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                       disabled={isView}
                       label='Email'
                       value={value}
-                      sx={{ mb: 4 }}
                       onChange={onChange}
                       error={Boolean(errors.email)}
                       placeholder='cakra@email.com'
@@ -234,7 +193,6 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                       label='Password'
                       value={value}
                       disabled={changePassword ? false : true}
-                      sx={{ mb: 4 }}
                       onChange={onChange}
                       onBlur={onBlur}
                       error={Boolean(errors.password)}
@@ -266,7 +224,7 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                   </Button>
                 </Box>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={12}>
                 <Controller
                   name='roleId'
                   control={control}
@@ -275,7 +233,6 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                     <CustomTextField
                       select
                       fullWidth
-                      sx={{ mb: 4 }}
                       label='Pilih Otoritas'
                       error={Boolean(errors.roleId)}
                       {...(errors.roleId && { helperText: errors.roleId.message })}
@@ -309,7 +266,6 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                       <CustomTextField
                         select
                         fullWidth
-                        sx={{ mb: 4 }}
                         label='Pilih Gudang'
                         error={Boolean(errors.warehouseId)}
                         {...(errors.warehouseId && { helperText: errors.warehouseId.message })}
@@ -342,34 +298,16 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                       rows={3}
                       label='Deskripsi'
                       value={value}
-                      sx={{ mb: 4 }}
                       onChange={onChange}
                       placeholder='akun cakra'
-                      disabled={isView}
                     />
                   )}
                 />
               </Grid>
             </Grid>
-            <DialogActions
-              sx={{
-                justifyContent: 'end',
-                px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(0)} !important`],
-                pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-              }}
-            >
-              <Button variant='tonal' color='secondary' onClick={closePress}>
-                Cancel
-              </Button>
-              {!isView && (
-                <Button type='submit' variant='contained'>
-                  Submit
-                </Button>
-              )}
-            </DialogActions>
-          </form>
-        </DialogContent>
-      </Dialog>
+          </Grid>
+        </Grid>
+      </BaseModal>
     </>
   )
 }

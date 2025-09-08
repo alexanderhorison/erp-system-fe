@@ -1,17 +1,10 @@
 // ** React Imports
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import { styled } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
-import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
-
 // ** Styles Import
 import 'react-credit-cards/es/styles-compiled.css'
 
@@ -27,22 +20,8 @@ import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import { createRequestOrder, updateFormRequestOrder } from 'src/store/apps/product-request-order'
-import data from 'src/@fake-db/components/data'
+import BaseModal from 'src/views/common/BaseModal'
 
-const CustomCloseButton = styled(IconButton)(({ theme }) => ({
-  top: 0,
-  right: 0,
-  color: 'grey.500',
-  position: 'absolute',
-  boxShadow: theme.shadows[2],
-  transform: 'translate(10px, -10px)',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: `${theme.palette.background.paper} !important`,
-  transition: 'transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out',
-  '&:hover': {
-    transform: 'translate(7px, -5px)'
-  }
-}))
 
 export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD' }) {
   const dispatch = useDispatch()
@@ -173,255 +152,219 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
 
   return (
     <>
-      <Card>
-        <Dialog
-          fullWidth
-          open={open}
-          maxWidth='md'
-          scroll='body'
-          onClose={handleClose}
-          sx={{ '& .MuiDialog-paper': { overflow: 'visible' }, zoom: 1.2 }}
-        >
-          {loadingMasterProduct && loadingMasterUnit && loadingDetailRequestOrder && (
+      <BaseModal
+        open={open}
+        onClose={handleClose}
+        onSubmit={handleSubmit(onSubmit)}
+        title={typeModal === 'ADD' ? 'Tambahkan Request Produk' : typeModal === 'VIEW' ? 'Detail Request Produk' : 'Ubah Request Produk'}
+        size="md"
+        showActions={typeModal !== 'VIEW'}
+      >
+        {loadingMasterProduct && loadingMasterUnit && loadingDetailRequestOrder ? (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 10,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              bgcolor: 'rgba(255, 255, 255, 0.8)'
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
+          <>
             <Box
               sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 10,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                bgcolor: 'rgba(255, 255, 255, 0.8)'
+                maxHeight: 300, // ~3 rows visible
+                overflowY: 'auto',
+                pr: 2,
+                mb: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2
               }}
             >
-              <CircularProgress />
-            </Box>
-          )}
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <DialogContent
-              sx={{
-                pb: theme => `${theme.spacing(8)} !important`,
-                px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-                pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-              }}
-            >
-              <CustomCloseButton onClick={handleClose}>
-                <Icon icon='tabler:x' fontSize='1.25rem' />
-              </CustomCloseButton>
-              <Box sx={{ mb: 4, textAlign: 'center' }}>
-                <Typography variant='h3' sx={{ mb: 3 }}>
-                  {typeModal === 'ADD' ? 'Tambahkan Request Produk' : typeModal === 'VIEW' ? 'Detail Request Produk' : 'Ubah Request Produk'}
-                </Typography>
-              </Box>
-              {/* <Grid container spacing={6}>
-                <Grid item xs={12}> */}
-              <Box
-                sx={{
-                  maxHeight: 300, // ~3 rows visible
-                  overflowY: 'auto',
-                  pr: 2,
-                  mb: 2,
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  borderRadius: 2
-                }}
-              >
-                {fields.map((item, index) => (
-                  <React.Fragment key={item.id}>
-                    <CardContent>
-                      <Grid container spacing={6}>
-                        <Grid item xs={12} md={6}>
-                          <Controller
-                            name={`data[${index}].productId`}
-                            control={control}
-                            rules={{ required: true }}
-                            render={({ field: { value, onChange } }) => {
-                              if (typeModal === 'VIEW') {
-                                return (
-                                  <CustomTextField
-                                    fullWidth
-                                    label='Produk'
-                                    value={item.productName || ''}
-                                    disabled
-                                    sx={{ display: 'block' }}
-                                  />
-                                )
-                              }
+              {fields.map((item, index) => (
+                <React.Fragment key={item.id}>
+                  <CardContent>
+                    <Grid container spacing={6}>
+                      <Grid item xs={12} md={6}>
+                        <Controller
+                          name={`data[${index}].productId`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => {
+                            if (typeModal === 'VIEW') {
                               return (
-                                <CustomAutocomplete
-                                  options={masterProduct}
-                                  id='autocomplete-custom'
-                                  getOptionLabel={option => option.name || ''}
-                                  onChange={(event, newValue) => {
-                                    onChange(+newValue?.id)
-                                  }}
-                                  disabled={typeModal === 'VIEW'}
-                                  value={masterProduct.find(option => option.id === value) || null}
-                                  renderInput={params => (
-                                    <CustomTextField
-                                      {...params}
-                                      sx={{ zIndex: 0 }}
-                                      error={Boolean(errors?.data?.[index]?.productId)}
-                                      {...(errors?.data?.[index]?.productId && {
-                                        helperText: errors?.data?.[index]?.productId.message
-                                      })}
-                                      label='Pilih Produk'
-                                    />
-                                  )}
-                                />
-                              )
-
-                            }}
-                          />
-                        </Grid>
-                        <Grid item xs={12} md={3}>
-                          <Controller
-                            name={`data[${index}].unitId`}
-                            control={control}
-                            rules={{ required: true }}
-                            render={({ field: { value, onChange } }) => {
-                              if (typeModal === 'VIEW') {
-                                return (
-                                  <CustomTextField
-                                    fullWidth
-                                    label='Satuan'
-                                    value={item.unitName || ''}
-                                    disabled
-                                    sx={{ display: 'block' }}
-                                  />
-                                )
-                              }
-                              return (
-                                <CustomAutocomplete
-                                  options={masterUnit}
-                                  id='autocomplete-custom-unit'
-                                  getOptionLabel={option => option.name || ''}
-                                  onChange={(event, newValue) => {
-                                    onChange(+newValue?.id)
-                                  }}
-                                  disabled={typeModal === 'VIEW'}
-                                  value={masterUnit.find(option => option.id === value) || null}
-                                  renderInput={params => (
-                                    <CustomTextField
-                                      {...params}
-                                      sx={{ zIndex: 0 }}
-                                      error={Boolean(errors?.data?.[index]?.unitId)}
-                                      {...(errors?.data?.[index]?.unitId && {
-                                        helperText: errors?.data?.[index]?.unitId.message
-                                      })}
-                                      label='Pilih Unit'
-                                    />
-                                  )}
-                                />
-                              )
-
-                            }}
-                          />
-                        </Grid>
-                        <Grid item xs={5} md={2}>
-                          <Controller
-                            name={`data[${index}].quantityRequested`}
-                            control={control}
-                            rules={{ required: true }}
-                            render={({ field: { value, onChange } }) => (
-                              <div>
                                 <CustomTextField
                                   fullWidth
-                                  label='Kuantiti'
-                                  value={value}
-                                  disabled={typeModal === 'VIEW'}
-                                  onChange={onChange}
-                                  type='number'
+                                  label='Produk'
+                                  value={item.productName || ''}
+                                  disabled
                                   sx={{ display: 'block' }}
-                                  error={Boolean(errors?.data?.[index]?.quantityRequested)}
-                                  {...(errors?.data?.[index]?.quantityRequested && {
-                                    helperText: errors?.data?.[index]?.quantityRequested.message
-                                  })}
                                 />
-                              </div>
-                            )}
-                          />
-                        </Grid>
-                        {
-                          typeModal !== 'VIEW' && (
-                            <Grid item xs={0.5} md={0.5} sx={{ marginTop: '1.2rem', ml: -4 }}>
-                              <IconButton onClick={() => remove(index)} sx={{ color: 'text.primary' }}>
-                                <Icon icon='tabler:trash' />
-                              </IconButton>
-                            </Grid>
-                          )
-                        }
+                              )
+                            }
+                            return (
+                              <CustomAutocomplete
+                                options={masterProduct}
+                                id='autocomplete-custom'
+                                getOptionLabel={option => option.name || ''}
+                                onChange={(event, newValue) => {
+                                  onChange(+newValue?.id)
+                                }}
+                                disabled={typeModal === 'VIEW'}
+                                value={masterProduct.find(option => option.id === value) || null}
+                                renderInput={params => (
+                                  <CustomTextField
+                                    {...params}
+                                    sx={{ zIndex: 0 }}
+                                    error={Boolean(errors?.data?.[index]?.productId)}
+                                    {...(errors?.data?.[index]?.productId && {
+                                      helperText: errors?.data?.[index]?.productId.message
+                                    })}
+                                    label='Pilih Produk'
+                                  />
+                                )}
+                              />
+                            )
+
+                          }}
+                        />
                       </Grid>
-                    </CardContent>
-                  </React.Fragment>
-                ))}
-              </Box>
-              {
-                typeModal !== 'VIEW' && (
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3, mt: 3 }}>
-                    <Button
-                      onClick={() =>
-                        append({
-                          productId: '',
-                          unitId: '',
-                          quantityRequested: '',
-                        })
+                      <Grid item xs={12} md={3}>
+                        <Controller
+                          name={`data[${index}].unitId`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => {
+                            if (typeModal === 'VIEW') {
+                              return (
+                                <CustomTextField
+                                  fullWidth
+                                  label='Satuan'
+                                  value={item.unitName || ''}
+                                  disabled
+                                  sx={{ display: 'block' }}
+                                />
+                              )
+                            }
+                            return (
+                              <CustomAutocomplete
+                                options={masterUnit}
+                                id='autocomplete-custom-unit'
+                                getOptionLabel={option => option.name || ''}
+                                onChange={(event, newValue) => {
+                                  onChange(+newValue?.id)
+                                }}
+                                disabled={typeModal === 'VIEW'}
+                                value={masterUnit.find(option => option.id === value) || null}
+                                renderInput={params => (
+                                  <CustomTextField
+                                    {...params}
+                                    sx={{ zIndex: 0 }}
+                                    error={Boolean(errors?.data?.[index]?.unitId)}
+                                    {...(errors?.data?.[index]?.unitId && {
+                                      helperText: errors?.data?.[index]?.unitId.message
+                                    })}
+                                    label='Pilih Unit'
+                                  />
+                                )}
+                              />
+                            )
+
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={5} md={2}>
+                        <Controller
+                          name={`data[${index}].quantityRequested`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <div>
+                              <CustomTextField
+                                fullWidth
+                                label='Kuantiti'
+                                value={value}
+                                disabled={typeModal === 'VIEW'}
+                                onChange={onChange}
+                                type='number'
+                                sx={{ display: 'block' }}
+                                error={Boolean(errors?.data?.[index]?.quantityRequested)}
+                                {...(errors?.data?.[index]?.quantityRequested && {
+                                  helperText: errors?.data?.[index]?.quantityRequested.message
+                                })}
+                              />
+                            </div>
+                          )}
+                        />
+                      </Grid>
+                      {
+                        typeModal !== 'VIEW' && (
+                          <Grid item xs={0.5} md={0.5} sx={{ marginTop: '1.2rem', ml: -4 }}>
+                            <IconButton onClick={() => remove(index)} sx={{ color: 'text.primary' }}>
+                              <Icon icon='tabler:trash' />
+                            </IconButton>
+                          </Grid>
+                        )
                       }
-                      startIcon={<Icon icon='tabler:plus' />}
-                      variant='outlined'
-                    >
-                      Tambahkan Produk
-                    </Button>
-                  </Box>
-                )
-              }
-              <Grid item xs={12}>
-                <Controller
-                  name={`notes`}
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange } }) => (
-                    <CustomTextField
-                      multiline
-                      rows={3}
-                      fullWidth
-                      label='Catatan'
-                      disabled={typeModal === 'VIEW'}
-                      placeholder={typeModal === 'VIEW' ? "" : 'Catatan...'}
-                      value={value}
-                      onChange={e => {
-                        onChange(e.target.value)
-                      }}
-                      type='text'
-                      sx={{ display: 'block' }}
-                    />
-                  )}
-                />
-              </Grid>
-              <DialogActions
-                sx={{
-                  px: theme => [`${theme.spacing(0)} !important`, `${theme.spacing(0)} !important`],
-                  marginTop: '20px'
-                }}
-              >
-                {typeModal !== 'VIEW' && (
-                  <>
-                    <Button variant='tonal' color='secondary' onClick={handleClose} hidden={typeModal === 'VIEW'}>
-                      Cancel
-                    </Button>
-                    <Button type='submit' variant='contained' hidden={typeModal === 'VIEW'}>
-                      Submit
-                    </Button>
-                  </>
+                    </Grid>
+                  </CardContent>
+                </React.Fragment>
+              ))}
+            </Box>
+            {
+              typeModal !== 'VIEW' && (
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3, mt: 3 }}>
+                  <Button
+                    onClick={() =>
+                      append({
+                        productId: '',
+                        unitId: '',
+                        quantityRequested: '',
+                      })
+                    }
+                    startIcon={<Icon icon='tabler:plus' />}
+                    variant='outlined'
+                  >
+                    Tambahkan Produk
+                  </Button>
+                </Box>
+              )
+            }
+            <Grid item xs={12} sx={{ mt: typeModal == 'VIEW' ? 3 : 0 }}>
+              <Controller
+                name={`notes`}
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { value, onChange } }) => (
+                  <CustomTextField
+                    multiline
+                    rows={3}
+                    fullWidth
+                    label='Catatan'
+                    disabled={typeModal === 'VIEW'}
+                    placeholder={typeModal === 'VIEW' ? "" : 'Catatan...'}
+                    value={value}
+                    onChange={e => {
+                      onChange(e.target.value)
+                    }}
+                    type='text'
+                    sx={{ display: 'block' }}
+                  />
                 )}
-              </DialogActions>
-            </DialogContent>
-          </form>
-        </Dialog>
-      </Card>
+              />
+            </Grid>
+          </>
+        )}
+      </BaseModal>
     </>
   )
 }

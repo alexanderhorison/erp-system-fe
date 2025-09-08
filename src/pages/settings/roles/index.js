@@ -20,7 +20,6 @@ import TableHeader from 'src/views/settings/roles/TableHeader'
 
 // ** Actions Imports
 import { deleteRole, fetchRoles } from 'src/store/apps/role'
-// import ModalRoleEdit from 'src/views/settings/roles/modalRoleEdit'
 import { fetchMenus } from 'src/store/apps/menu'
 import { useRouter } from 'next/router'
 
@@ -70,10 +69,6 @@ const RowOptions = ({ id, data }) => {
           <Icon icon='tabler:trash' onClick={handleDelete} />
         </IconButton>
       </Box>
-      {/* DEPRECATED SINCE MOVE TO PAGE MODE INSTEAD MODAL */}
-      {/* {isModalEditRole && (
-        <ModalRoleEdit data={dataRole} isOpen={isModalEditRole} closePress={modalEditRoleClosePress} />
-      )} */}
     </>
   )
 }

@@ -50,9 +50,6 @@ export default function TableRequestProduct({ timeFilter }) {
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
-  const [openModalForm, setOpenModalForm] = useState(false)
-  const [typeModal, setTypeModal] = useState('ADD')
-
 
   const { dataRequestOrder: data, loadingDataRequestOrder } = useSelector(state => state.productRequest)
 
@@ -240,7 +237,6 @@ export default function TableRequestProduct({ timeFilter }) {
             }
           }}
         />
-        {/* <ModalAddRequestProduct open={openModalForm} setOpen={setOpenModalForm} typeModal={typeModal} /> */}
       </Card>
     </>
   )
