@@ -13,6 +13,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { addMasterDataUnit, editMasterDataUnit } from 'src/store/apps/master/unit'
+import BaseModal from 'src/views/common/BaseModal'
 
 export default function ModalAddMasterUnit({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
