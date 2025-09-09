@@ -3,14 +3,13 @@ import { useDispatch } from 'react-redux'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import { Box, Button, Card, Dialog, DialogActions, DialogContent, Grid, Typography } from '@mui/material'
-import Icon from 'src/@core/components/icon'
+import { Box, Grid } from '@mui/material'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import CustomTextField from 'src/@core/components/mui/text-field'
-import CustomCloseButton from 'src/views/common/CustomCloseButton'
 import { createMonthlyNonCurrentAsset } from 'src/store/apps/asset/non-current'
 import { useEffect } from 'react'
+import BaseModal from 'src/views/common/BaseModal'
 
 // Global styles for DatePicker
 const datePickerStyles = `
@@ -117,132 +116,99 @@ export default function ModalFormGenerateNonCurrentAssets({ open, setOpen }) {
   }, [open, reset])
 
   return (
-    <Card>
-      <Dialog
-        fullWidth
-        open={open}
-        maxWidth='sm'
-        scroll='body'
-        onClose={handleClose}
-        sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
-      >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent
-            sx={{
-              pb: theme => `${theme.spacing(8)} !important`,
-              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-              pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-            }}
-          >
-            <CustomCloseButton onClick={handleClose}>
-              <Icon icon='tabler:x' fontSize='1.25rem' />
-            </CustomCloseButton>
-            <Box sx={{ mb: 4, textAlign: 'center' }}>
-              <Typography variant='h3' sx={{ mb: 3 }}>
-                Buat Aset Tidak Lancar Bulanan
-              </Typography>
-            </Box>
-            <Grid container spacing={6}>
-              <Grid item xs={12} sm={12}>
-                <Controller
-                  name='nonCurrentDate'
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange } }) => (
-                    <Box sx={{ overflow: 'visible', position: 'relative', zIndex: 1500 }}>
-                      <DatePicker
-                        selected={value ? new Date(value) : null}
-                        onChange={onChange}
-                        dateFormat='MMM yyyy'
-                        showMonthYearPicker
-                        showFullMonthYearPicker={false}
-                        maxDate={
-                          new Date(
-                            new Date().getFullYear(),
-                            new Date().getMonth() - 1,
-                            new Date(new Date().getFullYear(), new Date().getMonth(), 0).getDate()
-                          )
-                        }
-                        placeholderText='Pilih bulan & tahun'
-                        customInput={
-                          <CustomTextField
-                            fullWidth
-                            label='Pilih bulan & tahun'
-                            error={Boolean(errors.nonCurrentDate)}
-                            helperText={errors.nonCurrentDate?.message}
-                            InputProps={{
-                              style: { cursor: 'pointer' }
-                            }}
-                          />
-                        }
-                        popperProps={{
-                          strategy: 'fixed',
-                          modifiers: [
-                            {
-                              name: 'preventOverflow',
-                              options: {
-                                boundary: 'viewport'
-                              }
-                            },
-                            {
-                              name: 'flip',
-                              options: {
-                                fallbackPlacements: ['top-start', 'bottom-start', 'top-end', 'bottom-end']
-                              }
-                            },
-                            {
-                              name: 'offset',
-                              options: {
-                                offset: [0, 8]
-                              }
-                            }
-                          ]
-                        }}
-                        popperClassName='high-z-index-popper'
-                      />
-                    </Box>
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Controller
-                  name='notes'
-                  control={control}
-                  render={({ field: { value, onChange } }) => (
+    <BaseModal
+      open={open}
+      onClose={handleClose}
+      onSubmit={handleSubmit(onSubmit)}
+      title={'Buat Aset Tidak Lancar Bulanan'}
+      size='sm'
+      showActions={true}
+    >
+      <Grid container spacing={6}>
+        <Grid item xs={12} sm={12}>
+          <Controller
+            name='nonCurrentDate'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <Box sx={{ overflow: 'visible', position: 'relative', zIndex: 1500 }}>
+                <DatePicker
+                  selected={value ? new Date(value) : null}
+                  onChange={onChange}
+                  dateFormat='MMM yyyy'
+                  showMonthYearPicker
+                  showFullMonthYearPicker={false}
+                  maxDate={
+                    new Date(
+                      new Date().getFullYear(),
+                      new Date().getMonth() - 1,
+                      new Date(new Date().getFullYear(), new Date().getMonth(), 0).getDate()
+                    )
+                  }
+                  placeholderText='Pilih bulan & tahun'
+                  customInput={
                     <CustomTextField
                       fullWidth
-                      multiline
-                      rows={3}
-                      value={value || ''}
-                      label='Catatan'
-                      onChange={onChange}
-                      error={Boolean(errors.notes)}
-                      placeholder='Masukkan Catatan (Opsional)'
-                      helperText={errors.notes?.message}
+                      label='Pilih bulan & tahun'
+                      error={Boolean(errors.nonCurrentDate)}
+                      helperText={errors.nonCurrentDate?.message}
+                      InputProps={{
+                        style: { cursor: 'pointer' }
+                      }}
                     />
-                  )}
+                  }
+                  popperProps={{
+                    strategy: 'fixed',
+                    modifiers: [
+                      {
+                        name: 'preventOverflow',
+                        options: {
+                          boundary: 'viewport'
+                        }
+                      },
+                      {
+                        name: 'flip',
+                        options: {
+                          fallbackPlacements: ['top-start', 'bottom-start', 'top-end', 'bottom-end']
+                        }
+                      },
+                      {
+                        name: 'offset',
+                        options: {
+                          offset: [0, 8]
+                        }
+                      }
+                    ]
+                  }}
+                  popperClassName='high-z-index-popper'
                 />
-              </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions
-            sx={{
-              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-              pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-            }}
-          >
-            <Button variant='tonal' color='secondary' onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button type='submit' variant='contained'>
-              Submit
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+              </Box>
+            )}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Controller
+            name='notes'
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                multiline
+                rows={3}
+                value={value || ''}
+                label='Catatan'
+                onChange={onChange}
+                error={Boolean(errors.notes)}
+                placeholder='Masukkan Catatan (Opsional)'
+                helperText={errors.notes?.message}
+              />
+            )}
+          />
+        </Grid>
+      </Grid>
       <style jsx global>
         {datePickerStyles}
       </style>
-    </Card>
+    </BaseModal>
   )
 }

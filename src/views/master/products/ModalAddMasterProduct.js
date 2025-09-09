@@ -10,7 +10,7 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 import 'react-credit-cards/es/styles-compiled.css'
 
 // ** Icon Imports
-import { IconButton, MenuItem } from '@mui/material'
+import { MenuItem } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchDataMasterCategory } from 'src/store/apps/master/category'
 import { fetchMasterDataType } from 'src/store/apps/master/type'
@@ -69,7 +69,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
     dispatch(fetchMasterDataType())
     dispatch(fetchMasterDataCompany())
     // disable warn for select if select not have a child item
-    console.warn = () => { }
+    console.warn = () => {}
   }, [dispatch])
 
   return (
@@ -78,7 +78,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
       onClose={() => setOpen(false)}
       onSubmit={handleSubmit(onSubmit)}
       title={typeModal === 'ADD' ? 'Tambahkan Produk Baru' : typeModal === 'VIEW' ? 'Detail Produk' : 'Ubah Produk'}
-      size="sm"
+      size='sm'
       showActions={typeModal !== 'VIEW'}
     >
       <Grid container spacing={6}>
