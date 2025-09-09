@@ -1,22 +1,25 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalConfirmationDelete, swalError, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'vendor'
 
 // GET ALL VENDOR
-export const fetchMasterDataVendor = createAsyncThunk('appMasterVendor/fetchData', async (params, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/master/vendor/all'
-    })
-    return response.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchMasterDataVendor = createAsyncThunk(
+  'appMasterVendor/fetchData',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/master/vendor/all'
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // GET DETAIL VENDOR
 export const fetchMasterDataVendorDetail = createAsyncThunk(
@@ -127,7 +130,7 @@ export const appMasterVendorSlice = createSlice({
       id: '',
       name: '',
       description: '',
-      level: '',
+      level: ''
     },
     defaultValue: {
       id: '',
@@ -138,7 +141,7 @@ export const appMasterVendorSlice = createSlice({
       gender: '',
       notes: '',
       description: '',
-      level: '',
+      level: ''
     },
     loadingDetail: false,
     total: 1,

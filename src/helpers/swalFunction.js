@@ -37,7 +37,14 @@ export async function swalConfirmationDelete({ label, name = 'Data', axiosReques
 }
 
 // ONLY FOR ADD
-export async function swalConfirmationAdd({ label, name = 'Data', axiosRequest, dispatchRequest, title, cancelAction }) {
+export async function swalConfirmationAdd({
+  label,
+  name = 'Data',
+  axiosRequest,
+  dispatchRequest,
+  title,
+  cancelAction
+}) {
   try {
     const result = await swal.fire({
       title: title ? title : `Anda akan menambahkan produk?`,
@@ -69,7 +76,14 @@ export async function swalConfirmationAdd({ label, name = 'Data', axiosRequest, 
 }
 
 // ONLY FOR EDIT
-export async function swalConfirmationEdit({ label, name = 'Data', axiosRequest, dispatchRequest, title, cancelAction }) {
+export async function swalConfirmationEdit({
+  label,
+  name = 'Data',
+  axiosRequest,
+  dispatchRequest,
+  title,
+  cancelAction
+}) {
   try {
     const result = await swal.fire({
       title: title ? title : `Anda akan merubah produk?`,
@@ -164,7 +178,7 @@ export function swalNotifSuccess({ message }) {
     title: message || `berhasil`,
     icon: 'success',
     confirmButtonColor: '#6F4E37',
-    timer: 1500,
+    timer: 1500
   })
 }
 
@@ -173,7 +187,7 @@ export function swalNotifError({ message }) {
     icon: 'error',
     title: message || `Gagal`,
     timer: 1500,
-    confirmButtonColor: '#6F4E37',
+    confirmButtonColor: '#6F4E37'
   })
 }
 
@@ -182,6 +196,6 @@ export function swalInfo(message) {
     icon: 'info',
     title: message || `Email Telah Dikirim`,
     timer: 1000,
-    confirmButtonColor: '#6F4E37',
+    confirmButtonColor: '#6F4E37'
   })
 }

@@ -1,12 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import {
-  swalConfirmationAdd,
-  swalConfirmationDelete,
-  swalError,
-  swalSuccess,
-  swalToastError
-} from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalConfirmationDelete, swalError, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'karyawan'
 
@@ -282,7 +276,6 @@ export const appMasterEmployeeSlice = createSlice({
         state.loadingEmployeeDebt = false
         state.errorEmployeeDebt = action.error.message
       })
-
   }
 })
 

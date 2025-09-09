@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import toast from 'react-hot-toast'
 import {
   swalConfirmationAdd,
   swalConfirmationDelete,

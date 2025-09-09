@@ -4,8 +4,6 @@ import {
   swalConfirmationAdd,
   swalConfirmationEdit,
   swalConfirmationDelete,
-  swalError,
-  swalSuccess,
   swalToastError
 } from 'src/helpers/swalFunction'
 
