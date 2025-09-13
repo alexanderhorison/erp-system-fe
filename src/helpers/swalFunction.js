@@ -67,7 +67,17 @@ export async function swalConfirmationAdd({
         inputValidator: value => {
           if (!value) return 'Silakan pilih Terms of Payment'
           return null
+        },
+        didOpen: () => {
+        // Force vertical layout dynamically if you don't want external CSS
+        const container = document.querySelector('.swal2-radio');
+        if (container) {
+          container.style.display = 'flex';
+          container.style.flexDirection = 'column';
+          container.style.alignItems = 'center';
+          container.style.gap = '8px';
         }
+      }
       })
     })
     if (result.dismiss) {
