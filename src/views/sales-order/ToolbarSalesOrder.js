@@ -79,7 +79,7 @@ const ToolbarSalesOrder = ({ id, data }) => {
     <>
       <Card>
         <CardContent>
-          <Button fullWidth sx={{ mb: 2 }} variant='contained' onClick={handlePrint} disabled={printerStatus?.printing}>
+          {/* <Button fullWidth sx={{ mb: 2 }} variant='contained' onClick={handlePrint} disabled={printerStatus?.printing}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               {printerStatus?.printing ? (
                 <CircularProgress size={16} thickness={4} color='inherit' />
@@ -88,7 +88,7 @@ const ToolbarSalesOrder = ({ id, data }) => {
               )}
               <span>{printerStatus?.printing ? 'Mencetak...' : 'Cetak / Print'}</span>
             </Box>
-          </Button>
+          </Button> */}
           <DownloadButton url={'sales-order'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
           <Button fullWidth sx={{ mb: 2, '& svg': { mr: 2 } }} variant='contained' onClick={handleClick}>
             <Icon fontSize='1.125rem' icon='tabler:mail' />

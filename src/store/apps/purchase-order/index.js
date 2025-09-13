@@ -5,18 +5,22 @@ import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
 const label = 'Purchase Order'
 
 // GET ALL PURCHASE ORDER
-export const fetchAllPurchaseOrder = createAsyncThunk('purchaseOrder/fetchAllPurchaseOrder', async (_, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/purchase-order/'
-    })
-    return response.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchAllPurchaseOrder = createAsyncThunk(
+  'purchaseOrder/fetchAllPurchaseOrder',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/purchase-order/',
+        params
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // CREATE PURCHASE ORDER
 export const createPurchaseOrder = createAsyncThunk(
@@ -169,6 +173,12 @@ export const appMasterProductSlice = createSlice({
   name: 'purchaseOrder',
   initialState: {
     dataPurchaseOrder: [],
+    paginationPurchaseOrder: {
+      total: 0,
+      page: 1,
+      limit: 25,
+      totalPage: 0
+    },
     loadingDataPurchaseOrder: true,
     errorDataPurchaseOrder: false,
 
@@ -191,10 +201,22 @@ export const appMasterProductSlice = createSlice({
       })
       .addCase(fetchAllPurchaseOrder.fulfilled, (state, action) => {
         state.dataPurchaseOrder = action.payload.data
+        state.paginationPurchaseOrder = action.payload.pagination || {
+          total: action.payload.data?.length || 0,
+          page: 1,
+          limit: 25,
+          totalPage: 1
+        }
         state.loadingDataPurchaseOrder = false
       })
       .addCase(fetchAllPurchaseOrder.rejected, (state, action) => {
         state.dataPurchaseOrder = []
+        state.paginationPurchaseOrder = {
+          total: 0,
+          page: 1,
+          limit: 25,
+          totalPage: 0
+        }
         state.loadingDataPurchaseOrder = false
         state.errorDataPurchaseOrder = action.error.message
       })

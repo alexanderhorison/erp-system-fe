@@ -206,7 +206,7 @@ export default function TablePurchaseOrderVendor() {
           },
           toolbar: {
             value: searchText,
-            placeholder: 'Cari purchase order',
+            placeholder: 'Cari code purchase order',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
           }

@@ -169,14 +169,16 @@ const HorizontalLayout = props => {
         {/* Customizer */}
         {themeConfig.disableCustomizer || hidden ? null : <Customizer />}
         {/* Scroll to top button */}
-        {scrollToTop ? (
-          scrollToTop(props)
-        ) : (
-          <ScrollToTop className='mui-fixed'>
-            <Fab color='primary' size='small' aria-label='scroll back to top'>
-              <Icon icon='tabler:arrow-up' />
-            </Fab>
-          </ScrollToTop>
+        {scrollToTop !== false && (
+          scrollToTop ? (
+            scrollToTop(props)
+          ) : (
+            <ScrollToTop className='mui-fixed'>
+              <Fab color='primary' size='small' aria-label='scroll back to top'>
+                <Icon icon='tabler:arrow-up' />
+              </Fab>
+            </ScrollToTop>
+          )
         )}
       </MainContentWrapper>
     </HorizontalLayoutWrapper>

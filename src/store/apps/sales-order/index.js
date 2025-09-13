@@ -177,6 +177,12 @@ export const appMasterProductSlice = createSlice({
   name: 'salesOrder',
   initialState: {
     dataSalesOrder: [],
+    paginationSalesOrder: {
+      total: 0,
+      page: 1,
+      limit: 25,
+      totalPage: 0
+    },
     loadingDataSalesOrder: true,
     errorDataSalesOrder: false,
 
@@ -203,10 +209,22 @@ export const appMasterProductSlice = createSlice({
       })
       .addCase(fetchAllSalesOrder.fulfilled, (state, action) => {
         state.dataSalesOrder = action.payload.data
+        state.paginationSalesOrder = action.payload.pagination || {
+          total: action.payload.data?.length || 0,
+          page: 1,
+          limit: 25,
+          totalPage: 1
+        }
         state.loadingDataSalesOrder = false
       })
       .addCase(fetchAllSalesOrder.rejected, (state, action) => {
         state.dataSalesOrder = []
+        state.paginationSalesOrder = {
+          total: 0,
+          page: 1,
+          limit: 25,
+          totalPage: 0
+        }
         state.loadingDataSalesOrder = false
         state.errorDataSalesOrder = action.error.message
       })

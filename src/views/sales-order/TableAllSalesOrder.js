@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -8,7 +8,6 @@ import Icon from 'src/@core/components/icon'
 
 import { DataGrid } from '@mui/x-data-grid'
 
-import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
 import renderClient from 'src/helpers/renderClient'
@@ -39,20 +38,119 @@ export default function TableAllSalesOrder({ timeFilter }) {
   const router = useRouter()
 
   const [searchText, setSearchText] = useState('')
-  const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  const { dataSalesOrder: data } = useSelector(state => state.salesOrder)
+  // Filter states
+  const [filters, setFilters] = useState({
+    status: '',
+    orderBy: 'createdAt',
+    orderType: 'DESC'
+  })
+
+  const {
+    dataSalesOrder: data,
+    paginationSalesOrder: pagination,
+    loadingDataSalesOrder: loading
+  } = useSelector(state => state.salesOrder)
+
+  // Helper function to convert year/month to dateFrom/dateTo
+  const getDateRange = useCallback((year, month) => {
+    if (!year) return {}
+
+    const yearNum = parseInt(year)
+
+    // Format to YYYY-MM-DD without timezone issues
+    const formatDate = (year, month, day) => {
+      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    }
+
+    if (month) {
+      const monthNum = parseInt(month)
+
+      // Start of specific month (always day 1)
+      const dateFrom = formatDate(yearNum, monthNum, 1)
+
+      // End of specific month - calculate last day
+      // Create date object for next month, then subtract 1 day
+      const lastDayOfMonth = new Date(yearNum, monthNum, 0).getDate()
+      const dateTo = formatDate(yearNum, monthNum, lastDayOfMonth)
+
+      return {
+        dateFrom,
+        dateTo
+      }
+    } else {
+      // Start of year (January 1)
+      const dateFrom = formatDate(yearNum, 1, 1)
+      // End of year (December 31)
+      const dateTo = formatDate(yearNum, 12, 31)
+
+      return {
+        dateFrom,
+        dateTo
+      }
+    }
+  }, [])
+
+  // Debounced search function with proper cleanup
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId
+      const fn = (searchValue) => {
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(() => {
+          // Reset to page 1 when searching
+          setPaginationModel(prev => ({ ...prev, page: 0 }))
+
+          const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
+          const params = {
+            search: searchValue,
+            page: 1,
+            limit: paginationModel.pageSize,
+            ...(filters.status && { status: filters.status }),
+            orderBy: filters.orderBy,
+            orderType: filters.orderType,
+            ...dateRange
+          }
+
+          dispatch(fetchAllSalesOrder(params))
+        }, 500)
+      }
+
+      // Add cancel function to clear timeout
+      fn.cancel = () => {
+        clearTimeout(timeoutId)
+      }
+
+      return fn
+    })(),
+    [dispatch, paginationModel.pageSize, filters, timeFilter]
+  )
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({
-      data,
-      keys: ['code'],
-      searchValue,
-      setData: setFilteredData,
-      timeFilter: timeFilter
-    })
+
+    if (searchValue === '') {
+      // Cancel any pending debounced search
+      debouncedSearch.cancel()
+
+      // Reset pagination first
+      setPaginationModel(prev => ({ ...prev, page: 0 }))
+
+      // Clear search immediately
+      const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
+      const params = {
+        page: 1,
+        limit: paginationModel.pageSize,
+        ...(filters.status && { status: filters.status }),
+        orderBy: filters.orderBy,
+        orderType: filters.orderType,
+        ...dateRange
+      }
+      dispatch(fetchAllSalesOrder(params))
+    } else {
+      debouncedSearch(searchValue)
+    }
   }
 
   const handleRowClick = params => {
@@ -69,33 +167,107 @@ export default function TableAllSalesOrder({ timeFilter }) {
     router.push(`/sales-order/add`)
   }
 
-  useEffect(() => {
-    dispatch(fetchAllSalesOrder())
-  }, [dispatch])
+  const handlePaginationChange = (newPaginationModel) => {
+    setPaginationModel(newPaginationModel)
 
-  useEffect(() => {
-    if (timeFilter && timeFilter.year) {
-      const filtered = data.filter(item => {
-        const itemDate = new Date(item.createdAt)
-        const itemYear = itemDate.getFullYear() // Get the year from createdAt
-        const itemMonth = itemDate.getMonth() // Get the month from createdAt (0-based index)
-
-        // Compare it with timeFilter.year and timeFilter.month (if provided)
-        const matchesYear = itemYear === parseInt(timeFilter.year)
-        const matchesMonth = timeFilter.month ? itemMonth === parseInt(timeFilter.month - 1) : true
-
-        return matchesYear && matchesMonth
-      })
-      setFilteredData(filtered)
-    } else {
-      setFilteredData(data) // If no year filter, show all data
+    const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
+    const params = {
+      page: newPaginationModel.page + 1, // Backend expects 1-based pagination
+      limit: newPaginationModel.pageSize,
+      ...(searchText && { search: searchText }),
+      ...(filters.status && { status: filters.status }),
+      orderBy: filters.orderBy,
+      orderType: filters.orderType,
+      ...dateRange
     }
-  }, [data, timeFilter])
+
+    dispatch(fetchAllSalesOrder(params))
+  }
+
+  // Handle filter changes
+  const handleFilterChange = (filterType, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterType]: value
+    }))
+
+    // Reset to page 1 when filtering
+    setPaginationModel(prev => ({ ...prev, page: 0 }))
+
+    const newFilters = { ...filters, [filterType]: value }
+    const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
+    const params = {
+      page: 1,
+      limit: paginationModel.pageSize,
+      ...(searchText && { search: searchText }),
+      ...(newFilters.status && { status: newFilters.status }),
+      orderBy: newFilters.orderBy,
+      orderType: newFilters.orderType,
+      ...dateRange
+    }
+
+    dispatch(fetchAllSalesOrder(params))
+  }
+
+  // Handle sorting
+  const handleSortModelChange = (sortModel) => {
+    if (sortModel.length > 0) {
+      const { field, sort } = sortModel[0]
+      const orderBy = field === 'createdAt' ? 'createdAt' :
+        field === 'approvedAt' ? 'approvedAt' :
+          field === 'shippingDate' ? 'shippingDate' : 'createdAt'
+      const orderType = sort.toUpperCase()
+
+      setFilters(prev => ({
+        ...prev,
+        orderBy,
+        orderType
+      }))
+
+      const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
+      const params = {
+        page: 1,
+        limit: paginationModel.pageSize,
+        ...(searchText && { search: searchText }),
+        ...(filters.status && { status: filters.status }),
+        orderBy,
+        orderType,
+        ...dateRange
+      }
+
+      dispatch(fetchAllSalesOrder(params))
+    }
+  }
+
+  // Initial fetch and fetch when dependencies change
+  useEffect(() => {
+    const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
+    const params = {
+      page: 1,
+      limit: 25,
+      ...(filters.status && { status: filters.status }),
+      orderBy: filters.orderBy,
+      orderType: filters.orderType,
+      ...dateRange
+    }
+    dispatch(fetchAllSalesOrder(params))
+  }, [dispatch, timeFilter?.year, timeFilter?.month, getDateRange])
 
   return (
     <Card>
       <DataGrid
         autoHeight
+        loading={loading}
+        rows={data || []}
+        rowCount={pagination?.total || 0}
+        paginationMode="server"
+        sortingMode="server"
+        paginationModel={paginationModel}
+        onPaginationModelChange={handlePaginationChange}
+        onSortModelChange={handleSortModelChange}
+        pageSizeOptions={[5, 10, 25, 50]}
+        onCellClick={(e) => handleRowClick(e)}
+        slots={{ toolbar: TableHeaderSalesOrder }}
         columns={[
           {
             flex: 0.1,
@@ -225,12 +397,6 @@ export default function TableAllSalesOrder({ timeFilter }) {
             )
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
-        onCellClick={(e) => handleRowClick(e)}
-        paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderSalesOrder }}
-        onPaginationModelChange={setPaginationModel}
-        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
@@ -249,7 +415,9 @@ export default function TableAllSalesOrder({ timeFilter }) {
             placeholder: 'Cari sales order',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
-            handleAdd: handleAdd
+            handleAdd: handleAdd,
+            filters: filters,
+            onFilterChange: handleFilterChange
           }
         }}
       />
