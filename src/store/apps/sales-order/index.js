@@ -5,19 +5,22 @@ import { swalConfirmationAdd, swalNotifSuccess, swalToastError } from 'src/helpe
 const label = 'Sales Order'
 
 // GET ALL SALES ORDER
-export const fetchAllSalesOrder = createAsyncThunk('salesOrder/fetchAllSalesOrder', async (params, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/sales-order/',
-      params,
-    })
-    return response.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchAllSalesOrder = createAsyncThunk(
+  'salesOrder/fetchAllSalesOrder',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/sales-order/',
+        params
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // CREATE SALES ORDER
 export const createSalesOrder = createAsyncThunk(
@@ -115,17 +118,19 @@ export const updateSalesOrder = createAsyncThunk(
         label,
         name: 'Surat',
         title: type == 'approve' ? 'Anda akan menerima sales order?' : 'Anda akan tolak sales order?',
-        axiosRequest: () => {
+        axiosRequest: fullPayment => {
           return axios({
             method: 'POST',
             // TYPE (approve/reject)
             // CODE (sales order code)
-            url: `/sales-order/${type}/${code}`
+            url: `/sales-order/${type}/${code}`,
+            data: type === 'approve' ? { fullPayment } : {}
           })
         },
         dispatchRequest: () => {
           router.push('/sales-order')
-        }
+        },
+        paymentSelection: type === 'approve'
       })
     } catch (error) {
       swalToastError({ label, error })
