@@ -2,20 +2,45 @@ import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import { DataGrid } from '@mui/x-data-grid'
 import { useDispatch, useSelector } from 'react-redux'
+import { useState, useCallback, useEffect } from 'react'
 import swal from 'src/pages/sweetalert'
 import { forceUpdateMasterDataModal } from 'src/store/apps/master/modal'
-import { addMasterDataProductPrice } from 'src/store/apps/master/product-price'
+import { addMasterDataProductPrice, fetchMasterDataProductPrice } from 'src/store/apps/master/product-price'
 
 export default function TableMasterProductPrice({ product }) {
   const dispatch = useDispatch()
-  const { data } = useSelector(state => state.masterProductPrice)
+  const { data, loading, pagination } = useSelector(state => state.masterProductPrice)
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
   // Add the hardcoded product name to each row
   const rowsWithProductName = data?.map(row => ({
     ...row,
-    productName: product?.name, //
+    productName: product?.name,
     productId: product?.id
   }))
+
+  const handlePaginationChange = (newPaginationModel) => {
+    setPaginationModel(newPaginationModel)
+
+    const params = {
+      page: newPaginationModel.page + 1, // Backend expects 1-based pagination
+      limit: newPaginationModel.pageSize,
+      productId: product?.id
+    }
+
+    dispatch(fetchMasterDataProductPrice(params))
+  }
+
+  useEffect(() => {
+    if (product?.id) {
+      const params = {
+        page: 1,
+        limit: 10,
+        productId: product.id
+      }
+      dispatch(fetchMasterDataProductPrice(params))
+    }
+  }, [dispatch, product?.id])
 
   const columns = [
     {
@@ -96,8 +121,14 @@ export default function TableMasterProductPrice({ product }) {
     <Card>
       <Box>
         <DataGrid
+          loading={loading}
           columns={columns}
-          rows={rowsWithProductName?.slice(0, 10)}
+          rows={rowsWithProductName || []}
+          rowCount={pagination?.total || 0}
+          paginationMode="server"
+          paginationModel={paginationModel}
+          onPaginationModelChange={handlePaginationChange}
+          pageSizeOptions={[5, 10, 25, 50]}
           autoHeight={true}
           processRowUpdate={onChangeVal}
           experimentalFeatures={{ newEditingApi: true }}

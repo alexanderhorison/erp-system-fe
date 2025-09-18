@@ -1,12 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Box, Card, IconButton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 import CustomChip from 'src/@core/components/mui/chip'
-
-import HandleSearh from 'src/helpers/handleSearch'
 
 import {
   deleteMasterDataEmployee,
@@ -81,29 +79,81 @@ export default function TableMasterEmployee() {
   const dispatch = useDispatch()
   const router = useRouter()
   const [searchText, setSearchText] = useState('')
-  const [filteredData, setFilteredData] = useState([])
   const [openModalAdd, setOpenModalAdd] = useState(false)
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  const { data, loading } = useSelector(state => state.masterEmployee)
+  const { data, loading, pagination } = useSelector(state => state.masterEmployee)
+
+  // Debounced search function with proper cleanup
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId
+      const fn = (searchValue) => {
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(() => {
+          // Reset to page 1 when searching
+          setPaginationModel(prev => ({ ...prev, page: 0 }))
+
+          const params = {
+            search: searchValue,
+            page: 1,
+            limit: paginationModel.pageSize
+          }
+
+          dispatch(fetchMasterDataEmployee(params))
+        }, 500)
+      }
+
+      // Add cancel function to clear timeout
+      fn.cancel = () => {
+        clearTimeout(timeoutId)
+      }
+
+      return fn
+    })(),
+    [dispatch, paginationModel.pageSize]
+  )
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({
-      data,
-      keys: ['nama', 'role'],
-      searchValue,
-      setData: setFilteredData
-    })
+
+    if (searchValue === '') {
+      // Cancel any pending debounced search
+      debouncedSearch.cancel()
+
+      // Reset pagination first
+      setPaginationModel(prev => ({ ...prev, page: 0 }))
+
+      // Clear search immediately
+      const params = {
+        page: 1,
+        limit: paginationModel.pageSize
+      }
+      dispatch(fetchMasterDataEmployee(params))
+    } else {
+      debouncedSearch(searchValue)
+    }
+  }
+
+  const handlePaginationChange = (newPaginationModel) => {
+    setPaginationModel(newPaginationModel)
+
+    const params = {
+      page: newPaginationModel.page + 1, // Backend expects 1-based pagination
+      limit: newPaginationModel.pageSize,
+      ...(searchText && { search: searchText })
+    }
+
+    dispatch(fetchMasterDataEmployee(params))
   }
 
   useEffect(() => {
-    dispatch(fetchMasterDataEmployee())
+    const params = {
+      page: 1,
+      limit: 25
+    }
+    dispatch(fetchMasterDataEmployee(params))
   }, [dispatch])
-
-  useEffect(() => {
-    setFilteredData(data)
-  }, [data])
 
   const handleRowClick = params => {
     router.push(`/master/employee/${params.id}`)
@@ -114,6 +164,11 @@ export default function TableMasterEmployee() {
       <DataGrid
         autoHeight
         loading={loading}
+        rows={data || []}
+        rowCount={pagination?.total || 0}
+        paginationMode="server"
+        paginationModel={paginationModel}
+        onPaginationModelChange={handlePaginationChange}
         columns={[
           {
             flex: 0.05,
@@ -208,11 +263,8 @@ export default function TableMasterEmployee() {
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
-        paginationModel={paginationModel}
         onRowClick={handleRowClick}
         slots={{ toolbar: TableHeaderMasterEmployee }}
-        onPaginationModelChange={setPaginationModel}
-        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'

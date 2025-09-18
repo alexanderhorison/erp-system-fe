@@ -7,11 +7,19 @@ const label = 'product price'
 // GET ALL PRODUCT PRICE
 export const fetchMasterDataProductPrice = createAsyncThunk(
   'appMasterProductPrice/fetchData',
-  async (productId, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
+      // Handle both old format (productId as string) and new format (params object)
+      const productId = typeof params === 'object' ? params.productId : params
+      const paginationParams = typeof params === 'object' ? {
+        page: params.page,
+        limit: params.limit
+      } : {}
+
       const response = await axios({
         method: 'GET',
-        url: '/master/product-price/all/' + productId
+        url: '/master/product-price/all/' + productId,
+        params: paginationParams
       })
       return response.data
     } catch (error) {

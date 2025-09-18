@@ -1,9 +1,8 @@
 import { Box, Card, IconButton, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Icon from 'src/@core/components/icon'
-import HandleSearh from 'src/helpers/handleSearch'
 import { useRouter } from 'next/router'
 import TableHeaderMasterWarehouseRack from './TableHeaderMasterWarehouseRack'
 import { deleteMasterDataWarehouseRack, fetchMasterDataWarehouseRack } from 'src/store/apps/master/warehouse-rack'
@@ -38,27 +37,88 @@ export default function TableMasterWarehouseRack({ warehouseId }) {
   const dispatch = useDispatch()
 
   const [searchText, setSearchText] = useState('')
-  const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  const { data } = useSelector(state => state.masterWarehouseRack)
+  const { data, loading, pagination } = useSelector(state => state.masterWarehouseRack)
 
   const router = useRouter()
 
+  // Debounced search function with proper cleanup
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId
+      const fn = (searchValue) => {
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(() => {
+          // Reset to page 1 when searching
+          setPaginationModel(prev => ({ ...prev, page: 0 }))
+
+          const params = {
+            search: searchValue,
+            page: 1,
+            limit: paginationModel.pageSize,
+            warehouseId: router.query.id
+          }
+
+          dispatch(fetchMasterDataWarehouseRack(params))
+        }, 500)
+      }
+
+      // Add cancel function to clear timeout
+      fn.cancel = () => {
+        clearTimeout(timeoutId)
+      }
+
+      return fn
+    })(),
+    [dispatch, paginationModel.pageSize, router.query.id]
+  )
+
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({ data, keys: ['name'], searchValue, setData: setFilteredData })
+
+    if (searchValue === '') {
+      // Cancel any pending debounced search
+      debouncedSearch.cancel()
+
+      // Reset pagination first
+      setPaginationModel(prev => ({ ...prev, page: 0 }))
+
+      // Clear search immediately
+      const params = {
+        page: 1,
+        limit: paginationModel.pageSize,
+        warehouseId: router.query.id
+      }
+      dispatch(fetchMasterDataWarehouseRack(params))
+    } else {
+      debouncedSearch(searchValue)
+    }
+  }
+
+  const handlePaginationChange = (newPaginationModel) => {
+    setPaginationModel(newPaginationModel)
+
+    const params = {
+      page: newPaginationModel.page + 1, // Backend expects 1-based pagination
+      limit: newPaginationModel.pageSize,
+      warehouseId: router.query.id,
+      ...(searchText && { search: searchText })
+    }
+
+    dispatch(fetchMasterDataWarehouseRack(params))
   }
 
   useEffect(() => {
     if (router.query.id) {
-      dispatch(fetchMasterDataWarehouseRack(router.query.id))
+      const params = {
+        page: 1,
+        limit: 25,
+        warehouseId: router.query.id
+      }
+      dispatch(fetchMasterDataWarehouseRack(params))
     }
   }, [dispatch, router.query.id])
-
-  useEffect(() => {
-    setFilteredData(data)
-  }, [data])
 
   const handleAdd = () => {
     router.push(`/master/warehouses/${warehouseId}/add`)
@@ -68,6 +128,12 @@ export default function TableMasterWarehouseRack({ warehouseId }) {
     <Card>
       <DataGrid
         autoHeight
+        loading={loading}
+        rows={data || []}
+        rowCount={pagination?.total || 0}
+        paginationMode="server"
+        paginationModel={paginationModel}
+        onPaginationModelChange={handlePaginationChange}
         columns={[
           {
             flex: 0.1,
@@ -105,10 +171,7 @@ export default function TableMasterWarehouseRack({ warehouseId }) {
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
-        paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderMasterWarehouseRack }}
-        onPaginationModelChange={setPaginationModel}
-        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
