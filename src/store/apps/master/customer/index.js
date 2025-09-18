@@ -132,6 +132,12 @@ export const appMasterCustomerSlice = createSlice({
     data: [],
     loading: false,
     error: false,
+    pagination: {
+      page: 1,
+      limit: 25,
+      total: 0,
+      totalPages: 0
+    },
     detail: {
       id: '',
       name: '',
@@ -157,9 +163,15 @@ export const appMasterCustomerSlice = createSlice({
         state.loading = true
       })
       .addCase(fetchMasterDataCustomer.fulfilled, (state, action) => {
-        state.data = action.payload.data
         state.loading = false
         state.error = false
+        state.data = action.payload.data || action.payload
+        state.pagination = {
+          page: action.payload.pagination?.page || 1,
+          limit: action.payload.pagination?.limit || 25,
+          total: action.payload.pagination?.total || action.payload.length || 0,
+          totalPages: action.payload.pagination?.totalPages || 1
+        }
       })
       .addCase(fetchMasterDataCustomer.rejected, (state, action) => {
         state.loading = false

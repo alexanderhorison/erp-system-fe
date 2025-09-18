@@ -109,6 +109,12 @@ export const appMasterWarehouseRackSlice = createSlice({
     data: [],
     loading: false,
     error: false,
+    pagination: {
+      page: 1,
+      limit: 25,
+      total: 0,
+      totalPages: 0
+    },
     defaultValue: {
       name: '',
       description: '',
@@ -159,10 +165,17 @@ export const appMasterWarehouseRackSlice = createSlice({
         state.loading = true
       })
       .addCase(fetchMasterDataWarehouseRack.fulfilled, (state, action) => {
-        state.data = action.payload.data
-        state.params = action.payload.params
-        state.allData = action.payload.allData
-        state.total = action.payload.total
+        state.loading = false
+        state.data = action.payload.data || action.payload
+        state.pagination = {
+          page: action.payload.pagination?.page || 1,
+          limit: action.payload.pagination?.limit || 25,
+          total: action.payload.pagination?.total || action.payload.length || 0,
+          totalPages: action.payload.pagination?.totalPages || 1
+        }
+        state.params = action.payload.params || {}
+        state.allData = action.payload.allData || action.payload
+        state.total = action.payload.total || action.payload.length || 0
       })
       .addCase(fetchMasterDataWarehouseRack.rejected, (state, action) => {
         state.loading = false

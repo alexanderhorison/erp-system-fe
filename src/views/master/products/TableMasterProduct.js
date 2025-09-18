@@ -10,7 +10,6 @@ import {
   fetchMasterDataProductDetail
 } from 'src/store/apps/master/product'
 import ModalAddMasterProduct from './ModalAddMasterProduct'
-import HandleSearh from 'src/helpers/handleSearch'
 import { useRouter } from 'next/router'
 import { fetchMasterDataType } from 'src/store/apps/master/type'
 import { fetchDataMasterCategory } from 'src/store/apps/master/category'
@@ -67,19 +66,79 @@ export default function TableMasterProduct({}) {
   const [openModalAdd, setOpenModalAdd] = useState(false)
 
   const [searchText, setSearchText] = useState('')
-  const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  const { data } = useSelector(state => state.masterProduct)
+  const { data, loading, pagination } = useSelector(state => state.masterProduct)
   const { data: categoryData } = useSelector(state => state.category)
   const { data: typeData } = useSelector(state => state.type)
   const { data: companyData } = useSelector(state => state.company)
 
   const [filterInput, setFilterInput] = useState(defaultFilter)
 
+  // Debounced search function with proper cleanup
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId
+      const fn = (searchValue) => {
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(() => {
+          // Reset to page 1 when searching
+          setPaginationModel(prev => ({ ...prev, page: 0 }))
+
+          const params = {
+            search: searchValue,
+            page: 1,
+            limit: paginationModel.pageSize,
+            ...filterInput
+          }
+
+          dispatch(fetchMasterDataProduct(params))
+        }, 500)
+      }
+
+      // Add cancel function to clear timeout
+      fn.cancel = () => {
+        clearTimeout(timeoutId)
+      }
+
+      return fn
+    })(),
+    [dispatch, paginationModel.pageSize, filterInput]
+  )
+
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({ data, keys: ['name', 'category', 'type'], searchValue, setData: setFilteredData })
+
+    if (searchValue === '') {
+      // Cancel any pending debounced search
+      debouncedSearch.cancel()
+
+      // Reset pagination first
+      setPaginationModel(prev => ({ ...prev, page: 0 }))
+
+      // Clear search immediately
+      const params = {
+        page: 1,
+        limit: paginationModel.pageSize,
+        ...filterInput
+      }
+      dispatch(fetchMasterDataProduct(params))
+    } else {
+      debouncedSearch(searchValue)
+    }
+  }
+
+  const handlePaginationChange = (newPaginationModel) => {
+    setPaginationModel(newPaginationModel)
+
+    const params = {
+      page: newPaginationModel.page + 1, // Backend expects 1-based pagination
+      limit: newPaginationModel.pageSize,
+      ...(searchText && { search: searchText }),
+      ...filterInput
+    }
+
+    dispatch(fetchMasterDataProduct(params))
   }
 
   const updatedUrl = useCallback(
@@ -109,43 +168,59 @@ export default function TableMasterProduct({}) {
       companyId: query.companyId || ''
     }
     setFilterInput(initialFilter)
-    dispatch(fetchMasterDataProduct(initialFilter))
+    
+    const params = {
+      page: 1,
+      limit: 25,
+      ...initialFilter
+    }
+    dispatch(fetchMasterDataProduct(params))
     dispatch(fetchMasterDataType())
     dispatch(fetchDataMasterCategory())
     dispatch(fetchMasterDataCompany())
   }, [dispatch, router.query])
 
-  useEffect(() => {
-    setFilteredData(data)
-  }, [data])
-
   const clearAllFilter = useCallback(
     val => {
       setSearchText('')
-      setFilteredData([])
-      dispatch(fetchMasterDataProduct())
+      setPaginationModel(prev => ({ ...prev, page: 0 }))
       setFilterInput(defaultFilter)
+      
+      const params = {
+        page: 1,
+        limit: paginationModel.pageSize
+      }
+      dispatch(fetchMasterDataProduct(params))
+      
       updatedUrl({
         categoryId: '',
         typeId: '',
         companyId: ''
       })
     },
-    [dispatch, updatedUrl]
+    [dispatch, updatedUrl, paginationModel.pageSize]
   )
 
   const submitFilter = useCallback(() => {
+    setPaginationModel(prev => ({ ...prev, page: 0 }))
+    
+    const params = {
+      page: 1,
+      limit: paginationModel.pageSize,
+      ...(searchText && { search: searchText }),
+      ...filterInput
+    }
+    
     if (filterInput.categoryId || filterInput.typeId || filterInput.companyId) {
       updatedUrl({
         categoryId: filterInput.categoryId,
         typeId: filterInput.typeId,
         companyId: filterInput.companyId
       })
-      dispatch(fetchMasterDataProduct(filterInput))
-    } else {
-      dispatch(fetchMasterDataProduct())
     }
-  }, [dispatch, filterInput, updatedUrl])
+    
+    dispatch(fetchMasterDataProduct(params))
+  }, [dispatch, filterInput, updatedUrl, paginationModel.pageSize, searchText])
 
   const handleFilterInput = useCallback(
     e => {
@@ -171,6 +246,12 @@ export default function TableMasterProduct({}) {
       <Divider sx={{ marginBottom: '1rem' }} />
       <DataGrid
         autoHeight
+        loading={loading}
+        rows={data || []}
+        rowCount={pagination?.total || 0}
+        paginationMode="server"
+        paginationModel={paginationModel}
+        onPaginationModelChange={handlePaginationChange}
         columns={[
           {
             flex: 0.2,
@@ -247,10 +328,7 @@ export default function TableMasterProduct({}) {
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
-        paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderMasterProduct }}
-        onPaginationModelChange={setPaginationModel}
-        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
