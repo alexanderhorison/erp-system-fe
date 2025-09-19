@@ -59,8 +59,8 @@ export default function TableMasterCustomer({ }) {
   const [searchText, setSearchText] = useState('')
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  // Sort filters
-  const [sortFilters, setSortFilters] = useState({
+  // Combined filters (like Sales Order)
+  const [filters, setFilters] = useState({
     orderBy: 'name',
     orderType: 'ASC'
   })
@@ -81,8 +81,8 @@ export default function TableMasterCustomer({ }) {
             search: searchValue,
             page: 1,
             limit: paginationModel.pageSize,
-            orderBy: sortFilters.orderBy,
-            orderType: sortFilters.orderType
+            orderBy: filters.orderBy,
+            orderType: filters.orderType
           }
 
           dispatch(fetchMasterDataCustomer(params))
@@ -96,7 +96,7 @@ export default function TableMasterCustomer({ }) {
 
       return fn
     })(),
-    [dispatch, paginationModel.pageSize, sortFilters]
+    [dispatch, paginationModel.pageSize, filters]
   )
 
   const handleSearch = searchValue => {
@@ -113,8 +113,8 @@ export default function TableMasterCustomer({ }) {
       const params = {
         page: 1,
         limit: paginationModel.pageSize,
-        orderBy: sortFilters.orderBy,
-        orderType: sortFilters.orderType
+        orderBy: filters.orderBy,
+        orderType: filters.orderType
       }
       dispatch(fetchMasterDataCustomer(params))
     } else {
@@ -129,8 +129,8 @@ export default function TableMasterCustomer({ }) {
       page: newPaginationModel.page + 1, // Backend expects 1-based pagination
       limit: newPaginationModel.pageSize,
       ...(searchText && { search: searchText }),
-      orderBy: sortFilters.orderBy,
-      orderType: sortFilters.orderType
+      orderBy: filters.orderBy,
+      orderType: filters.orderType
     }
 
     dispatch(fetchMasterDataCustomer(params))
@@ -146,10 +146,11 @@ export default function TableMasterCustomer({ }) {
             field === 'rankName' ? 'rankName' : 'name'
       const orderType = sort.toUpperCase()
 
-      setSortFilters({
+      setFilters(prev => ({
+        ...prev,
         orderBy,
         orderType
-      })
+      }))
 
       // Reset to page 1 when sorting
       setPaginationModel(prev => ({ ...prev, page: 0 }))
@@ -170,11 +171,11 @@ export default function TableMasterCustomer({ }) {
     const params = {
       page: 1,
       limit: 25,
-      orderBy: sortFilters.orderBy,
-      orderType: sortFilters.orderType
+      orderBy: filters.orderBy,
+      orderType: filters.orderType
     }
     dispatch(fetchMasterDataCustomer(params))
-  }, [dispatch, sortFilters.orderBy, sortFilters.orderType])
+  }, [dispatch]) // Removed sortFilters dependencies
 
   return (
     <Card>

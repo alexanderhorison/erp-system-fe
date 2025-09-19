@@ -39,8 +39,8 @@ export default function TableMasterWarehouseRack({ warehouseId }) {
   const [searchText, setSearchText] = useState('')
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  // Sort filters
-  const [sortFilters, setSortFilters] = useState({
+  // Combined filters (like Sales Order)
+  const [filters, setFilters] = useState({
     orderBy: 'name',
     orderType: 'ASC'
   })
@@ -64,8 +64,8 @@ export default function TableMasterWarehouseRack({ warehouseId }) {
             page: 1,
             limit: paginationModel.pageSize,
             warehouseId: router.query.id,
-            orderBy: sortFilters.orderBy,
-            orderType: sortFilters.orderType
+            orderBy: filters.orderBy,
+            orderType: filters.orderType
           }
 
           dispatch(fetchMasterDataWarehouseRack(params))
@@ -79,7 +79,7 @@ export default function TableMasterWarehouseRack({ warehouseId }) {
 
       return fn
     })(),
-    [dispatch, paginationModel.pageSize, router.query.id, sortFilters]
+    [dispatch, paginationModel.pageSize, router.query.id, filters]
   )
 
   const handleSearch = searchValue => {
@@ -97,8 +97,8 @@ export default function TableMasterWarehouseRack({ warehouseId }) {
         page: 1,
         limit: paginationModel.pageSize,
         warehouseId: router.query.id,
-        orderBy: sortFilters.orderBy,
-        orderType: sortFilters.orderType
+        orderBy: filters.orderBy,
+        orderType: filters.orderType
       }
       dispatch(fetchMasterDataWarehouseRack(params))
     } else {
@@ -114,8 +114,8 @@ export default function TableMasterWarehouseRack({ warehouseId }) {
       limit: newPaginationModel.pageSize,
       warehouseId: router.query.id,
       ...(searchText && { search: searchText }),
-      orderBy: sortFilters.orderBy,
-      orderType: sortFilters.orderType
+      orderBy: filters.orderBy,
+      orderType: filters.orderType
     }
 
     dispatch(fetchMasterDataWarehouseRack(params))
@@ -129,10 +129,11 @@ export default function TableMasterWarehouseRack({ warehouseId }) {
         field === 'description' ? 'description' : 'name'
       const orderType = sort.toUpperCase()
 
-      setSortFilters({
+      setFilters(prev => ({
+        ...prev,
         orderBy,
         orderType
-      })
+      }))
 
       // Reset to page 1 when sorting
       setPaginationModel(prev => ({ ...prev, page: 0 }))
@@ -156,12 +157,12 @@ export default function TableMasterWarehouseRack({ warehouseId }) {
         page: 1,
         limit: 25,
         warehouseId: router.query.id,
-        orderBy: sortFilters.orderBy,
-        orderType: sortFilters.orderType
+        orderBy: filters.orderBy,
+        orderType: filters.orderType
       }
       dispatch(fetchMasterDataWarehouseRack(params))
     }
-  }, [dispatch, router.query.id, sortFilters.orderBy, sortFilters.orderType])
+  }, [dispatch, router.query.id]) // Removed sortFilters dependencies
 
   const handleAdd = () => {
     router.push(`/master/warehouses/${warehouseId}/add`)

@@ -12,8 +12,8 @@ export default function TableMasterProductPrice({ product }) {
   const { data, loading, pagination } = useSelector(state => state.masterProductPrice)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
-  // Sort filters
-  const [sortFilters, setSortFilters] = useState({
+  // Combined filters (like Sales Order)
+  const [filters, setFilters] = useState({
     orderBy: 'unitName',
     orderType: 'ASC'
   })
@@ -32,8 +32,8 @@ export default function TableMasterProductPrice({ product }) {
       page: newPaginationModel.page + 1, // Backend expects 1-based pagination
       limit: newPaginationModel.pageSize,
       productId: product?.id,
-      orderBy: sortFilters.orderBy,
-      orderType: sortFilters.orderType
+      orderBy: filters.orderBy,
+      orderType: filters.orderType
     }
 
     dispatch(fetchMasterDataProductPrice(params))
@@ -48,10 +48,11 @@ export default function TableMasterProductPrice({ product }) {
           field === 'masterModal' ? 'masterModal' : 'unitName'
       const orderType = sort.toUpperCase()
 
-      setSortFilters({
+      setFilters(prev => ({
+        ...prev,
         orderBy,
         orderType
-      })
+      }))
 
       // Reset to page 1 when sorting
       setPaginationModel(prev => ({ ...prev, page: 0 }))
@@ -74,12 +75,12 @@ export default function TableMasterProductPrice({ product }) {
         page: 1,
         limit: 10,
         productId: product.id,
-        orderBy: sortFilters.orderBy,
-        orderType: sortFilters.orderType
+        orderBy: filters.orderBy,
+        orderType: filters.orderType
       }
       dispatch(fetchMasterDataProductPrice(params))
     }
-  }, [dispatch, product?.id, sortFilters.orderBy, sortFilters.orderType])
+  }, [dispatch, product?.id]) // Removed sortFilters dependencies
 
   const columns = [
     {

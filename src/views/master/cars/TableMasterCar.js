@@ -48,8 +48,8 @@ export default function TableMasterCar({}) {
   const [searchText, setSearchText] = useState('')
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  // Sort filters
-  const [sortFilters, setSortFilters] = useState({
+  // Combined filters (like Sales Order)
+  const [filters, setFilters] = useState({
     orderBy: 'name',
     orderType: 'ASC'
   })
@@ -70,8 +70,8 @@ export default function TableMasterCar({}) {
             search: searchValue,
             page: 1,
             limit: paginationModel.pageSize,
-            orderBy: sortFilters.orderBy,
-            orderType: sortFilters.orderType
+            orderBy: filters.orderBy,
+            orderType: filters.orderType
           }
 
           dispatch(fetchMasterDataCar(params))
@@ -85,7 +85,7 @@ export default function TableMasterCar({}) {
 
       return fn
     })(),
-    [dispatch, paginationModel.pageSize, sortFilters]
+    [dispatch, paginationModel.pageSize, filters]
   )
 
   const handleSearch = searchValue => {
@@ -102,8 +102,8 @@ export default function TableMasterCar({}) {
       const params = {
         page: 1,
         limit: paginationModel.pageSize,
-        orderBy: sortFilters.orderBy,
-        orderType: sortFilters.orderType
+        orderBy: filters.orderBy,
+        orderType: filters.orderType
       }
       dispatch(fetchMasterDataCar(params))
     } else {
@@ -118,8 +118,8 @@ export default function TableMasterCar({}) {
       page: newPaginationModel.page + 1, // Backend expects 1-based pagination
       limit: newPaginationModel.pageSize,
       ...(searchText && { search: searchText }),
-      orderBy: sortFilters.orderBy,
-      orderType: sortFilters.orderType
+      orderBy: filters.orderBy,
+      orderType: filters.orderType
     }
 
     dispatch(fetchMasterDataCar(params))
@@ -134,10 +134,11 @@ export default function TableMasterCar({}) {
           field === 'is_active' ? 'is_active' : 'name'
       const orderType = sort.toUpperCase()
 
-      setSortFilters({
+      setFilters(prev => ({
+        ...prev,
         orderBy,
         orderType
-      })
+      }))
 
       // Reset to page 1 when sorting
       setPaginationModel(prev => ({ ...prev, page: 0 }))
@@ -158,11 +159,11 @@ export default function TableMasterCar({}) {
     const params = {
       page: 1,
       limit: 25,
-      orderBy: sortFilters.orderBy,
-      orderType: sortFilters.orderType
+      orderBy: filters.orderBy,
+      orderType: filters.orderType
     }
     dispatch(fetchMasterDataCar(params))
-  }, [dispatch, sortFilters.orderBy, sortFilters.orderType])
+  }, [dispatch]) // Removed sortFilters dependencies
 
   return (
     <Card>

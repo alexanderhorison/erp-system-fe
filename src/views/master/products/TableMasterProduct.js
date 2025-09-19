@@ -68,8 +68,8 @@ export default function TableMasterProduct({}) {
   const [searchText, setSearchText] = useState('')
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  // Filter states including sorting
-  const [sortFilters, setSortFilters] = useState({
+  // Combined filters including sorting (like Sales Order)
+  const [filters, setFilters] = useState({
     orderBy: 'name',
     orderType: 'ASC'
   })
@@ -95,8 +95,8 @@ export default function TableMasterProduct({}) {
             search: searchValue,
             page: 1,
             limit: paginationModel.pageSize,
-            orderBy: sortFilters.orderBy,
-            orderType: sortFilters.orderType,
+            orderBy: filters.orderBy,
+            orderType: filters.orderType,
             ...filterInput
           }
 
@@ -111,7 +111,7 @@ export default function TableMasterProduct({}) {
 
       return fn
     })(),
-    [dispatch, paginationModel.pageSize, sortFilters, filterInput]
+    [dispatch, paginationModel.pageSize, filters, filterInput]
   )
 
   const handleSearch = searchValue => {
@@ -128,8 +128,8 @@ export default function TableMasterProduct({}) {
       const params = {
         page: 1,
         limit: paginationModel.pageSize,
-        orderBy: sortFilters.orderBy,
-        orderType: sortFilters.orderType,
+        orderBy: filters.orderBy,
+        orderType: filters.orderType,
         ...filterInput
       }
       dispatch(fetchMasterDataProduct(params))
@@ -145,8 +145,8 @@ export default function TableMasterProduct({}) {
       page: newPaginationModel.page + 1, // Backend expects 1-based pagination
       limit: newPaginationModel.pageSize,
       ...(searchText && { search: searchText }),
-      orderBy: sortFilters.orderBy,
-      orderType: sortFilters.orderType,
+      orderBy: filters.orderBy,
+      orderType: filters.orderType,
       ...filterInput
     }
 
@@ -163,10 +163,11 @@ export default function TableMasterProduct({}) {
             field === 'company' ? 'company' : 'name'
       const orderType = sort.toUpperCase()
 
-      setSortFilters({
+      setFilters(prev => ({
+        ...prev,
         orderBy,
         orderType
-      })
+      }))
 
       // Reset to page 1 when sorting
       setPaginationModel(prev => ({ ...prev, page: 0 }))
@@ -215,15 +216,15 @@ export default function TableMasterProduct({}) {
     const params = {
       page: 1,
       limit: 25,
-      orderBy: sortFilters.orderBy,
-      orderType: sortFilters.orderType,
+      orderBy: filters.orderBy,
+      orderType: filters.orderType,
       ...initialFilter
     }
     dispatch(fetchMasterDataProduct(params))
     dispatch(fetchMasterDataType())
     dispatch(fetchDataMasterCategory())
     dispatch(fetchMasterDataCompany())
-  }, [dispatch, router.query, sortFilters.orderBy, sortFilters.orderType])
+  }, [dispatch, router.query]) // Removed sortFilters dependencies
 
   const clearAllFilter = useCallback(
     val => {
@@ -234,8 +235,8 @@ export default function TableMasterProduct({}) {
       const params = {
         page: 1,
         limit: paginationModel.pageSize,
-        orderBy: sortFilters.orderBy,
-        orderType: sortFilters.orderType
+        orderBy: filters.orderBy,
+        orderType: filters.orderType
       }
       dispatch(fetchMasterDataProduct(params))
       
@@ -245,7 +246,7 @@ export default function TableMasterProduct({}) {
         companyId: ''
       })
     },
-    [dispatch, updatedUrl, paginationModel.pageSize, sortFilters]
+    [dispatch, updatedUrl, paginationModel.pageSize, filters]
   )
 
   const submitFilter = useCallback(() => {
@@ -255,8 +256,8 @@ export default function TableMasterProduct({}) {
       page: 1,
       limit: paginationModel.pageSize,
       ...(searchText && { search: searchText }),
-      orderBy: sortFilters.orderBy,
-      orderType: sortFilters.orderType,
+      orderBy: filters.orderBy,
+      orderType: filters.orderType,
       ...filterInput
     }
     
@@ -269,7 +270,7 @@ export default function TableMasterProduct({}) {
     }
     
     dispatch(fetchMasterDataProduct(params))
-  }, [dispatch, filterInput, updatedUrl, paginationModel.pageSize, searchText, sortFilters])
+  }, [dispatch, filterInput, updatedUrl, paginationModel.pageSize, searchText, filters])
 
   const handleFilterInput = useCallback(
     e => {
