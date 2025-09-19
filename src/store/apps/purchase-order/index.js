@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Purchase Order'
 
@@ -27,21 +27,14 @@ export const createPurchaseOrder = createAsyncThunk(
   'purchaseOrder/createPurchaseOrder',
   async ({ data, router }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Surat',
-        title: 'Anda akan membuat surat purchase order?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/purchase-order/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          router.push(`/purchase-order`)
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/purchase-order/create',
+        data
       })
+      swalSuccess({ label, name: 'Purchase Order', response })
+      router.push(`/purchase-order`)
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -70,21 +63,14 @@ export const updateFormPurchaseOrder = createAsyncThunk(
   'purchaseOrder/updateFormPurchaseOrder',
   async ({ data, code, router }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Purchase Order',
-        title: 'Anda akan edit purchase order?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/purchase-order/' + code,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          router.push(`/purchase-order`)
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/purchase-order/' + code,
+        data
       })
+      swalSuccess({ label, name: 'Purchase Order', response })
+      router.push(`/purchase-order`)
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -99,8 +85,8 @@ export const sendEmail = createAsyncThunk('purchaseOrder/sendEmail', async (form
       url: '/send-email/',
       data: formData,
       headers: {
-        'Content-Type': 'multipart/form-data', // Set the correct header for file uploads
-      },
+        'Content-Type': 'multipart/form-data' // Set the correct header for file uploads
+      }
     })
     return response.data
   } catch (error) {

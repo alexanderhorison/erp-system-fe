@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalConfirmationDelete, swalError, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'karyawan'
 
@@ -44,22 +44,15 @@ export const addMasterDataEmployee = createAsyncThunk(
   'appMasterEmployee/addEmployee',
   async ({ data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Karyawan',
-        name: 'Karyawan',
-        title: 'Anda akan menambahkan karyawan?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/master/employee/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          setOpen(false)
-          dispatch(fetchMasterDataEmployee())
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/master/employee/create',
+        data
       })
+      swalSuccess({ label, name: 'Karyawan', response })
+      setOpen(false)
+      dispatch(fetchMasterDataEmployee())
+      return
     } catch (error) {
       swalError({ error, label })
       return rejectWithValue({})
@@ -72,23 +65,16 @@ export const editMasterDataEmployee = createAsyncThunk(
   'appMasterEmployee/editEmployee',
   async ({ id, data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Karyawan',
-        name: 'Karyawan',
-        title: 'Anda akan mengubah karyawan?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/master/employee/' + id,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          setOpen(false)
-          dispatch(fetchMasterDataEmployee())
-          dispatch(fetchMasterDataEmployeeDetail(id))
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/master/employee/' + id,
+        data
       })
+      swalSuccess({ label, name: 'Karyawan', response })
+      setOpen(false)
+      dispatch(fetchMasterDataEmployee())
+      dispatch(fetchMasterDataEmployeeDetail(id))
+      return
     } catch (error) {
       swalError({ label, error })
       return rejectWithValue({})
@@ -143,23 +129,16 @@ export const fetchAddEmployeeDebt = createAsyncThunk(
   'appMasterEmployee/fetchAddEmployeeDebt',
   async ({ id, data, setOpen, type }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Kasbon',
-        name: 'Kasbon',
-        title: `Anda akan menambahkan ${type === 'PEMINJAMAN' ? 'peminjaman' : 'pembayaran'} kasbon?`,
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/master/employee/debt/' + id,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          setOpen(false)
-          dispatch(fetchEmployeeDebt({ id }))
-          dispatch(fetchMasterDataEmployeeDetail(id))
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/master/employee/debt/' + id,
+        data
       })
+      swalSuccess({ label, name: 'Karyawan', response })
+      setOpen(false)
+      dispatch(fetchEmployeeDebt({ id }))
+      dispatch(fetchMasterDataEmployeeDetail(id))
+      return
     } catch (error) {
       swalError({ error, label })
       return rejectWithValue({})

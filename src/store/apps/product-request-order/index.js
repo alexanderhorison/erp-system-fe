@@ -1,44 +1,40 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'PRODUCT REQUEST ORDER'
 
 // GET ALL PRODUCT REQUEST ORDER
-export const fetchAllRequestOrder = createAsyncThunk('productRequestOrder/fetchAllProductRequestOrder', async (params, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/product-request-order/all',
-      params,
-    })
-    return response.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchAllRequestOrder = createAsyncThunk(
+  'productRequestOrder/fetchAllProductRequestOrder',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/product-request-order/all',
+        params
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // CREATE PRODUCT REQUEST ORDER
 export const createRequestOrder = createAsyncThunk(
   'productRequestOrder/createRequestOrder',
   async (data, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Surat',
-        title: 'Anda akan membuat surat Product Request?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/product-request-order/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          return dispatch(fetchAllRequestOrder())
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/product-request-order/create',
+        data
       })
+      swalSuccess({ label, name: 'Product Request Order', response })
+      dispatch(fetchAllRequestOrder())
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -67,21 +63,14 @@ export const updateFormRequestOrder = createAsyncThunk(
   'productRequestOrder/updateFormRequestOrder',
   async ({ data, code, router }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Product Request',
-        title: 'Anda akan edit Product Request?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/product-request-order/' + code,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          return dispatch(fetchAllRequestOrder())
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/product-request-order/' + code,
+        data
       })
+      swalSuccess({ label, name: 'Product Request Order', response })
+      dispatch(fetchAllRequestOrder())
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -153,8 +142,6 @@ export const fetchDetailProcessRequestOrder = createAsyncThunk(
   }
 )
 
-
-
 export const appMasterProductSlice = createSlice({
   name: 'productRequestOrder',
   initialState: {
@@ -179,7 +166,7 @@ export const appMasterProductSlice = createSlice({
 
     detailProcessRequestOrder: {},
     loadingDetailProcessRequestOrder: false,
-    errorDetailProcessRequestOrder: false,
+    errorDetailProcessRequestOrder: false
   },
   reducers: {},
   extraReducers: builder => {

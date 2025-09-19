@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Barang Masuk'
 
@@ -26,21 +26,14 @@ export const createAdjustmentGoodsIn = createAsyncThunk(
   'adjustmentGoodsIn/createAdjustmentGoodsIn',
   async ({ data, router }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Surat',
-        title: 'Anda akan membuat surat barang masuk?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/adjustment-goods/in/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          router.push(`/adjustment/goods-in`)
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/adjustment-goods/in/create',
+        data
       })
+      swalSuccess({ label, name: 'Barang Masuk', response })
+      router.push(`/adjustment/goods-in`)
+      return
     } catch (error) {
       return rejectWithValue({})
     }

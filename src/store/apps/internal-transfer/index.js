@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Internal Transfer'
 
@@ -26,21 +26,14 @@ export const createInternalTransfer = createAsyncThunk(
   'internalTransfer/createInternalTransfer',
   async ({ data, router }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Surat',
-        title: 'Anda akan membuat surat internal transfer?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/internal-transfer/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          router.push(`/internal-transfer`)
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/internal-transfer/create',
+        data
       })
+      swalSuccess({ label, name: 'Internal Transfer', response })
+      router.push(`/internal-transfer`)
+      return
     } catch (error) {
       return rejectWithValue({})
     }

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationDelete, swalConfirmationEdit, swalError, swalSuccess } from 'src/helpers/swalFunction'
+import { swalConfirmationDelete, swalError, swalSuccess } from 'src/helpers/swalFunction'
 
 const label = 'otoritas'
 
@@ -30,7 +30,6 @@ export const fetchOneRole = createAsyncThunk('appRoles/fetchOneRole', async para
   }
 })
 
-
 // ** Add Role
 export const addRole = createAsyncThunk('appUsers/addRole', async (data, { getState, dispatch }) => {
   try {
@@ -50,26 +49,16 @@ export const addRole = createAsyncThunk('appUsers/addRole', async (data, { getSt
 // Edit Role
 export const editRole = createAsyncThunk('appUsers/editRole', async ({ id, data, router }, { getState, dispatch }) => {
   try {
-    await swalConfirmationEdit({
-      label: 'Role',
-      name: 'Role',
-      title: 'Anda akan melakukan perubahan akses menu',
-      axiosRequest: () => {
-        return axios({
-          method: 'PUT',
-          url: '/role/' + id,
-          data: data
-        })
-      },
-      dispatchRequest: () => {
-        dispatch(fetchRoles())
-        router.push('/settings/roles')
-      }
+    const response = await axios({
+      method: 'PUT',
+      url: '/role/' + id,
+      data: data
     })
+    swalSuccess({ label, name: 'Otoritas', response })
+    dispatch(fetchRoles())
+    router.push('/settings/roles')
     return
   } catch (error) {
-    console.log(error);
-
     swalError({ label, error })
   }
 })

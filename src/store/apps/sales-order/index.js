@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalNotifSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalNotifSuccess, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Sales Order'
 
@@ -27,21 +27,14 @@ export const createSalesOrder = createAsyncThunk(
   'salesOrder/createSalesOrder',
   async ({ data, router }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Surat',
-        title: 'Anda akan membuat surat sales order?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/sales-order/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          router.push(`/sales-order`)
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/sales-order/create',
+        data
       })
+      swalSuccess({ label, name: 'Sales Order', response })
+      router.push(`/sales-order`)
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -70,21 +63,14 @@ export const updateFormSalesOrder = createAsyncThunk(
   'salesOrder/updateFormSalesOrder',
   async ({ data, code, router }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Sales Order',
-        title: 'Anda akan edit sales order?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/sales-order/' + code,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          router.push(`/sales-order`)
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/sales-order/' + code,
+        data
       })
+      swalSuccess({ label, name: 'Sales Order', response })
+      router.push(`/sales-order`)
+      return
     } catch (error) {
       return rejectWithValue({})
     }

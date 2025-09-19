@@ -1,11 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import {
-  swalConfirmationAdd,
-  swalConfirmationEdit,
-  swalConfirmationDelete,
-  swalToastError
-} from 'src/helpers/swalFunction'
+import { swalConfirmationDelete, swalToastError, swalSuccess } from 'src/helpers/swalFunction'
 
 const label = 'Ekuitas'
 
@@ -43,22 +38,15 @@ export const addEquity = createAsyncThunk(
   'equity/addEquity',
   async ({ data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Ekuitas',
-        name: 'Ekuitas',
-        title: 'Anda akan menambahkan data ekuitas?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/equity',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          dispatch(fetchAllEquity())
-          setOpen(false)
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/equity',
+        data
       })
+      swalSuccess({ label, name: 'Equity', response })
+      dispatch(fetchAllEquity())
+      setOpen(false)
+      return
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message)
     }
@@ -70,22 +58,15 @@ export const editEquity = createAsyncThunk(
   'equity/editEquity',
   async ({ id, data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationEdit({
-        label: 'Ekuitas',
-        name: 'Ekuitas',
-        title: 'Anda akan mengubah data ekuitas?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/equity/' + id,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          dispatch(fetchAllEquity())
-          setOpen(false)
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/equity/' + id,
+        data
       })
+      swalSuccess({ label, name: 'Equity', response })
+      dispatch(fetchAllEquity())
+      setOpen(false)
+      return
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message)
     }

@@ -1,112 +1,111 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalConfirmationDelete, swalConfirmationEdit, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationDelete, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Printer'
 // GET DETAIL PRINTER
-export const fetchDetailPrinter = createAsyncThunk('appDashboard/fetchDetailPrinter', async (query, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'POST',
-      url: '/config/detail',
-      data: query
-    })
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchDetailPrinter = createAsyncThunk(
+  'appDashboard/fetchDetailPrinter',
+  async (query, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: '/config/detail',
+        data: query
+      })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 // GET ALL PRINTER
-export const fetchAllPrinter = createAsyncThunk('appDashboard/fetchAllPrinter', async ({ query }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'POST',
-      url: '/config/all',
-      data: {
-        category: "PRINTER"
-      }
-    })
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchAllPrinter = createAsyncThunk(
+  'appDashboard/fetchAllPrinter',
+  async ({ query }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: '/config/all',
+        data: {
+          category: 'PRINTER'
+        }
+      })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 // ADD PRINTER
-export const fetchAddPrinter = createAsyncThunk('appDashboard/fetchAddPrinter', async ({ payload, setOpen }, { rejectWithValue, dispatch }) => {
-  try {
-    const data = await swalConfirmationAdd({
-      title: 'Tambah Printer',
-      text: 'Apakah anda yakin ingin menambah printer ini ?',
-      axiosRequest: () => {
-        return axios({
-          method: 'POST',
-          url: '/config/create',
-          data: payload
-        })
-      },
-      dispatchRequest: () => {
-        dispatch(fetchAllPrinter({}))
-        setOpen(false)
-      }
-    })
-  } catch (error) {
-    console.log(error);
-
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchAddPrinter = createAsyncThunk(
+  'appDashboard/fetchAddPrinter',
+  async ({ payload, setOpen }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: '/config/create',
+        data: payload
+      })
+      swalSuccess({ label, name: 'Printer', response })
+      dispatch(fetchAllPrinter({}))
+      setOpen(false)
+      return
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 // DELETE PRINTER
-export const fetchDeletePrinter = createAsyncThunk('appDashboard/fetchDeletePrinter', async (payload, { rejectWithValue, dispatch }) => {
-  try {
-    const response = await swalConfirmationDelete({
-      label: 'Printer',
-      name: payload.name,
-      axiosRequest: () => {
-        return axios({
-          method: 'DELETE',
-          url: '/config/delete',
-          data: {
-            id: payload.id
-          }
-        })
-      },
-      dispatchRequest: () => {
-        dispatch(fetchAllPrinter({}))
-      }
-    })
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchDeletePrinter = createAsyncThunk(
+  'appDashboard/fetchDeletePrinter',
+  async (payload, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await swalConfirmationDelete({
+        label: 'Printer',
+        name: payload.name,
+        axiosRequest: () => {
+          return axios({
+            method: 'DELETE',
+            url: '/config/delete',
+            data: {
+              id: payload.id
+            }
+          })
+        },
+        dispatchRequest: () => {
+          dispatch(fetchAllPrinter({}))
+        }
+      })
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 // UPDATE PRINTER
-export const fetchEditPrinter = createAsyncThunk('appDashboard/fetchEditPrinter', async ({ id, payload, setOpen }, { rejectWithValue, dispatch }) => {
-  try {
-    const response = await swalConfirmationEdit({
-      label: 'Printer',
-      title: "Apakah anda yakin ingin merubah printer ini ?",
-      name: payload.value,
-      axiosRequest: () => {
-        return axios({
-          method: 'POST',
-          url: '/config/update/' + id,
-          data: payload
-        })
-      },
-      dispatchRequest: () => {
-        dispatch(fetchAllPrinter({}))
-        setOpen(false)
-      }
-    })
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchEditPrinter = createAsyncThunk(
+  'appDashboard/fetchEditPrinter',
+  async ({ id, payload, setOpen }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: '/config/update/' + id,
+        data: payload
+      })
+      swalSuccess({ label, name: 'Printer', response })
+      dispatch(fetchAllPrinter({}))
+      setOpen(false)
+      return
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // PRINTER CONFIG
 export const appPrinterSlice = createSlice({
@@ -117,7 +116,7 @@ export const appPrinterSlice = createSlice({
       connected: false,
       printing: false,
       error: false,
-      loading: false,
+      loading: false
     },
 
     printerConfig: null,
@@ -148,8 +147,8 @@ export const appPrinterSlice = createSlice({
   },
   reducers: {
     setPrinterStatus: (state, action) => {
-      state.printerStatus = { ...state.printerStatus, ...action.payload };
-    },
+      state.printerStatus = { ...state.printerStatus, ...action.payload }
+    }
   },
   extraReducers: builder => {
     builder
@@ -212,5 +211,5 @@ export const appPrinterSlice = createSlice({
       })
   }
 })
-export const { setPrinterStatus } = appPrinterSlice.actions;
+export const { setPrinterStatus } = appPrinterSlice.actions
 export default appPrinterSlice.reducer
