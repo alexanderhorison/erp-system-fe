@@ -12,6 +12,12 @@ export default function TableMasterProductPrice({ product }) {
   const { data, loading, pagination } = useSelector(state => state.masterProductPrice)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
+  // Sort filters
+  const [sortFilters, setSortFilters] = useState({
+    orderBy: 'unitName',
+    orderType: 'ASC'
+  })
+
   // Add the hardcoded product name to each row
   const rowsWithProductName = data?.map(row => ({
     ...row,
@@ -25,10 +31,41 @@ export default function TableMasterProductPrice({ product }) {
     const params = {
       page: newPaginationModel.page + 1, // Backend expects 1-based pagination
       limit: newPaginationModel.pageSize,
-      productId: product?.id
+      productId: product?.id,
+      orderBy: sortFilters.orderBy,
+      orderType: sortFilters.orderType
     }
 
     dispatch(fetchMasterDataProductPrice(params))
+  }
+
+  // Handle sorting
+  const handleSortModelChange = (sortModel) => {
+    if (sortModel.length > 0) {
+      const { field, sort } = sortModel[0]
+      const orderBy = field === 'unitName' ? 'unitName' :
+        field === 'basePrice' ? 'basePrice' :
+          field === 'masterModal' ? 'masterModal' : 'unitName'
+      const orderType = sort.toUpperCase()
+
+      setSortFilters({
+        orderBy,
+        orderType
+      })
+
+      // Reset to page 1 when sorting
+      setPaginationModel(prev => ({ ...prev, page: 0 }))
+
+      const params = {
+        page: 1,
+        limit: paginationModel.pageSize,
+        productId: product?.id,
+        orderBy,
+        orderType
+      }
+
+      dispatch(fetchMasterDataProductPrice(params))
+    }
   }
 
   useEffect(() => {
@@ -36,11 +73,13 @@ export default function TableMasterProductPrice({ product }) {
       const params = {
         page: 1,
         limit: 10,
-        productId: product.id
+        productId: product.id,
+        orderBy: sortFilters.orderBy,
+        orderType: sortFilters.orderType
       }
       dispatch(fetchMasterDataProductPrice(params))
     }
-  }, [dispatch, product?.id])
+  }, [dispatch, product?.id, sortFilters.orderBy, sortFilters.orderType])
 
   const columns = [
     {
@@ -126,8 +165,10 @@ export default function TableMasterProductPrice({ product }) {
           rows={rowsWithProductName || []}
           rowCount={pagination?.total || 0}
           paginationMode="server"
+          sortingMode="server"
           paginationModel={paginationModel}
           onPaginationModelChange={handlePaginationChange}
+          onSortModelChange={handleSortModelChange}
           pageSizeOptions={[5, 10, 25, 50]}
           autoHeight={true}
           processRowUpdate={onChangeVal}

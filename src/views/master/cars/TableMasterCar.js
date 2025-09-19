@@ -48,6 +48,12 @@ export default function TableMasterCar({}) {
   const [searchText, setSearchText] = useState('')
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
+  // Sort filters
+  const [sortFilters, setSortFilters] = useState({
+    orderBy: 'name',
+    orderType: 'ASC'
+  })
+
   const { data, loading, pagination } = useSelector(state => state.masterCar)
 
   // Debounced search function with proper cleanup
@@ -63,7 +69,9 @@ export default function TableMasterCar({}) {
           const params = {
             search: searchValue,
             page: 1,
-            limit: paginationModel.pageSize
+            limit: paginationModel.pageSize,
+            orderBy: sortFilters.orderBy,
+            orderType: sortFilters.orderType
           }
 
           dispatch(fetchMasterDataCar(params))
@@ -77,7 +85,7 @@ export default function TableMasterCar({}) {
 
       return fn
     })(),
-    [dispatch, paginationModel.pageSize]
+    [dispatch, paginationModel.pageSize, sortFilters]
   )
 
   const handleSearch = searchValue => {
@@ -93,7 +101,9 @@ export default function TableMasterCar({}) {
       // Clear search immediately
       const params = {
         page: 1,
-        limit: paginationModel.pageSize
+        limit: paginationModel.pageSize,
+        orderBy: sortFilters.orderBy,
+        orderType: sortFilters.orderType
       }
       dispatch(fetchMasterDataCar(params))
     } else {
@@ -107,19 +117,52 @@ export default function TableMasterCar({}) {
     const params = {
       page: newPaginationModel.page + 1, // Backend expects 1-based pagination
       limit: newPaginationModel.pageSize,
-      ...(searchText && { search: searchText })
+      ...(searchText && { search: searchText }),
+      orderBy: sortFilters.orderBy,
+      orderType: sortFilters.orderType
     }
 
     dispatch(fetchMasterDataCar(params))
   }
 
+  // Handle sorting
+  const handleSortModelChange = (sortModel) => {
+    if (sortModel.length > 0) {
+      const { field, sort } = sortModel[0]
+      const orderBy = field === 'name' ? 'name' :
+        field === 'plate_number' ? 'plate_number' :
+          field === 'is_active' ? 'is_active' : 'name'
+      const orderType = sort.toUpperCase()
+
+      setSortFilters({
+        orderBy,
+        orderType
+      })
+
+      // Reset to page 1 when sorting
+      setPaginationModel(prev => ({ ...prev, page: 0 }))
+
+      const params = {
+        page: 1,
+        limit: paginationModel.pageSize,
+        ...(searchText && { search: searchText }),
+        orderBy,
+        orderType
+      }
+
+      dispatch(fetchMasterDataCar(params))
+    }
+  }
+
   useEffect(() => {
     const params = {
       page: 1,
-      limit: 25
+      limit: 25,
+      orderBy: sortFilters.orderBy,
+      orderType: sortFilters.orderType
     }
     dispatch(fetchMasterDataCar(params))
-  }, [dispatch])
+  }, [dispatch, sortFilters.orderBy, sortFilters.orderType])
 
   return (
     <Card>
@@ -130,8 +173,10 @@ export default function TableMasterCar({}) {
         rows={data || []}
         rowCount={pagination?.total || 0}
         paginationMode="server"
+        sortingMode="server"
         paginationModel={paginationModel}
         onPaginationModelChange={handlePaginationChange}
+        onSortModelChange={handleSortModelChange}
         columns={[
           {
             flex: 0.1,

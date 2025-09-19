@@ -68,6 +68,12 @@ export default function TableMasterProduct({}) {
   const [searchText, setSearchText] = useState('')
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
+  // Filter states including sorting
+  const [sortFilters, setSortFilters] = useState({
+    orderBy: 'name',
+    orderType: 'ASC'
+  })
+
   const { data, loading, pagination } = useSelector(state => state.masterProduct)
   const { data: categoryData } = useSelector(state => state.category)
   const { data: typeData } = useSelector(state => state.type)
@@ -89,6 +95,8 @@ export default function TableMasterProduct({}) {
             search: searchValue,
             page: 1,
             limit: paginationModel.pageSize,
+            orderBy: sortFilters.orderBy,
+            orderType: sortFilters.orderType,
             ...filterInput
           }
 
@@ -103,7 +111,7 @@ export default function TableMasterProduct({}) {
 
       return fn
     })(),
-    [dispatch, paginationModel.pageSize, filterInput]
+    [dispatch, paginationModel.pageSize, sortFilters, filterInput]
   )
 
   const handleSearch = searchValue => {
@@ -120,6 +128,8 @@ export default function TableMasterProduct({}) {
       const params = {
         page: 1,
         limit: paginationModel.pageSize,
+        orderBy: sortFilters.orderBy,
+        orderType: sortFilters.orderType,
         ...filterInput
       }
       dispatch(fetchMasterDataProduct(params))
@@ -135,10 +145,43 @@ export default function TableMasterProduct({}) {
       page: newPaginationModel.page + 1, // Backend expects 1-based pagination
       limit: newPaginationModel.pageSize,
       ...(searchText && { search: searchText }),
+      orderBy: sortFilters.orderBy,
+      orderType: sortFilters.orderType,
       ...filterInput
     }
 
     dispatch(fetchMasterDataProduct(params))
+  }
+
+  // Handle sorting
+  const handleSortModelChange = (sortModel) => {
+    if (sortModel.length > 0) {
+      const { field, sort } = sortModel[0]
+      const orderBy = field === 'name' ? 'name' :
+        field === 'category' ? 'category' :
+          field === 'type' ? 'type' :
+            field === 'company' ? 'company' : 'name'
+      const orderType = sort.toUpperCase()
+
+      setSortFilters({
+        orderBy,
+        orderType
+      })
+
+      // Reset to page 1 when sorting
+      setPaginationModel(prev => ({ ...prev, page: 0 }))
+
+      const params = {
+        page: 1,
+        limit: paginationModel.pageSize,
+        ...(searchText && { search: searchText }),
+        orderBy,
+        orderType,
+        ...filterInput
+      }
+
+      dispatch(fetchMasterDataProduct(params))
+    }
   }
 
   const updatedUrl = useCallback(
@@ -172,13 +215,15 @@ export default function TableMasterProduct({}) {
     const params = {
       page: 1,
       limit: 25,
+      orderBy: sortFilters.orderBy,
+      orderType: sortFilters.orderType,
       ...initialFilter
     }
     dispatch(fetchMasterDataProduct(params))
     dispatch(fetchMasterDataType())
     dispatch(fetchDataMasterCategory())
     dispatch(fetchMasterDataCompany())
-  }, [dispatch, router.query])
+  }, [dispatch, router.query, sortFilters.orderBy, sortFilters.orderType])
 
   const clearAllFilter = useCallback(
     val => {
@@ -188,7 +233,9 @@ export default function TableMasterProduct({}) {
       
       const params = {
         page: 1,
-        limit: paginationModel.pageSize
+        limit: paginationModel.pageSize,
+        orderBy: sortFilters.orderBy,
+        orderType: sortFilters.orderType
       }
       dispatch(fetchMasterDataProduct(params))
       
@@ -198,7 +245,7 @@ export default function TableMasterProduct({}) {
         companyId: ''
       })
     },
-    [dispatch, updatedUrl, paginationModel.pageSize]
+    [dispatch, updatedUrl, paginationModel.pageSize, sortFilters]
   )
 
   const submitFilter = useCallback(() => {
@@ -208,6 +255,8 @@ export default function TableMasterProduct({}) {
       page: 1,
       limit: paginationModel.pageSize,
       ...(searchText && { search: searchText }),
+      orderBy: sortFilters.orderBy,
+      orderType: sortFilters.orderType,
       ...filterInput
     }
     
@@ -220,7 +269,7 @@ export default function TableMasterProduct({}) {
     }
     
     dispatch(fetchMasterDataProduct(params))
-  }, [dispatch, filterInput, updatedUrl, paginationModel.pageSize, searchText])
+  }, [dispatch, filterInput, updatedUrl, paginationModel.pageSize, searchText, sortFilters])
 
   const handleFilterInput = useCallback(
     e => {
@@ -250,8 +299,10 @@ export default function TableMasterProduct({}) {
         rows={data || []}
         rowCount={pagination?.total || 0}
         paginationMode="server"
+        sortingMode="server"
         paginationModel={paginationModel}
         onPaginationModelChange={handlePaginationChange}
+        onSortModelChange={handleSortModelChange}
         columns={[
           {
             flex: 0.2,
