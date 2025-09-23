@@ -338,11 +338,6 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
     setTimeout(() => setIsStepChanging(false), 200)
   }
 
-  const handleStepClick = stepIndex => {
-    if (stepIndex < activeStep || (stepIndex === activeStep + 1 && isStepValid()) || stepIndex === activeStep) {
-      setActiveStep(stepIndex)
-    }
-  }
   const isStepValid = () => {
     const values = methods.getValues()
     const errors = methods.formState.errors
@@ -404,19 +399,7 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
     }
     setActiveStep(0) // Reset to first step when mode or date changes
   }, [mode, selectedDate]) // Add validation triggers for better UX
-  const triggerStepValidation = async (fieldName = null) => {
-    try {
-      if (fieldName) {
-        // Trigger validation for specific field
-        await methods.trigger(fieldName)
-      } else {
-        // Trigger validation for current step
-        await methods.trigger()
-      }
-    } catch (error) {
-      console.log('Step validation error:', error)
-    }
-  }
+
   // Watch for changes and trigger validation
   useEffect(() => {
     const subscription = methods.watch((value, { name, type }) => {

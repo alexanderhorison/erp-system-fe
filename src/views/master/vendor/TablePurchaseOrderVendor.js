@@ -12,7 +12,7 @@ import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
 import renderClient from 'src/helpers/renderClient'
-import { fetchAllPurchaseOrder, fetchAllPurchaseOrderVendor } from 'src/store/apps/purchase-order'
+import { fetchAllPurchaseOrderVendor } from 'src/store/apps/purchase-order'
 import TableHeaderPurchaseOrderVendor from './TableHeaderPurchaseOrderVendor'
 
 const RowOptions = ({ handleView, handleEdit }) => {

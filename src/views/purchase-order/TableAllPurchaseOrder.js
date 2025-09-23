@@ -21,13 +21,11 @@ const RowOptions = ({ handleView, handleEdit, data }) => {
         <IconButton onClick={handleView}>
           <Icon icon='tabler:eye' />
         </IconButton>
-        {
-          data?.status === "PENDING" && (
-            <IconButton onClick={handleEdit}>
-              <Icon icon='tabler:edit' />
-            </IconButton>
-          )
-        }
+        {data?.status === 'PENDING' && (
+          <IconButton onClick={handleEdit}>
+            <Icon icon='tabler:edit' />
+          </IconButton>
+        )}
       </Box>
     </>
   )
@@ -92,28 +90,46 @@ export default function TableAllPurchaseOrder({ timeFilter }) {
     }
   }, [])
 
+  // Centralized fetch function to avoid duplication
+  const fetchData = useCallback(
+    (customParams = {}) => {
+      const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
+      const params = {
+        page: 1,
+        limit: paginationModel.pageSize,
+        ...(searchText && { search: searchText }),
+        ...(filters.status && { status: filters.status }),
+        orderBy: filters.orderBy,
+        orderType: filters.orderType,
+        ...dateRange,
+        pagination: true,
+        ...customParams
+      }
+      dispatch(fetchAllPurchaseOrder(params))
+    },
+    [
+      dispatch,
+      paginationModel.pageSize,
+      searchText,
+      filters.status,
+      filters.orderBy,
+      filters.orderType,
+      timeFilter?.year,
+      timeFilter?.month
+    ]
+  )
+
   // Debounced search function with proper cleanup
   const debouncedSearch = useCallback(
     (() => {
       let timeoutId
-      const fn = (searchValue) => {
+      const fn = searchValue => {
         clearTimeout(timeoutId)
         timeoutId = setTimeout(() => {
           // Reset to page 1 when searching
           setPaginationModel(prev => ({ ...prev, page: 0 }))
 
-          const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
-          const params = {
-            search: searchValue,
-            page: 1,
-            limit: paginationModel.pageSize,
-            ...(filters.status && { status: filters.status }),
-            orderBy: filters.orderBy,
-            orderType: filters.orderType,
-            ...dateRange
-          }
-
-          dispatch(fetchAllPurchaseOrder(params))
+          fetchData({ search: searchValue, page: 1 })
         }, 500)
       }
 
@@ -124,7 +140,7 @@ export default function TableAllPurchaseOrder({ timeFilter }) {
 
       return fn
     })(),
-    [dispatch, paginationModel.pageSize, filters, timeFilter]
+    [fetchData]
   )
 
   const handleSearch = searchValue => {
@@ -138,16 +154,7 @@ export default function TableAllPurchaseOrder({ timeFilter }) {
       setPaginationModel(prev => ({ ...prev, page: 0 }))
 
       // Clear search immediately
-      const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
-      const params = {
-        page: 1,
-        limit: paginationModel.pageSize,
-        ...(filters.status && { status: filters.status }),
-        orderBy: filters.orderBy,
-        orderType: filters.orderType,
-        ...dateRange
-      }
-      dispatch(fetchAllPurchaseOrder(params))
+      fetchData({ page: 1 })
     } else {
       debouncedSearch(searchValue)
     }
@@ -167,21 +174,13 @@ export default function TableAllPurchaseOrder({ timeFilter }) {
     router.push(`/purchase-order/add`)
   }
 
-  const handlePaginationChange = (newPaginationModel) => {
+  const handlePaginationChange = newPaginationModel => {
     setPaginationModel(newPaginationModel)
 
-    const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
-    const params = {
+    fetchData({
       page: newPaginationModel.page + 1, // Backend expects 1-based pagination
-      limit: newPaginationModel.pageSize,
-      ...(searchText && { search: searchText }),
-      ...(filters.status && { status: filters.status }),
-      orderBy: filters.orderBy,
-      orderType: filters.orderType,
-      ...dateRange
-    }
-
-    dispatch(fetchAllPurchaseOrder(params))
+      limit: newPaginationModel.pageSize
+    })
   }
 
   // Handle filter changes
@@ -195,26 +194,19 @@ export default function TableAllPurchaseOrder({ timeFilter }) {
     setPaginationModel(prev => ({ ...prev, page: 0 }))
 
     const newFilters = { ...filters, [filterType]: value }
-    const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
-    const params = {
+    fetchData({
       page: 1,
-      limit: paginationModel.pageSize,
-      ...(searchText && { search: searchText }),
       ...(newFilters.status && { status: newFilters.status }),
       orderBy: newFilters.orderBy,
-      orderType: newFilters.orderType,
-      ...dateRange
-    }
-
-    dispatch(fetchAllPurchaseOrder(params))
+      orderType: newFilters.orderType
+    })
   }
 
   // Handle sorting
-  const handleSortModelChange = (sortModel) => {
+  const handleSortModelChange = sortModel => {
     if (sortModel.length > 0) {
       const { field, sort } = sortModel[0]
-      const orderBy = field === 'createdAt' ? 'createdAt' :
-        field === 'approvedAt' ? 'approvedAt' : 'createdAt'
+      const orderBy = field === 'createdAt' ? 'createdAt' : field === 'approvedAt' ? 'approvedAt' : 'createdAt'
       const orderType = sort.toUpperCase()
 
       setFilters(prev => ({
@@ -223,18 +215,11 @@ export default function TableAllPurchaseOrder({ timeFilter }) {
         orderType
       }))
 
-      const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
-      const params = {
+      fetchData({
         page: 1,
-        limit: paginationModel.pageSize,
-        ...(searchText && { search: searchText }),
-        ...(filters.status && { status: filters.status }),
         orderBy,
-        orderType,
-        ...dateRange
-      }
-
-      dispatch(fetchAllPurchaseOrder(params))
+        orderType
+      })
     }
   }
 
@@ -247,10 +232,11 @@ export default function TableAllPurchaseOrder({ timeFilter }) {
       ...(filters.status && { status: filters.status }),
       orderBy: filters.orderBy,
       orderType: filters.orderType,
-      ...dateRange
+      ...dateRange,
+      pagination: true
     }
     dispatch(fetchAllPurchaseOrder(params))
-  }, [dispatch, timeFilter?.year, timeFilter?.month, getDateRange])
+  }, [dispatch, timeFilter?.year, timeFilter?.month, filters.status, filters.orderBy, filters.orderType])
 
   return (
     <Card>
@@ -259,13 +245,13 @@ export default function TableAllPurchaseOrder({ timeFilter }) {
         loading={loading}
         rows={data || []}
         rowCount={pagination?.total || 0}
-        paginationMode="server"
-        sortingMode="server"
+        paginationMode='server'
+        sortingMode='server'
         paginationModel={paginationModel}
         onPaginationModelChange={handlePaginationChange}
         onSortModelChange={handleSortModelChange}
         pageSizeOptions={[5, 10, 25, 50]}
-        onCellClick={(e) => handleRowClick(e)}
+        onCellClick={e => handleRowClick(e)}
         slots={{ toolbar: TableHeaderPurchaseOrder }}
         columns={[
           {
@@ -372,7 +358,7 @@ export default function TableAllPurchaseOrder({ timeFilter }) {
             field: 'actions',
             headerName: 'Actions',
             renderCell: ({ row }) => (
-              <div onClick={(e) => e.stopPropagation()}>
+              <div onClick={e => e.stopPropagation()}>
                 <RowOptions handleView={() => handleRowClick(row)} handleEdit={() => handleRowEdit(row)} data={row} />
               </div>
             )
