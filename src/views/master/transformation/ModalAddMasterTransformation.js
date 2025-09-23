@@ -2,15 +2,9 @@
 import { useCallback, useEffect, useState } from 'react'
 
 // ** MUI Imports
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -19,34 +13,19 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 import 'react-credit-cards/es/styles-compiled.css'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
-import { CardContent, CircularProgress, IconButton, MenuItem } from '@mui/material'
+import { CardContent, CircularProgress, MenuItem } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { addMasterDataTransformation, editMasterDataTransformation } from 'src/store/apps/master/transformation'
-
-const CustomCloseButton = styled(IconButton)(({ theme }) => ({
-  top: 0,
-  right: 0,
-  color: 'grey.500',
-  position: 'absolute',
-  boxShadow: theme.shadows[2],
-  transform: 'translate(10px, -10px)',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: `${theme.palette.background.paper} !important`,
-  transition: 'transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out',
-  '&:hover': {
-    transform: 'translate(7px, -5px)'
-  }
-}))
+import BaseModal from 'src/views/common/BaseModal'
 
 // Styled Grid component
 const StyledGrid = styled(Grid)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  textAlign: 'center',
+  textAlign: 'center'
   // justifyContent: 'center'
   // border: '1px solid'
   // [theme.breakpoints.down('md')]: {
@@ -155,182 +134,143 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
   )
 
   if (typeModal == 'EDIT' && loadingDetail) {
-    return <CircularProgress
-      sx={{
-        color: 'common.white',
-        width: '20px !important',
-        height: '20px !important',
-        mr: theme => theme.spacing(2)
-      }}
-    />
+    return (
+      <CircularProgress
+        sx={{
+          color: 'common.white',
+          width: '20px !important',
+          height: '20px !important',
+          mr: theme => theme.spacing(2)
+        }}
+      />
+    )
   }
   return (
-    <Card>
-      <Dialog
-        fullWidth
-        open={open}
-        maxWidth='sm'
-        scroll='body'
-        onClose={handleClose}
-        sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
-      >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent
-            sx={{
-              pb: theme => `${theme.spacing(8)} !important`,
-              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-              pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-            }}
-          >
-            <CustomCloseButton onClick={handleClose}>
-              <Icon icon='tabler:x' fontSize='1.25rem' />
-            </CustomCloseButton>
-            <Box sx={{ mb: 4, textAlign: 'center' }}>
-              <Typography variant='h3' sx={{ mb: 3 }}>
-                {typeModal === 'ADD'
-                  ? `${product.name}`
-                  : typeModal === 'VIEW'
-                    ? 'Detail Transformasi'
-                    : 'Ubah Transformasi'}
-              </Typography>
-            </Box>
-
-            <Grid container spacing={6}>
-              <StyledGrid item xs={12} md={12}>
-                <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <img
-                    width={140}
-                    height={140}
-                    alt='Product'
-                    src='https://img.freepik.com/premium-vector/cigarettes-pack-illustration-design-element-flat-icon_645658-280.jpg'
-                  />
-                </CardContent>
-              </StyledGrid>
-              <Grid item xs={12}>
-                <Grid container spacing={6}>
-                  <Grid item xs={12} sm={12}>
-                    <Controller
-                      name='unitFromId'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          select
-                          fullWidth
-                          label='Unit Awal'
-                          value={value || ''}
-                          onChange={e => {
-                            onChange(e)
-                            handleValueTransform('unitFromId')
-                          }}
-                          disabled={typeModal === 'VIEW'}
-                          error={Boolean(errors.unitFromId)}
-                          aria-describedby='validation-schema-unitFromId'
-                          {...(errors.unitFromId && { helperText: errors.unitFromId.message })}
-                        >
-                          {masterDataUnit.map(item => {
-                            return (
-                              <MenuItem key={item.id} value={item.id}>
-                                {item.name}
-                              </MenuItem>
-                            )
-                          })}
-                        </CustomTextField>
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={12}>
-                    <Controller
-                      name='unitToId'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          select
-                          fullWidth
-                          label='Unit Tujuan'
-                          value={value || ''}
-                          onChange={e => {
-                            onChange(e)
-                            handleValueTransform('unitToId')
-                          }}
-                          disabled={typeModal === 'VIEW'}
-                          error={Boolean(errors.unitToId)}
-                          aria-describedby='validation-schema-unitToId'
-                          {...(errors.unitToId && { helperText: errors.unitToId.message })}
-                        >
-                          {masterDataUnit.map(item => {
-                            return (
-                              <MenuItem key={item.id} value={item.id}>
-                                {item.name}
-                              </MenuItem>
-                            )
-                          })}
-                        </CustomTextField>
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Controller
-                      name='amountTo'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          value={value}
-                          label='Quantity'
-                          placeholder=''
-                          type='number'
-                          onChange={e => {
-                            onChange(e)
-                            handleValueTransform('amountTo')
-                          }}
-                          disabled={typeModal === 'VIEW'}
-                          error={Boolean(errors.amountTo)}
-                          aria-describedby='validation-schema-amountTo'
-                          {...(errors.amountTo && { helperText: errors.amountTo.message })}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant=''>{'Hasil'}</Typography>
-                  </Grid>
-                  {valueTransform.unitFromId && valueTransform.amountTo && valueTransform.unitToId && (
-                    <>
-                      <Grid item xs={12} sx={{ marginTop: -4 }}>
-                        <Typography variant=''>{`1 ${valueTransform.unitFromId} = ${valueTransform.amountTo} ${valueTransform.unitToId}`}</Typography>
-                      </Grid>
-                      <Grid item xs={12} sx={{ marginTop: -4 }}>
-                        <Typography variant=''>{`${valueTransform.amountTo} ${valueTransform.unitToId} = 1 ${valueTransform.unitFromId}`}</Typography>
-                      </Grid>
-                    </>
-                  )}
-                </Grid>
-              </Grid>
+    <BaseModal
+      open={open}
+      onClose={handleClose}
+      onSubmit={handleSubmit(onSubmit)}
+      title={
+        typeModal === 'ADD' ? `${product.name}` : typeModal === 'VIEW' ? 'Detail Transformasi' : 'Ubah Transformasi'
+      }
+      size='sm'
+      showActions={typeModal !== 'VIEW'}
+    >
+      <Grid container spacing={6}>
+        <StyledGrid item xs={12} md={12}>
+          <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img
+              width={140}
+              height={140}
+              alt='Product'
+              src='https://img.freepik.com/premium-vector/cigarettes-pack-illustration-design-element-flat-icon_645658-280.jpg'
+            />
+          </CardContent>
+        </StyledGrid>
+        <Grid item xs={12}>
+          <Grid container spacing={6}>
+            <Grid item xs={12} sm={12}>
+              <Controller
+                name='unitFromId'
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { value, onChange } }) => (
+                  <CustomTextField
+                    select
+                    fullWidth
+                    label='Unit Awal'
+                    value={value || ''}
+                    onChange={e => {
+                      onChange(e)
+                      handleValueTransform('unitFromId')
+                    }}
+                    disabled={typeModal === 'VIEW'}
+                    error={Boolean(errors.unitFromId)}
+                    aria-describedby='validation-schema-unitFromId'
+                    {...(errors.unitFromId && { helperText: errors.unitFromId.message })}
+                  >
+                    {masterDataUnit.map(item => {
+                      return (
+                        <MenuItem key={item.id} value={item.id}>
+                          {item.name}
+                        </MenuItem>
+                      )
+                    })}
+                  </CustomTextField>
+                )}
+              />
             </Grid>
-          </DialogContent>
-          <DialogActions
-            sx={{
-              // justifyContent: 'center',
-              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-              pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-            }}
-          >
-            {typeModal !== 'VIEW' && (
+            <Grid item xs={12} sm={12}>
+              <Controller
+                name='unitToId'
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { value, onChange } }) => (
+                  <CustomTextField
+                    select
+                    fullWidth
+                    label='Unit Tujuan'
+                    value={value || ''}
+                    onChange={e => {
+                      onChange(e)
+                      handleValueTransform('unitToId')
+                    }}
+                    disabled={typeModal === 'VIEW'}
+                    error={Boolean(errors.unitToId)}
+                    aria-describedby='validation-schema-unitToId'
+                    {...(errors.unitToId && { helperText: errors.unitToId.message })}
+                  >
+                    {masterDataUnit.map(item => {
+                      return (
+                        <MenuItem key={item.id} value={item.id}>
+                          {item.name}
+                        </MenuItem>
+                      )
+                    })}
+                  </CustomTextField>
+                )}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Controller
+                name='amountTo'
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { value, onChange } }) => (
+                  <CustomTextField
+                    fullWidth
+                    value={value}
+                    label='Quantity'
+                    placeholder=''
+                    type='number'
+                    onChange={e => {
+                      onChange(e)
+                      handleValueTransform('amountTo')
+                    }}
+                    disabled={typeModal === 'VIEW'}
+                    error={Boolean(errors.amountTo)}
+                    aria-describedby='validation-schema-amountTo'
+                    {...(errors.amountTo && { helperText: errors.amountTo.message })}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant=''>{'Hasil'}</Typography>
+            </Grid>
+            {valueTransform.unitFromId && valueTransform.amountTo && valueTransform.unitToId && (
               <>
-                <Button variant='tonal' color='secondary' onClick={handleClose} hidden={typeModal === 'VIEW'}>
-                  Cancel
-                </Button>
-                <Button type='submit' variant='contained' hidden={typeModal === 'VIEW'}>
-                  Submit
-                </Button>
+                <Grid item xs={12} sx={{ marginTop: -4 }}>
+                  <Typography variant=''>{`1 ${valueTransform.unitFromId} = ${valueTransform.amountTo} ${valueTransform.unitToId}`}</Typography>
+                </Grid>
+                <Grid item xs={12} sx={{ marginTop: -4 }}>
+                  <Typography variant=''>{`${valueTransform.amountTo} ${valueTransform.unitToId} = 1 ${valueTransform.unitFromId}`}</Typography>
+                </Grid>
               </>
             )}
-          </DialogActions>
-        </form>
-      </Dialog>
-    </Card>
+          </Grid>
+        </Grid>
+      </Grid>
+    </BaseModal>
   )
 }

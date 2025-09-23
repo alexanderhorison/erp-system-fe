@@ -1,44 +1,40 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalNotifSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalNotifSuccess, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Sales Order'
 
 // GET ALL SALES ORDER
-export const fetchAllSalesOrder = createAsyncThunk('salesOrder/fetchAllSalesOrder', async (params, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/sales-order/',
-      params,
-    })
-    return response.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchAllSalesOrder = createAsyncThunk(
+  'salesOrder/fetchAllSalesOrder',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/sales-order/',
+        params
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // CREATE SALES ORDER
 export const createSalesOrder = createAsyncThunk(
   'salesOrder/createSalesOrder',
   async ({ data, router }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Surat',
-        title: 'Anda akan membuat surat sales order?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/sales-order/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          router.push(`/sales-order`)
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/sales-order/create',
+        data
       })
+      swalSuccess({ label, name: 'Sales Order', response })
+      router.push(`/sales-order`)
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -67,21 +63,14 @@ export const updateFormSalesOrder = createAsyncThunk(
   'salesOrder/updateFormSalesOrder',
   async ({ data, code, router }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Sales Order',
-        title: 'Anda akan edit sales order?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/sales-order/' + code,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          router.push(`/sales-order`)
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/sales-order/' + code,
+        data
       })
+      swalSuccess({ label, name: 'Sales Order', response })
+      router.push(`/sales-order`)
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -115,17 +104,19 @@ export const updateSalesOrder = createAsyncThunk(
         label,
         name: 'Surat',
         title: type == 'approve' ? 'Anda akan menerima sales order?' : 'Anda akan tolak sales order?',
-        axiosRequest: () => {
+        axiosRequest: fullPayment => {
           return axios({
             method: 'POST',
             // TYPE (approve/reject)
             // CODE (sales order code)
-            url: `/sales-order/${type}/${code}`
+            url: `/sales-order/${type}/${code}`,
+            data: type === 'approve' ? { fullPayment } : {}
           })
         },
         dispatchRequest: () => {
           router.push('/sales-order')
-        }
+        },
+        paymentSelection: type === 'approve'
       })
     } catch (error) {
       swalToastError({ label, error })
@@ -172,6 +163,12 @@ export const appMasterProductSlice = createSlice({
   name: 'salesOrder',
   initialState: {
     dataSalesOrder: [],
+    paginationSalesOrder: {
+      total: 0,
+      page: 1,
+      limit: 25,
+      totalPage: 0
+    },
     loadingDataSalesOrder: true,
     errorDataSalesOrder: false,
 
@@ -198,10 +195,22 @@ export const appMasterProductSlice = createSlice({
       })
       .addCase(fetchAllSalesOrder.fulfilled, (state, action) => {
         state.dataSalesOrder = action.payload.data
+        state.paginationSalesOrder = action.payload.pagination || {
+          total: action.payload.data?.length || 0,
+          page: 1,
+          limit: 25,
+          totalPage: 1
+        }
         state.loadingDataSalesOrder = false
       })
       .addCase(fetchAllSalesOrder.rejected, (state, action) => {
         state.dataSalesOrder = []
+        state.paginationSalesOrder = {
+          total: 0,
+          page: 1,
+          limit: 25,
+          totalPage: 0
+        }
         state.loadingDataSalesOrder = false
         state.errorDataSalesOrder = action.error.message
       })

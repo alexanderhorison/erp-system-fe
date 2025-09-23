@@ -1,11 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import {
-  swalConfirmationAdd,
-  swalConfirmationEdit,
-  swalConfirmationDelete,
-  swalToastError
-} from 'src/helpers/swalFunction'
+import { swalConfirmationDelete, swalToastError, swalSuccess } from 'src/helpers/swalFunction'
 
 const label = 'Aset Tidak Lancar'
 // GET ALL ASET TIDAL LANCAR BULANAN
@@ -47,22 +42,15 @@ export const createMonthlyNonCurrentAsset = createAsyncThunk(
   'monthlyNonCurrentAsset/createMonthlyNonCurrentAsset',
   async ({ data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Aset Tidak Lancar Bulanan',
-        name: 'Aset Tidak Lancar Bulanan',
-        title: 'Anda akan membuat data aset tidak lancar bulanan?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/asset/non-current/',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          dispatch(fetchMonthlyNonCurrentAsset())
-          setOpen(false)
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/asset/non-current/',
+        data
       })
+      swalSuccess({ label, name: 'Aset Tidak Lancar', response })
+      dispatch(fetchMonthlyNonCurrentAsset())
+      setOpen(false)
+      return
     } catch (error) {
       return rejectWithValue({})
     }

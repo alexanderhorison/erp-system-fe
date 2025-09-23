@@ -2,14 +2,10 @@
 import {
   Box,
   Button,
-  Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
+  Grid,
   MenuItem,
   IconButton,
   InputAdornment,
-  DialogActions
 } from '@mui/material'
 
 // ** Custom Component Import
@@ -17,15 +13,14 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { showErrors } from './modalUserAdd'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { addUser } from 'src/store/apps/user'
 import { useDispatch, useSelector } from 'react-redux'
 import { useState } from 'react'
-import { CustomCloseButton } from 'src/views/pages/dialog-examples/DialogEditUserInfo'
 import encrypt from 'src/utils/encrypt'
+import BaseModal from 'src/views/common/BaseModal'
 
 export const defaultValues = {
   email: '',
@@ -35,6 +30,16 @@ export const defaultValues = {
   password: '',
   roleId: '',
   warehouseId: ''
+}
+
+export const showErrors = (field, valueLen, min) => {
+  if (valueLen === 0) {
+    return `${field} harus diisi`
+  } else if (valueLen > 0 && valueLen < min) {
+    return `${field} minimal harus ${min} karakter`
+  } else {
+    return ''
+  }
 }
 
 const TableHeader = props => {
@@ -174,168 +179,126 @@ const TableHeader = props => {
           </Box>
         </Box>
       </Box>
-      <Dialog
-        fullWidth
-        maxWidth='sm'
-        onClose={handleDialogToggle}
+      {/**Modal Add */}
+      <BaseModal
         open={open}
-        scroll='body'
-        sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
+        onClose={handleDialogToggle}
+        onSubmit={handleSubmit(onSubmit)}
+        title={'Tambah Pengguna'}
+        size="sm"
+        showActions={true}
       >
-        <DialogContent
-          sx={{
-            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-            pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-          }}
-        >
-          <CustomCloseButton onClick={handleDialogToggle}>
-            <Icon icon='tabler:x' fontSize='1.5rem' />
-          </CustomCloseButton>
-          <DialogTitle
-            component='div'
-            sx={{
-              textAlign: 'center',
-              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-              pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-            }}
-          >
-            <Typography variant='h3' sx={{ mb: 2 }}>
-              Tambah Pengguna
-            </Typography>
-          </DialogTitle>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Box sx={{ p: theme => theme.spacing(0, 6, 6) }}>
-              <Controller
-                name='name'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    fullWidth
-                    value={value}
-                    sx={{ mb: 4 }}
-                    label='Nama'
-                    onChange={onChange}
-                    placeholder='Cakra'
-                    error={Boolean(errors.name)}
-                    {...(errors.name && { helperText: errors.name.message })}
-                  />
-                )}
-              />
-              <Controller
-                name='userName'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    fullWidth
-                    value={value}
-                    sx={{ mb: 4 }}
-                    label='Username'
-                    onChange={onChange}
-                    placeholder='cakra'
-                    error={Boolean(errors.userName)}
-                    {...(errors.userName && { helperText: errors.userName.message })}
-                  />
-                )}
-              />
-              <Controller
-                name='email'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    fullWidth
-                    type='email'
-                    label='Email'
-                    value={value}
-                    sx={{ mb: 4 }}
-                    onChange={onChange}
-                    error={Boolean(errors.email)}
-                    placeholder='cakra@email.com'
-                    {...(errors.email && { helperText: errors.email.message })}
-                  />
-                )}
-              />
-              <Controller
-                name='password'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange, onBlur } }) => (
-                  <CustomTextField
-                    fullWidth
-                    label='Password'
-                    value={value}
-                    sx={{ mb: 4 }}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    error={Boolean(errors.password)}
-                    {...(errors.password && { helperText: errors.password.message })}
-                    type={showPassword ? 'text' : 'password'}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position='end'>
-                          <IconButton
-                            edge='end'
-                            onMouseDown={e => e.preventDefault()}
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            <Icon fontSize='1.25rem' icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} />
-                          </IconButton>
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                )}
-              />
-              <Controller
-                name='roleId'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    select
-                    fullWidth
-                    sx={{ mb: 4 }}
-                    label='Pilih Otoritas'
-                    error={Boolean(errors.roleId)}
-                    {...(errors.roleId && { helperText: errors.roleId.message })}
-                    SelectProps={{
-                      value: value,
-                      onChange: e => {
-                        onChange(e)
-                        setRole(e.target.value)
-                      }
-                    }}
-                  >
-                    {roleStore?.map((data, index) => {
-                      return (
-                        <MenuItem Select key={index} value={data.id}>
-                          {data.name}
-                        </MenuItem>
-                      )
-                    })}
-                  </CustomTextField>
-                )}
-              />
-              {role == 3 && (
+        <Grid container spacing={6}>
+          <Grid item xs={12}>
+            <Grid container spacing={6}>
+              <Grid item xs={12}>
                 <Controller
-                  name='warehouseId'
+                  name='name'
                   control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      fullWidth
+                      value={value}
+                      label='Nama'
+                      onChange={onChange}
+                      placeholder='Cakra'
+                      error={Boolean(errors.name)}
+                      {...(errors.name && { helperText: errors.name.message })}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Controller
+                  name='userName'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      fullWidth
+                      value={value}
+                      label='Username'
+                      onChange={onChange}
+                      placeholder='cakra'
+                      error={Boolean(errors.userName)}
+                      {...(errors.userName && { helperText: errors.userName.message })}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Controller
+                  name='email'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      fullWidth
+                      type='email'
+                      label='Email'
+                      value={value}
+                      onChange={onChange}
+                      error={Boolean(errors.email)}
+                      placeholder='cakra@email.com'
+                      {...(errors.email && { helperText: errors.email.message })}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Controller
+                  name='password'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <CustomTextField
+                      fullWidth
+                      label='Password'
+                      value={value}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      error={Boolean(errors.password)}
+                      {...(errors.password && { helperText: errors.password.message })}
+                      type={showPassword ? 'text' : 'password'}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position='end'>
+                            <IconButton
+                              edge='end'
+                              onMouseDown={e => e.preventDefault()}
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              <Icon fontSize='1.25rem' icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} />
+                            </IconButton>
+                          </InputAdornment>
+                        )
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Controller
+                  name='roleId'
+                  control={control}
+                  rules={{ required: true }}
                   render={({ field: { value, onChange } }) => (
                     <CustomTextField
                       select
                       fullWidth
-                      sx={{ mb: 4 }}
-                      label='Pilih Gudang'
-                      error={Boolean(errors.warehouseId)}
-                      {...(errors.warehouseId && { helperText: errors.warehouseId.message })}
+                      label='Pilih Otoritas'
+                      error={Boolean(errors.roleId)}
+                      {...(errors.roleId && { helperText: errors.roleId.message })}
                       SelectProps={{
                         value: value,
-                        onChange: e => onChange(e)
+                        onChange: e => {
+                          onChange(e)
+                          setRole(e.target.value)
+                        }
                       }}
                     >
-                      {warehouseStore?.map((data, index) => {
+                      {roleStore?.map((data, index) => {
                         return (
                           <MenuItem Select key={index} value={data.id}>
                             {data.name}
@@ -345,42 +308,56 @@ const TableHeader = props => {
                     </CustomTextField>
                   )}
                 />
-              )}
-              <Controller
-                name='description'
-                control={control}
-                rules={{ required: false }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    fullWidth
-                    label='Deskripsi'
-                    value={value}
-                    sx={{ mb: 4 }}
-                    onChange={onChange}
-                    placeholder='akun cakra'
-                    multiline
-                    rows={3}
+                {role == 3 && (
+                  <Controller
+                    name='warehouseId'
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                      <CustomTextField
+                        select
+                        fullWidth
+                        label='Pilih Gudang'
+                        error={Boolean(errors.warehouseId)}
+                        {...(errors.warehouseId && { helperText: errors.warehouseId.message })}
+                        SelectProps={{
+                          value: value,
+                          onChange: e => onChange(e)
+                        }}
+                      >
+                        {warehouseStore?.map((data, index) => {
+                          return (
+                            <MenuItem Select key={index} value={data.id}>
+                              {data.name}
+                            </MenuItem>
+                          )
+                        })}
+                      </CustomTextField>
+                    )}
                   />
                 )}
-              />
-              <DialogActions
-                sx={{
-                  justifyContent: 'end',
-                  px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(0)} !important`],
-                  pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-                }}
-              >
-                <Button variant='tonal' color='secondary' onClick={handleDialogToggle}>
-                  Cancel
-                </Button>
-                <Button type='submit' variant='contained'>
-                  Submit
-                </Button>
-              </DialogActions>
-            </Box>
-          </form>
-        </DialogContent>
-      </Dialog>
+              </Grid>
+              <Grid item xs={12}>
+                <Controller
+                  name='description'
+                  control={control}
+                  rules={{ required: false }}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      fullWidth
+                      label='Deskripsi'
+                      value={value}
+                      onChange={onChange}
+                      placeholder='akun cakra'
+                      multiline
+                      rows={3}
+                    />
+                  )}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </BaseModal>
     </>
   )
 }

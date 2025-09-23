@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 import { fetchDetailPurchaseOrder } from '../purchase-order'
 
 const label = 'Purchase Order Payment'
@@ -27,21 +27,14 @@ export const createPurchaseOrderPayment = createAsyncThunk(
   'purchaseOrderPayment/createPurchaseOrderPayment',
   async ({ data, purchaseOrderCode }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Surat',
-        title: 'Anda akan membuat pembayaran purchase order?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/purchase-order/payment/create',
-            data: data
-          })
-        },
-        dispatchRequest: () => {
-          dispatch(fetchDetailPurchaseOrder(purchaseOrderCode))
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/purchase-order/payment/create',
+        data: data
       })
+      swalSuccess({ label, name: 'Purchase Order Payment', response })
+      dispatch(fetchDetailPurchaseOrder(purchaseOrderCode))
+      return
     } catch (error) {
       return rejectWithValue({})
     }

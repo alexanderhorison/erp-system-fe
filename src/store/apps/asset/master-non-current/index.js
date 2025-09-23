@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalConfirmationEdit, swalToastError } from 'src/helpers/swalFunction'
+import { swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Master Data Aset Tidak Lancar'
 // GET ALL MASTER NON-CURRENT ASSET
@@ -42,22 +42,15 @@ export const createMasterNonCurrentAsset = createAsyncThunk(
   'masterNonCurrentAsset/createMasterNonCurrentAsset',
   async ({ data, router, setOpen }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Master Data Aset Tidak Lancar',
-        name: 'Aset Tidak Lancar',
-        title: 'Anda akan membuat master data aset tidak lancar?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/asset/master-non-current/',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          dispatch(fetchMasterNonCurrentAsset())
-          setOpen(false)
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/asset/master-non-current/',
+        data
       })
+      swalSuccess({ label, name: 'Master Data Aset Tidak Lancar', response })
+      dispatch(fetchMasterNonCurrentAsset())
+      setOpen(false)
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -69,22 +62,15 @@ export const updateMasterNonCurrentAsset = createAsyncThunk(
   'masterNonCurrentAsset/updateMasterNonCurrentAsset',
   async ({ id, data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationEdit({
-        label: 'Master Data Aset Tidak Lancar',
-        name: 'Aset Tidak Lancar',
-        title: 'Anda akan mengubah master data aset tidak lancar?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/asset/master-non-current/' + id,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          setOpen(false)
-          dispatch(fetchMasterNonCurrentAsset())
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/asset/master-non-current/' + id,
+        data
       })
+      swalSuccess({ label, name: 'Master Data Aset Tidak Lancar', response })
+      setOpen(false)
+      dispatch(fetchMasterNonCurrentAsset())
+      return
     } catch (error) {
       swalToastError({ label, error })
       return rejectWithValue({})

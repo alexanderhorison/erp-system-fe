@@ -51,22 +51,15 @@ export const createStockOpname = createAsyncThunk(
   'appStockOpname/createStockOpname',
   async ({ sendData, router }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await swalConfirmationAdd({
-        label,
-        name: 'Stock Opname',
-        title: 'Anda akan membuat Stock Opname?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/stock-opname/create',
-            data: sendData
-          })
-        },
-        dispatchRequest: () => {
-          router.push('/stock-opname')
-          dispatch(fetchListStockOpname())
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/stock-opname/create',
+        data: sendData
       })
+      swalSuccess({ label, name: 'Stock Opname', response })
+      router.push('/stock-opname')
+      dispatch(fetchListStockOpname())
+      return
     } catch (error) {
       swalError({ error, label })
       return rejectWithValue({})
@@ -79,21 +72,15 @@ export const updateStockOpname = createAsyncThunk(
   'appStockOpname/updateStockOpname',
   async ({ id, sendData, router }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await swalConfirmationAdd({
-        label,
-        name: 'Stock Opname',
-        title: 'Anda akan merubah Stock Opname?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/stock-opname/' + id,
-            data: sendData
-          })
-        },
-        dispatchRequest: () => {
-          router.push('/stock-opname')
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/stock-opname/' + id,
+        data: sendData
       })
+      swalSuccess({ label, name: 'Stock Opname', response })
+      router.push('/stock-opname')
+      dispatch(fetchListStockOpname())
+      return
     } catch (error) {
       swalError({ error, label })
       return rejectWithValue({})
@@ -138,7 +125,7 @@ export const updateStatusStockOpname = createAsyncThunk(
         axiosRequest: () => {
           return axios({
             method: 'PUT',
-            url: `/stock-opname/${status}/` + stockOpnameId,
+            url: `/stock-opname/${status}/` + stockOpnameId
           })
         },
         dispatchRequest: () => {
@@ -211,42 +198,42 @@ export const exportStockOpname = createAsyncThunk(
   async ({ code }, { rejectWithValue }) => {
     try {
       const response = await axios.get(`/export/stock-opname/${code}`, {
-        responseType: 'arraybuffer', // Ensures binary data is received correctly
-      });
+        responseType: 'arraybuffer' // Ensures binary data is received correctly
+      })
 
-      const type = response.headers['content-type'];
-      const contentDisposition = response.headers['content-disposition'];
+      const type = response.headers['content-type']
+      const contentDisposition = response.headers['content-disposition']
 
       // Extract filename from Content-Disposition header
-      let filename = 'Stock Opname.xlsx';
+      let filename = 'Stock Opname.xlsx'
       if (contentDisposition) {
-        const filenameMatch = contentDisposition.match(/filename\*?=["']?([^"';\n]+)["']?/);
+        const filenameMatch = contentDisposition.match(/filename\*?=["']?([^"';\n]+)["']?/)
         if (filenameMatch) {
-          filename = decodeURIComponent(filenameMatch[1]); // Decode in case of special characters
+          filename = decodeURIComponent(filenameMatch[1]) // Decode in case of special characters
         }
       }
 
       // Create Blob from response
-      const blob = new Blob([response.data], { type });
+      const blob = new Blob([response.data], { type })
 
       // Trigger file download
-      const blobUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const blobUrl = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = blobUrl
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
 
       // Cleanup Blob URL
-      window.URL.revokeObjectURL(blobUrl);
-      return { success: true };
+      window.URL.revokeObjectURL(blobUrl)
+      return { success: true }
     } catch (error) {
-      console.error('Error exporting:', error);
-      return rejectWithValue('Failed to export. Please try again.');
+      console.error('Error exporting:', error)
+      return rejectWithValue('Failed to export. Please try again.')
     }
   }
-);
+)
 
 // REDUCER STOCK OPNAME
 export const appStockOpnameSlice = createSlice({
@@ -308,17 +295,17 @@ export const appStockOpnameSlice = createSlice({
       })
 
       // EXPORT
-      .addCase(exportStockOpname.pending, (state) => {
-        state.loadingExport = true;
-        state.errorExport = null;
+      .addCase(exportStockOpname.pending, state => {
+        state.loadingExport = true
+        state.errorExport = null
       })
-      .addCase(exportStockOpname.fulfilled, (state) => {
-        state.loadingExport = false;
+      .addCase(exportStockOpname.fulfilled, state => {
+        state.loadingExport = false
       })
       .addCase(exportStockOpname.rejected, (state, action) => {
-        state.loadingExport = false;
-        state.errorExport = action.payload;
-      });
+        state.loadingExport = false
+        state.errorExport = action.payload
+      })
   }
 })
 

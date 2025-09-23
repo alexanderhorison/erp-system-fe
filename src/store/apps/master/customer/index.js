@@ -1,12 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import {
-  swalConfirmationAdd,
-  swalConfirmationDelete,
-  swalError,
-  swalSuccess,
-  swalToastError
-} from 'src/helpers/swalFunction'
+import { swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'customer'
 
@@ -55,22 +49,15 @@ export const addMasterDataCustomer = createAsyncThunk(
   'appMasterCustomer/addCustomer',
   async ({ data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Customer',
-        name: 'Customer',
-        title: 'Anda akan menambahkan customer?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/master/customer/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          setOpen(false)
-          dispatch(fetchMasterDataCustomer())
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/master/customer/create',
+        data
       })
+      swalSuccess({ label, name: 'Customer', response })
+      setOpen(false)
+      dispatch(fetchMasterDataCustomer())
+      return
     } catch (error) {
       swalError({ error, label })
       return rejectWithValue({})
@@ -83,23 +70,16 @@ export const editMasterDataCustomer = createAsyncThunk(
   'appMasterCustomer/editCustomer',
   async ({ id, data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Customer',
-        name: 'Customer',
-        title: 'Anda akan mengubah customer?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/master/customer/' + id,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          setOpen(false)
-          dispatch(fetchMasterDataCustomer())
-          dispatch(fetchMasterDataCustomerDetail(id))
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/master/customer/' + id,
+        data
       })
+      swalSuccess({ label, name: 'Customer', response })
+      setOpen(false)
+      dispatch(fetchMasterDataCustomer())
+      dispatch(fetchMasterDataCustomerDetail(id))
+      return
     } catch (error) {
       swalError({ label, error })
       return rejectWithValue({})

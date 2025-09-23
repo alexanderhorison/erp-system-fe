@@ -56,6 +56,7 @@ const UserLayout = ({ children, contentHeightFixed }) => {
       settings={settings}
       saveSettings={saveSettings}
       contentHeightFixed={contentHeightFixed}
+      scrollToTop={false}
       verticalLayoutProps={{
         navMenu: {
           navItems: VerticalNavItems()

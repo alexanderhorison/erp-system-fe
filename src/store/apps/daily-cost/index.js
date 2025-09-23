@@ -1,11 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import {
-  swalConfirmationAdd,
-  swalConfirmationDelete,
-  swalConfirmationEdit,
-  swalToastError
-} from 'src/helpers/swalFunction'
+import { swalConfirmationDelete, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Daily Cost'
 
@@ -51,24 +46,15 @@ export const addDailyCost = createAsyncThunk(
   'dailyCost/addDailyCost',
   async ({ data, setIsSubmitting, router }, { rejectWithValue, dispatch }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Daily Cost',
-        title: 'Anda akan membuat daily cost?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/daily-cost/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          setIsSubmitting(false)
-          router.push('/daily-cost-calendar')
-        },
-        cancelAction: () => {
-          setIsSubmitting(false)
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/daily-cost/create',
+        data
       })
+      swalSuccess({ label, name: 'Daily Cost', response })
+      setIsSubmitting(false)
+      router.push('/daily-cost-calendar')
+      return
     } catch (error) {
       swalToastError({ label, error })
       return rejectWithValue([])
@@ -106,24 +92,15 @@ export const updateDailyCost = createAsyncThunk(
   'dailyCost/updateDailyCost',
   async ({ data, date, setIsSubmitting, router }, { rejectWithValue, dispatch }) => {
     try {
-      await swalConfirmationEdit({
-        label: 'Daily Cost',
-        title: 'Anda akan mengubah daily cost?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/daily-cost/update/' + date,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          setIsSubmitting(false)
-          router.push('/daily-cost-calendar')
-        },
-        cancelAction: () => {
-          setIsSubmitting(false)
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/daily-cost/update/' + date,
+        data
       })
+      swalSuccess({ label, name: 'Daily Cost', response })
+      setIsSubmitting(false)
+      router.push('/daily-cost-calendar')
+      return
     } catch (error) {
       swalToastError({ label, error })
       setIsSubmitting(false)

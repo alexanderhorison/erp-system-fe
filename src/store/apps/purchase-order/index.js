@@ -1,43 +1,40 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Purchase Order'
 
 // GET ALL PURCHASE ORDER
-export const fetchAllPurchaseOrder = createAsyncThunk('purchaseOrder/fetchAllPurchaseOrder', async (_, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/purchase-order/'
-    })
-    return response.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchAllPurchaseOrder = createAsyncThunk(
+  'purchaseOrder/fetchAllPurchaseOrder',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/purchase-order/',
+        params
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // CREATE PURCHASE ORDER
 export const createPurchaseOrder = createAsyncThunk(
   'purchaseOrder/createPurchaseOrder',
   async ({ data, router }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Surat',
-        title: 'Anda akan membuat surat purchase order?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/purchase-order/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          router.push(`/purchase-order`)
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/purchase-order/create',
+        data
       })
+      swalSuccess({ label, name: 'Purchase Order', response })
+      router.push(`/purchase-order`)
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -66,21 +63,14 @@ export const updateFormPurchaseOrder = createAsyncThunk(
   'purchaseOrder/updateFormPurchaseOrder',
   async ({ data, code, router }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Purchase Order',
-        title: 'Anda akan edit purchase order?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/purchase-order/' + code,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          router.push(`/purchase-order`)
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/purchase-order/' + code,
+        data
       })
+      swalSuccess({ label, name: 'Purchase Order', response })
+      router.push(`/purchase-order`)
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -95,8 +85,8 @@ export const sendEmail = createAsyncThunk('purchaseOrder/sendEmail', async (form
       url: '/send-email/',
       data: formData,
       headers: {
-        'Content-Type': 'multipart/form-data', // Set the correct header for file uploads
-      },
+        'Content-Type': 'multipart/form-data' // Set the correct header for file uploads
+      }
     })
     return response.data
   } catch (error) {
@@ -169,6 +159,12 @@ export const appMasterProductSlice = createSlice({
   name: 'purchaseOrder',
   initialState: {
     dataPurchaseOrder: [],
+    paginationPurchaseOrder: {
+      total: 0,
+      page: 1,
+      limit: 25,
+      totalPage: 0
+    },
     loadingDataPurchaseOrder: true,
     errorDataPurchaseOrder: false,
 
@@ -191,10 +187,22 @@ export const appMasterProductSlice = createSlice({
       })
       .addCase(fetchAllPurchaseOrder.fulfilled, (state, action) => {
         state.dataPurchaseOrder = action.payload.data
+        state.paginationPurchaseOrder = action.payload.pagination || {
+          total: action.payload.data?.length || 0,
+          page: 1,
+          limit: 25,
+          totalPage: 1
+        }
         state.loadingDataPurchaseOrder = false
       })
       .addCase(fetchAllPurchaseOrder.rejected, (state, action) => {
         state.dataPurchaseOrder = []
+        state.paginationPurchaseOrder = {
+          total: 0,
+          page: 1,
+          limit: 25,
+          totalPage: 0
+        }
         state.loadingDataPurchaseOrder = false
         state.errorDataPurchaseOrder = action.error.message
       })

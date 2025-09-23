@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalConfirmationEdit, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Surat Jalan'
 // GET ALL WAREHOUSE
@@ -46,21 +46,14 @@ export const createDeliveryOrder = createAsyncThunk(
   'deliveryOrder/createDeliveryOrder',
   async ({ data, router }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Surat Jalan',
-        name: 'Surat',
-        title: "Anda akan membuat surat jalan produk?",
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/delivery-order/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          router.push(`/delivery-order/`)
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/delivery-order/create',
+        data
       })
+      swalSuccess({ label, name: 'Surat Jalan', response })
+      router.push(`/delivery-order/`)
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -74,7 +67,7 @@ export const fetchDetailDeliveryOrder = createAsyncThunk(
     try {
       const response = await axios({
         method: 'GET',
-        url: '/delivery-order/' + deliveryOrderId,
+        url: '/delivery-order/' + deliveryOrderId
       })
       return response.data
     } catch (error) {
@@ -97,8 +90,7 @@ export const appMasterProductSlice = createSlice({
 
     detailDeliveryOrder: {},
     loadingDetailDeliveryOrder: true,
-    errorDetailDeliveryOrder: false,
-
+    errorDetailDeliveryOrder: false
   },
   reducers: {},
   extraReducers: builder => {

@@ -1,22 +1,25 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'vendor'
 
 // GET ALL VENDOR
-export const fetchMasterDataVendor = createAsyncThunk('appMasterVendor/fetchData', async (params, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/master/vendor/all'
-    })
-    return response.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchMasterDataVendor = createAsyncThunk(
+  'appMasterVendor/fetchData',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/master/vendor/all'
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // GET DETAIL VENDOR
 export const fetchMasterDataVendorDetail = createAsyncThunk(
@@ -40,22 +43,15 @@ export const addMasterDataVendor = createAsyncThunk(
   'appMasterVendor/addVendor',
   async ({ data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Vendor',
-        name: 'Vendor',
-        title: 'Anda akan menambahkan vendor?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/master/vendor/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          setOpen(false)
-          dispatch(fetchMasterDataVendor())
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/master/vendor/create',
+        data
       })
+      swalSuccess({ label, name: 'Vendor', response })
+      setOpen(false)
+      dispatch(fetchMasterDataVendor())
+      return
     } catch (error) {
       swalError({ error, label })
       return rejectWithValue({})
@@ -68,23 +64,16 @@ export const editMasterDataVendor = createAsyncThunk(
   'appMasterVendor/editVendor',
   async ({ id, data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Vendor',
-        name: 'Vendor',
-        title: 'Anda akan mengubah vendor?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/master/vendor/' + id,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          setOpen(false)
-          dispatch(fetchMasterDataVendor())
-          dispatch(fetchMasterDataVendorDetail(id))
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/master/vendor/' + id,
+        data
       })
+      swalSuccess({ label, name: 'Vendor', response })
+      setOpen(false)
+      dispatch(fetchMasterDataVendor())
+      dispatch(fetchMasterDataVendorDetail(id))
+      return
     } catch (error) {
       swalError({ label, error })
       return rejectWithValue({})
@@ -127,7 +116,7 @@ export const appMasterVendorSlice = createSlice({
       id: '',
       name: '',
       description: '',
-      level: '',
+      level: ''
     },
     defaultValue: {
       id: '',
@@ -138,7 +127,7 @@ export const appMasterVendorSlice = createSlice({
       gender: '',
       notes: '',
       description: '',
-      level: '',
+      level: ''
     },
     loadingDetail: false,
     total: 1,

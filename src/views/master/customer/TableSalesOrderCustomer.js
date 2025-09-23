@@ -12,7 +12,7 @@ import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
 import renderClient from 'src/helpers/renderClient'
-import { fetchAllSalesOrder, fetchAllSalesOrderCustomer } from 'src/store/apps/sales-order'
+import { fetchAllSalesOrderCustomer } from 'src/store/apps/sales-order'
 import TableHeaderSalesOrderCustomer from './TableHeaderSalesOrderCustomer'
 
 const RowOptions = ({ handleView, handleEdit }) => {

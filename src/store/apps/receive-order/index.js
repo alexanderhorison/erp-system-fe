@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationAdd, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Penerimaan Surat Jalan'
 
@@ -35,7 +35,7 @@ export const fetchDetailReceiveOrder = createAsyncThunk(
     try {
       const response = await axios({
         method: 'GET',
-        url: '/delivery-order-receive/' + deliveryOrderReceiveId,
+        url: '/delivery-order-receive/' + deliveryOrderReceiveId
       })
       return response.data
     } catch (error) {
@@ -51,7 +51,7 @@ export const fetchAllReceiveOrder = createAsyncThunk(
     try {
       const response = await axios({
         method: 'GET',
-        url: '/delivery-order-receive/all',
+        url: '/delivery-order-receive/all'
       })
       return response.data
     } catch (error) {
@@ -66,21 +66,14 @@ export const createDeliveryOrderReceive = createAsyncThunk(
   'deliveryOrderReceive/createDeliveryOrderReceive',
   async ({ data, router }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Penerimaan Surat Jalan',
-        name: 'Surat',
-        title: "Anda akan membuat penerimaan surat jalan produk?",
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/delivery-order-receive/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          router.push(`/receive-order/`)
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/delivery-order-receive/create',
+        data
       })
+      swalSuccess({ label, name: 'Penerimaan Surat Jalan', response })
+      router.push(`/receive-order/`)
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -92,14 +85,14 @@ export const ReceiveOrderSlice = createSlice({
   initialState: {
     loadingUpdateReceiveOrder: true,
     errorUpdateReceiveOrder: false,
-    
+
     detailReceiveOrder: {},
     loadingDetailReceiveOrder: true,
     errorDetailReceiveOrder: false,
 
     loadingDataListOrderReceive: false,
     dataListOrderReceive: [],
-    errorDataListOrderReceive: false,
+    errorDataListOrderReceive: false
   },
   reducers: {},
   extraReducers: builder => {

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'rank'
 
@@ -40,22 +40,15 @@ export const addMasterDataRank = createAsyncThunk(
   'appMasterRank/addRank',
   async ({ data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Rank',
-        name: 'Rank',
-        title: 'Anda akan menambahkan rank?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/master/rank/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          setOpen(false)
-          dispatch(fetchMasterDataRank())
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/master/rank/create',
+        data
       })
+      swalSuccess({ label, name: 'Rank', response })
+      setOpen(false)
+      dispatch(fetchMasterDataRank())
+      return
     } catch (error) {
       swalError({ error, label })
       return rejectWithValue({})
@@ -68,22 +61,15 @@ export const editMasterDataRank = createAsyncThunk(
   'appMasterRank/editRank',
   async ({ id, data, setOpen }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: 'Rank',
-        name: 'Rank',
-        title: 'Anda akan mengubah rank?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/master/rank/' + id,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          setOpen(false)
-          dispatch(fetchMasterDataRank())
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/master/rank/' + id,
+        data
       })
+      swalSuccess({ label, name: 'Rank', response })
+      setOpen(false)
+      dispatch(fetchMasterDataRank())
+      return
     } catch (error) {
       swalError({ label, error })
       return rejectWithValue({})
@@ -126,13 +112,13 @@ export const appMasterRankSlice = createSlice({
       id: '',
       name: '',
       description: '',
-      level: '',
+      level: ''
     },
     defaultValue: {
       id: '',
       name: '',
       description: '',
-      level: '',
+      level: ''
     },
     loadingDetail: false,
     total: 1,

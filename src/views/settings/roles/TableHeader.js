@@ -3,12 +3,9 @@ import { useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
-import Dialog from '@mui/material/Dialog'
 import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import DialogTitle from '@mui/material/DialogTitle'
-import DialogContent from '@mui/material/DialogContent'
 import CustomChip from 'src/@core/components/mui/chip'
+import Grid from '@mui/material/Grid'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -17,11 +14,11 @@ import { Controller, useForm } from 'react-hook-form'
 
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { DialogActions, IconButton, MenuItem } from '@mui/material'
+import { IconButton, MenuItem } from '@mui/material'
 import { addRole } from 'src/store/apps/role'
 import { Icon } from '@iconify/react'
-import { showErrors } from '../user/modalUserAdd'
-import { CustomCloseButton } from 'src/views/pages/dialog-examples/DialogEditUserInfo'
+import BaseModal from 'src/views/common/BaseModal'
+import { showErrors } from '../user/TableHeader'
 
 const schema = yup.object().shape({
   name: yup
@@ -137,131 +134,100 @@ const TableHeader = props => {
           Tambah Otoritas
         </Button>
       </Box>
-      <Dialog
-        fullWidth
-        maxWidth='sm'
-        onClose={handleDialogToggle}
+      <BaseModal
         open={open}
-        scroll='body'
-        sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
+        onClose={handleDialogToggle}
+        onSubmit={handleSubmit(onSubmit)}
+        title={'Tambah Otoritas Baru'}
+        size="sm"
+        showActions={true}
       >
-        <DialogContent
-          sx={{
-            pb: theme => `${theme.spacing(8)} !important`,
-            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`]
-          }}
-        >
-          <CustomCloseButton onClick={handleDialogToggle}>
-            <Icon icon='tabler:x' fontSize='1.5rem' />
-          </CustomCloseButton>
-          <DialogTitle
-            component='div'
-            sx={{
-              textAlign: 'center',
-              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-              pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-            }}
-          >
-            <Typography variant='h3' sx={{ mb: 2 }}>
-              Tambah Otoritas Baru
-            </Typography>
-            {/* <Typography color='text.secondary'>Permissions you may use and assign to your users.</Typography> */}
-          </DialogTitle>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Box sx={{ p: theme => theme.spacing(0, 6, 6) }}>
-              <Controller
-                name='name'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    fullWidth
-                    value={value}
-                    sx={{ mb: 4 }}
-                    label='Nama Otoritas'
-                    onChange={onChange}
-                    placeholder='Administrator'
-                    error={Boolean(errors.name)}
-                    {...(errors.name && { helperText: errors.name.message })}
-                  />
-                )}
-              />
-              <Controller
-                name='menuId'
-                control={control}
-                rules={{ required: false }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    select
-                    fullWidth
-                    label='List Menu'
-                    id='select-multiple-chip'
-                    sx={{ mb: 5 }}
-                    error={Boolean(errors.menuId)}
-                    {...(errors.menuId && { helperText: errors.menuId.message })}
-                    SelectProps={{
-                      MenuProps,
-                      multiple: true,
-                      value: inputMenu,
-                      onChange: e => handleChange(e),
-                      renderValue: selected => (
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                          {selected.map(value => (
-                            <CustomChip
-                              key={value.id}
-                              label={value.name}
-                              sx={{ m: 0.75 }}
-                              skin='light'
-                              color='success'
-                            />
-                          ))}
-                        </Box>
-                      )
-                    }}
-                  >
-                    {menus.map(menu => (
-                      <MenuItem key={menu.id} value={menu}>
-                        {menu.name}
-                      </MenuItem>
-                    ))}
-                  </CustomTextField>
-                )}
-              />
-              <Controller
-                name='description'
-                control={control}
-                rules={{ required: false }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    fullWidth
-                    value={value}
-                    sx={{ mb: 4 }}
-                    label='Deskripsi Otoritas'
-                    onChange={onChange}
-                    rows={3}
-                    multiline
-                    placeholder='Otoritas untuk manage data user'
-                  />
-                )}
-              />
-              <DialogActions
-                sx={{
-                  justifyContent: 'end',
-                  px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(0)} !important`],
-                  pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`],
-                }}
-              >
-                <Button variant='tonal' color='secondary' onClick={handleDialogToggle}>
-                  Cancel
-                </Button>
-                <Button type='submit' variant='contained'>
-                  Submit
-                </Button>
-              </DialogActions>
-            </Box>
-          </form>
-        </DialogContent>
-      </Dialog>
+        <Grid container spacing={6}>
+          <Grid item xs={12}>
+            <Grid container spacing={6}>
+              <Grid item xs={12}>
+                <Controller
+                  name='name'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      fullWidth
+                      value={value}
+                      label='Nama Otoritas'
+                      onChange={onChange}
+                      placeholder='Administrator'
+                      error={Boolean(errors.name)}
+                      {...(errors.name && { helperText: errors.name.message })}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Controller
+                  name='menuId'
+                  control={control}
+                  rules={{ required: false }}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      select
+                      fullWidth
+                      label='List Menu'
+                      id='select-multiple-chip'
+                      error={Boolean(errors.menuId)}
+                      {...(errors.menuId && { helperText: errors.menuId.message })}
+                      SelectProps={{
+                        MenuProps,
+                        multiple: true,
+                        value: inputMenu,
+                        onChange: e => handleChange(e),
+                        renderValue: selected => (
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                            {selected.map(value => (
+                              <CustomChip
+                                key={value.id}
+                                label={value.name}
+                                sx={{ m: 0.75 }}
+                                skin='light'
+                                color='success'
+                              />
+                            ))}
+                          </Box>
+                        )
+                      }}
+                    >
+                      {menus.map(menu => (
+                        <MenuItem key={menu.id} value={menu}>
+                          {menu.name}
+                        </MenuItem>
+                      ))}
+                    </CustomTextField>
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Controller
+                  name='description'
+                  control={control}
+                  rules={{ required: false }}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      fullWidth
+                      value={value}
+                      sx={{ mb: 4 }}
+                      label='Deskripsi Otoritas'
+                      onChange={onChange}
+                      rows={3}
+                      multiline
+                      placeholder='Otoritas untuk manage data user'
+                    />
+                  )}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </BaseModal>
     </>
   )
 }

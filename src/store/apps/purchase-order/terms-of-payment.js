@@ -1,22 +1,25 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationAdd, swalConfirmationDelete, swalToastError } from 'src/helpers/swalFunction'
+import { swalConfirmationDelete, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Terms Of Payment'
 
 // GET ALL TERMS OF PAYMENT
-export const fetchAllTermsOfPaymentByCode = createAsyncThunk('termsOfPayment/fetchAllTermsOfPaymentByCode', async ({ purchaseOrderCode }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/purchase-order/terms-of-payment/' + purchaseOrderCode
-    })
-    return response.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchAllTermsOfPaymentByCode = createAsyncThunk(
+  'termsOfPayment/fetchAllTermsOfPaymentByCode',
+  async ({ purchaseOrderCode }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/purchase-order/terms-of-payment/' + purchaseOrderCode
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // GET DETAIL TERMS OF PAYMENT
 export const fetchDetailTermsOfPayment = createAsyncThunk(
@@ -40,21 +43,14 @@ export const createTermsOfPayment = createAsyncThunk(
   'termsOfPayment/createTermsOfPayment',
   async ({ purchaseOrderCode, data }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Terms Of Payment',
-        title: 'Anda akan membuat Terms Of Payment?',
-        axiosRequest: () => {
-          return axios({
-            method: 'POST',
-            url: '/purchase-order/terms-of-payment/create',
-            data
-          })
-        },
-        dispatchRequest: () => {
-          dispatch(fetchAllTermsOfPaymentByCode({ purchaseOrderCode: purchaseOrderCode }))
-        }
+      const response = await axios({
+        method: 'POST',
+        url: '/purchase-order/terms-of-payment/create',
+        data
       })
+      swalSuccess({ label, name: 'Terms Of Payment', response })
+      dispatch(fetchAllTermsOfPaymentByCode({ purchaseOrderCode: purchaseOrderCode }))
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -66,23 +62,14 @@ export const updateFormTermsOfPayment = createAsyncThunk(
   'termsOfPayment/updateFormTermsOfPayment',
   async ({ termsOfPaymentId, data, purchaseOrderCode }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationAdd({
-        label: label,
-        name: 'Terms Of Payment',
-        title: 'Anda akan edit terms of payment?',
-        axiosRequest: () => {
-          return axios({
-            method: 'PUT',
-            url: '/purchase-order/terms-of-payment/' + termsOfPaymentId,
-            data
-          })
-        },
-        dispatchRequest: () => {
-          dispatch(
-            fetchAllTermsOfPaymentByCode({ purchaseOrderCode: purchaseOrderCode })
-          )
-        }
+      const response = await axios({
+        method: 'PUT',
+        url: '/purchase-order/terms-of-payment/' + termsOfPaymentId,
+        data
       })
+      swalSuccess({ label, name: 'Terms Of Payment', response })
+      dispatch(fetchAllTermsOfPaymentByCode({ purchaseOrderCode: purchaseOrderCode }))
+      return
     } catch (error) {
       return rejectWithValue({})
     }
@@ -101,13 +88,11 @@ export const deleteTermsOfPayment = createAsyncThunk(
         axiosRequest: () => {
           return axios({
             method: 'DELETE',
-            url: '/purchase-order/terms-of-payment/' + id,
+            url: '/purchase-order/terms-of-payment/' + id
           })
         },
         dispatchRequest: () => {
-          dispatch(
-            fetchAllTermsOfPaymentByCode({ purchaseOrderCode: purchaseOrderCode })
-          )
+          dispatch(fetchAllTermsOfPaymentByCode({ purchaseOrderCode: purchaseOrderCode }))
         }
       })
     } catch (error) {

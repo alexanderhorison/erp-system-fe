@@ -6,6 +6,7 @@ import { fetchDetailProcessRequestOrder } from 'src/store/apps/product-request-o
 import ViewDetailProductRequest from 'src/views/product-request/ViewDetailProductRequest'
 import ButtonBack from 'src/views/common/ButtonBack'
 import { Alert, CircularProgress, Grid } from '@mui/material'
+import ToolbarProductRequest from 'src/views/product-request/ToolbarProductRequest'
 
 export default function DetailProductRequest({}) {
   const dispatch = useDispatch()
@@ -46,8 +47,11 @@ export default function DetailProductRequest({}) {
       <>
         <Grid container spacing={6}>
           <ButtonBack paddingY={0} />
-          <Grid item xl={12} md={12} xs={12}>
+          <Grid item xl={9} md={8} xs={12}>
             <ViewDetailProductRequest data={detailProcessRequestOrder} />
+          </Grid>
+          <Grid item xl={3} md={4} xs={12}>
+            <ToolbarProductRequest id={id} data={detailProcessRequestOrder} />
           </Grid>
         </Grid>
       </>
