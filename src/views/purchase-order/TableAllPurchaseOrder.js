@@ -102,7 +102,7 @@ export default function TableAllPurchaseOrder({ timeFilter }) {
         orderBy: filters.orderBy,
         orderType: filters.orderType,
         ...dateRange,
-        pagination: true,
+        paginate: true,
         ...customParams
       }
       dispatch(fetchAllPurchaseOrder(params))
@@ -233,7 +233,7 @@ export default function TableAllPurchaseOrder({ timeFilter }) {
       orderBy: filters.orderBy,
       orderType: filters.orderType,
       ...dateRange,
-      pagination: true
+      paginate: true
     }
     dispatch(fetchAllPurchaseOrder(params))
   }, [dispatch, timeFilter?.year, timeFilter?.month, filters.status, filters.orderBy, filters.orderType])
