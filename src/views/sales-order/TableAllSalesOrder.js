@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -12,6 +12,7 @@ import { returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
 import renderClient from 'src/helpers/renderClient'
 import { fetchAllSalesOrder } from 'src/store/apps/sales-order'
+import { usePagination } from 'src/helpers/usePagination'
 import TableHeaderSalesOrder from './TableHeaderSalesOrder'
 
 const RowOptions = ({ handleView, handleEdit, data }) => {
@@ -35,15 +36,23 @@ export default function TableAllSalesOrder({ timeFilter }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
-  const [searchText, setSearchText] = useState('')
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
-
-  // Filter states
-  const [filters, setFilters] = useState({
-    status: '',
-    orderBy: 'createdAt',
-    orderType: 'DESC'
-  })
+  // Initialize pagination helper - don't include empty status in initial filters
+  const {
+    searchText,
+    paginationModel,
+    filters,
+    handleSearch,
+    handlePaginationChange,
+    handleFilterChange,
+    handleSortModelChange,
+    fetchData,
+    initialFetch
+  } = usePagination(
+    fetchAllSalesOrder,
+    dispatch,
+    { orderBy: 'createdAt', orderType: 'DESC' }, // Remove status: '' from initial filters
+    { page: 0, pageSize: 25 }
+  )
 
   const {
     dataSalesOrder: data,
@@ -90,72 +99,19 @@ export default function TableAllSalesOrder({ timeFilter }) {
     }
   }, [])
 
-  // Centralized fetch function to avoid duplication
-  const fetchData = useCallback(
-    (
-      customParams = {},
-      currentSearchText = searchText,
-      currentFilters = filters,
-      currentPaginationModel = paginationModel
-    ) => {
-      const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
-      const params = {
-        page: 1,
-        limit: currentPaginationModel.pageSize,
-        ...(currentSearchText && { search: currentSearchText }),
-        ...(currentFilters.status && { status: currentFilters.status }),
-        orderBy: currentFilters.orderBy,
-        orderType: currentFilters.orderType,
-        ...dateRange,
-        paginate: true,
-        ...customParams
-      }
-
-      dispatch(fetchAllSalesOrder(params))
-    },
-    [dispatch, timeFilter?.year, timeFilter?.month]
-  )
-
-  // Debounced search function with proper cleanup
-  const debouncedSearch = useCallback(
-    (() => {
-      let timeoutId
-      const fn = searchValue => {
-        clearTimeout(timeoutId)
-        timeoutId = setTimeout(() => {
-          // Reset to page 1 when searching
-          setPaginationModel(prev => ({ ...prev, page: 0 }))
-
-          fetchData({ search: searchValue, page: 1 }, searchValue, filters, paginationModel)
-        }, 500)
-      }
-
-      // Add cancel function to clear timeout
-      fn.cancel = () => {
-        clearTimeout(timeoutId)
-      }
-
-      return fn
-    })(),
-    [fetchData, filters, paginationModel]
-  )
-
-  const handleSearch = searchValue => {
-    setSearchText(searchValue)
-
+  // Enhanced handleSearch with timeFilter integration
+  const handleSearchWithTimeFilter = useCallback((searchValue) => {
+    const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
     if (searchValue === '') {
-      // Cancel any pending debounced search
-      debouncedSearch.cancel()
-
-      // Reset pagination first
-      setPaginationModel(prev => ({ ...prev, page: 0 }))
-
-      // Clear search immediately
-      fetchData({ page: 1 }, '', filters, paginationModel)
+      handleSearch('')
+      // Add timeFilter to clear search, exclude empty status
+      const cleanParams = { page: 1, ...dateRange }
+      fetchData(cleanParams, '')
     } else {
-      debouncedSearch(searchValue)
+      // Let the helper handle debounced search, then add timeFilter
+      handleSearch(searchValue)
     }
-  }
+  }, [handleSearch, fetchData, getDateRange, timeFilter?.year, timeFilter?.month])
 
   const handleRowClick = params => {
     const id = params?.code || params?.row?.code
@@ -171,92 +127,62 @@ export default function TableAllSalesOrder({ timeFilter }) {
     router.push(`/sales-order/add`)
   }
 
-  const handlePaginationChange = newPaginationModel => {
-    setPaginationModel(newPaginationModel)
-
+  // Enhanced pagination change with timeFilter integration
+  const handlePaginationChangeWithTimeFilter = useCallback((newPaginationModel) => {
+    const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
+    handlePaginationChange(newPaginationModel)
+    // Add timeFilter to pagination change, let helper handle empty status filtering
     fetchData(
       {
-        page: newPaginationModel.page + 1, // Backend expects 1-based pagination
-        limit: newPaginationModel.pageSize
+        page: newPaginationModel.page + 1,
+        limit: newPaginationModel.pageSize,
+        ...dateRange
       },
       searchText,
       filters,
       newPaginationModel
     )
-  }
+  }, [handlePaginationChange, fetchData, getDateRange, timeFilter?.year, timeFilter?.month, searchText, filters])
 
-  // Handle filter changes
-  const handleFilterChange = (filterType, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: value
-    }))
+  // Enhanced filter change with timeFilter integration
+  const handleFilterChangeWithTimeFilter = useCallback((filterType, value) => {
+    const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
 
-    // Reset to page 1 when filtering
-    setPaginationModel(prev => ({ ...prev, page: 0 }))
+    // For status filter, when empty, we need to completely remove it from filters
+    if (filterType === 'status' && value === '') {
+      // Use handleFilterChange with null to remove the filter completely
+      handleFilterChange(filterType, null, dateRange)
+    } else {
+      handleFilterChange(filterType, value, dateRange)
+    }
+  }, [handleFilterChange, getDateRange, timeFilter?.year, timeFilter?.month])
 
-    const newFilters = { ...filters, [filterType]: value }
-    fetchData(
-      {
-        page: 1,
-        ...(newFilters.status && { status: newFilters.status }),
-        orderBy: newFilters.orderBy,
-        orderType: newFilters.orderType
-      },
-      searchText,
-      newFilters,
-      paginationModel
-    )
-  }
-
-  // Handle sorting
-  const handleSortModelChange = sortModel => {
+  // Enhanced sort change with timeFilter integration and allowed fields
+  const handleSortModelChangeWithTimeFilter = useCallback((sortModel) => {
+    const allowedOrderBy = ['createdAt', 'approvedAt', 'shippingDate']
+    const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
+    handleSortModelChange(sortModel, allowedOrderBy)
+    // Add timeFilter to sort change, let helper handle empty status filtering
     if (sortModel.length > 0) {
       const { field, sort } = sortModel[0]
-      const orderBy =
-        field === 'createdAt'
-          ? 'createdAt'
-          : field === 'approvedAt'
-          ? 'approvedAt'
-          : field === 'shippingDate'
-          ? 'shippingDate'
-          : 'createdAt'
+      const orderBy = allowedOrderBy.includes(field) ? field : 'createdAt'
       const orderType = sort.toUpperCase()
-
-      const newFilters = {
-        ...filters,
+      fetchData({
+        page: 1,
         orderBy,
-        orderType
-      }
-
-      setFilters(newFilters)
-
-      fetchData(
-        {
-          page: 1,
-          orderBy,
-          orderType
-        },
-        searchText,
-        newFilters,
-        paginationModel
-      )
+        orderType,
+        ...dateRange
+      })
     }
-  }
+  }, [handleSortModelChange, fetchData, getDateRange, timeFilter?.year, timeFilter?.month])
 
   // Initial fetch and fetch when time filter changes
   useEffect(() => {
     const dateRange = getDateRange(timeFilter?.year, timeFilter?.month)
-    const params = {
-      page: 1,
-      limit: 25,
-      orderBy: 'createdAt',
-      orderType: 'DESC',
-      ...dateRange,
-      paginate: true
-    }
-    dispatch(fetchAllSalesOrder(params))
-  }, [dispatch, timeFilter?.year, timeFilter?.month])
+    // Ensure we don't send empty status on initial fetch
+    const cleanParams = { ...dateRange }
+    initialFetch(cleanParams)
+  }, [initialFetch, timeFilter?.year, timeFilter?.month, getDateRange])
 
   return (
     <Card>
@@ -268,8 +194,8 @@ export default function TableAllSalesOrder({ timeFilter }) {
         paginationMode='server'
         sortingMode='server'
         paginationModel={paginationModel}
-        onPaginationModelChange={handlePaginationChange}
-        onSortModelChange={handleSortModelChange}
+        onPaginationModelChange={handlePaginationChangeWithTimeFilter}
+        onSortModelChange={handleSortModelChangeWithTimeFilter}
         pageSizeOptions={[5, 10, 25, 50]}
         onCellClick={e => handleRowClick(e)}
         slots={{ toolbar: TableHeaderSalesOrder }}
@@ -418,11 +344,11 @@ export default function TableAllSalesOrder({ timeFilter }) {
           toolbar: {
             value: searchText,
             placeholder: 'Cari sales order',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
+            clearSearch: () => handleSearchWithTimeFilter(''),
+            onChange: event => handleSearchWithTimeFilter(event.target.value),
             handleAdd: handleAdd,
             filters: filters,
-            onFilterChange: handleFilterChange
+            onFilterChange: handleFilterChangeWithTimeFilter
           }
         }}
       />

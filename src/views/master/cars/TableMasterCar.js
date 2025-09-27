@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Box, Card, IconButton, Typography } from '@mui/material'
@@ -9,8 +9,8 @@ import { deleteMasterDataCar, fetchMasterDataCar, fetchMasterDataCarDetail } fro
 
 import ModalAddMasterCar from './ModalAddMasterCar'
 import TableHeaderMasterCar from './TableHeaderMasterCar'
-import HandleSearh from 'src/helpers/handleSearch'
 import CustomChip from 'src/@core/components/mui/chip'
+import { usePagination } from 'src/helpers/usePagination'
 
 const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
@@ -42,34 +42,75 @@ const RowOptions = ({ id, name }) => {
   )
 }
 
-export default function TableMasterCar({}) {
+export default function TableMasterCar({ }) {
   const dispatch = useDispatch()
   const [openModalAdd, setOpenModalAdd] = useState(false)
 
-  const [searchText, setSearchText] = useState('')
-  const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const {
+    data,
+    pagination,
+    loading
+  } = useSelector(state => state.masterCar)
 
-  const { data } = useSelector(state => state.masterCar)
+  // Use pagination helper
+  const {
+    searchText,
+    paginationModel,
+    filters,
+    handleSearch,
+    handlePaginationChange,
+    handleFilterChange: baseHandleFilterChange,
+    handleSortModelChange: baseHandleSortModelChange,
+    initialFetch
+  } = usePagination(
+    fetchMasterDataCar,
+    dispatch,
+    {
+      orderBy: 'name',
+      orderType: 'ASC'
+    },
+    { page: 0, pageSize: 10 }
+  )
 
-  const handleSearch = searchValue => {
-    setSearchText(searchValue)
-    HandleSearh({ data, keys: ['name', 'plate_number'], searchValue, setData: setFilteredData })
-  }
+  // Custom filter handler for car-specific logic
+  const handleFilterChange = useCallback((filterType, value) => {
+    if (filterType === 'status') {
+      const customParams = {
+        orderBy: filters.orderBy,
+        orderType: filters.orderType
+      }
+
+      if (value !== '') {
+        customParams.status = value === 'true'
+      }
+      baseHandleFilterChange(filterType, value, customParams)
+    } else {
+      baseHandleFilterChange(filterType, value)
+    }
+  }, [baseHandleFilterChange, filters.orderBy, filters.orderType])
+
+  const handleSortModelChange = useCallback((sortModel) => {
+    const allowedOrderBy = ['name', 'plate_number', 'emoneyBalance', 'description', 'createdAt']
+    baseHandleSortModelChange(sortModel, allowedOrderBy)
+  }, [baseHandleSortModelChange])
 
   useEffect(() => {
-    dispatch(fetchMasterDataCar())
-  }, [dispatch])
-
-  useEffect(() => {
-    setFilteredData(data)
-  }, [data])
+    initialFetch()
+  }, [])
 
   return (
     <Card>
       {openModalAdd && <ModalAddMasterCar open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
       <DataGrid
         autoHeight
+        loading={loading}
+        rows={data || []}
+        rowCount={pagination?.total || 0}
+        paginationMode='server'
+        sortingMode='server'
+        paginationModel={paginationModel}
+        onPaginationModelChange={handlePaginationChange}
+        onSortModelChange={handleSortModelChange}
         columns={[
           {
             flex: 0.1,
@@ -158,10 +199,7 @@ export default function TableMasterCar({}) {
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
-        paginationModel={paginationModel}
         slots={{ toolbar: TableHeaderMasterCar }}
-        onPaginationModelChange={setPaginationModel}
-        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
@@ -177,7 +215,9 @@ export default function TableMasterCar({}) {
             placeholder: 'Cari nama mobil atau plat nomor',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd
+            openModalAdd: setOpenModalAdd,
+            filters: filters,
+            onFilterChange: handleFilterChange
           }
         }}
       />

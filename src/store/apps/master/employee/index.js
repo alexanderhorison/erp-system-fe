@@ -178,6 +178,7 @@ export const appMasterEmployeeSlice = createSlice({
   name: 'appMasterEmployee',
   initialState: {
     data: [],
+    pagination: { total: 0 },
     loading: false,
     error: false,
     detail: {
@@ -223,6 +224,7 @@ export const appMasterEmployeeSlice = createSlice({
       })
       .addCase(fetchMasterDataEmployee.fulfilled, (state, action) => {
         state.data = action.payload.data
+        state.pagination = action.payload.pagination || { total: action.payload.data?.length || 0 }
         state.loading = false
         state.error = false
       })

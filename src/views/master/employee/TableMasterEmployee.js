@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Box, Card, IconButton, Typography } from '@mui/material'
@@ -6,7 +6,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import Icon from 'src/@core/components/icon'
 import CustomChip from 'src/@core/components/mui/chip'
 
-import HandleSearh from 'src/helpers/handleSearch'
+import { usePagination } from 'src/helpers/usePagination'
 
 import {
   deleteMasterDataEmployee,
@@ -80,30 +80,48 @@ const renderChipStatus = params => {
 export default function TableMasterEmployee() {
   const dispatch = useDispatch()
   const router = useRouter()
-  const [searchText, setSearchText] = useState('')
-  const [filteredData, setFilteredData] = useState([])
   const [openModalAdd, setOpenModalAdd] = useState(false)
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
-  const { data, loading } = useSelector(state => state.masterEmployee)
+  // Initialize pagination helper with status filter for employee types
+  const {
+    searchText,
+    paginationModel,
+    filters,
+    handleSearch,
+    handlePaginationChange,
+    handleFilterChange,
+    handleSortModelChange,
+    fetchData,
+    initialFetch
+  } = usePagination(
+    fetchMasterDataEmployee,
+    dispatch,
+    { orderBy: 'nama', orderType: 'ASC' }, // Don't include empty status
+    { page: 0, pageSize: 10 }
+  )
 
-  const handleSearch = searchValue => {
-    setSearchText(searchValue)
-    HandleSearh({
-      data,
-      keys: ['nama', 'role'],
-      searchValue,
-      setData: setFilteredData
-    })
-  }
+  const { data, loading, pagination } = useSelector(state => state.masterEmployee)
+
+  // Enhanced filter change with support for employee status
+  const handleFilterChangeWithStatus = useCallback((filterType, value) => {
+    // For status filter, when empty, we need to completely remove it from filters
+    if (filterType === 'status' && value === '') {
+      // Use handleFilterChange with null to remove the filter completely
+      handleFilterChange(filterType, null)
+    } else {
+      handleFilterChange(filterType, value)
+    }
+  }, [handleFilterChange])
+
+  // Enhanced sort change with allowed fields for employee
+  const handleSortModelChangeWithFields = useCallback((sortModel) => {
+    const allowedOrderBy = ['nama', 'role', 'salary']
+    handleSortModelChange(sortModel, allowedOrderBy)
+  }, [handleSortModelChange])
 
   useEffect(() => {
-    dispatch(fetchMasterDataEmployee())
-  }, [dispatch])
-
-  useEffect(() => {
-    setFilteredData(data)
-  }, [data])
+    initialFetch()
+  }, [initialFetch])
 
   const handleRowClick = params => {
     router.push(`/master/employee/${params.id}`)
@@ -114,6 +132,13 @@ export default function TableMasterEmployee() {
       <DataGrid
         autoHeight
         loading={loading}
+        rows={data || []}
+        rowCount={pagination?.total || 0}
+        paginationMode='server'
+        sortingMode='server'
+        paginationModel={paginationModel}
+        onPaginationModelChange={handlePaginationChange}
+        onSortModelChange={handleSortModelChangeWithFields}
         columns={[
           {
             flex: 0.05,
@@ -208,11 +233,8 @@ export default function TableMasterEmployee() {
           }
         ]}
         pageSizeOptions={[5, 10, 25, 50]}
-        paginationModel={paginationModel}
         onRowClick={handleRowClick}
         slots={{ toolbar: TableHeaderMasterEmployee }}
-        onPaginationModelChange={setPaginationModel}
-        rows={filteredData}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
@@ -227,8 +249,10 @@ export default function TableMasterEmployee() {
             value: searchText,
             placeholder: 'Cari nama karyawan',
             clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd
+            onChange: handleSearch,
+            openModalAdd: setOpenModalAdd,
+            filters: filters,
+            onFilterChange: handleFilterChangeWithStatus
           }
         }}
       />

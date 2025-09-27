@@ -48,7 +48,7 @@ export const addMasterDataCar = createAsyncThunk(
         data
       })
       swalSuccess({ label, name: 'Mobil', response })
-      dispatch(fetchMasterDataCar())
+      dispatch(fetchMasterDataCar({ page: 1, limit: 10, orderBy: 'name', orderType: 'ASC', paginate: true }))
       setOpen(false)
     } catch (error) {
       swalError({ error, label })
@@ -68,7 +68,7 @@ export const editMasterDataCar = createAsyncThunk(
         data: data
       })
       swalSuccess({ label, name: 'Mobil', response })
-      dispatch(fetchMasterDataCar())
+      dispatch(fetchMasterDataCar({ page: 1, limit: 10, orderBy: 'name', orderType: 'ASC', paginate: true }))
       setOpen(false)
     } catch (error) {
       swalError({ error, label })
@@ -92,7 +92,7 @@ export const deleteMasterDataCar = createAsyncThunk(
           })
         },
         dispatchRequest: () => {
-          return dispatch(fetchMasterDataCar())
+          return dispatch(fetchMasterDataCar({ page: 1, limit: 10, orderBy: 'name', orderType: 'ASC', paginate: true }))
         }
       })
     } catch (error) {
@@ -106,6 +106,12 @@ export const appMasterCarSlice = createSlice({
   name: 'appMasterCar',
   initialState: {
     data: [],
+    pagination: {
+      total: 0,
+      page: 1,
+      limit: 10,
+      totalPage: 0
+    },
     loading: false,
     error: false,
     detail: {
@@ -137,10 +143,23 @@ export const appMasterCarSlice = createSlice({
       })
       .addCase(fetchMasterDataCar.fulfilled, (state, action) => {
         state.data = action.payload.data
+        state.pagination = action.payload.pagination || {
+          total: action.payload.data?.length || 0,
+          page: 1,
+          limit: 10,
+          totalPage: 1
+        }
         state.loading = false
         state.error = false
       })
       .addCase(fetchMasterDataCar.rejected, (state, action) => {
+        state.data = []
+        state.pagination = {
+          total: 0,
+          page: 1,
+          limit: 10,
+          totalPage: 0
+        }
         state.loading = false
         state.error = action.error.message
       })
