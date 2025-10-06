@@ -4,6 +4,7 @@ import { swalToastError } from 'src/helpers/swalFunction';
 
 export const ENUM = {
     SALES_ORDER: 'SALES_ORDER',
+    CUSTOMER: 'CUSTOMER'
 }
 
 // Export Report
