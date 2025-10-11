@@ -15,14 +15,14 @@ import ModalAddRequestProduct from './ModalAddRequestProduct'
 import { fetchDetailRequestOrder } from 'src/store/apps/product-request-order'
 
 
-const RowOptions = ({ handleView, handleEdit, status }) => {
+const RowOptions = ({ handleView, handleEdit, status, createdBy, requesterId }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <IconButton onClick={handleView}>
           <Icon icon='tabler:eye' />
         </IconButton>
-        {status === 'PENDING' && (
+        {status === 'PENDING' && requesterId == createdBy?.id && (
           <IconButton onClick={handleEdit}>
             <Icon icon='tabler:edit' />
           </IconButton>
@@ -39,6 +39,7 @@ export default function TableRequestProduct({ timeFilter, isMobile, isTablet, is
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: isLowHeight ? 5 : 10 })
   const [openModalForm, setOpenModalForm] = useState(false)
   const [typeModal, setTypeModal] = useState('ADD')
+  const userData = JSON.parse(localStorage.getItem('userData'))
 
 
   const { dataRequestOrder: data, loadingDataRequestOrder } = useSelector(state => state.productRequest)
@@ -200,6 +201,8 @@ export default function TableRequestProduct({ timeFilter, isMobile, isTablet, is
                     handleView={() => handleView(row)}
                     handleEdit={() => handleEdit(row)}
                     status={row.status}
+                    createdBy={row.createdBy}
+                    requesterId={userData?.id}
                   />
                 </div>
               )
