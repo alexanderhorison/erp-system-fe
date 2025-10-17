@@ -340,7 +340,7 @@ export default function PointOfSaleLayout({
           <Grid item xs={12} md={showFilter ? 4 : 6}>
             <Button fullWidth variant='contained' onClick={handleClickAddCustomer}>
               {
-                selectedCustomerPos?.name ? selectedCustomerPos.name : 'Add Customer'
+                selectedCustomerPos?.name ? `${selectedCustomerPos.name} (${selectedCustomerPos.totalAmountDebtPos ? '-' : ''}${priceFormat(selectedCustomerPos.totalAmountDebtPos || 0)})` : 'Add Customer'
               }
             </Button>
           </Grid>

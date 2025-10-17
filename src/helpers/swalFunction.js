@@ -208,11 +208,11 @@ export function swalNotifSuccess({ message }) {
   })
 }
 
-export function swalNotifError({ message }) {
+export function swalNotifError({ message, timer = 1500 }) {
   return swal.fire({
     icon: 'error',
     title: message || `Gagal`,
-    timer: 1500,
+    timer,
     confirmButtonColor: '#6F4E37'
   })
 }

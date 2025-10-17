@@ -59,9 +59,9 @@ export default function PaymentSuccess({
               Rp {totalPayment.toLocaleString('id-ID')}
             </Typography>
             <Typography variant='body2' sx={{ fontWeight: 'bold', color: '#333', mt: 1 }}>
-              {change > 0 ? `Change:` : 'Hutang: '}
+              {change >= 0 ? `Change:` : 'Hutang: '}
             </Typography>
-            <Typography variant='h6' sx={{ fontWeight: 'bold', color: '#4caf50' }}>
+            <Typography variant='h6' sx={{ fontWeight: 'bold', color: `${change >= 0 ? '#4caf50' : '#ff0000ff'}` }}>
               Rp {Math.abs(change || 0).toLocaleString('id-ID')}
             </Typography>
           </Box>

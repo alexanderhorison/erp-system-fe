@@ -32,6 +32,7 @@ import FormInputPricePos from '../common/FormPos/FormInputPricePos';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import CustomPaymentTypePos from './CustomPaymentTypePos';
+import { swalNotifError } from 'src/helpers/swalFunction';
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -183,6 +184,11 @@ export default function ModalChargePos({
       paymentTypeId: selectedPayment.id
     }
 
+    // JIKA ADA HUTANG, HARUS ADA CUSTOMERNYA
+    if (((sendData.totalPayment - sendData.grandTotal) < 0) && !sendData.customerId) {
+      swalNotifError({ timer: 2500, message: 'Total Pembayaran memiliki hutang, hutang hanya boleh dilakukan oleh Customer. Silahkan Pilih Customer' })
+      return
+    }
     dispatch(chargePos({
       data: sendData,
       selectedPayment: selectedPayment,
@@ -230,59 +236,121 @@ export default function ModalChargePos({
               <PaymentSuccess alreadyPayment={alreadyPayment} customer={customer} totalPayment={priceFormat(getValues('amount'))} totalAmount={priceFormat(subTotalPrice())} change={getValues('amount') - subTotalPrice()} setOpen={setOpen} resetAll={resetAllField} dataPayment={dataSuccessPayment} />
             ) : (
               <>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant='h4' sx={{}}>
-                    Total Harga : Rp.{priceFormat(subTotalPrice())}
+                {/* Total Harga */}
+                <Box sx={{ textAlign: 'center', mb: 3 }}>
+                  <Typography variant='h5' sx={{ fontWeight: 600, color: 'primary.main' }}>
+                    Total Harga
+                  </Typography>
+                  <Typography variant='h4' sx={{ mt: 1, fontWeight: 700 }}>
+                    Rp {priceFormat(subTotalPrice())}
                   </Typography>
                 </Box>
-                <Grid container py={3} spacing={6}>
-                  <Grid item xs={6}>
-                    <Button fullWidth variant='outlined' onClick={handleClose}>Cancel</Button>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Button fullWidth variant='contained' onClick={handleSubmit(handleSubmitCharge)} disabled={!selectedPayment}>Charge</Button>
-                  </Grid>
-                </Grid>
-                <Grid container py={3} spacing={3}>
+
+                {/* Amount Quick Buttons */}
+                <Box sx={{ mb: 3 }}>
+                  <AmountButton subTotalPrice={subTotalPrice()} selectAmount={selectAmount} />
+                </Box>
+
+                {/* Input Amount */}
+                <Grid container spacing={3} sx={{ mb: 3 }}>
                   <Grid item xs={12}>
-                    <AmountButton subTotalPrice={subTotalPrice()} selectAmount={selectAmount} />
+                    <FormInputPricePos
+                      control={control}
+                      name='amount'
+                      errors={errors}
+                      label='Amount'
+                      disabled={false}
+                      fullWidth
+                    />
                   </Grid>
                 </Grid>
-                <Grid container p={3} spacing={3}>
-                  <FormInputPricePos
-                    control={control}
-                    name='amount'
-                    errors={errors}
-                    label='Amount'
-                    disabled={false}
-                    fullWidth
-                  />
+
+                {/* Payment Methods */}
+                <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 1 }}>
+                  Pilih Metode Pembayaran
+                </Typography>
+
+                <Grid container spacing={3} sx={{ mb: 4 }}>
+                  {loadingListPaymentType ? (
+                    <Grid item xs={12} sx={{ height: '150px' }} textAlign='center'>
+                      <CircularProgress />
+                    </Grid>
+                  ) : (
+                    listPaymentType.map((item, index) => (
+                      <CustomPaymentTypePos
+                        key={index}
+                        data={{
+                          id: item?.id,
+                          title: item?.label,
+                          value: item?.id,
+                          icon: item?.icon,
+                          description: item?.description
+                        }}
+                        selected={selectedPayment?.id}
+                        icon={defaultIconPayment({ icon: item?.icon })}
+                        handleChange={() => setSelectedPayment(item)}
+                        gridProps={{ xs: 3 }}
+                        iconHeight={50}
+                        iconWidth={50}
+                      />
+                    ))
+                  )}
                 </Grid>
-                <Grid item xs={4} alignContent={'top'}>Pilih Metode Pembayaran</Grid>
-                <Grid container spacing={4} py={3}>
-                  {
-                    loadingListPaymentType && <Grid item xs={12} sx={{ height: '150px' }} textAlign={'center'}><CircularProgress /></Grid>
-                  }
-                  {!loadingListPaymentType && listPaymentType.map((item, index) => (
-                    <CustomPaymentTypePos
-                      key={index}
-                      data={{
-                        id: item?.id,
-                        title: item?.label,
-                        value: item?.id,
-                        icon: item?.icon,
-                        description: item?.description
-                      }}
-                      selected={selectedPayment?.id}
-                      icon={
-                        defaultIconPayment({ icon: item?.icon })
-                      }
-                      handleChange={() => setSelectedPayment(item)}
-                      gridProps={{ xs: 3 }}
-                      iconHeight={50}
-                      iconWidth={50}
-                    />
-                  ))}
+
+                {/* Customer Debt Alert */}
+                {customer?.totalAmountDebtPos > 0 && (
+                  <Card
+                    sx={{
+                      mt: 3,
+                      p: 2,
+                      border: '2px solid #ef5350',
+                      borderRadius: 2,
+                      bgcolor: '#fff5f5',
+                      boxShadow: '0 0 8px rgba(239, 83, 80, 0.3)',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Icon icon="tabler:alert-octagon" color="#ef5350" fontSize="1.5rem" />
+                      <Typography variant="h6" sx={{ color: '#d32f2f', fontWeight: 600 }}>
+                        Customer memiliki hutang
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" sx={{ mt: 1, color: '#b71c1c' }}>
+                      {customer?.name} memiliki total hutang sebesar:
+                    </Typography>
+                    <Typography variant="h5" sx={{ color: '#c62828', fontWeight: 700 }}>
+                      Rp {priceFormat(customer?.totalAmountDebtPos || 0)}
+                    </Typography>
+                  </Card>
+                )}
+
+                {/* Action Buttons */}
+                <Grid container spacing={2} sx={{ mt: 2 }}>
+                  <Grid item xs={6}>
+                    <Button
+                      fullWidth
+                      variant='outlined'
+                      color='inherit'
+                      size='large'
+                      onClick={handleClose}
+                      sx={{ borderRadius: 2, py: 1.2 }}
+                    >
+                      Cancel
+                    </Button>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Button
+                      fullWidth
+                      variant='contained'
+                      color='primary'
+                      size='large'
+                      onClick={handleSubmit(handleSubmitCharge)}
+                      disabled={!selectedPayment}
+                      sx={{ borderRadius: 2, py: 1.2 }}
+                    >
+                      Charge
+                    </Button>
+                  </Grid>
                 </Grid>
               </>
             )
