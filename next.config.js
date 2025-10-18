@@ -21,6 +21,10 @@ module.exports = withPWA({
   trailingSlash: true,
   reactStrictMode: false, // Set false if needed
   swcMinify: true,
+  // Specify the pages directory
+  experimental: {
+    appDir: false // Ensure we're using pages router, not app router
+  },
   // Add a function to generate a unique build ID for each deployment
   generateBuildId: async () => {
     // Return a timestamp-based ID to ensure uniqueness across deployments

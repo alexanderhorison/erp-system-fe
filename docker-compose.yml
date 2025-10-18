@@ -1,20 +1,18 @@
 version: '3.8'
-
 services:
-  # Frontend Web Service
-  web-erp:
-    container_name: web-erp
+  erp-system-fe:
+    container_name: erp-system-fe
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "${WEB_PORT:-3001}:3001"
-    env_file:
-      - .env
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
     restart: unless-stopped
     networks:
-      - app_network
+      - tunnel
 
 networks:
-  app_network:
-    driver: bridge
+  tunnel:
+    external: true

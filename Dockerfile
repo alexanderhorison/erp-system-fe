@@ -1,37 +1,27 @@
-# Stage 1: Build
-FROM node:18-alpine AS builder
+# Simple, reliable Dockerfile for Next.js application
+FROM node:18-alpine
+
+# Set working directory
 WORKDIR /app
 
+# Copy package.json first for better caching
+COPY package.json ./
+
 # Install dependencies
-COPY package*.json ./
 RUN npm install
 
-# Copy source code
+# Copy all source files
 COPY . .
 
 # Build the application
 RUN npm run build
 
-# Stage 2: Production
-FROM node:18-alpine
-WORKDIR /app
+# Expose port
+EXPOSE 3000
 
-# Copy necessary files from builder stage
-COPY --from=builder /app/next.config.js ./
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-# Copy .env file if it exists
-# Try to copy .env file if it exists using shell commands instead of COPY
-RUN touch .env && \
-  if [ -f /builder/.env ]; then cp /builder/.env ./.env; fi
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=3000
 
-# Create volume for persistent data
-VOLUME ["/app/data"]
-
-# Expose the port (will be overridden by environment)
-EXPOSE 3001
-
-# Start the application using environment variables
-CMD ["sh", "-c", "PORT=${PORT:-3001} NODE_ENV=${NODE_ENV:-production} npm start"]
+# Start the application
+CMD ["npm", "start"]
