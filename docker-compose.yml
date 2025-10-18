@@ -8,9 +8,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "${PORT}:${PORT}"
-    environment:
-      - NODE_ENV=production
-      - PORT=${PORT}
+    env_file:
+      - .env
     restart: unless-stopped
     networks:
       - tunnel
