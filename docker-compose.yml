@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   fe-erp:
+    image: ${CONTAINER_NAME}:latest
     container_name: ${CONTAINER_NAME}
     build:
       context: .
