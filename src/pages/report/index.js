@@ -8,18 +8,38 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { ENUM, exportReport } from 'src/store/apps/export';
 import { useDispatch } from 'react-redux';
 
+// Report that need month and year
+const REPORTS_WITH_MONTH_YEAR = [ENUM.SALES_ORDER]; // add other report types as needed
+
 const ReportPage = () => {
     const schema = yup.object({
-        reportType: yup.string().required('Tipe Report harus ada'),
-        month: yup.number().typeError('Bulan harus ada').required('Bulan harus ada'),
-        year: yup.number().typeError('Tahun harus ada').required('Tahun harus ada')
-    })
+        reportType: yup
+            .string()
+            .required('Tipe Report harus ada'),
+        month: yup
+            .number()
+            .typeError('Bulan harus berupa angka')
+            .when('reportType', {
+                is: (val) => REPORTS_WITH_MONTH_YEAR.includes(val), // only required certain reports
+                then: (schema) => schema.required('Bulan harus ada'),
+                otherwise: (schema) => schema.notRequired(),
+            }),
+        year: yup
+            .number()
+            .typeError('Tahun harus berupa angka')
+            .when('reportType', {
+                is: (val) => REPORTS_WITH_MONTH_YEAR.includes(val),
+                then: (schema) => schema.required('Tahun harus ada'),
+                otherwise: (schema) => schema.notRequired(),
+            }),
+    });
 
     const {
         control,
         handleSubmit,
         formState: { errors },
-        setValue
+        setValue,
+        watch
     } = useForm({
         mode: 'onChange',
         resolver: yupResolver(schema)
@@ -27,11 +47,11 @@ const ReportPage = () => {
 
     const dispatch = useDispatch()
 
+    const reportType = watch('reportType')
 
     const typeReport = [
         { id: 1, label: 'Sales Order', value: ENUM.SALES_ORDER },
-        // { label: 'Sales Invoice', value: 'sales-invoice' },
-        // { label: 'Purchase Order', value: 'purchase-order' },
+        { id: 2, label: 'Customer', value: ENUM.CUSTOMER },
     ]
     const month = [
         { id: 1, label: 'January', value: 1 },
@@ -64,7 +84,6 @@ const ReportPage = () => {
                     <Typography fontSize={20}>Export Report</Typography>
                 </Box>
                 <Grid container spacing={6}>
-                    {/* left Card */}
                     <Grid item xs={12} md={12}>
                         <Card>
                             <CardContent>
@@ -99,64 +118,68 @@ const ReportPage = () => {
                                             />
                                         </Grid>
                                     </Grid>
-                                    <Grid container spacing={6} sx={{ marginTop: 1 }}>
-                                        <Grid item xs={12} md={12}>
-                                            <Controller
-                                                name="month"
-                                                control={control}
-                                                rules={{ required: true }}
-                                                render={({ field: { value, onChange } }) => (
-                                                    <CustomAutocomplete
-                                                        options={month}
-                                                        id='autocomplete-month'
-                                                        getOptionLabel={option => option.label || ''}
-                                                        onChange={(event, newValue) => {
-                                                            onChange(+newValue?.id || '')
-                                                        }}
-                                                        renderInput={params => (
-                                                            <CustomTextField
-                                                                {...params}
-                                                                error={Boolean(errors?.month)}
-                                                                {...(errors?.month && {
-                                                                    helperText: errors?.month.message
-                                                                })}
-                                                                label='Bulan'
+                                    {reportType && REPORTS_WITH_MONTH_YEAR.includes(reportType) && (
+                                        <>
+                                            <Grid container spacing={6} sx={{ marginTop: 1 }}>
+                                                <Grid item xs={12} md={12}>
+                                                    <Controller
+                                                        name="month"
+                                                        control={control}
+                                                        rules={{ required: true }}
+                                                        render={({ field: { value, onChange } }) => (
+                                                            <CustomAutocomplete
+                                                                options={month}
+                                                                id='autocomplete-month'
+                                                                getOptionLabel={option => option.label || ''}
+                                                                onChange={(event, newValue) => {
+                                                                    onChange(+newValue?.id || '')
+                                                                }}
+                                                                renderInput={params => (
+                                                                    <CustomTextField
+                                                                        {...params}
+                                                                        error={Boolean(errors?.month)}
+                                                                        {...(errors?.month && {
+                                                                            helperText: errors?.month.message
+                                                                        })}
+                                                                        label='Bulan'
+                                                                    />
+                                                                )}
                                                             />
                                                         )}
                                                     />
-                                                )}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                    <Grid container spacing={6} sx={{ marginTop: 1 }}>
-                                        <Grid item xs={12} md={12}>
-                                            <Controller
-                                                name="year"
-                                                control={control}
-                                                rules={{ required: true }}
-                                                render={({ field: { value, onChange } }) => (
-                                                    <CustomAutocomplete
-                                                        options={years.map(y => ({ id: y, label: y.toString(), value: y }))}
-                                                        id='autocomplete-year'
-                                                        getOptionLabel={option => option.label || ''}
-                                                        onChange={(event, newValue) => {
-                                                            onChange(+newValue?.id || '')
-                                                        }}
-                                                        renderInput={params => (
-                                                            <CustomTextField
-                                                                {...params}
-                                                                error={Boolean(errors?.year)}
-                                                                {...(errors?.year && {
-                                                                    helperText: errors?.year.message
-                                                                })}
-                                                                label='Tahun'
+                                                </Grid>
+                                            </Grid>
+                                            <Grid container spacing={6} sx={{ marginTop: 1 }}>
+                                                <Grid item xs={12} md={12}>
+                                                    <Controller
+                                                        name="year"
+                                                        control={control}
+                                                        rules={{ required: true }}
+                                                        render={({ field: { value, onChange } }) => (
+                                                            <CustomAutocomplete
+                                                                options={years.map(y => ({ id: y, label: y.toString(), value: y }))}
+                                                                id='autocomplete-year'
+                                                                getOptionLabel={option => option.label || ''}
+                                                                onChange={(event, newValue) => {
+                                                                    onChange(+newValue?.id || '')
+                                                                }}
+                                                                renderInput={params => (
+                                                                    <CustomTextField
+                                                                        {...params}
+                                                                        error={Boolean(errors?.year)}
+                                                                        {...(errors?.year && {
+                                                                            helperText: errors?.year.message
+                                                                        })}
+                                                                        label='Tahun'
+                                                                    />
+                                                                )}
                                                             />
                                                         )}
                                                     />
-                                                )}
-                                            />
-                                        </Grid>
-                                    </Grid>
+                                                </Grid>
+                                            </Grid>
+                                        </>
+                                    )}
                                     <Grid
                                         container
                                         display='flex'

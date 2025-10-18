@@ -128,172 +128,157 @@ const LoginPage = () => {
   const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
 
   return (
-    <Box className='content-right' sx={{ backgroundColor: 'background.paper' }}>
-      {!hidden ? (
-        <Box
-          sx={{
-            flex: 1,
-            display: 'flex',
-            position: 'relative',
-            alignItems: 'center',
-            borderRadius: '20px',
-            justifyContent: 'center',
-            backgroundColor: 'customColors.bodyBg',
-            margin: theme => theme.spacing(8, 0, 8, 8)
-          }}
-        >
-          <LoginIllustration alt='login-illustration' src={`/images/login.svg`} />
-          <FooterIllustrationsV2 />
-        </Box>
-      ) : null}
-      <RightWrapper>
-        <Box
-          sx={{
-            p: [6, 12],
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <Box sx={{ width: '100%', maxWidth: 400 }}>
-            <Box sx={{ my: 6 }} justifyContent={'center'} display={'flex'}>
-              <Logo width={80} />
-            </Box>
-            <Box sx={{ my: 6 }}>
-              <Typography variant='h3' sx={{ mb: 1.5 }}>
-                {`Welcome to ${themeConfig.templateName}! 👋🏻`}
-              </Typography>
-            </Box>
-            {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
-              <Alert icon={false} sx={{ py: 3, mb: 6, ...bgColors.primaryLight, '& .MuiAlert-message': { p: 0 } }}>
-                <Typography variant='body2' sx={{ mb: 2, color: 'primary.main' }}>
-                  Admin: <strong>admin@vuexy.com</strong> / Pass: <strong>admin</strong>
-                </Typography>
-                <Typography variant='body2' sx={{ color: 'primary.main' }}>
-                  Client: <strong>client@vuexy.com</strong> / Pass: <strong>client</strong>
-                </Typography>
-              </Alert>
-            )}
-            <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
-              <Box sx={{ mb: 4 }}>
-                <Controller
-                  name='email'
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <CustomTextField
-                      fullWidth
-                      autoFocus
-                      label='Email'
-                      value={value}
-                      onBlur={onBlur}
-                      onChange={onChange}
-                      placeholder=''
-                      error={Boolean(errors.email)}
-                      {...(errors.email && { helperText: errors.email.message })}
-                    />
-                  )}
+    <Box
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'background.default',
+        position: 'relative',
+        overflow: 'hidden',
+        px: 4
+      }}
+    >
+      {/* Centered Login Card */}
+      <Box
+        sx={{
+          position: 'relative',
+          zIndex: 2,
+          width: '100%',
+          maxWidth: 420,
+          backgroundColor: 'background.paper',
+          borderRadius: 4,
+          boxShadow: 3,
+          p: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}
+      >
+        <Logo width={80} style={{ marginBottom: 24 }} />
+
+        <Typography variant='h4' sx={{ mb: 1, textAlign: 'center' }}>
+          {`Welcome to`}
+        </Typography>
+
+        <Typography variant='h4' sx={{ mb: 1, textAlign: 'center' }}>
+          {`${themeConfig.templateName}! 👋🏻`}
+        </Typography>
+
+        <Typography variant='body2' sx={{ color: 'text.secondary', mb: 6, textAlign: 'center' }}>
+          Please sign in to continue
+        </Typography>
+
+        {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
+          <Alert
+            icon={false}
+            sx={{
+              py: 3,
+              mb: 6,
+              ...bgColors.primaryLight,
+              '& .MuiAlert-message': { p: 0 }
+            }}
+          >
+            <Typography variant='body2' sx={{ mb: 2, color: 'primary.main' }}>
+              Admin: <strong>admin@vuexy.com</strong> / Pass: <strong>admin</strong>
+            </Typography>
+            <Typography variant='body2' sx={{ color: 'primary.main' }}>
+              Client: <strong>client@vuexy.com</strong> / Pass: <strong>client</strong>
+            </Typography>
+          </Alert>
+        )}
+
+        {/* Login Form */}
+        <Box component='form' noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)} sx={{ width: '100%' }}>
+          <Box sx={{ mb: 4 }}>
+            <Controller
+              name='email'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange, onBlur } }) => (
+                <CustomTextField
+                  fullWidth
+                  autoFocus
+                  label='Email'
+                  value={value}
+                  onBlur={onBlur}
+                  onChange={onChange}
+                  placeholder=''
+                  error={Boolean(errors.email)}
+                  {...(errors.email && { helperText: errors.email.message })}
                 />
-              </Box>
-              <Box sx={{ mb: 1.5 }}>
-                <Controller
-                  name='password'
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <CustomTextField
-                      fullWidth
-                      value={value}
-                      onBlur={onBlur}
-                      label='Password'
-                      onChange={onChange}
-                      id='auth-login-v2-password'
-                      error={Boolean(errors.password)}
-                      {...(errors.password && { helperText: errors.password.message })}
-                      type={showPassword ? 'text' : 'password'}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position='end'>
-                            <IconButton
-                              edge='end'
-                              onMouseDown={e => e.preventDefault()}
-                              onClick={() => setShowPassword(!showPassword)}
-                            >
-                              <Icon fontSize='1.25rem' icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} />
-                            </IconButton>
-                          </InputAdornment>
-                        )
-                      }}
-                    />
-                  )}
-                />
-              </Box>
-              <Box
-                sx={{
-                  mb: 1.75,
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}
-              >
-                <FormControlLabel
-                  label='Remember Me'
-                  control={<Checkbox checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} />}
-                />
-                {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
-                  <Typography component={LinkStyled} href='/forgot-password'>
-                    Forgot Password?
-                  </Typography>
-                )}
-              </Box>
-              <Button fullWidth type='submit' variant='contained' sx={{ mb: 4 }}>
-                Login
-              </Button>
-              {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
-                <>
-                  <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-                    <Typography sx={{ color: 'text.secondary', mr: 2 }}>New on our platform?</Typography>
-                    <Typography href='/register' component={LinkStyled}>
-                      Create an account
-                    </Typography>
-                  </Box>
-                  <Divider
-                    sx={{
-                      color: 'text.disabled',
-                      '& .MuiDivider-wrapper': { px: 6 },
-                      fontSize: theme.typography.body2.fontSize,
-                      my: theme => `${theme.spacing(6)} !important`
-                    }}
-                  >
-                    or
-                  </Divider>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <IconButton href='/' component={Link} sx={{ color: '#497ce2' }} onClick={e => e.preventDefault()}>
-                      <Icon icon='mdi:facebook' />
-                    </IconButton>
-                    <IconButton href='/' component={Link} sx={{ color: '#1da1f2' }} onClick={e => e.preventDefault()}>
-                      <Icon icon='mdi:twitter' />
-                    </IconButton>
-                    <IconButton
-                      href='/'
-                      component={Link}
-                      onClick={e => e.preventDefault()}
-                      sx={{ color: theme => (theme.palette.mode === 'light' ? '#272727' : 'grey.300') }}
-                    >
-                      <Icon icon='mdi:github' />
-                    </IconButton>
-                    <IconButton href='/' component={Link} sx={{ color: '#db4437' }} onClick={e => e.preventDefault()}>
-                      <Icon icon='mdi:google' />
-                    </IconButton>
-                  </Box>
-                </>
               )}
-            </form>
+            />
           </Box>
+
+          <Box sx={{ mb: 1.5 }}>
+            <Controller
+              name='password'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange, onBlur } }) => (
+                <CustomTextField
+                  fullWidth
+                  value={value}
+                  onBlur={onBlur}
+                  label='Password'
+                  onChange={onChange}
+                  id='auth-login-v2-password'
+                  error={Boolean(errors.password)}
+                  {...(errors.password && { helperText: errors.password.message })}
+                  type={showPassword ? 'text' : 'password'}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position='end'>
+                        <IconButton
+                          edge='end'
+                          onMouseDown={e => e.preventDefault()}
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          <Icon fontSize='1.25rem' icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} />
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              )}
+            />
+          </Box>
+
+          <Box
+            sx={{
+              mb: 3,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <FormControlLabel
+              label='Remember Me'
+              control={<Checkbox checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} />}
+            />
+            {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
+              <Typography component={LinkStyled} href='/forgot-password'>
+                Forgot Password?
+              </Typography>
+            )}
+          </Box>
+
+          <Button fullWidth type='submit' variant='contained' sx={{ mb: 4 }}>
+            Login
+          </Button>
+
+          {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
+            <Typography sx={{ textAlign: 'center', color: 'text.secondary' }}>
+              New user? <LinkStyled href='/register'>Create an account</LinkStyled>
+            </Typography>
+          )}
         </Box>
-      </RightWrapper>
+      </Box>
+
+      {/* Footer Illustration */}
+      <FooterIllustrationsV2 />
     </Box>
   )
 }

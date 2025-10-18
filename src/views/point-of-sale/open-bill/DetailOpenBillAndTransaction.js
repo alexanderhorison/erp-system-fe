@@ -38,7 +38,7 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
       temp.grandTotal = data?.subTotalPrice
       temp.totalDiscount = data?.totalDiscount || 0
       temp.createdAt = new Date(+data?.id.split('-')[1]),
-      temp.createdBy = data?.createdBy || 'Unknown User'
+        temp.createdBy = data?.createdBy || 'Unknown User'
     }
     if (type === 'transaction') {
       temp.products = data?.listProducts
@@ -161,8 +161,12 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
                   </Box>
                   {type === 'transaction' && (
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant='subtitle1'>Change:</Typography>
-                      <Typography variant='body1'>{priceFormatWIthCurrency(mappedData?.change)}</Typography>
+                      <Typography variant='subtitle1'>
+                        {mappedData?.change >= 0 ? `Change:` : 'Hutang: '}
+                      </Typography>
+                      <Typography variant='body1'
+                        sx={{ color: `${mappedData?.change >= 0 ? '' : '#ff0000ff'}` }}
+                      >{priceFormatWIthCurrency(Math.abs(mappedData?.change))}</Typography>
                     </Box>
                   )}
                   {type === 'transaction' && (
@@ -176,7 +180,7 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
             </Grid>
           </Grid>
         </Grid>
-      </Box>
+      </Box >
       {openModalEmail && (
         <ModalSendEmailCustomer
           open={openModalEmail}
@@ -184,7 +188,8 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
           customer={mappedData.customer}
           code={mappedData.code}
         />
-      )}
+      )
+      }
     </>
   )
 }
