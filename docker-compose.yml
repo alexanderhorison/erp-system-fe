@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  erp-system-fe:
+  fe-erp:
     container_name: ${CONTAINER_NAME}
     build:
       context: .
