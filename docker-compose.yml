@@ -6,9 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "${PORT}:${PORT}"
+      - "${PORT}:3000"
     environment:
       - NODE_ENV=production
+      - PORT=${PORT}
     restart: unless-stopped
     networks:
       - tunnel

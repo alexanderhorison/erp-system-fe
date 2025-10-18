@@ -17,11 +17,11 @@ COPY . .
 RUN npm run build
 
 # Expose port
-EXPOSE ${PORT}
+EXPOSE 3000
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV PORT=${PORT}
+ENV PORT=3000
 
 # Start the application
 CMD ["npm", "start"]
