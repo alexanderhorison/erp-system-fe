@@ -1,19 +1,9 @@
 // ** React Imports
 import { useEffect, useState } from 'react'
 import * as yup from 'yup'
-import React from 'react';
+import React from 'react'
 // ** MUI Imports
-import {
-  Box,
-  Card,
-  Grid,
-  Button,
-  Dialog,
-  Typography,
-  DialogContent,
-  IconButton,
-  CircularProgress,
-} from '@mui/material';
+import { Box, Card, Grid, Button, Dialog, Typography, DialogContent, IconButton, CircularProgress } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
 // ** Styles Import
@@ -28,11 +18,11 @@ import { chargePos, fetchListPaymentTypePos } from 'src/store/apps/pos'
 import { priceFormat } from 'src/helpers/priceFormatter'
 
 import PaymentSuccess from './PaymentSuccess'
-import FormInputPricePos from '../common/FormPos/FormInputPricePos';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import CustomPaymentTypePos from './CustomPaymentTypePos';
-import { swalNotifError } from 'src/helpers/swalFunction';
+import FormInputPricePos from '../common/FormPos/FormInputPricePos'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import CustomPaymentTypePos from './CustomPaymentTypePos'
+import { swalNotifError } from 'src/helpers/swalFunction'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -51,43 +41,43 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
 
 const AmountButton = ({ subTotalPrice, selectAmount }) => {
   // Fungsi untuk mengecek apakah subtotal sudah genap dengan pecahan 50.000 atau 100.000
-  const isExactMultipleOfLargeDenomination = (subTotalPrice) => {
-    return (
-      subTotalPrice % 50000 === 0 || subTotalPrice % 100000 === 0
-    );
-  };
+  const isExactMultipleOfLargeDenomination = subTotalPrice => {
+    return subTotalPrice % 50000 === 0 || subTotalPrice % 100000 === 0
+  }
 
-  const showButton2And3 = !isExactMultipleOfLargeDenomination(subTotalPrice);
+  const showButton2And3 = !isExactMultipleOfLargeDenomination(subTotalPrice)
 
   // Fungsi untuk menghitung tombol kedua (dibulatkan sesuai aturan pecahan)
-  const calculateButton2Value = (subTotalPrice) => {
+  const calculateButton2Value = subTotalPrice => {
     // Jika subTotalPrice di bawah 500.000, gunakan pecahan 5.000 - 20.000
     if (subTotalPrice <= 500000) {
-      if (subTotalPrice <= 20000) return 20000; // Jika nilai terlalu kecil, gunakan 20.000
-      return Math.ceil(subTotalPrice / 5000) * 5000; // Dibulatkan ke atas kelipatan 5000
+      if (subTotalPrice <= 20000) return 20000 // Jika nilai terlalu kecil, gunakan 20.000
+      return Math.ceil(subTotalPrice / 5000) * 5000 // Dibulatkan ke atas kelipatan 5000
     } else {
       // Jika di atas 500.000, gunakan pecahan 10.000 - 50.000
-      return Math.ceil(subTotalPrice / 50000) * 50000; // Dibulatkan ke atas kelipatan 10000
+      return Math.ceil(subTotalPrice / 50000) * 50000 // Dibulatkan ke atas kelipatan 10000
     }
-  };
+  }
 
   // Fungsi untuk menghitung tombol ketiga (dibulatkan ke angka besar berikutnya)
-  const calculateButton3Value = (subTotalPrice) => {
+  const calculateButton3Value = subTotalPrice => {
     // Jika subTotalPrice di bawah 500.000, gunakan pecahan 10.000 - 50.000
     if (subTotalPrice <= 500000) {
-      return Math.ceil(subTotalPrice / 50000) * 50000; // Dibulatkan ke atas kelipatan 10000
+      return Math.ceil(subTotalPrice / 50000) * 50000 // Dibulatkan ke atas kelipatan 10000
     } else {
       // Jika di atas 500.000, gunakan pecahan 50.000 - 100.000
-      return Math.ceil(subTotalPrice / 100000) * 100000; // Dibulatkan ke atas kelipatan 50000
+      return Math.ceil(subTotalPrice / 100000) * 100000 // Dibulatkan ke atas kelipatan 50000
     }
-  };
+  }
 
   // Hitung nilai untuk setiap tombol
-  const buttonValues = [...new Set([
-    subTotalPrice,
-    showButton2And3 ? calculateButton2Value(subTotalPrice) : null,
-    showButton2And3 ? calculateButton3Value(subTotalPrice) : null
-  ])].filter(Boolean); // Hapus null dan undefined
+  const buttonValues = [
+    ...new Set([
+      subTotalPrice,
+      showButton2And3 ? calculateButton2Value(subTotalPrice) : null,
+      showButton2And3 ? calculateButton3Value(subTotalPrice) : null
+    ])
+  ].filter(Boolean) // Hapus null dan undefined
 
   return (
     <Grid container py={3} spacing={3}>
@@ -95,19 +85,15 @@ const AmountButton = ({ subTotalPrice, selectAmount }) => {
         (value, index) =>
           value !== null && ( // Hanya tampilkan tombol jika nilai tidak null
             <Grid item xs={4} key={index}>
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={() => selectAmount(value)}
-              >
-                {value.toLocaleString("id-ID", { style: "currency", currency: "IDR" })}
+              <Button fullWidth variant='outlined' onClick={() => selectAmount(value)}>
+                {value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
               </Button>
             </Grid>
           )
       )}
     </Grid>
-  );
-};
+  )
+}
 
 export default function ModalChargePos({
   open,
@@ -116,7 +102,7 @@ export default function ModalChargePos({
   listSelectedProduct,
   customer,
   resetAllField,
-  warehouse,
+  warehouse
 }) {
   const dispatch = useDispatch()
 
@@ -130,7 +116,7 @@ export default function ModalChargePos({
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    amount: yup.number().min(1, 'Nominal harus diisi').required('Harga harus diisi'),
+    amount: yup.number().min(1, 'Nominal harus diisi').required('Harga harus diisi')
   })
 
   const {
@@ -139,10 +125,10 @@ export default function ModalChargePos({
     getValues,
     setValue,
     formState: { errors },
-    watch,
+    watch
   } = useForm({
     defaultValues: {
-      amount: 0,
+      amount: 0
     },
     mode: 'onChange',
     resolver: yupResolver(schema)
@@ -168,8 +154,8 @@ export default function ModalChargePos({
         price: item.price,
         quantity: item.quantity,
         subTotal: item.subTotal,
-        notes: item?.notes || "",
-        title: item?.title || "",
+        notes: item?.notes || '',
+        title: item?.title || ''
       })
     })
     let sendData = {
@@ -185,23 +171,25 @@ export default function ModalChargePos({
     }
 
     // JIKA ADA HUTANG, HARUS ADA CUSTOMERNYA
-    if (((sendData.totalPayment - sendData.grandTotal) < 0) && !sendData.customerId) {
-      swalNotifError({ timer: 2500, message: 'Total Pembayaran memiliki hutang, hutang hanya boleh dilakukan oleh Customer. Silahkan Pilih Customer' })
+    if (sendData.totalPayment - sendData.grandTotal < 0 && !sendData.customerId) {
+      swalNotifError({ timer: 5000, message: 'Silahkan pilih Customer jika ingin berhutang' })
       return
     }
-    dispatch(chargePos({
-      data: sendData,
-      selectedPayment: selectedPayment,
-      subTotalPrice: priceFormat(totalPayment),
-      onComplete: (data) => {
-        setAlreadyPayment(true)
-        setDataSuccessPayment(data)
-        const openBill = JSON.parse(localStorage.getItem('openBill'))
-        const billId = JSON.parse(localStorage.getItem('billId'))
-        const newArray = openBill.filter(bill => bill.id !== billId)
-        localStorage.setItem('openBill', JSON.stringify(newArray))
-      }
-    }))
+    dispatch(
+      chargePos({
+        data: sendData,
+        selectedPayment: selectedPayment,
+        subTotalPrice: priceFormat(totalPayment),
+        onComplete: data => {
+          setAlreadyPayment(true)
+          setDataSuccessPayment(data)
+          const openBill = JSON.parse(localStorage.getItem('openBill'))
+          const billId = JSON.parse(localStorage.getItem('billId'))
+          const newArray = openBill.filter(bill => bill.id !== billId)
+          localStorage.setItem('openBill', JSON.stringify(newArray))
+        }
+      })
+    )
   }
 
   useEffect(() => {
@@ -210,7 +198,7 @@ export default function ModalChargePos({
     }
   }, [])
 
-  const selectAmount = (value) => {
+  const selectAmount = value => {
     setValue('amount', value)
   }
 
@@ -224,143 +212,146 @@ export default function ModalChargePos({
         onClose={handleClose}
         sx={{ '& .MuiDialog-paper': { overflow: 'visible' }, zoom: 1.2 }}
       >
-        <DialogContent
-          sx={{
-          }}
-        >
+        <DialogContent sx={{}}>
           <CustomCloseButton onClick={handleClose}>
             <Icon icon='tabler:x' fontSize='1.25rem' />
           </CustomCloseButton>
-          {
-            alreadyPayment ? (
-              <PaymentSuccess alreadyPayment={alreadyPayment} customer={customer} totalPayment={priceFormat(getValues('amount'))} totalAmount={priceFormat(subTotalPrice())} change={getValues('amount') - subTotalPrice()} setOpen={setOpen} resetAll={resetAllField} dataPayment={dataSuccessPayment} />
-            ) : (
-              <>
-                {/* Total Harga */}
-                <Box sx={{ textAlign: 'center', mb: 3 }}>
-                  <Typography variant='h5' sx={{ fontWeight: 600, color: 'primary.main' }}>
-                    Total Harga
-                  </Typography>
-                  <Typography variant='h4' sx={{ mt: 1, fontWeight: 700 }}>
-                    Rp {priceFormat(subTotalPrice())}
-                  </Typography>
-                </Box>
-
-                {/* Amount Quick Buttons */}
-                <Box sx={{ mb: 3 }}>
-                  <AmountButton subTotalPrice={subTotalPrice()} selectAmount={selectAmount} />
-                </Box>
-
-                {/* Input Amount */}
-                <Grid container spacing={3} sx={{ mb: 3 }}>
-                  <Grid item xs={12}>
-                    <FormInputPricePos
-                      control={control}
-                      name='amount'
-                      errors={errors}
-                      label='Amount'
-                      disabled={false}
-                      fullWidth
-                    />
-                  </Grid>
-                </Grid>
-
-                {/* Payment Methods */}
-                <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 1 }}>
-                  Pilih Metode Pembayaran
+          {alreadyPayment ? (
+            <PaymentSuccess
+              alreadyPayment={alreadyPayment}
+              customer={customer}
+              totalPayment={priceFormat(getValues('amount'))}
+              totalAmount={priceFormat(subTotalPrice())}
+              change={getValues('amount') - subTotalPrice()}
+              setOpen={setOpen}
+              resetAll={resetAllField}
+              dataPayment={dataSuccessPayment}
+            />
+          ) : (
+            <>
+              {/* Total Harga */}
+              <Box sx={{ textAlign: 'center', mb: 3 }}>
+                <Typography variant='h5' sx={{ fontWeight: 600, color: 'primary.main' }}>
+                  Total Harga
                 </Typography>
+                <Typography variant='h4' sx={{ mt: 1, fontWeight: 700 }}>
+                  Rp {priceFormat(subTotalPrice())}
+                </Typography>
+              </Box>
 
-                <Grid container spacing={3} sx={{ mb: 4 }}>
-                  {loadingListPaymentType ? (
-                    <Grid item xs={12} sx={{ height: '150px' }} textAlign='center'>
-                      <CircularProgress />
-                    </Grid>
-                  ) : (
-                    listPaymentType.map((item, index) => (
-                      <CustomPaymentTypePos
-                        key={index}
-                        data={{
-                          id: item?.id,
-                          title: item?.label,
-                          value: item?.id,
-                          icon: item?.icon,
-                          description: item?.description
-                        }}
-                        selected={selectedPayment?.id}
-                        icon={defaultIconPayment({ icon: item?.icon })}
-                        handleChange={() => setSelectedPayment(item)}
-                        gridProps={{ xs: 3 }}
-                        iconHeight={50}
-                        iconWidth={50}
-                      />
-                    ))
-                  )}
+              {/* Amount Quick Buttons */}
+              <Box sx={{ mb: 3 }}>
+                <AmountButton subTotalPrice={subTotalPrice()} selectAmount={selectAmount} />
+              </Box>
+
+              {/* Input Amount */}
+              <Grid container spacing={3} sx={{ mb: 3 }}>
+                <Grid item xs={12}>
+                  <FormInputPricePos
+                    control={control}
+                    name='amount'
+                    errors={errors}
+                    label='Amount'
+                    disabled={false}
+                    fullWidth
+                  />
                 </Grid>
+              </Grid>
 
-                {/* Customer Debt Alert */}
-                {customer?.totalAmountDebtPos > 0 && (
-                  <Card
-                    sx={{
-                      mt: 3,
-                      p: 2,
-                      border: '2px solid #ef5350',
-                      borderRadius: 2,
-                      bgcolor: '#fff5f5',
-                      boxShadow: '0 0 8px rgba(239, 83, 80, 0.3)',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Icon icon="tabler:alert-octagon" color="#ef5350" fontSize="1.5rem" />
-                      <Typography variant="h6" sx={{ color: '#d32f2f', fontWeight: 600 }}>
-                        Customer memiliki hutang
-                      </Typography>
-                    </Box>
-                    <Typography variant="body2" sx={{ mt: 1, color: '#b71c1c' }}>
-                      {customer?.name} memiliki total hutang sebesar:
-                    </Typography>
-                    <Typography variant="h5" sx={{ color: '#c62828', fontWeight: 700 }}>
-                      Rp {priceFormat(customer?.totalAmountDebtPos || 0)}
-                    </Typography>
-                  </Card>
+              {/* Payment Methods */}
+              <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 1 }}>
+                Pilih Metode Pembayaran
+              </Typography>
+
+              <Grid container spacing={3} sx={{ mb: 4 }}>
+                {loadingListPaymentType ? (
+                  <Grid item xs={12} sx={{ height: '150px' }} textAlign='center'>
+                    <CircularProgress />
+                  </Grid>
+                ) : (
+                  listPaymentType.map((item, index) => (
+                    <CustomPaymentTypePos
+                      key={index}
+                      data={{
+                        id: item?.id,
+                        title: item?.label,
+                        value: item?.id,
+                        icon: item?.icon,
+                        description: item?.description
+                      }}
+                      selected={selectedPayment?.id}
+                      icon={defaultIconPayment({ icon: item?.icon })}
+                      handleChange={() => setSelectedPayment(item)}
+                      gridProps={{ xs: 3 }}
+                      iconHeight={50}
+                      iconWidth={50}
+                    />
+                  ))
                 )}
+              </Grid>
 
-                {/* Action Buttons */}
-                <Grid container spacing={2} sx={{ mt: 2 }}>
-                  <Grid item xs={6}>
-                    <Button
-                      fullWidth
-                      variant='outlined'
-                      color='inherit'
-                      size='large'
-                      onClick={handleClose}
-                      sx={{ borderRadius: 2, py: 1.2 }}
-                    >
-                      Cancel
-                    </Button>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Button
-                      fullWidth
-                      variant='contained'
-                      color='primary'
-                      size='large'
-                      onClick={handleSubmit(handleSubmitCharge)}
-                      disabled={!selectedPayment}
-                      sx={{ borderRadius: 2, py: 1.2 }}
-                    >
-                      Charge
-                    </Button>
-                  </Grid>
+              {/* Customer Debt Alert */}
+              {customer?.totalAmountDebtPos > 0 && (
+                <Card
+                  sx={{
+                    mt: 3,
+                    p: 2,
+                    border: '2px solid #ef5350',
+                    borderRadius: 2,
+                    bgcolor: '#fff5f5',
+                    boxShadow: '0 0 8px rgba(239, 83, 80, 0.3)'
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Icon icon='tabler:alert-octagon' color='#ef5350' fontSize='1.5rem' />
+                    <Typography variant='h6' sx={{ color: '#d32f2f', fontWeight: 600 }}>
+                      {customer?.name} memiliki hutang
+                    </Typography>
+                  </Box>
+                  <Typography variant='body2' sx={{ mt: 1, color: '#b71c1c' }}>
+                    total hutang sebesar:
+                  </Typography>
+                  <Typography variant='h5' sx={{ color: '#c62828', fontWeight: 700 }}>
+                    Rp {priceFormat(customer?.totalAmountDebtPos || 0)}
+                  </Typography>
+                </Card>
+              )}
+
+              {/* Action Buttons */}
+              <Grid container spacing={2} sx={{ mt: 2 }}>
+                <Grid item xs={6}>
+                  <Button
+                    fullWidth
+                    variant='outlined'
+                    color='inherit'
+                    size='large'
+                    onClick={handleClose}
+                    sx={{ borderRadius: 2, py: 1.2 }}
+                  >
+                    Cancel
+                  </Button>
                 </Grid>
-              </>
-            )
-          }
+                <Grid item xs={6}>
+                  <Button
+                    fullWidth
+                    variant='contained'
+                    color='primary'
+                    size='large'
+                    onClick={handleSubmit(handleSubmitCharge)}
+                    disabled={!selectedPayment}
+                    sx={{ borderRadius: 2, py: 1.2 }}
+                  >
+                    Charge
+                  </Button>
+                </Grid>
+              </Grid>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </Card>
   )
 }
-
 
 const defaultIconPayment = ({ icon }) => {
   let tempIcon = ''
@@ -371,11 +362,8 @@ const defaultIconPayment = ({ icon }) => {
     tempIcon = tempIcon.replace(/width="[^"]*"/g, '').replace(/height="[^"]*"/g, '')
   }
   return typeof tempIcon === 'string' ? (
-    <span
-      style={{ width: 28, height: 28, display: 'inline-block' }}
-      dangerouslySetInnerHTML={{ __html: tempIcon }}
-    />
+    <span style={{ width: 28, height: 28, display: 'inline-block' }} dangerouslySetInnerHTML={{ __html: tempIcon }} />
   ) : (
     React.cloneElement(tempIcon, { width: 28, height: 28 })
-  );
+  )
 }
