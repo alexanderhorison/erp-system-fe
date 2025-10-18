@@ -16,8 +16,9 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Expose port (will be overridden by environment variable)
-EXPOSE 3000
+# Expose port (actual port is set via environment variable in docker-compose)
+# Default expose for documentation purposes
+EXPOSE 5000
 
 # Start the application
 CMD ["npm", "start"]
