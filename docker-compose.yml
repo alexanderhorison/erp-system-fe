@@ -1,12 +1,12 @@
 version: '3.8'
 services:
   erp-system-fe:
-    container_name: erp-system-fe
+    container_name: ${CONTAINER_NAME}
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "${PORT}:${PORT}"
     environment:
       - NODE_ENV=production
     restart: unless-stopped
