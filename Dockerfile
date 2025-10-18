@@ -18,7 +18,7 @@ RUN npm run build
 
 # Expose port (actual port is set via environment variable in docker-compose)
 # Default expose for documentation purposes
-EXPOSE 5000
+EXPOSE 5001
 
 # Start the application
 CMD ["npm", "start"]
