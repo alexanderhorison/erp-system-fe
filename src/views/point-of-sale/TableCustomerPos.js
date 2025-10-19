@@ -13,6 +13,7 @@ const RowOptions = ({ row, setSelectedCustomerPos, setOpen }) => {
     totalAmountPos: row.totalAmountPos || 0,
     totalAmountPaidPos: row.totalAmountPaidPos || 0,
     totalAmountDebtPos: row.totalAmountDebtPos || 0,
+    lastDateDebtPos: row.lastDateDebtPos || "",
   }
   const handleAddCustomerPos = () => {
     setSelectedCustomerPos(dataCustomer)

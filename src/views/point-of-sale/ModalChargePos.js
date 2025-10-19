@@ -146,16 +146,22 @@ export default function ModalChargePos({
     let dicount = 0
     let subTotal = 0
     let listSendProduct = []
+    let totalDebt = 0;
     const totalPayment = getValues('amount')
     listSelectedProduct.forEach(item => {
       subTotal += item.quantity * item.price
+      if (item.isDebt){
+        totalDebt = item.price
+      }
       listSendProduct.push({
         warehouseProductId: item.warehouseProductId,
         price: item.price,
         quantity: item.quantity,
         subTotal: item.subTotal,
         notes: item?.notes || '',
-        title: item?.title || ''
+        title: item?.title || '',
+        isDebt: item?.isDebt || false,
+        debtDate: item?.debtDate || '',
       })
     })
     let sendData = {
@@ -167,7 +173,8 @@ export default function ModalChargePos({
       warehouseId: warehouse?.warehouseId,
       notes: '',
       listProduct: listSendProduct,
-      paymentTypeId: selectedPayment.id
+      paymentTypeId: selectedPayment.id,
+      totalDebt: totalDebt
     }
 
     // JIKA ADA HUTANG, HARUS ADA CUSTOMERNYA
@@ -212,7 +219,7 @@ export default function ModalChargePos({
         onClose={handleClose}
         sx={{ '& .MuiDialog-paper': { overflow: 'visible' }, zoom: 1.2 }}
       >
-        <DialogContent sx={{}}>
+        <DialogContent>
           <CustomCloseButton onClick={handleClose}>
             <Icon icon='tabler:x' fontSize='1.25rem' />
           </CustomCloseButton>

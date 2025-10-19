@@ -256,6 +256,30 @@ export default function PointOfSaleLayout({
     }
   }, [])
 
+  useEffect(() => {
+    if (selectedCustomerPos && selectedCustomerPos?.totalAmountDebtPos) {
+      if (!formField.find((item) => item.isDebt)) {
+        append({
+          isCustom: true,
+          isDebt: true,
+          debtDate: selectedCustomerPos.lastDateDebtPos,
+          price: selectedCustomerPos.totalAmountDebtPos,
+          productName: "Custom Amount",
+          quantity: 1,
+          subTotal: selectedCustomerPos.totalAmountDebtPos,
+          title: "Custom Amount",
+          warehouseProductId: null,
+          notes: `Hutang ${selectedCustomerPos.lastDateDebtPos}`,
+        })
+      }
+    } else {
+      // Remove debt if customer has no debt
+      const findDebtIndex = formField.findIndex((item) => item.isDebt)
+      if (findDebtIndex !== -1)
+        remove(findDebtIndex)
+    }
+  }, [selectedCustomerPos])
+
   return (
     <Box
       sx={{
@@ -340,7 +364,7 @@ export default function PointOfSaleLayout({
           <Grid item xs={12} md={showFilter ? 4 : 6}>
             <Button fullWidth variant='contained' onClick={handleClickAddCustomer}>
               {
-                selectedCustomerPos?.name ? `${selectedCustomerPos.name} (${selectedCustomerPos.totalAmountDebtPos ? '-' : ''}${priceFormat(selectedCustomerPos.totalAmountDebtPos || 0)})` : 'Add Customer'
+                selectedCustomerPos?.name ? `${selectedCustomerPos.name}` : 'Add Customer'
               }
             </Button>
           </Grid>
