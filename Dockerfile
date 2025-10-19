@@ -1,8 +1,8 @@
 # Simple, reliable Dockerfile for Next.js application
 FROM node:18-alpine
 
-# Accept PORT as a build argument
-ARG PORT=5001
+# Accept PORT as a build argument from docker-compose
+ARG PORT
 
 # Set working directory
 WORKDIR /app
