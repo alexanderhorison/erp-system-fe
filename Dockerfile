@@ -3,22 +3,22 @@
 FROM node:18-alpine AS deps
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package file
+COPY package.json ./
 
-# Install dependencies only
-RUN npm ci --only=production && \
+# Install production dependencies only
+RUN npm install --only=production && \
     npm cache clean --force
 
 # Stage 2: Builder
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package file
+COPY package.json ./
 
 # Install all dependencies (including devDependencies)
-RUN npm ci && \
+RUN npm install && \
     npm cache clean --force
 
 # Copy source code
