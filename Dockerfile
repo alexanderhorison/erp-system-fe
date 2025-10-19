@@ -1,19 +1,17 @@
 # Multi-stage build for optimized Next.js application
 # Stage 1: Dependencies
 FROM node:18-alpine AS deps
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files
 COPY package.json ./
 
-# Install production dependencies only with npm ci for better reproducibility
+# Install production dependencies only
 RUN npm install --only=production && \
     npm cache clean --force
 
 # Stage 2: Builder
 FROM node:18-alpine AS builder
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files
@@ -23,13 +21,8 @@ COPY package.json ./
 RUN npm install && \
     npm cache clean --force
 
-# Copy only necessary source files for build
-COPY next.config.js ./
-COPY jsconfig.json ./
-COPY server.js ./
-COPY public ./public
-COPY src ./src
-COPY styles ./styles
+# Copy all source files
+COPY . .
 
 # Build the application
 RUN npm run build
@@ -55,14 +48,12 @@ COPY --from=builder /app/jsconfig.json ./
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/server.js ./
 
-# Copy public folder (only required static assets)
+# Copy public, src, and styles folders
 COPY --from=builder /app/public ./public
-
-# Copy src and styles folders (needed for server-side rendering)
 COPY --from=builder --chown=nextjs:nodejs /app/src ./src
 COPY --from=builder --chown=nextjs:nodejs /app/styles ./styles
 
-# Copy the entire .next folder
+# Copy built application
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 
 # Copy production dependencies from deps stage
