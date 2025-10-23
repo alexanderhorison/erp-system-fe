@@ -1,8 +1,9 @@
 import React from 'react'
 import { Grid, Typography } from '@mui/material'
 import { priceFormat } from 'src/helpers/priceFormatter'
+import Icon from 'src/@core/components/icon'
 
-const TotalSectionPos = ({ isLowHeight, getTotals,showBreakdown, setShowBreakdown }) => {
+const TotalSectionPos = ({ isLowHeight, getTotals, showBreakdown, setShowBreakdown }) => {
   const { totalBarang, totalHutang, grandTotal } = getTotals()
 
   const totals = [
@@ -11,23 +12,18 @@ const TotalSectionPos = ({ isLowHeight, getTotals,showBreakdown, setShowBreakdow
     { label: 'Grand Total', value: priceFormat(grandTotal), clickable: true }
   ]
 
-  const visibleTotals = showBreakdown ? totals : totals.slice(-1) 
+  const visibleTotals = showBreakdown ? totals : totals.slice(-1)
 
   return (
-    <Grid item xs={12}
-    sx={{
+    <Grid
+      item
+      xs={12}
+      sx={{
         transition: 'height 0.3s ease',
-        height: showBreakdown
-          ? (isLowHeight ? '100px' : '90px')
-          : (isLowHeight ? '55px' : '30px')
+        height: showBreakdown ? (isLowHeight ? '100px' : '90px') : isLowHeight ? '55px' : '30px'
       }}
     >
-      <Grid
-        flexDirection="column"
-        justifyContent="center"
-        px={3}
-        sx={{ height: '100%' }}
-      >
+      <Grid flexDirection='column' justifyContent='center' px={3} sx={{ height: '100%' }}>
         {visibleTotals.map((item, idx) => {
           const isGrandTotal = item.clickable
 
@@ -38,11 +34,11 @@ const TotalSectionPos = ({ isLowHeight, getTotals,showBreakdown, setShowBreakdow
             <Grid
               container
               key={idx}
-              justifyContent="space-between"
-              alignItems="center"
+              justifyContent='space-between'
+              alignItems='center'
               onClick={isGrandTotal ? () => setShowBreakdown(prev => !prev) : undefined}
               sx={{
-                mb: idx === visibleTotals.length - 1 ? 0 : (isLowHeight ? 0.3 : 0.5),
+                mb: idx === visibleTotals.length - 1 ? 0 : isLowHeight ? 0.3 : 0.5,
                 cursor: isGrandTotal ? 'pointer' : 'default',
                 userSelect: 'none',
                 transition: 'all 0.2s ease'
@@ -60,6 +56,15 @@ const TotalSectionPos = ({ isLowHeight, getTotals,showBreakdown, setShowBreakdow
                 }}
               >
                 {item.label}
+                {isGrandTotal && (
+                  <Icon
+                    icon={showBreakdown ? 'tabler:chevron-up' : 'tabler:chevron-down'}
+                    fontSize={isLowHeight ? 18 : 22}
+                    style={{
+                      transition: 'transform 0.2s ease'
+                    }}
+                  />
+                )}
               </Typography>
               <Typography
                 variant={isLowHeight ? 'body2' : 'h6'}
