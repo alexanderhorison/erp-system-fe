@@ -102,7 +102,8 @@ export default function ModalChargePos({
   listSelectedProduct,
   customer,
   resetAllField,
-  warehouse
+  warehouse,
+  getTotals
 }) {
   const dispatch = useDispatch()
 
@@ -150,7 +151,7 @@ export default function ModalChargePos({
     const totalPayment = getValues('amount')
     listSelectedProduct.forEach(item => {
       subTotal += item.quantity * item.price
-      if (item.isDebt){
+      if (item.isDebt) {
         totalDebt = item.price
       }
       listSendProduct.push({
@@ -236,102 +237,137 @@ export default function ModalChargePos({
             />
           ) : (
             <>
-              {/* Total Harga */}
-              <Box sx={{ textAlign: 'center', mb: 3 }}>
-                <Typography variant='h5' sx={{ fontWeight: 600, color: 'primary.main' }}>
-                  Total Harga
-                </Typography>
-                <Typography variant='h4' sx={{ mt: 1, fontWeight: 700 }}>
-                  Rp {priceFormat(subTotalPrice())}
-                </Typography>
-              </Box>
-
-              {/* Amount Quick Buttons */}
-              <Box sx={{ mb: 3 }}>
-                <AmountButton subTotalPrice={subTotalPrice()} selectAmount={selectAmount} />
-              </Box>
-
-              {/* Input Amount */}
-              <Grid container spacing={3} sx={{ mb: 3 }}>
-                <Grid item xs={12}>
-                  <FormInputPricePos
-                    control={control}
-                    name='amount'
-                    errors={errors}
-                    label='Amount'
-                    disabled={false}
-                    fullWidth
-                  />
-                </Grid>
-              </Grid>
-
               {/* Payment Methods */}
-              <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 1 }}>
-                Pilih Metode Pembayaran
-              </Typography>
+              <Box
+                sx={{
+                  p: 2,
+                  mb: 3,
+                }}
+              >
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  Metode Pembayaran
+                </Typography>
 
-              <Grid container spacing={3} sx={{ mb: 4 }}>
-                {loadingListPaymentType ? (
-                  <Grid item xs={12} sx={{ height: '150px' }} textAlign='center'>
-                    <CircularProgress />
-                  </Grid>
-                ) : (
-                  listPaymentType.map((item, index) => (
-                    <CustomPaymentTypePos
-                      key={index}
-                      data={{
-                        id: item?.id,
-                        title: item?.label,
-                        value: item?.id,
-                        icon: item?.icon,
-                        description: item?.description
-                      }}
-                      selected={selectedPayment?.id}
-                      icon={defaultIconPayment({ icon: item?.icon })}
-                      handleChange={() => setSelectedPayment(item)}
-                      gridProps={{ xs: 3 }}
-                      iconHeight={50}
-                      iconWidth={50}
+                <Grid container spacing={2}>
+                  {loadingListPaymentType ? (
+                    <Grid item xs={12} sx={{ height: '120px' }} textAlign="center">
+                      <CircularProgress />
+                    </Grid>
+                  ) : (
+                    listPaymentType
+                      .map((item, index) => (
+                        <CustomPaymentTypePos
+                          key={index}
+                          data={{
+                            id: item?.id,
+                            title: item?.label,
+                            value: item?.id,
+                            icon: item?.icon,
+                            description: item?.description
+                          }}
+                          selected={selectedPayment?.id}
+                          icon={defaultIconPayment({ icon: item?.icon })}
+                          handleChange={() => setSelectedPayment(item)}
+                          gridProps={{ xs: 4, sm: 3 }}
+                          iconHeight={40}
+                          iconWidth={40}
+                        />
+                      ))
+                  )}
+                </Grid>
+              </Box>
+
+              {/* Input Amount & Quick Buttons */}
+              <Box
+                sx={{
+                  p: 2,
+                  mb: 3,
+                }}
+              >
+                {/* Input Amount */}
+                <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
+                  <Grid item xs={12}>
+                    <FormInputPricePos
+                      control={control}
+                      name="amount"
+                      errors={errors}
+                      label="Amount"
+                      disabled={false}
+                      fullWidth
                     />
-                  ))
-                )}
-              </Grid>
+                  </Grid>
+                </Grid>
 
-              {/* Customer Debt Alert */}
-              {customer?.totalAmountDebtPos > 0 && (
-                <Card
+                {/* Quick Amount Buttons */}
+                <Box
                   sx={{
-                    mt: 3,
-                    p: 2,
-                    border: '2px solid #ef5350',
-                    borderRadius: 2,
-                    bgcolor: '#fff5f5',
-                    boxShadow: '0 0 8px rgba(239, 83, 80, 0.3)'
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 1,
+                    justifyContent: 'flex-start'
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Icon icon='tabler:alert-octagon' color='#ef5350' fontSize='1.5rem' />
-                    <Typography variant='h6' sx={{ color: '#d32f2f', fontWeight: 600 }}>
-                      {customer?.name} memiliki hutang
-                    </Typography>
-                  </Box>
-                  <Typography variant='body2' sx={{ mt: 1, color: '#b71c1c' }}>
-                    total hutang sebesar:
-                  </Typography>
-                  <Typography variant='h5' sx={{ color: '#c62828', fontWeight: 700 }}>
-                    Rp {priceFormat(customer?.totalAmountDebtPos || 0)}
-                  </Typography>
-                </Card>
-              )}
+                  <AmountButton subTotalPrice={subTotalPrice()} selectAmount={selectAmount} />
+                </Box>
+              </Box>
+
+              {/* Ringkasan Transaksi */}
+              <Card
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  mb: 3,
+                  borderRadius: 1,
+                  bgcolor: theme => theme.palette.grey[50],
+                  boxShadow: 'none'
+                }}
+              >
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: 'primary.main' }}>
+                  Ringkasan Transaksi
+                </Typography>
+
+                {(() => {
+                  const { totalBarang, totalHutang, grandTotal } = getTotals();
+                  return [
+                    { label: 'Total Barang', value: priceFormat(totalBarang) },
+                    { label: 'Total Hutang', value: priceFormat(totalHutang) },
+                    { label: 'Grand Total', value: priceFormat(grandTotal) }
+                  ].map((item, idx) => (
+                    <Grid
+                      container
+                      key={idx}
+                      justifyContent="space-between"
+                      alignItems="center"
+                      sx={{
+                        py: 0.6,
+                        borderBottom: idx !== 2 ? theme => `1px dashed ${theme.palette.divider}` : 'none'
+                      }}
+                    >
+                      <Typography
+                        variant="body1"
+                        sx={{ fontWeight: idx === 2 ? 700 : 500, color: idx === 2 ? 'primary.main' : 'text.secondary' }}
+                      >
+                        {item.label}
+                      </Typography>
+                      <Typography
+                        variant={idx === 2 ? 'h6' : 'body1'}
+                        sx={{ fontWeight: idx === 2 ? 700 : 500, color: idx === 2 ? 'primary.main' : 'text.primary' }}
+                      >
+                        Rp {item.value}
+                      </Typography>
+                    </Grid>
+                  ));
+                })()}
+              </Card>
 
               {/* Action Buttons */}
-              <Grid container spacing={2} sx={{ mt: 2 }}>
+              <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <Button
                     fullWidth
-                    variant='outlined'
-                    color='inherit'
-                    size='large'
+                    variant="outlined"
+                    color="inherit"
+                    size="large"
                     onClick={handleClose}
                     sx={{ borderRadius: 2, py: 1.2 }}
                   >
@@ -341,9 +377,9 @@ export default function ModalChargePos({
                 <Grid item xs={6}>
                   <Button
                     fullWidth
-                    variant='contained'
-                    color='primary'
-                    size='large'
+                    variant="contained"
+                    color="primary"
+                    size="large"
                     onClick={handleSubmit(handleSubmitCharge)}
                     disabled={!selectedPayment}
                     sx={{ borderRadius: 2, py: 1.2 }}

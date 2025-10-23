@@ -19,6 +19,7 @@ import ModalEditProductPos from './ModalEditProductPos'
 import ProductCustomField from './ProductCustomField'
 import { autoSavePos, generateIdOpenBill } from 'src/helpers/pos/autoSavePos'
 import Script from 'next/script'
+import TotalSectionPos from './TotalSectionPos'
 
 // Kedepannya jika tambah filter, bisa tambahkan field ini
 const listFilter = [
@@ -66,6 +67,8 @@ export default function PointOfSaleLayout({
   const [selectedProduct, setSelectedProduct] = useState({})
   const [selectedProductEdit, setSelectedProductEdit] = useState({})
   const [selectedCustomerPos, setSelectedCustomerPos] = useState(localStorage.getItem('selectedCustomerPos') ? JSON.parse(localStorage.getItem('selectedCustomerPos')) : {})
+
+  const [showBreakdown, setShowBreakdown] = useState(false)
 
   const [filter, setFilter] = useState({
     type: "COMPANY",
@@ -192,6 +195,25 @@ export default function PointOfSaleLayout({
     })
     return subTotal
   }
+  const getTotals = () => {
+    let total = 0;
+    let hutang = 0;
+
+    fields.forEach((item, index) => {
+      const qty = Number(getValues(`formData[${index}].quantity`)) || 0;
+      const price = Number(getValues(`formData[${index}].price`)) || 0;
+      const subtotal = qty * price;
+
+      if (item.isDebt) hutang = subtotal;
+      total += subtotal;
+    });
+
+    return {
+      totalBarang: total - hutang,
+      totalHutang: hutang,
+      grandTotal: total
+    };
+  };
 
   const resetAllField = () => {
     resetField('formData')
@@ -287,7 +309,7 @@ export default function PointOfSaleLayout({
         maxHeight: '100%',
         overflow: 'hidden',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
       }}
     >
       {/* =============== HEADER SECTION ================= */}
@@ -535,7 +557,7 @@ export default function PointOfSaleLayout({
               flexDirection: 'column'
             }}
           >
-            <Grid container spacing={{ xs: 1, md: 2 }} sx={{ height: '100%' }}>
+            <Grid container spacing={{ xs: 1, md: 2 }} sx={{ height: showBreakdown ? '95%' : '100%' }}>
               <Grid item xs={12} sx={{ height: isLowHeight ? 'calc(100% - 120px)' : 'calc(100% - 180px)' }}>
                 <CartProductPos
                   data={fields}
@@ -553,37 +575,10 @@ export default function PointOfSaleLayout({
               </Grid>
               <Grid item xs={12} sx={{ height: isLowHeight ? '120px' : '180px', flexShrink: 0 }}>
                 <Grid container spacing={{ xs: 1, md: 1 }} sx={{ height: '100%' }}>
-                  <Grid item xs={12} sx={{ height: isLowHeight ? '25px' : '40px' }}>
-                    <Grid container flex flexDirection={'row'} justifyContent={'space-between'} px={isLowHeight ? 2 : 6}>
-                      <Grid item>
-                        <Typography
-                          align='center'
-                          variant={isLowHeight ? 'body2' : 'h6'}
-                          sx={{
-                            marginTop: isLowHeight ? '2px' : '4px',
-                            fontWeight: 'bold',
-                            textWrap: 'wrap'
-                          }}
-                        >
-                          Total:
-                        </Typography>
-                      </Grid>
-                      <Grid item>
-                        <Typography
-                          align='center'
-                          variant={isLowHeight ? 'body2' : 'h6'}
-                          sx={{
-                            marginTop: isLowHeight ? '2px' : '4px',
-                            fontWeight: 'bold',
-                            textWrap: 'wrap'
-                          }}
-                        >
-                          {priceFormat(subTotalPrice()) || "-"}
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={12} sx={{ height: isLowHeight ? '60px' : '80px' }}>
+                  {/* === TOTAL SECTION === */}
+                  <TotalSectionPos isLowHeight={isLowHeight} getTotals={getTotals} showBreakdown={showBreakdown} setShowBreakdown={setShowBreakdown}/>
+                  {/* === BUTTONS: NEXT BILL & CHARGE === */}
+                  <Grid item xs={12} sx={{ height: isLowHeight ? '60px' : '50px' }}>
                     <Grid container spacing={{ xs: 2, md: 4 }} sx={{ height: '100%' }}>
                       <Grid item xs={6}>
                         <Button
@@ -615,6 +610,7 @@ export default function PointOfSaleLayout({
                       </Grid>
                     </Grid>
                   </Grid>
+                  {/* === CLEAR BUTTON === */}
                   <Grid item xs={12} sx={{ height: isLowHeight ? '35px' : '60px' }}>
                     <Button
                       disabled={disableButtonClear}
@@ -684,6 +680,7 @@ export default function PointOfSaleLayout({
           customer={selectedCustomerPos}
           resetAllField={resetAllField}
           warehouse={warehouse}
+          getTotals={getTotals}
         />
       )}
       {openModalEditProduct && (
