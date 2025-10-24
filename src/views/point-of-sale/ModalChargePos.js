@@ -353,7 +353,7 @@ export default function ModalChargePos({
                         variant={idx === 2 ? 'h6' : 'body1'}
                         sx={{ fontWeight: idx === 2 ? 700 : 500, color: idx === 2 ? 'primary.main' : 'text.primary' }}
                       >
-                        Rp {item.value}
+                        Rp {item.value || 0}
                       </Typography>
                     </Grid>
                   ));
