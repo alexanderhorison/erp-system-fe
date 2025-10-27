@@ -150,7 +150,7 @@ export const chargePos = createAsyncThunk(
     try {
       await swalConfirmationChargePos({
         title: `Pembayaran menggunakan ${selectedPayment?.label}?`,
-        text: `Sebesar Rp.${subTotalPrice}`,
+        text: `Sebesar Rp. ${subTotalPrice || 0}`,
         width: 500,
         axiosRequest: () => {
           return axios({

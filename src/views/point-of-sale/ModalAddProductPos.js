@@ -31,6 +31,7 @@ import TransformProductPointOfSale from './TransformProductPointOfSale'
 import ModalAddBasePrice from './ModalAddBasePrice'
 import { fetchMasterDataProductPrice } from 'src/store/apps/master/product-price'
 import { autoSavePos } from 'src/helpers/pos/autoSavePos'
+import { enumActions } from 'src/helpers/enumActions'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -142,6 +143,8 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
     setDataTransformation({ ...selected, qty: getValues('quantity') })
     setOpenModalTransform(true)
   }
+
+  const userData = JSON.parse(localStorage.getItem('userData'))
 
   return (
     <>
@@ -352,20 +355,24 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
                             <Typography variant='h6' sx={{ color: 'text.primary' }}>
                               Harga
                             </Typography>
-                            <Typography
-                              variant='subtitle2'
-                              sx={{
-                                cursor: 'pointer',
-                                color: 'text.secondary',
-                                textDecoration: 'underline',
-                                fontSize: '0.8rem'
-                              }}
-                              onClick={() => {
-                                setOpenModalBasePrice(true)
-                              }}
-                            >
-                              Add Base Price
-                            </Typography>
+                            {
+                              userData?.actions?.includes(enumActions.EDIT_POS_BASE_PRICE.value) && (
+                                <Typography
+                                  variant='subtitle2'
+                                  sx={{
+                                    cursor: 'pointer',
+                                    color: 'text.secondary',
+                                    textDecoration: 'underline',
+                                    fontSize: '0.8rem'
+                                  }}
+                                  onClick={() => {
+                                    setOpenModalBasePrice(true)
+                                  }}
+                                >
+                                  Add Base Price
+                                </Typography>
+                              )
+                            }
                           </Box>
                           <Grid container spacing={2}>
                             <Grid item xs={12}>
@@ -374,7 +381,7 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
                                 name='price'
                                 errors={errors}
                                 label=''
-                                disabled={selected?.basePrice !== 0 || !selected}
+                                disabled={selected?.basePrice != 0 || !selected}
                                 fullWidth
                               />
                             </Grid>

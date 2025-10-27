@@ -117,7 +117,7 @@ export default function ModalChargePos({
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    amount: yup.number().min(1, 'Nominal harus diisi').required('Harga harus diisi')
+    amount: yup.number().min(0, 'Nominal harus diisi').required('Harga harus diisi')
   })
 
   const {
@@ -177,6 +177,7 @@ export default function ModalChargePos({
       paymentTypeId: selectedPayment.id,
       totalDebt: totalDebt
     }
+    console.log('sendData', totalPayment)
 
     // JIKA ADA HUTANG, HARUS ADA CUSTOMERNYA
     if (sendData.totalPayment - sendData.grandTotal < 0 && !sendData.customerId) {

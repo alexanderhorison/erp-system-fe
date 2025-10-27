@@ -48,6 +48,16 @@ export default function TableMasterProductPrice({ product }) {
       editable: true,
       type: 'number',
       align: 'left',
+      headerName: 'Base Price Pos',
+      field: 'basePricePos',
+      headerAlign: 'left'
+    },
+    {
+      flex: 0.15,
+      minWidth: 200,
+      editable: true,
+      type: 'number',
+      align: 'left',
       headerName: 'Master Modal',
       field: 'masterModal',
       headerAlign: 'left'
@@ -58,8 +68,8 @@ export default function TableMasterProductPrice({ product }) {
     // Mengidentifikasi kolom yang diubah
     const changedField = Object.keys(newRow).find(key => newRow[key] !== oldRow[key]);
     console.log(newRow);
-    
-    if (changedField === 'basePrice') {
+
+    if (['basePrice', 'basePricePos'].includes(changedField)) {
       if (newRow.basePrice < 0) {
         newRow.basePrice = 0
         swal.fire({
@@ -68,9 +78,17 @@ export default function TableMasterProductPrice({ product }) {
           timer: 2000,
           confirmButtonColor: '#6F4E37'
         })
-      } else {
-        dispatch(addMasterDataProductPrice(newRow))
       }
+      if (newRow.basePricePos < 0) {
+        newRow.basePricePos = 0
+        swal.fire({
+          icon: 'error',
+          title: 'Base price pos harus lebih dari 0',
+          timer: 2000,
+          confirmButtonColor: '#6F4E37'
+        })
+      }
+      dispatch(addMasterDataProductPrice(newRow))
       return newRow
     } else if (changedField === 'masterModal') {
       if (newRow.masterModal < 0) {

@@ -34,30 +34,30 @@ export default function ModalAddBasePrice({ open, setOpen, product, setSelected 
       headerName: 'Product'
     },
     {
-      flex: 0.25,
+      flex: 0.15,
       minWidth: 230,
       field: 'unitName',
       editable: false,
       headerName: 'Unit'
     },
     {
-      flex: 0.15,
+      flex: 0.20,
       minWidth: 200,
       editable: true,
       type: 'number',
       align: 'left',
-      headerName: 'Base Price',
-      field: 'basePrice',
+      headerName: 'Base Price Pos',
+      field: 'basePricePos',
       headerAlign: 'left'
     }
   ]
 
   const onChangeVal = (newRow, oldRow) => {
-    if (newRow.basePrice < 0) {
-      newRow.basePrice = 0
+    if (newRow.basePricePos < 0) {
+      newRow.basePricePos = 0
       swal.fire({
         icon: 'error',
-        title: 'Base price harus lebih dari 0',
+        title: 'Base price pos harus lebih dari 0',
         timer: 2000,
         confirmButtonColor: '#6F4E37'
       })
