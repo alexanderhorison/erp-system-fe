@@ -1,10 +1,4 @@
-import {
-  Box,
-  Button,
-  Grid,
-  MenuItem,
-  Typography
-} from '@mui/material'
+import { Box, Button, Grid, MenuItem, Typography } from '@mui/material'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useSelector } from 'react-redux'
@@ -26,20 +20,19 @@ const listFilter = [
   {
     id: 1,
     name: 'Company',
-    value: "COMPANY"
+    value: 'COMPANY'
   },
   {
     id: 2,
     name: 'Type',
-    value: "TYPE"
+    value: 'TYPE'
   },
   {
     id: 3,
     name: 'Category',
-    value: "CATEGORY"
-  },
+    value: 'CATEGORY'
+  }
 ]
-
 
 export default function PointOfSaleLayout({
   showFilter,
@@ -66,14 +59,16 @@ export default function PointOfSaleLayout({
 
   const [selectedProduct, setSelectedProduct] = useState({})
   const [selectedProductEdit, setSelectedProductEdit] = useState({})
-  const [selectedCustomerPos, setSelectedCustomerPos] = useState(localStorage.getItem('selectedCustomerPos') ? JSON.parse(localStorage.getItem('selectedCustomerPos')) : {})
+  const [selectedCustomerPos, setSelectedCustomerPos] = useState(
+    localStorage.getItem('selectedCustomerPos') ? JSON.parse(localStorage.getItem('selectedCustomerPos')) : {}
+  )
 
   const [showBreakdown, setShowBreakdown] = useState(false)
 
   const [filter, setFilter] = useState({
-    type: "COMPANY",
-    typeValue: "ALL",
-    typeProduct: "ALL"
+    type: 'COMPANY',
+    typeValue: 'ALL',
+    typeProduct: 'ALL'
   })
 
   // FORM BUAT FILTER
@@ -83,9 +78,9 @@ export default function PointOfSaleLayout({
     setValue: setValueFilter
   } = useForm({
     defaultValues: {
-      typeFilter: "COMPANY",
+      typeFilter: 'COMPANY',
       typeProduct: 'ALL',
-      typeValue: 'ALL',
+      typeValue: 'ALL'
     }
   })
   const filterForm = watchFilter()
@@ -102,9 +97,9 @@ export default function PointOfSaleLayout({
     watch
   } = useForm({
     values: {
-      formData: localStorage.getItem('listProductPos') ? JSON.parse(localStorage.getItem('listProductPos')) : [],
+      formData: localStorage.getItem('listProductPos') ? JSON.parse(localStorage.getItem('listProductPos')) : []
     },
-    mode: 'onChange',
+    mode: 'onChange'
     // resolver: yupResolver(schema)
   })
 
@@ -116,40 +111,36 @@ export default function PointOfSaleLayout({
 
   const filteredProducts = useMemo(() => {
     const { typeFilter, typeValue, typeProduct } = filterForm
-    if (typeValue === "ALL" && typeProduct === "ALL") {
-      return listProductPos;
+    if (typeValue === 'ALL' && typeProduct === 'ALL') {
+      return listProductPos
     }
 
     const filterKey = {
-      CATEGORY: "categoryId",
-      TYPE: "typeId",
-      COMPANY: "companyId",
-    }[typeFilter];
+      CATEGORY: 'categoryId',
+      TYPE: 'typeId',
+      COMPANY: 'companyId'
+    }[typeFilter]
 
-    return listProductPos.filter((el) => {
+    return listProductPos.filter(el => {
       // Check typeValue condition
-      const matchesTypeValue = typeValue === "ALL" || (filterKey && el[filterKey] === typeValue);
+      const matchesTypeValue = typeValue === 'ALL' || (filterKey && el[filterKey] === typeValue)
       // Check typeProduct condition
       const matchesTypeProduct =
-        typeProduct === "ALL"
-          ? true
-          : typeProduct === "favorite"
-            ? el.isFavorite === true
-            : true
+        typeProduct === 'ALL' ? true : typeProduct === 'favorite' ? el.isFavorite === true : true
 
       // Combine both conditions with AND
-      return matchesTypeValue && matchesTypeProduct;
-    });
-  }, [filterForm, listProductPos]);
+      return matchesTypeValue && matchesTypeProduct
+    })
+  }, [filterForm, listProductPos])
 
   const listLeftFilter = useMemo(() => {
-    if (filterForm.typeFilter === "COMPANY") {
+    if (filterForm.typeFilter === 'COMPANY') {
       return companyData
     }
-    if (filterForm.typeFilter === "TYPE") {
+    if (filterForm.typeFilter === 'TYPE') {
       return typeData
     }
-    if (filterForm.typeFilter === "CATEGORY") {
+    if (filterForm.typeFilter === 'CATEGORY') {
       return categoryData
     }
     return []
@@ -169,7 +160,9 @@ export default function PointOfSaleLayout({
 
   const helperTextPrice = index => {
     const info = {
-      detailItem: `${getValues(`formData[${index}].unitName`) ? getValues(`formData[${index}].unitName`) : ''} ${getValues(`formData[${index}].unitName`) ? `@` : ''} ${priceFormatWithZero(getValues(`formData[${index}].price`))}`
+      detailItem: `${getValues(`formData[${index}].unitName`) ? getValues(`formData[${index}].unitName`) : ''} ${
+        getValues(`formData[${index}].unitName`) ? `@` : ''
+      } ${priceFormatWithZero(getValues(`formData[${index}].price`))}`
     }
     return info
   }
@@ -196,24 +189,24 @@ export default function PointOfSaleLayout({
     return subTotal
   }
   const getTotals = () => {
-    let total = 0;
-    let hutang = 0;
+    let total = 0
+    let hutang = 0
 
     fields.forEach((item, index) => {
-      const qty = Number(getValues(`formData[${index}].quantity`)) || 0;
-      const price = Number(getValues(`formData[${index}].price`)) || 0;
-      const subtotal = qty * price;
+      const qty = Number(getValues(`formData[${index}].quantity`)) || 0
+      const price = Number(getValues(`formData[${index}].price`)) || 0
+      const subtotal = qty * price
 
-      if (item.isDebt) hutang = subtotal;
-      total += subtotal;
-    });
+      if (item.isDebt) hutang = subtotal
+      total += subtotal
+    })
 
     return {
       totalBarang: total - hutang,
       totalHutang: hutang,
       grandTotal: total
-    };
-  };
+    }
+  }
 
   const resetAllField = () => {
     resetField('formData')
@@ -242,7 +235,7 @@ export default function PointOfSaleLayout({
     setValueFilter('typeProduct', 'favorite')
     setFilter({
       ...filter,
-      typeProduct: "favorite"
+      typeProduct: 'favorite'
     })
     setShowProduct(true)
   }
@@ -266,7 +259,7 @@ export default function PointOfSaleLayout({
         onClickYes: () => {
           autoSavePos()
           resetAllField()
-        },
+        }
       })
     }
   }
@@ -280,25 +273,24 @@ export default function PointOfSaleLayout({
 
   useEffect(() => {
     if (selectedCustomerPos && selectedCustomerPos?.totalAmountDebtPos) {
-      if (!formField.find((item) => item.isDebt)) {
+      if (!formField.find(item => item.isDebt)) {
         append({
           isCustom: true,
           isDebt: true,
           debtDate: selectedCustomerPos.lastDateDebtPos,
           price: selectedCustomerPos.totalAmountDebtPos,
-          productName: "Custom Amount",
+          productName: 'Custom Amount',
           quantity: 1,
           subTotal: selectedCustomerPos.totalAmountDebtPos,
-          title: "Custom Amount",
+          title: 'Custom Amount',
           warehouseProductId: null,
-          notes: `Hutang ${selectedCustomerPos.lastDateDebtPos}`,
+          notes: `Hutang ${selectedCustomerPos.lastDateDebtPos}`
         })
       }
     } else {
       // Remove debt if customer has no debt
-      const findDebtIndex = formField.findIndex((item) => item.isDebt)
-      if (findDebtIndex !== -1)
-        remove(findDebtIndex)
+      const findDebtIndex = formField.findIndex(item => item.isDebt)
+      if (findDebtIndex !== -1) remove(findDebtIndex)
     }
   }, [selectedCustomerPos])
 
@@ -309,7 +301,7 @@ export default function PointOfSaleLayout({
         maxHeight: '100%',
         overflow: 'hidden',
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: 'column'
       }}
     >
       {/* =============== HEADER SECTION ================= */}
@@ -332,7 +324,6 @@ export default function PointOfSaleLayout({
                         ...filter,
                         type: e.target.value
                       })
-
                     }
                   }}
                 >
@@ -349,7 +340,7 @@ export default function PointOfSaleLayout({
           </Grid>
           {/* FILTER BODY PRODUCT */}
           <Grid item xs={12} md={6}>
-            <Grid container spacing={{ xs: 1, md: 3 }} justifyContent="center" alignItems="center">
+            <Grid container spacing={{ xs: 1, md: 3 }} justifyContent='center' alignItems='center'>
               <Grid item xs={4} md={4}>
                 <Button
                   fullWidth
@@ -385,9 +376,7 @@ export default function PointOfSaleLayout({
           {/* ADD CUSTOMER */}
           <Grid item xs={12} md={showFilter ? 4 : 6}>
             <Button fullWidth variant='contained' onClick={handleClickAddCustomer}>
-              {
-                selectedCustomerPos?.name ? `${selectedCustomerPos.name}` : 'Add Customer'
-              }
+              {selectedCustomerPos?.name ? `${selectedCustomerPos.name}` : 'Add Customer'}
             </Button>
           </Grid>
         </Grid>
@@ -436,17 +425,17 @@ export default function PointOfSaleLayout({
                 <Grid item xs={6} sm={4} md={4} key={999}>
                   <Button
                     fullWidth={true}
-                    variant={filterForm.typeValue === "ALL" ? 'contained' : 'outlined'}
+                    variant={filterForm.typeValue === 'ALL' ? 'contained' : 'outlined'}
                     sx={{
                       height: 40,
                       textWrap: 'wrap',
                       textAlign: 'center'
                     }}
                     onClick={() => {
-                      setValueFilter('typeValue', "ALL")
+                      setValueFilter('typeValue', 'ALL')
                       setFilter({
                         ...filter,
-                        typeValue: "ALL"
+                        typeValue: 'ALL'
                       })
                     }}
                   >
@@ -507,7 +496,7 @@ export default function PointOfSaleLayout({
                   <Grid item xs={6} sm={4} md={4} key={index}>
                     <Button
                       fullWidth
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation()
                         setSelectedProduct(data)
                         handleClickProduct()
@@ -557,7 +546,24 @@ export default function PointOfSaleLayout({
               flexDirection: 'column'
             }}
           >
-            <Grid container spacing={{ xs: 1, md: 2 }} sx={{ height: showBreakdown ? '95%' : '100%' }}>
+            {/* <Grid container spacing={{ xs: 1, md: 2 }} sx={{ height: showBreakdown ? '95%' : '100%' }}> */}
+            <Box
+              sx={{
+                flexGrow: 1,
+                overflowY: 'auto',
+                pr: 1, // for scrollbar spacing
+                '&::-webkit-scrollbar': { width: 6 },
+                '&::-webkit-scrollbar-thumb': {
+                  backgroundColor: '#c1c1c1',
+                  borderRadius: 3
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  backgroundColor: '#a0a0a0'
+                },
+                transition: 'max-height 0.3s ease',
+                height: showBreakdown ? '95%' : '100%'
+              }}
+            >
               <Grid item xs={12} sx={{ height: isLowHeight ? 'calc(100% - 120px)' : 'calc(100% - 180px)' }}>
                 <CartProductPos
                   data={fields}
@@ -573,10 +579,15 @@ export default function PointOfSaleLayout({
                   isLowHeight={isLowHeight}
                 />
               </Grid>
-              <Grid item xs={12} sx={{ height: isLowHeight ? '120px' : '180px', flexShrink: 0 }}>
+              <Grid item xs={12} sx={{ height: isLowHeight ? '120px' : '180px', mt: 2, flexShrink: 0 }}>
                 <Grid container spacing={{ xs: 1, md: 1 }} sx={{ height: '100%' }}>
                   {/* === TOTAL SECTION === */}
-                  <TotalSectionPos isLowHeight={isLowHeight} getTotals={getTotals} showBreakdown={showBreakdown} setShowBreakdown={setShowBreakdown}/>
+                  <TotalSectionPos
+                    isLowHeight={isLowHeight}
+                    getTotals={getTotals}
+                    showBreakdown={showBreakdown}
+                    setShowBreakdown={setShowBreakdown}
+                  />
                   {/* === BUTTONS: NEXT BILL & CHARGE === */}
                   <Grid item xs={12} sx={{ height: isLowHeight ? '60px' : '50px' }}>
                     <Grid container spacing={{ xs: 2, md: 4 }} sx={{ height: '100%' }}>
@@ -638,15 +649,16 @@ export default function PointOfSaleLayout({
                   </Grid>
                 </Grid>
               </Grid>
-            </Grid>
+            </Box>
+            {/* </Grid> */}
           </Grid>
 
           <Script
-            src="/epos-2.27.0.js"
-            strategy="afterInteractive"
+            src='/epos-2.27.0.js'
+            strategy='afterInteractive'
             onLoad={() => {
               setScriptEpos(true)
-              console.log("📜 ePOS SDK Loaded")
+              console.log('📜 ePOS SDK Loaded')
             }}
           />
         </Grid>
@@ -658,7 +670,7 @@ export default function PointOfSaleLayout({
           open={openModalProduct}
           setOpen={setOpenModalProduct}
           data={selectedProduct}
-          typeModal={"ADD"}
+          typeModal={'ADD'}
           addProduct={append}
           fields={fields}
         />

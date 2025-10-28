@@ -20,7 +20,7 @@ const TotalSectionPos = ({ isLowHeight, getTotals, showBreakdown, setShowBreakdo
       xs={12}
       sx={{
         transition: 'height 0.3s ease',
-        height: showBreakdown ? (isLowHeight ? '100px' : '90px') : isLowHeight ? '55px' : '30px'
+        height: showBreakdown ? (isLowHeight ? '80px' : '90px') : isLowHeight ? '40px' : '30px'
       }}
     >
       <Grid flexDirection='column' justifyContent='center' px={3} sx={{ height: '100%' }}>
