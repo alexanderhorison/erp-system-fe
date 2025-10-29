@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Checkbox, Divider, FormControlLabel, Grid, IconButton, Typography, useTheme } from '@mui/material'
+import { Button, Card, CardContent, Checkbox, CircularProgress, Divider, FormControlLabel, Grid, IconButton, Typography, useTheme } from '@mui/material'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -19,7 +19,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
-import { Box, getValue } from '@mui/system'
+import { Box } from '@mui/system'
 import ModalTransformProductSalesOrder from './ModalTransformProductSalesOrder'
 import ModalAddMasterCustomer from '../master/customer/ModalAddMasterCustomer'
 import { fetchOneMasterDataModal } from 'src/store/apps/master/modal'
@@ -47,6 +47,7 @@ export default function AddSalesOrder({}) {
 
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
   const { data: masterCustomer } = useSelector(state => state.masterCustomer)
+  const { loadingCreateSalesOrder } = useSelector(state => state.salesOrder)
 
   const schema = yup.object({
     customerId: yup.string().required('Customer harus diisi'),
@@ -1222,17 +1223,28 @@ export default function AddSalesOrder({}) {
             justifyContent='flex-end'
             gap={6}
           >
-            <Button
-              variant='tonal'
-              color='secondary'
-              onClick={() => router.back()}
-              startIcon={<Icon icon='tabler:x' />}
-            >
-              Cancel
-            </Button>
-            <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-              Submit
-            </Button>
+            {
+              loadingCreateSalesOrder ? (
+                <Button variant='contained' disabled>
+                  <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                  Submitting...
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant='tonal'
+                    color='secondary'
+                    onClick={() => router.back()}
+                    startIcon={<Icon icon='tabler:x' />}
+                  >
+                    Cancel
+                  </Button>
+                  <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
+                    Submit
+                  </Button>
+                </>
+              )
+            }
           </Grid>
         </Grid>
       </form>

@@ -1,6 +1,6 @@
 import { useTheme } from '@emotion/react'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, IconButton, Grid, Typography, Divider, FormControlLabel, Checkbox } from '@mui/material'
+import { Button, Card, CardContent, IconButton, Grid, Typography, Divider, FormControlLabel, Checkbox, CircularProgress } from '@mui/material'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
@@ -53,6 +53,7 @@ export default function AddPurchaseOrder({ }) {
   const { data: listMasterProduct } = useSelector(state => state.masterProduct)
   const { dataListProductWarehouse: listProductBarter } = useSelector(state => state.deliveryOrder)
   const { data: listMasterUnit } = useSelector(state => state.unit)
+  const { loadingCreatePurchaseOrder } = useSelector(state => state.purchaseOrder)
 
   // ** Validation
   const schema = yup.object({
@@ -1251,17 +1252,28 @@ export default function AddPurchaseOrder({ }) {
             justifyContent='flex-end'
             gap={6}
           >
-            <Button
-              variant='tonal'
-              color='secondary'
-              onClick={() => router.back()}
-              startIcon={<Icon icon='tabler:x' />}
-            >
-              Cancel
-            </Button>
-            <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-              Submit
-            </Button>
+            {
+              loadingCreatePurchaseOrder ? (
+                <Button variant='contained' disabled>
+                  <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                  Submitting...
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant='tonal'
+                    color='secondary'
+                    onClick={() => router.back()}
+                    startIcon={<Icon icon='tabler:x' />}
+                  >
+                    Cancel
+                  </Button>
+                  <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
+                    Submit
+                  </Button>
+                </>
+              )
+            }
           </Grid>
         </Grid>
       </form>

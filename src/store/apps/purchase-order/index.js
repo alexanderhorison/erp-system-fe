@@ -177,11 +177,23 @@ export const appMasterProductSlice = createSlice({
 
     dataPurchaseOrderVendor: [],
     loadingDataPurchaseOrderVendor: true,
-    errorDataPurchaseOrderVendor: false
+    errorDataPurchaseOrderVendor: false,
+
+    loadingCreatePurchaseOrder: false
   },
   reducers: {},
   extraReducers: builder => {
     builder
+     .addCase(createPurchaseOrder.pending, (state, action) => {
+        state.loadingCreatePurchaseOrder = true
+      })
+      .addCase(createPurchaseOrder.fulfilled, (state, action) => {
+        state.loadingCreatePurchaseOrder = false
+      })
+      .addCase(createPurchaseOrder.rejected, (state, action) => {
+        state.loadingCreatePurchaseOrder = false
+      })
+
       .addCase(fetchAllPurchaseOrder.pending, (state, action) => {
         state.loadingDataPurchaseOrder = true
       })
