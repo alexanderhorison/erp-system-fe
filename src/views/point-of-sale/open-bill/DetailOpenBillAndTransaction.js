@@ -161,18 +161,18 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
                   </Box>
                   {type === 'transaction' && (
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography variant='subtitle1'>Total Payment:</Typography>
+                      <Typography variant='body1'>{priceFormatWIthCurrency(mappedData?.totalPayment)}</Typography>
+                    </Box>
+                  )}
+                  {type === 'transaction' && (
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant='subtitle1'>
                         {mappedData?.change >= 0 ? `Change:` : 'Hutang: '}
                       </Typography>
                       <Typography variant='body1'
                         sx={{ color: `${mappedData?.change >= 0 ? '' : '#ff0000ff'}` }}
                       >{priceFormatWIthCurrency(Math.abs(mappedData?.change))}</Typography>
-                    </Box>
-                  )}
-                  {type === 'transaction' && (
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant='subtitle1'>Total Payment:</Typography>
-                      <Typography variant='body1'>{priceFormatWIthCurrency(mappedData?.totalPayment)}</Typography>
                     </Box>
                   )}
                 </Box>

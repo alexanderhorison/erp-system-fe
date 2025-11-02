@@ -18,12 +18,14 @@ import { editRole, fetchOneRole } from 'src/store/apps/role'
 import ButtonBack from 'src/views/common/ButtonBack'
 import Icon from 'src/@core/components/icon'
 import CustomTextField from 'src/@core/components/mui/text-field'
+import { enumActions } from 'src/helpers/enumActions'
 
 export default function DetailRole() {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = useRouter().query.id
   const [checkedMenuIds, setCheckedMenuIds] = useState([])
+  const [checkedActions, setCheckedActions] = useState([])
 
   const { detailRole, loadingDetail, errorDetail } = useSelector(state => state.role)
 
@@ -36,9 +38,14 @@ export default function DetailRole() {
     event.preventDefault()
     if (!inputField.name) {
     } else {
+      const listActions = checkedActions.map(actionName => ({
+        menuId: enumActions[actionName]?.menuId,
+        name: actionName
+      }))
       const data = {
         ...inputField,
-        menuId: checkedMenuIds
+        menuId: checkedMenuIds,
+        actions: listActions
       }
       dispatch(editRole({ id, data, router }))
     }
@@ -360,8 +367,13 @@ export default function DetailRole() {
                 <MenuItem
                   name={'Point Of Sale'}
                   menuId={27}
+                  actions={[
+                    enumActions.EDIT_POS_BASE_PRICE,
+                  ]}
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
+                  setCheckedActions={setCheckedActions}
+                  checkedActions={checkedActions}
                 />
               </List>
             </Grid>
@@ -380,25 +392,81 @@ export default function DetailRole() {
   )
 }
 
-const MenuItem = ({ name, menuId, setCheckedMenuIds, checkedMenuIds }) => {
+const MenuItem = ({
+  name, menuId, setCheckedMenuIds, checkedMenuIds,
+  actions = [],
+  checkedActions = [], // ✅ default fallback
+  setCheckedActions = () => {}, // ✅ no-op if not passed
+}) => {
+  const { detailRole } = useSelector(state => state.role)
+
+  useEffect(() => {
+    if (detailRole) {
+      // If role has this menuId, check it
+      const hasMenu = detailRole.menuId?.includes(menuId)
+      if (hasMenu && !checkedMenuIds?.includes(menuId)) {
+        setCheckedMenuIds((prev = []) => [...prev, menuId])
+      }
+
+      // Find which actions belong to this menuId
+      const roleActionsForMenu = detailRole.actions
+        ?.filter((a) => a.menuId === menuId)
+        ?.map((a) => a.name)
+
+      // Initialize checkedActions for this menu
+      if (roleActionsForMenu?.length) {
+        setCheckedActions(roleActionsForMenu)
+      }
+    }
+  }, [detailRole, menuId])
+
+  const handleMenuChange = (event) => {
+    if (event.target.checked) {
+      setCheckedMenuIds([...checkedMenuIds, menuId])
+    } else {
+      setCheckedMenuIds(checkedMenuIds.filter(id => id !== menuId))
+      setCheckedActions([]) // uncheck actions if menu unchecked
+    }
+  }
+
+  const handleActionChange = (action) => {
+    if (checkedActions.includes(action)) {
+      setCheckedActions(checkedActions.filter(a => a !== action))
+    } else {
+      setCheckedActions([...checkedActions, action])
+    }
+  }
+
   return (
-    <ListItem sx={{ padding: '5px' }}>
+    <ListItem sx={{ flexDirection: 'column', alignItems: 'flex-start', p: 1 }}>
+      {/* Main menu checkbox */}
       <FormControlLabel
         control={
           <Checkbox
             checked={checkedMenuIds?.includes(menuId)}
-            value={menuId}
-            onChange={event => {
-              if (event.target.checked) {
-                setCheckedMenuIds([...checkedMenuIds, menuId])
-              } else {
-                setCheckedMenuIds(checkedMenuIds.filter(id => id !== menuId))
-              }
-            }}
+            onChange={handleMenuChange}
           />
         }
         label={name}
       />
+
+      {/* Render nested actions if menu is checked and actions exist */}
+      {checkedMenuIds?.includes(menuId) && actions.length > 0 && (
+        <Box sx={{ pl: 4 }}>
+          {actions.map(action => (
+            <FormControlLabel
+              key={action?.value}
+              control={
+                <Checkbox
+                  checked={checkedActions.includes(action.value)}
+                  onChange={() => handleActionChange(action.value)}
+                />
+              }
+              label={action?.label}
+            />
+          ))}
+        </Box>
+      )}
     </ListItem>
   )
 }

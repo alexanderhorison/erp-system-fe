@@ -185,11 +185,23 @@ export const appMasterProductSlice = createSlice({
 
     dataSalesOrderCustomer: [],
     loadingDataSalesOrderCustomer: true,
-    errorDataSalesOrderCustomer: false
+    errorDataSalesOrderCustomer: false,
+
+    loadingCreateSalesOrder: false
   },
   reducers: {},
   extraReducers: builder => {
     builder
+      .addCase(createSalesOrder.pending, (state, action) => {
+        state.loadingCreateSalesOrder = true
+      })
+      .addCase(createSalesOrder.fulfilled, (state, action) => {
+        state.loadingCreateSalesOrder = false
+      })
+      .addCase(createSalesOrder.rejected, (state, action) => {
+        state.loadingCreateSalesOrder = false
+      })
+
       .addCase(fetchAllSalesOrder.pending, (state, action) => {
         state.loadingDataSalesOrder = true
       })

@@ -73,17 +73,6 @@ const ToolbarPurchaseOrder = ({ id, data }) => {
       <Card>
         <CardContent>
           <DownloadButton url={'purchase-order'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
-          {/* <Button
-            fullWidth
-            sx={{ mb: 2, '& svg': { mr: 2 } }}
-            target='_blank'
-            variant='contained'
-            component={Link}
-            href={`/purchase-order/print/${id}`}
-          >
-            <Icon fontSize='1.125rem' icon='tabler:printer' />
-            Cetak / Print
-          </Button> */}
           <Button fullWidth sx={{ mb: 2, '& svg': { mr: 2 } }} variant='contained' onClick={handleClick}>
             <Icon fontSize='1.125rem' icon='tabler:mail' />
             Kirim Email
