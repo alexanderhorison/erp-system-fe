@@ -102,36 +102,78 @@ export default function TableMasterCustomer({ }) {
             field: 'name',
             headerName: 'Nama Customer',
             renderCell: params => {
+              const isPosCustomer = params?.row?.isPosCustomer
               return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.name}
-                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                    {params.row.name}
+                  </Typography>
+                  {isPosCustomer && (
+                    <Box
+                      sx={{
+                        backgroundColor: 'primary.main',
+                        color: 'primary.contrastText',
+                        fontSize: '0.6rem',
+                        fontWeight: 400,
+                        borderRadius: '3px',
+                        padding: '1px 4px',
+                        width: 'fit-content',
+                        textAlign: 'center',
+                        opacity: 0.8
+                      }}
+                    >
+                      POS
+                    </Box>
+                  )}
+                </Box>
               )
             }
           },
           {
-            flex: 0.08,
-            minWidth: 100,
-            field: 'phoneNumber',
-            headerName: 'Nomor Telepon',
+            flex: 0.15,
+            minWidth: 140,
+            field: 'contact',
+            headerName: 'Email / Nomor Telepon',
             renderCell: params => {
+              const email = params?.row?.email || ''
+              const phoneNumber = params?.row?.phoneNumber || ''
+
+              // Jika keduanya kosong, tampilkan -
+              if (!email && !phoneNumber) {
+                return (
+                  <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                    -
+                  </Typography>
+                )
+              }
+
+              // Jika hanya salah satu yang ada, tampilkan yang ada saja
+              if (email && !phoneNumber) {
+                return (
+                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                    {email}
+                  </Typography>
+                )
+              }
+
+              if (!email && phoneNumber) {
+                return (
+                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                    {phoneNumber}
+                  </Typography>
+                )
+              }
+
+              // Jika keduanya ada, tampilkan email di atas dan nomor telepon di bawah
               return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params?.row?.phoneNumber}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.1,
-            minWidth: 100,
-            field: 'email',
-            headerName: 'Email',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params?.row?.email}
-                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Typography variant='body2' sx={{ color: 'text.primary', fontSize: '0.8rem', opacity: 0.9 }}>
+                    {email}
+                  </Typography>
+                  <Typography variant='body2' sx={{ color: 'text.secondary', fontSize: '0.8rem', opacity: 0.8 }}>
+                    {phoneNumber}
+                  </Typography>
+                </Box>
               )
             }
           },

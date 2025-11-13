@@ -8,6 +8,7 @@ import ButtonBack from 'src/views/common/ButtonBack'
 import CustomTab from 'src/views/common/CustomTab'
 import DetailCustomer from 'src/views/master/customer/DetailCustomer'
 import SummaryCustomer from 'src/views/master/customer/SummaryCustomer'
+import SummaryPosCustomer from 'src/views/master/customer/TablePosCustomer'
 import TableSalesOrderCustomer from 'src/views/master/customer/TableSalesOrderCustomer'
 
 export default function DetailMasterCustomer() {
@@ -32,7 +33,7 @@ export default function DetailMasterCustomer() {
       icon: 'tabler:wallet'
     },
     {
-      label: 'Sales Order',
+      label: detailCustomer.isPosCustomer ? 'Transaction POS' : 'Sales Order',
       value: 'sales-order',
       icon: 'tabler:truck-delivery'
     }
@@ -58,8 +59,11 @@ export default function DetailMasterCustomer() {
           </Grid>
         )}
         {activeTab === 'sales-order' && (
-          <Grid item xs={12}>
-            <TableSalesOrderCustomer />
+          <Grid item xs={12} sx={{ mt: 3 }}>
+            {
+              // Jika POS customer, tampilkan summary POS
+              detailCustomer.isPosCustomer ? <SummaryPosCustomer /> : <TableSalesOrderCustomer />
+            }
           </Grid>
         )}
       </Grid>

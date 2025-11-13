@@ -27,8 +27,17 @@ export default function SummaryCustomer() {
     state => state.dashboard
   )
 
+  const { detail: detailCustomer } = useSelector(state => state.masterCustomer)
+
   const renderStats = () => {
-    return data?.slice(2)?.map((item, index) => (
+    let filteredData = data?.slice(2)
+
+    // Jika POS customer, hilangkan field Total Barter
+    if (detailCustomer?.isPosCustomer) {
+      filteredData = filteredData?.filter(item => item.name !== 'totalAmountBarterSalesOrder')
+    }
+
+    return filteredData?.map((item, index) => (
       <Grid item xs={6} key={index}>
         <Card sx={{ textAlign: 'center' }}>
           <CardContent>
