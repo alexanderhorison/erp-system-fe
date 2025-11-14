@@ -12,11 +12,14 @@ import { useSelector } from 'react-redux'
 import { CircularProgress } from '@mui/material'
 
 export default function TableHeaderPointOfSale(props) {
-  const { printerStatus } = useSelector(state => state.printer)
+  const { printerHealthStatus, loadingPrinterHealth } = useSelector(state => state.printer)
   const printerPos = localStorage.getItem('printerPos') ? JSON.parse(localStorage.getItem('printerPos')) : null
 
-  const isConnected = printerStatus.connected
-  const isLoading = printerStatus.loading
+  // Find health status for selected printer based on IP
+  const healthStatus = printerHealthStatus?.find(status => status.ip === printerPos?.ip)
+
+  const isConnected = healthStatus?.status === 'ONLINE'
+  const isLoading = loadingPrinterHealth
 
   // Status printer akan di-fetch dari backend dan masuk ke Redux
   // Tidak perlu manual connect lagi dari frontend

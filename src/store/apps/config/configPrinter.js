@@ -29,7 +29,8 @@ export const fetchAllPrinter = createAsyncThunk(
         method: 'POST',
         url: '/config/all',
         data: {
-          category: 'PRINTER'
+          category: 'PRINTER',
+          key: 'PRINTER_POS'
         }
       })
       return response.data.data

@@ -168,7 +168,7 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
                   {type === 'transaction' && (
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant='subtitle1'>
-                        {mappedData?.change >= 0 ? `Change:` : 'Hutang: '}
+                        {mappedData?.change >= 0 ? `Change:` : 'Sisa Hutang: '}
                       </Typography>
                       <Typography variant='body1'
                         sx={{ color: `${mappedData?.change >= 0 ? '' : '#ff0000ff'}` }}

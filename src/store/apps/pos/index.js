@@ -239,10 +239,23 @@ export const printPos = createAsyncThunk('appProductPos/printPos', async (code, 
             throw new Error('Code tidak valid untuk print')
           }
 
+          // Get printer data from localStorage
+          const printerPosData = localStorage.getItem('printerPos')
+          const printerPos = printerPosData ? JSON.parse(printerPosData) : null
+
+          // Prepare request body with printer info
+          const requestBody = printerPos
+            ? {
+                ip: printerPos.ip,
+                name: printerPos.name
+              }
+            : {}
+
           // Kirim request ke backend - BE yang handle semua printing logic
           const response = await axios({
             method: 'POST',
-            url: `/point-of-sale/print-v3/${codeString}`
+            url: `/point-of-sale/print-v3/${codeString}`,
+            data: requestBody
           })
 
           swalNotifSuccess({ message: response?.data?.message || 'Struk berhasil dicetak!' })

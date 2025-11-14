@@ -1,35 +1,38 @@
-import { yupResolver } from "@hookform/resolvers/yup";
-import { Grid } from "@mui/material";
-import { useMemo } from "react";
-import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchAddPrinter, fetchEditPrinter } from "src/store/apps/config/configPrinter";
-import BaseModal from "src/views/common/BaseModal";
-import FormInputText from "src/views/common/Form/FormInputText";
+import { yupResolver } from '@hookform/resolvers/yup'
+import { Grid } from '@mui/material'
+import { useMemo } from 'react'
+import { useForm } from 'react-hook-form'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchAddPrinter, fetchEditPrinter } from 'src/store/apps/config/configPrinter'
+import BaseModal from 'src/views/common/BaseModal'
+import FormInputText from 'src/views/common/Form/FormInputText'
+import FormSelectSimple from 'src/views/common/Form/FormSelectSimple'
 import * as yup from 'yup'
 
-export default function ModalAddPrinter({
-  open,
-  setOpen,
-  typeModal,
-}) {
+export default function ModalAddPrinter({ open, setOpen, typeModal }) {
   const dispatch = useDispatch()
 
   const { printerDetail, loadingPrinterDetail } = useSelector(state => state.printer)
 
+  const printerTypes = [
+    { value: 'PRINTER_POS', label: 'Printer POS' },
+    { value: 'PRINTER_DOT_MATRIX', label: 'Printer Dot Matrix' },
+    { value: 'PRINTER_INJECT', label: 'Printer Inject' }
+  ]
+
   const schema = yup.object().shape({
     printerName: yup.string().required('Nama printer harus diisi'),
     ip: yup.string().required('IP printer harus diisi'),
-    hostname: yup.string().optional(),
-    description: yup.string().optional(),
+    printerType: yup.string().required('Tipe printer harus dipilih'),
+    description: yup.string().optional()
   })
 
-  // FORM FOR PRINTER 
+  // FORM FOR PRINTER
   const defaultValues = {
-    printerName: "",
-    ip: "",
-    hostname: "",
-    description: "",
+    printerName: '',
+    ip: '',
+    printerType: 'PRINTER_POS',
+    description: ''
   }
   const {
     control,
@@ -37,33 +40,35 @@ export default function ModalAddPrinter({
     formState: { errors }
   } = useForm({
     values:
-      typeModal === 'EDIT' || typeModal === 'VIEW' ?
-        {
-          id: printerDetail?.id,
-          printerName: printerDetail?.value || "",
-          ip: printerDetail?.value_json?.ip || "",
-          hostname: printerDetail?.value_json?.hostname || "",
-          description: printerDetail?.description || "",
-        } : defaultValues,
+      typeModal === 'EDIT' || typeModal === 'VIEW'
+        ? {
+            id: printerDetail?.id,
+            printerName: printerDetail?.value || '',
+            ip: printerDetail?.value_json?.ip || '',
+            printerType: printerDetail?.value_json?.printerType || '',
+            description: printerDetail?.description || ''
+          }
+        : defaultValues,
     mode: 'onChange',
     resolver: yupResolver(schema)
   })
 
   const onSubmit = data => {
+    const value_json = {
+      ip: data?.ip
+    }
+
+    // Add queueName for DOT_MATRIX printer
+    if (data?.printerType === 'PRINTER_DOT_MATRIX') {
+      value_json.queueName = 'lp'
+    }
+
     const payload = {
-      key: "PRINTER_SETTING",
+      key: data?.printerType,
       value: data?.printerName,
-      category: "PRINTER",
-      value_json: {
-        col: 48,
-        maxProductName: 29,
-        connection_type: "ethernet",
-        domain_type: "IP",
-        hostname: data?.hostname,
-        ip: data?.ip,
-        port: 8034,
-      },
-      description: data?.description,
+      category: 'PRINTER',
+      value_json: value_json,
+      description: data?.description
     }
 
     if (typeModal === 'ADD') {
@@ -89,7 +94,7 @@ export default function ModalAddPrinter({
       onClose={() => setOpen(false)}
       onSubmit={handleSubmit(onSubmit)}
       title={titleModal}
-      size="sm"
+      size='sm'
       showActions={typeModal !== 'VIEW'}
     >
       <Grid container spacing={6}>
@@ -120,14 +125,16 @@ export default function ModalAddPrinter({
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormInputText
-                loading={loadingPrinterDetail}
-                label={'Hostname'}
-                name={'hostname'}
+              <FormSelectSimple
+                label='Tipe Printer'
+                name='printerType'
                 control={control}
                 errors={errors}
+                data={printerTypes}
+                optionsValue='value'
+                optionsLabel='label'
                 disabled={typeModal === 'VIEW'}
-                placeholder='Contoh: printer.local'
+                placeholder='Pilih Tipe Printer'
               />
             </Grid>
             <Grid item xs={12} sm={12}>
@@ -147,98 +154,5 @@ export default function ModalAddPrinter({
         </Grid>
       </Grid>
     </BaseModal>
-    // <Card>
-    //   <Dialog
-    //     fullWidth
-    //     maxWidth='sm'
-    //     scroll='body'
-    //     sx={{ '& .MuiDialog-paper': { overflow: 'visible', pb: 4 } }}
-    //     open={open}
-    //     onClose={() => setOpen(false)}
-    //   >
-    //     <form onSubmit={handleSubmit(onSubmit)}>
-    //       <DialogContent>
-    //         <CustomCloseButton onClick={() => setOpen(false)}>
-    //           <Icon icon='tabler:x' fontSize='1.25rem' />
-    //         </CustomCloseButton>
-    //         <Box sx={{ textAlign: 'center' }}>
-    //           <Typography variant='h4' sx={{ mb: 4 }}>
-    //             {titleModal}
-    //           </Typography>
-    //         </Box>
-    //         <Grid container spacing={6}>
-    //           <Grid item xs={12}>
-    //             <Grid container spacing={6}>
-    //               <Grid item xs={12} sm={12}>
-    //                 <FormInputText
-    //                   loading={loadingPrinterDetail}
-    //                   label={'Nama Printer'}
-    //                   name={'printerName'}
-    //                   control={control}
-    //                   errors={errors}
-    //                   disabled={typeModal === 'VIEW'}
-    //                   placeholder='Masukkan Nama Printer'
-    //                   required
-    //                 />
-    //               </Grid>
-    //               <Grid item xs={12} sm={6}>
-    //                 <FormInputText
-    //                   loading={loadingPrinterDetail}
-    //                   label={'Alamat IP'}
-    //                   name={'ip'}
-    //                   control={control}
-    //                   errors={errors}
-    //                   disabled={typeModal === 'VIEW'}
-    //                   placeholder='Contoh: 192.168.50.50'
-    //                   required
-    //                 />
-    //               </Grid>
-    //               <Grid item xs={12} sm={6}>
-    //                 <FormInputText
-    //                   loading={loadingPrinterDetail}
-    //                   label={'Hostname'}
-    //                   name={'hostname'}
-    //                   control={control}
-    //                   errors={errors}
-    //                   disabled={typeModal === 'VIEW'}
-    //                   placeholder='Contoh: printer.local'
-    //                 />
-    //               </Grid>
-    //               <Grid item xs={12} sm={12}>
-    //                 <FormInputText
-    //                   loading={loadingPrinterDetail}
-    //                   label={'Deskripsi'}
-    //                   name={'description'}
-    //                   control={control}
-    //                   errors={errors}
-    //                   disabled={typeModal === 'VIEW'}
-    //                   placeholder='Deskripsi printer'
-    //                   multiline
-    //                   rows={4}
-    //                 />
-    //               </Grid>
-    //             </Grid>
-    //           </Grid>
-    //         </Grid>
-    //       </DialogContent>
-    //       <DialogActions
-    //         sx={{
-    //           justifyContent: 'end',
-    //         }}
-    //       >
-    //         {typeModal !== 'VIEW' && (
-    //           <>
-    //             <Button variant='tonal' color='secondary' onClick={() => setOpen(false)} hidden={typeModal === 'VIEW'}>
-    //               Batal
-    //             </Button>
-    //             <Button type='submit' variant='contained' hidden={typeModal === 'VIEW'}>
-    //               Simpan
-    //             </Button>
-    //           </>
-    //         )}
-    //       </DialogActions>
-    //     </form>
-    //   </Dialog>
-    // </Card>
   )
 }

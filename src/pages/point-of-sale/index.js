@@ -14,6 +14,7 @@ import MenuPosV2 from 'src/views/point-of-sale/MenuPosV2'
 import DetailUserPos from 'src/views/point-of-sale/DetailUserPos'
 import SettingPosLayout from 'src/views/point-of-sale/setting/SettingPosLayout'
 import RequestProductLayout from 'src/views/point-of-sale/request-product/RequestProductLayout'
+import { fetchPrinterHealthCheck } from 'src/store/apps/config/configPrinter'
 
 export default function PointOfSale() {
   const dispatch = useDispatch()
@@ -81,6 +82,7 @@ export default function PointOfSale() {
     dispatch(fetchMasterDataType())
     dispatch(fetchDataMasterCategory())
     dispatch(fetchMasterDataCompany())
+    dispatch(fetchPrinterHealthCheck())
   }, [dispatch])
 
   useEffect(() => {
@@ -90,6 +92,15 @@ export default function PointOfSale() {
     // Save to localstorage
     localStorage.setItem('warehousePos', JSON.stringify(warehouse))
   }, [warehouse])
+
+  // Check printer health status periodically (every 30 seconds)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      dispatch(fetchPrinterHealthCheck())
+    }, 600000) // 60 seconds
+
+    return () => clearInterval(interval)
+  }, [dispatch])
 
   // Status printer akan di-fetch otomatis dari backend via Redux
   // Tidak perlu manual connect dari frontend lagi
