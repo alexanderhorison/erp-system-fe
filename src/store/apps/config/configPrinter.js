@@ -107,6 +107,23 @@ export const fetchEditPrinter = createAsyncThunk(
   }
 )
 
+// FETCH PRINTER HEALTH STATUS
+export const fetchPrinterHealthCheck = createAsyncThunk(
+  'appDashboard/fetchPrinterHealthCheck',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/health-check/printer/'
+      })
+      return response.data.data
+    } catch (error) {
+      console.error('Error fetching printer health check:', error)
+      return rejectWithValue([])
+    }
+  }
+)
+
 // PRINTER CONFIG
 export const appPrinterSlice = createSlice({
   name: 'appPrinter',
@@ -132,6 +149,11 @@ export const appPrinterSlice = createSlice({
     listPrinter: [],
     loadingListPrinter: false,
     errorListPrinter: false,
+
+    // PRINTER HEALTH CHECK
+    printerHealthStatus: [],
+    loadingPrinterHealth: false,
+    errorPrinterHealth: false,
 
     // ADD
     loadingAddPrinter: false,
@@ -208,6 +230,18 @@ export const appPrinterSlice = createSlice({
       .addCase(fetchEditPrinter.rejected, (state, action) => {
         state.loadingEditPrinter = false
         state.errorEditPrinter = true
+      })
+      // FETCH PRINTER HEALTH CHECK
+      .addCase(fetchPrinterHealthCheck.pending, (state, action) => {
+        state.loadingPrinterHealth = true
+      })
+      .addCase(fetchPrinterHealthCheck.fulfilled, (state, action) => {
+        state.loadingPrinterHealth = false
+        state.printerHealthStatus = action.payload
+      })
+      .addCase(fetchPrinterHealthCheck.rejected, (state, action) => {
+        state.loadingPrinterHealth = false
+        state.errorPrinterHealth = true
       })
   }
 })

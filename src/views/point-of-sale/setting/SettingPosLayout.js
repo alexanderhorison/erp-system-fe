@@ -3,37 +3,17 @@ import { Box } from '@mui/system'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
-import { fetchAllPrinter } from 'src/store/apps/config/configPrinter'
+import { fetchAllPrinter, fetchPrinterHealthCheck } from 'src/store/apps/config/configPrinter'
 import Icon from 'src/@core/components/icon'
 import SettingSectionPrinter from './SettingSectionPrinter'
 
 export default function SettingPosLayout({ setWarehouse, user, isMobile, isTablet, isLowHeight }) {
   const dispatch = useDispatch()
-  // const { data: warehouseList } = useSelector(state => state.warehouse)
-  const { listPrinter, loadingListPrinter } = useSelector(state => state.printer)
+  const { listPrinter, loadingListPrinter, printerHealthStatus } = useSelector(state => state.printer)
   const [selectedSettings, setSelectedSettings] = useState('')
+  const [refreshKey, setRefreshKey] = useState(0)
 
-  const menus = [
-    // { label: 'Pilih Gudang', value: 'SETTING_WAREHOUSE', icon: 'tabler:building-warehouse' },
-    { label: 'Pilih Printer', value: 'SETTING_PRINTER', icon: 'tabler:printer' }
-  ]
-
-  // const handleSelectWarehouse = data => {
-  //   swalConfirmationOnly({
-  //     title: 'Pilih Gudang',
-  //     text: `Apakah anda ingin mengganti gudang menjadi ${data.name}?`,
-  //     confirmButtonText: 'Ya, Konfirmasi',
-  //     showCancelButton: true,
-  //     cancelButtonText: 'Tidak',
-  //     onClickYes: () => {
-  //       localStorage.setItem('warehousePos', JSON.stringify({ warehouseId: data.id, warehouseName: data.name }))
-  //       setWarehouse({
-  //         warehouseId: data.id,
-  //         warehouseName: data.name
-  //       })
-  //     }
-  //   })
-  // }
+  const menus = [{ label: 'Pilih Printer', value: 'SETTING_PRINTER', icon: 'tabler:printer' }]
 
   const handleSelectPrinter = printer => {
     swalConfirmationOnly({
@@ -45,14 +25,14 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
       onClickYes: () => {
         let printerPos = {
           id: printer.id,
-          name: printer.value,
+          name: printer.description,
           ip: printer.value_json.ip,
           port: printer.value_json.port,
           domain_type: printer.value_json.domain_type,
           connection_type: printer.value_json.connection_type
         }
         localStorage.setItem('printerPos', JSON.stringify(printerPos))
-        // Status printer akan di-fetch dari backend via Redux
+        setRefreshKey(prev => prev + 1) // Force re-render
       }
     })
   }
@@ -63,13 +43,11 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
       if (!listPrinter.length) {
         dispatch(fetchAllPrinter({}))
       }
+      // Fetch printer health check only if not already fetched
+      if (!printerHealthStatus || printerHealthStatus.length === 0) {
+        dispatch(fetchPrinterHealthCheck())
+      }
     }
-    // if (value === 'SETTING_WAREHOUSE') {
-    //   if (user?.warehouseId) return
-    //   if (!warehouseList.length) {
-    //     dispatch(fetchMasterDataWarehouse({}))
-    //   }
-    // }
   }
 
   return (
@@ -143,12 +121,13 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
                 borderRadius: 2
               }}
             >
-              {/* {selectedSettings === 'SETTING_WAREHOUSE' && (
-                <SettingSectionWarehouse warehouseList={warehouseList} handleSelectWarehouse={handleSelectWarehouse} />
-              )} */}
-
               {selectedSettings === 'SETTING_PRINTER' && (
-                <SettingSectionPrinter printerList={listPrinter} handleSelectPrinter={handleSelectPrinter} />
+                <SettingSectionPrinter
+                  key={refreshKey}
+                  printerList={listPrinter}
+                  printerHealthStatus={printerHealthStatus}
+                  handleSelectPrinter={handleSelectPrinter}
+                />
               )}
             </Box>
           </Grid>
