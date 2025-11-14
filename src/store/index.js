@@ -40,6 +40,7 @@ import deletedProductWarehouse from './apps/deleted-product-warehouse'
 import pos from './apps/pos'
 import config from './apps/config'
 import printer from './apps/config/configPrinter'
+import companyConfig from './apps/config/configCompany'
 import masterCar from './apps/master/car'
 import masterEmployee from './apps/master/employee'
 import masterUnexpectedCostCategory from './apps/master/unexpected-cost-category'
@@ -92,6 +93,7 @@ export const store = configureStore({
     pos,
     config,
     printer,
+    companyConfig,
     masterModal,
     masterCar,
     masterEmployee,

@@ -133,7 +133,7 @@ export const listMenu = [
     icon: 'tabler:clipboard-check',
     menuId: 15
   },
-  { 
+  {
     title: 'Product Request',
     path: '/product-request/',
     icon: 'tabler:clipboard-text',
@@ -356,7 +356,7 @@ export const listMenu = [
   },
   {
     sectionTitle: 'Pengguna & Otoritas',
-    menuId: [1, 2, 28]
+    menuId: [1, 2, 28, 45]
   },
   {
     title: 'Printer Setting',
@@ -375,5 +375,11 @@ export const listMenu = [
     icon: 'tabler:lock',
     path: '/settings/roles',
     menuId: 2
+  },
+  {
+    title: 'Configuration Setting',
+    icon: 'tabler:lock',
+    path: '/settings/configuration-setting',
+    menuId: 45
   }
 ]

@@ -12,6 +12,7 @@ import Alert from '@mui/material/Alert'
 import DetailInvoice from 'src/views/delivery-order/DetailInvoice'
 import ToolbarInvoice from 'src/views/delivery-order/ToolbarInvoice'
 import ButtonBack from 'src/views/common/ButtonBack'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 
 export default function DetailDeliveryOrder({ }) {
   const dispatch = useDispatch()
@@ -23,6 +24,7 @@ export default function DetailDeliveryOrder({ }) {
   useEffect(() => {
     if (id) {
       dispatch(fetchDetailDeliveryOrder(id))
+      dispatch(fetchCompanyInfo())
     }
   }, [id, dispatch])
 

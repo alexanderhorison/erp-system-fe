@@ -16,16 +16,18 @@ import TableCell from '@mui/material/TableCell'
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
 import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
-import { companyInfo } from 'src/data/companyInfo'
 import { MenuItem, Select } from '@mui/material'
 import IconTjahayaBerkatAbadi from '../common/iconTjahayaBerkatAbadi'
 import { useMemo } from 'react'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import HeaderReceiptOrderOutstanding from './HeaderReceiptOrderOutstanding'
+import { useSelector } from 'react-redux'
 
 const DetailReceiptOrderOutstanding = ({ data, setData }) => {
   // ** Hook
   const theme = useTheme()
+
+    const { rawCompany: companyInfo } = useSelector(state => state.companyConfig)
 
   const handleStatusChange = (index, newStatus) => {
     const updatedProductOutstandings = data.productOutstandings.map((product, i) =>
