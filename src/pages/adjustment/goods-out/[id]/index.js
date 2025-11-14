@@ -14,6 +14,7 @@ import { CircularProgress, Typography } from '@mui/material'
 import DetailGoodsOut from 'src/views/adjustment/goods-out/DetailGoodsOut'
 import ToolbarGoodsOut from 'src/views/adjustment/goods-out/ToolbarGoodsOut'
 import ButtonBack from 'src/views/common/ButtonBack'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 
 export default function DetailAdjustmentGoodsOut({ }) {
   const dispatch = useDispatch()
@@ -29,6 +30,7 @@ export default function DetailAdjustmentGoodsOut({ }) {
   useEffect(() => {
     if (id) {
       dispatch(fetchDetailAdjustmentGoodsOut(id))
+      dispatch(fetchCompanyInfo())
     }
   }, [id, dispatch])
 

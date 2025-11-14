@@ -16,12 +16,13 @@ import TableCell from '@mui/material/TableCell'
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
 import { returnToLocaleDateString } from 'src/helpers/formatDate'
-import { companyInfo } from 'src/data/companyInfo'
 import { Status } from 'src/@core/components/common'
 import { priceFormat } from 'src/helpers/priceFormatter'
-import { CompanySvg } from 'src/data/companySvg'
 import { UseAuth } from 'src/hooks/useAuth'
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
+import Logo from 'src/icons/logo'
 
 const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
@@ -47,6 +48,9 @@ const DetailPageSalesOrder = ({ data }) => {
   const { user } = UseAuth()
   const isAdmin = useMemo(() => user?.roleId === 1, [user])
 
+  const { rawCompany: companyInfo } = useSelector(state => state.companyConfig)
+
+
   if (data) {
     return (
       <Card>
@@ -55,7 +59,7 @@ const DetailPageSalesOrder = ({ data }) => {
             <Grid item sm={6} xs={12}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CompanySvg />
+                  <Logo width={30} />
                   <Typography variant='h4' sx={{ ml: 2.5, fontWeight: 500, lineHeight: '18px' }}>
                     {themeConfig.templateName}
                   </Typography>

@@ -12,6 +12,7 @@ import ToolbarReceive from 'src/views/receive-order/ToolbarReceive'
 import { fetchDetailReceiveOrder } from 'src/store/apps/receive-order'
 import DetailReceiveOrder from 'src/views/receive-order/DetailReceiveOrder'
 import ButtonBack from 'src/views/common/ButtonBack'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 
 export default function ReceiveOrder({ }) {
   const dispatch = useDispatch()
@@ -23,6 +24,7 @@ export default function ReceiveOrder({ }) {
   useEffect(() => {
     if (id) {
       dispatch(fetchDetailReceiveOrder(id))
+      dispatch(fetchCompanyInfo())
     }
   }, [id, dispatch])
 

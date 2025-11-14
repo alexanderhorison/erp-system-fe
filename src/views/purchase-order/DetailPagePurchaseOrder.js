@@ -15,10 +15,12 @@ import TableCell from '@mui/material/TableCell'
 
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
-import { companyInfo } from 'src/data/companyInfo'
 import { Status } from 'src/@core/components/common'
 import { priceFormat } from 'src/helpers/priceFormatter'
-import { CompanySvg } from 'src/data/companySvg'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
+import Logo from 'src/icons/logo'
 
 const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
@@ -41,6 +43,13 @@ const CalcWrapper = styled(Box)(({ theme }) => ({
 const DetailPagePurchaseOrder = ({ data }) => {
   // ** Hook
   const theme = useTheme()
+  const dispatch = useDispatch()
+
+  const { rawCompany: companyInfo } = useSelector(state => state.companyConfig)
+
+  useEffect(() => {
+    dispatch(fetchCompanyInfo())
+  }, [dispatch])
 
   if (data) {
     return (
@@ -50,7 +59,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
             <Grid item sm={6} xs={12}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CompanySvg />
+                  <Logo width={30} />
                   <Typography variant='h4' sx={{ ml: 2.5, fontWeight: 500, lineHeight: '18px' }}>
                     {themeConfig.templateName}
                   </Typography>

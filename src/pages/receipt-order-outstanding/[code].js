@@ -15,6 +15,7 @@ import { Box, IconButton, Typography } from '@mui/material'
 
 import Icon from 'src/@core/components/icon'
 import ButtonBack from 'src/views/common/ButtonBack'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 
 export default function ReceiveOrder({ }) {
   const dispatch = useDispatch()
@@ -27,6 +28,7 @@ export default function ReceiveOrder({ }) {
   useEffect(() => {
     if (code) {
       dispatch(fetchDetailReceiptOrderOutstanding({ code }))
+      dispatch(fetchCompanyInfo())
     }
   }, [code, dispatch])
 

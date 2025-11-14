@@ -13,17 +13,25 @@ import { useTheme } from '@mui/material/styles'
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
 import { Card, CardContent, Box } from '@mui/material'
-import { companyInfo } from 'src/data/companyInfo'
 import { priceFormat } from 'src/helpers/priceFormatter'
-import { CompanySvg } from 'src/data/companySvg'
 import { MUITableCell } from './PrintSalesOrder'
-import React, { forwardRef, useContext } from 'react'
+import React, { forwardRef, useEffect } from 'react'
 import { UseAuth } from 'src/hooks/useAuth'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
+import Logo from 'src/icons/logo'
 
 const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
   const theme = useTheme()
   const { user } = UseAuth()
   const isAdmin = user?.roleId === 1
+  const dispatch = useDispatch()
+
+  const { rawCompany: companyInfo } = useSelector(state => state.companyConfig)
+
+  useEffect(() => {
+    dispatch(fetchCompanyInfo())
+  }, [dispatch])
 
   const calculatePageBreaks = (productCount, barterCount) => {
     const maxItemsPerPage = 14 // Maximum items per page
@@ -70,7 +78,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
           <Grid item sm={5} xs={12}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <CompanySvg />
+                <Logo width={30} />
                 <Typography variant='h5' sx={{ ml: 2.5, fontWeight: 900, lineHeight: '18px', textWrap: 'nowrap' }}>
                   {themeConfig.templateName}
                 </Typography>
