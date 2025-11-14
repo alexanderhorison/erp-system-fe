@@ -8,21 +8,18 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { useDispatch, useSelector } from 'react-redux'
-import { Button, CircularProgress } from '@mui/material'
-import { connectToPrinter } from 'src/utils/printerHelper'
+import { useSelector } from 'react-redux'
+import { CircularProgress } from '@mui/material'
 
 export default function TableHeaderPointOfSale(props) {
-  const dispatch = useDispatch()
   const { printerStatus } = useSelector(state => state.printer)
   const printerPos = localStorage.getItem('printerPos') ? JSON.parse(localStorage.getItem('printerPos')) : null
 
   const isConnected = printerStatus.connected
   const isLoading = printerStatus.loading
 
-  const handleReconnect = () => {
-    connectToPrinter({ printerConfig: printerPos, dispatch })
-  }
+  // Status printer akan di-fetch dari backend dan masuk ke Redux
+  // Tidak perlu manual connect lagi dari frontend
 
   return (
     <Box
@@ -62,7 +59,7 @@ export default function TableHeaderPointOfSale(props) {
         }}
       />
 
-      {/* Status Printer dengan Ikon */}
+      {/* Status Printer - Data dari Backend via Redux */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <Icon
           fontSize='0.8rem'
@@ -70,31 +67,9 @@ export default function TableHeaderPointOfSale(props) {
           style={{ color: isConnected ? 'green' : 'red' }}
         />
         <Typography fontSize={'0.8rem'} sx={{ fontWeight: 400, textWrap: 'nowrap' }}>
-          Status Printer: "{printerPos?.name}" {isLoading ? (<CircularProgress size={14} color="inherit" />) : isConnected ? '(Online)' : '(Offline)'}
+          Status Printer: "{printerPos?.name}"{' '}
+          {isLoading ? <CircularProgress size={14} color='inherit' /> : isConnected ? '(Online)' : '(Offline)'}
         </Typography>
-        {/* Button Reconnect */}
-        {!isConnected && !isLoading && (
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            sx={{
-              textTransform: 'none',
-              fontSize: '0.75rem',
-              padding: '2px 8px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1
-            }}
-            onClick={handleReconnect}
-            disabled={isLoading} // Tombol dinonaktifkan saat loading
-          >
-            {isLoading ? <CircularProgress size={14} color="inherit" /> : 'Reconnect'}
-
-            {!isLoading && <Icon icon="tabler:refresh" />}
-          </Button>
-        )}
-
       </Box>
     </Box>
   )

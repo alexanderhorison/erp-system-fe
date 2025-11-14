@@ -12,10 +12,8 @@ import { returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
 import TableHeaderPointOfSale from './TableHeaderPointOfSale'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
-import { fetchDetailPointOfSale } from 'src/store/apps/pos'
+import { fetchDetailPointOfSale, printPos } from 'src/store/apps/pos'
 import ModalViewTransactionV2 from './ModalViewTransactionV2'
-import { printPointOfSale } from 'src/utils/printerHelper'
-
 
 const RowOptions = ({ handleView, handlePrint }) => {
   return (
@@ -58,9 +56,9 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
     dispatch(fetchDetailPointOfSale(id))
   }
 
-  const handleRowPrint = async (params) => {
-    printPointOfSale(dispatch, params.code)
-  };
+  const handleRowPrint = async params => {
+    dispatch(printPos(params.code))
+  }
 
   useEffect(() => {
     if (timeFilter && timeFilter.year) {
@@ -83,12 +81,14 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
 
   return (
     <>
-      <Card sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden'
-      }}>
+      <Card
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}
+      >
         <DataGrid
           loading={loadingDataPointOfSale}
           columns={[

@@ -13,7 +13,6 @@ import { UseAuth } from 'src/hooks/useAuth'
 import MenuPosV2 from 'src/views/point-of-sale/MenuPosV2'
 import DetailUserPos from 'src/views/point-of-sale/DetailUserPos'
 import SettingPosLayout from 'src/views/point-of-sale/setting/SettingPosLayout'
-import { connectToPrinter } from 'src/utils/printerHelper'
 import RequestProductLayout from 'src/views/point-of-sale/request-product/RequestProductLayout'
 
 export default function PointOfSale() {
@@ -92,11 +91,8 @@ export default function PointOfSale() {
     localStorage.setItem('warehousePos', JSON.stringify(warehouse))
   }, [warehouse])
 
-  useEffect(() => {
-    if (printerPos && !printerStatus.connected) {
-      connectToPrinter({ printerConfig: printerPos, dispatch })
-    }
-  }, [scriptEpos])
+  // Status printer akan di-fetch otomatis dari backend via Redux
+  // Tidak perlu manual connect dari frontend lagi
 
   return (
     <Box

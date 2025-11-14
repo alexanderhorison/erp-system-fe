@@ -12,7 +12,7 @@ export const fetchMasterDataCustomer = createAsyncThunk(
       // by default isPosCustomer is false
       const newParams = {
         ...params,
-        isPosCustomer: false
+        // isPosCustomer: false
       }
       const response = await axios({
         method: 'GET',
