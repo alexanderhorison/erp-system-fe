@@ -41,7 +41,14 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
     setSelectedSettings(value)
     if (value === 'SETTING_PRINTER') {
       if (!listPrinter.length) {
-        dispatch(fetchAllPrinter({}))
+        dispatch(
+          fetchAllPrinter({
+            query: {
+              category: 'PRINTER',
+              key: 'PRINTER_POS'
+            }
+          })
+        )
       }
       // Fetch printer health check only if not already fetched
       if (!printerHealthStatus || printerHealthStatus.length === 0) {

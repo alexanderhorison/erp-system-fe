@@ -28,10 +28,7 @@ export const fetchAllPrinter = createAsyncThunk(
       const response = await axios({
         method: 'POST',
         url: '/config/all',
-        data: {
-          category: 'PRINTER',
-          key: 'PRINTER_POS'
-        }
+        data: query
       })
       return response.data.data
     } catch (error) {

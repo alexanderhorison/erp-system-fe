@@ -45,7 +45,13 @@ export default function SettingPrinter({}) {
   }
 
   useEffect(() => {
-    dispatch(fetchAllPrinter({}))
+    dispatch(
+      fetchAllPrinter({
+        query: {
+          category: 'PRINTER'
+        }
+      })
+    )
     // Fetch printer health check only if not already fetched
     if (!printerHealthStatus || printerHealthStatus.length === 0) {
       dispatch(fetchPrinterHealthCheck())
