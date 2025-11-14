@@ -337,6 +337,12 @@ export default function DetailRole() {
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
                 />
+                <MenuItem
+                  name={'Configuration Setting'}
+                  menuId={45}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
                 <MenuTitle name={'Master'} />
                 <MenuItem
                   name={'Category Cost Tak Terduga'}

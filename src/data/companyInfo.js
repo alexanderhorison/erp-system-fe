@@ -6,5 +6,7 @@ export const companyInfo = {
   ownerName: "Michael Santoso",
   ownerTitle: "Finance Dept",
   bank: "248 882 2298 BCA a/n PT TJAHAYA BERKAT ABADI",
-  ptName: "PT TJAHAYA BERKAT ABADI"
-}
+  ptName: "PT TJAHAYA BERKAT ABADI",
+  ppn: "",
+  logoUrl: null
+};

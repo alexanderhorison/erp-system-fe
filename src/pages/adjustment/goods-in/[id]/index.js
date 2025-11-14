@@ -14,6 +14,7 @@ import { fetchDetailAdjustmentGoodsIn } from 'src/store/apps/adjustment/goods-in
 import DetailGoodsIn from 'src/views/adjustment/goods-in/DetailGoodsIn'
 import ToolbarGoodsIn from 'src/views/adjustment/goods-in/ToolbarGoodsIn'
 import ButtonBack from 'src/views/common/ButtonBack'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 
 export default function DetailAdjustmentGoodsIn({ }) {
   const dispatch = useDispatch()
@@ -29,6 +30,7 @@ export default function DetailAdjustmentGoodsIn({ }) {
   useEffect(() => {
     if (id) {
       dispatch(fetchDetailAdjustmentGoodsIn(id))
+      dispatch(fetchCompanyInfo())
     }
   }, [id, dispatch])
 
