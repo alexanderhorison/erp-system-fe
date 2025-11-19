@@ -94,11 +94,11 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
               </Box>
               <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 4 }}>
                 <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary', textWrap: 'nowrap' }}>
-                  {companyInfo.companyName}
+                  {companyInfo?.companyName}
                 </Typography>
-                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo.address}</Typography>
-                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo.city}</Typography>
-                <Typography sx={{ fontWeight: 900, color: 'text.secondary' }}>{companyInfo.phoneNumber}</Typography>
+                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo?.address}</Typography>
+                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo?.city}</Typography>
+                <Typography sx={{ fontWeight: 900, color: 'text.secondary' }}>{companyInfo?.phoneNumber}</Typography>
               </Box>
             </Box>
           </Grid>
@@ -397,8 +397,8 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
                   <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>( ................... )</Typography>
                 </Box>
                 <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerName}</Typography>
-                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerTitle}</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo?.ownerName}</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo?.ownerTitle}</Typography>
                 </Box>
               </Box>
             </Grid>

@@ -85,11 +85,11 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
               </Box>
               <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
                 <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary', textWrap: 'nowrap' }}>
-                  {companyInfo.companyName}
+                  {companyInfo?.companyName}
                 </Typography>
-                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo.address}</Typography>
-                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo.city}</Typography>
-                <Typography sx={{ fontWeight: 900, color: 'text.secondary' }}>{companyInfo.phoneNumber}</Typography>
+                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo?.address}</Typography>
+                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo?.city}</Typography>
+                <Typography sx={{ fontWeight: 900, color: 'text.secondary' }}>{companyInfo?.phoneNumber}</Typography>
               </Box>
             </Box>
           </Grid>
@@ -350,7 +350,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
           {/* Left Aligned Typography */}
           <Grid item xs={6} lg={6} md={6} sx={{ textAlign: 'left' }}>
             <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
-              {/* <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>{companyInfo.bank}</Typography> */}
+              {/* <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>{companyInfo?.bank}</Typography> */}
             </Box>
           </Grid>
 
@@ -388,7 +388,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
         }}
       >
         <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>Silahkan transfer ke rekening:</Typography>
-        <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>{companyInfo.bank}</Typography>
+        <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>{companyInfo?.bank}</Typography>
       </Box>
 
       <div className='no-page-break'>
@@ -414,8 +414,8 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
                   <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>( ................... )</Typography>
                 </Box>
                 <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerName}</Typography>
-                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerTitle}</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo?.ownerName}</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo?.ownerTitle}</Typography>
                 </Box>
               </Box>
             </Grid>
