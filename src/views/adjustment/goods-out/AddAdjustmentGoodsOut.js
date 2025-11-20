@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid, IconButton } from '@mui/material'
+import { Button, Card, CardContent, CircularProgress, Divider, Grid, IconButton } from '@mui/material'
 import { useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,6 +20,7 @@ export default function AddAdjustmentGoodsOut() {
 
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
   const { dataListProductWarehouse: listProduct } = useSelector(state => state.deliveryOrder)
+  const { loadingCreateAdjustmentGoodsOut } = useSelector(state => state.adjustmentGoodsOut)
 
   const schema = yup.object({
     warehouseOrigin: yup.string().required('Gudang asal harus diisi'),
@@ -305,17 +306,28 @@ export default function AddAdjustmentGoodsOut() {
             justifyContent='flex-end'
             gap={6}
           >
-            <Button
-              variant='tonal'
-              color='secondary'
-              onClick={() => router.back()}
-              startIcon={<Icon icon='tabler:x' />}
-            >
-              Cancel
-            </Button>
-            <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-              Submit
-            </Button>
+            {
+              loadingCreateAdjustmentGoodsOut ? (
+                <Button variant='contained' disabled>
+                  <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                  Submitting...
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant='tonal'
+                    color='secondary'
+                    onClick={() => router.back()}
+                    startIcon={<Icon icon='tabler:x' />}
+                  >
+                    Cancel
+                  </Button>
+                  <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
+                    Submit
+                  </Button>
+                </>
+              )
+            }
           </Grid>
         </Grid>
       </form>

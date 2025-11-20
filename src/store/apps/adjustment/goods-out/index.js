@@ -96,6 +96,9 @@ export const appMasterProductSlice = createSlice({
     loadingDetailAdjustmentGoodsOut: false,
     errorDetailAdjustmentGoodsOut: false,
 
+    loadingCreateAdjustmentGoodsOut: false,
+    errorCreateAdjustmentGoodsOut: false,
+
     loadingUpdateAdjustmentGoodsOut: false,
     errorUpdateAdjustmentGoodsOut: false
   },
@@ -126,6 +129,17 @@ export const appMasterProductSlice = createSlice({
         state.detailAdjustmentGoodsOut = {}
         state.loadingDetailAdjustmentGoodsOut = false
         state.errorDetailAdjustmentGoodsOut = action.error.message
+      })
+
+      .addCase(createAdjustmentGoodsOut.pending, (state, action) => {
+        state.loadingCreateAdjustmentGoodsOut = true
+      })
+      .addCase(createAdjustmentGoodsOut.fulfilled, (state, action) => {
+        state.loadingCreateAdjustmentGoodsOut = false
+      })
+      .addCase(createAdjustmentGoodsOut.rejected, (state, action) => {
+        state.loadingCreateAdjustmentGoodsOut = false
+        state.errorCreateAdjustmentGoodsOut = action.error.message
       })
 
       .addCase(updateAdjustmentGoodsOut.pending, (state, action) => {

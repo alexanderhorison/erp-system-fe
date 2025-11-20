@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, Grid, Typography } from "@mui/material"
+import { Button, Card, CardContent, CircularProgress, Grid, Typography } from "@mui/material"
 import { Box } from "@mui/system"
 import { useRouter } from "next/router"
 import { useEffect } from "react"
@@ -63,7 +63,7 @@ export default function ProcessProductRequest() {
     ),
   })
 
-  const { detailRequestOrder } = useSelector(state => state.productRequest)
+  const { detailRequestOrder, loadingProcessRequestOrder } = useSelector(state => state.productRequest)
   const { data: masterWarehouse } = useSelector(state => state.warehouse)
 
   const {
@@ -255,13 +255,22 @@ export default function ProcessProductRequest() {
         {/* Submit Button */}
         <Grid item xs={12}>
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button
-              type="submit"
-              variant="contained"
-              startIcon={<Icon icon="tabler:send" />}
-            >
-              Submit
-            </Button>
+            {
+              loadingProcessRequestOrder ? (
+                <Button variant="contained" disabled>
+                  <CircularProgress size={20} sx={{ color: "white", mr: 2 }} />
+                  Submitting...
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  variant="contained"
+                  startIcon={<Icon icon="tabler:send" />}
+                >
+                  Submit
+                </Button>
+              )
+            }
           </Box>
         </Grid>
       </Grid>

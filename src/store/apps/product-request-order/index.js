@@ -156,6 +156,9 @@ export const appMasterProductSlice = createSlice({
     loadingUpdateRequestOrder: false,
     errorUpdateRequestOrder: false,
 
+    loadingProcessRequestOrder: false,
+    errorProcessRequestOrder: false,
+
     listProductRequestOrder: [],
     loadingListProductRequestOrder: false,
     errorListProductRequestOrder: false,
@@ -206,6 +209,17 @@ export const appMasterProductSlice = createSlice({
       .addCase(updateRequestOrder.rejected, (state, action) => {
         state.loadingUpdateRequestOrder = false
         state.errorUpdateRequestOrder = action.error.message
+      })
+
+      .addCase(processRequestOrder.pending, (state, action) => {
+        state.loadingProcessRequestOrder = true
+      })
+      .addCase(processRequestOrder.fulfilled, (state, action) => {
+        state.loadingProcessRequestOrder = false
+      })
+      .addCase(processRequestOrder.rejected, (state, action) => {
+        state.loadingProcessRequestOrder = false
+        state.errorProcessRequestOrder = action.error.message
       })
 
       .addCase(fetchDetailProcessRequestOrder.pending, (state, action) => {

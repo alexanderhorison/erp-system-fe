@@ -90,7 +90,9 @@ export const appMasterProductSlice = createSlice({
 
     detailDeliveryOrder: {},
     loadingDetailDeliveryOrder: true,
-    errorDetailDeliveryOrder: false
+    errorDetailDeliveryOrder: false,
+
+    loadingCreateDeliveryOrder: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -132,6 +134,16 @@ export const appMasterProductSlice = createSlice({
         state.detailDeliveryOrder = {}
         state.loadingDetailDeliveryOrder = false
         state.errorDetailDeliveryOrder = action.error.message
+      })
+
+      .addCase(createDeliveryOrder.pending, (state, action) => {
+        state.loadingCreateDeliveryOrder = true
+      })
+      .addCase(createDeliveryOrder.fulfilled, (state, action) => {
+        state.loadingCreateDeliveryOrder = false
+      })
+      .addCase(createDeliveryOrder.rejected, (state, action) => {
+        state.loadingCreateDeliveryOrder = false
       })
   }
 })
