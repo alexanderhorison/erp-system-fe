@@ -1,9 +1,9 @@
-import { Button, Card, CardContent, CardMedia, Skeleton, Typography } from "@mui/material";
+import { Button, Card, CardContent, Divider, Skeleton, Typography } from '@mui/material'
 import { styled } from '@mui/material/styles'
-import { Box } from "@mui/system";
-import { useState } from "react";
+import { Box } from '@mui/system'
+import { useState } from 'react'
 import Icon from 'src/@core/components/icon'
-import ModalAddMasterVendor from "./ModalAddMasterVendor";
+import ModalAddMasterVendor from './ModalAddMasterVendor'
 
 const ProfilePicture = styled('img')(({ theme }) => ({
   width: 50,
@@ -15,10 +15,7 @@ const ProfilePicture = styled('img')(({ theme }) => ({
   }
 }))
 
-export default function DetailVendor({
-  data,
-  loading,
-}) {
+export default function DetailVendor({ data, loading }) {
   const [openModal, setOpenModal] = useState(false)
 
   const handleEdit = () => {
@@ -26,81 +23,55 @@ export default function DetailVendor({
   }
 
   if (loading) {
-    return (
-      <Skeleton
-        variant="rectangular"
-        sx={{ borderRadius: 1, height: { xs: 150, md: 200 } }}
-      />
-    )
+    return <Skeleton variant='rectangular' sx={{ borderRadius: 1, height: { xs: 150, md: 200 } }} />
   }
 
   return (
-    <Card sx={{ padding: 3 }}>
-      <CardContent
-        sx={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          flexWrap: { xs: 'wrap', md: 'nowrap' },
-          justifyContent: { xs: 'center', md: 'flex-start' }
-        }}
-      >
+    <Card sx={{ padding: 4, textAlign: 'center' }}>
+      <CardContent>
         <ProfilePicture
           src={data?.imgUrl || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}
           alt='profile-picture'
-          sx={{ width: { xs: 100, md: 150 }, height: { xs: 100, md: 150 }, mr: { xs: 4, md: 0 } }}
+          sx={{ width: 150, height: 150, margin: '0 auto', p: 2 }}
         />
-        <Box
-          sx={{
-            width: '100%',
-            display: 'flex',
-            ml: { xs: 0, md: 6 },
-            alignItems: 'flex-end',
-            flexWrap: ['wrap', 'nowrap'],
-            justifyContent: ['center', 'space-between']
-          }}
-        >
-          <Box gap={4} sx={{ mb: [6, 0], display: 'flex', flexDirection: 'column', alignItems: ['center', 'flex-start'] }}>
-            <Typography variant='h5' sx={{ mb: 2.5 }}>
-              {data.name}
-            </Typography>
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: ['center', 'flex-start']
-              }}
-            >
-              <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1.5, color: 'text.secondary' } }}>
-                <Icon fontSize='1.25rem' icon={"tabler:phone"} />
-                <Typography sx={{ color: 'text.secondary' }}>{data.phoneNumber || '-'}</Typography>
-              </Box>
-              <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1.5, color: 'text.secondary' } }}>
-                <Icon fontSize='1.25rem' icon='tabler:mail' />
-                <Typography sx={{ color: 'text.secondary' }}>{data.email}</Typography>
-              </Box>
-            </Box>
-            <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1.5, color: 'text.secondary' } }}>
-              <Icon fontSize='1.25rem' icon='tabler:map-pin' />
-              <Typography sx={{ color: 'text.secondary' }}>{data.address}</Typography>
-            </Box>
-            <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1.5, color: 'text.secondary' } }}>
-              <Icon fontSize='1.25rem' icon='tabler:arrow-badge-down' />
-              <Typography sx={{ color: 'text.secondary' }}>Rank: {data.rankName}</Typography>
-            </Box>
-            <Box sx={{ mr: 4, display: 'flex', alignItems: 'center', '& svg': { mr: 1.5, color: 'text.secondary' } }}>
-              <Icon fontSize='1.25rem' icon='tabler:note' />
-              <Typography sx={{ color: 'text.secondary' }}>Notes: {data.notes}</Typography>
-            </Box>
-          </Box>
-          <Box >
-            <Button onClick={handleEdit} variant='contained' sx={{ '& svg': { mr: 2 } }}>
-              <Icon icon='tabler:edit' fontSize='1.125rem' />
-              Edit
-            </Button>
-          </Box>
+        <Typography variant='h5' sx={{ mb: 2.5 }}>
+          {data.name}
+        </Typography>
+        <Typography variant='body2' sx={{ mb: 2.5 }}>
+          {data.alias || '-'}
+        </Typography>
+        <Typography variant='h5' textAlign={'left'} sx={{ mt: '1.5rem' }}>
+          Details
+        </Typography>
+        <Divider sx={{ my: 2 }} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, textAlign: 'left' }}>
+          <Typography>
+            <strong>Phone:</strong> {data.phoneNumber || '-'}
+          </Typography>
+          <Typography>
+            <strong>Email:</strong> {data.email || '-'}
+          </Typography>
+          <Typography>
+            <strong>Gender:</strong> {data.gender || '-'}
+          </Typography>
+          <Typography>
+            <strong>Address:</strong> {data.address || '-'}
+          </Typography>
+          <Typography>
+            <strong>Rank:</strong> {data.rankName || '-'}
+          </Typography>
+          <Typography>
+            <strong>Notes:</strong> {data.notes || '-'}
+          </Typography>
+        </Box>
+        <Box sx={{ mt: 3 }}>
+          <Button onClick={handleEdit} variant='contained' sx={{ '& svg': { mr: 2 } }} fullWidth>
+            <Icon icon='tabler:edit' fontSize='1.125rem' />
+            Edit
+          </Button>
         </Box>
       </CardContent>
-      <ModalAddMasterVendor open={openModal} setOpen={setOpenModal} typeModal={"EDIT"} id={data.id} />
+      <ModalAddMasterVendor open={openModal} setOpen={setOpenModal} typeModal={'EDIT'} id={data.id} />
     </Card>
   )
 }

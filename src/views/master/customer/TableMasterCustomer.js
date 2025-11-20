@@ -7,7 +7,11 @@ import Icon from 'src/@core/components/icon'
 
 import HandleSearh from 'src/helpers/handleSearch'
 
-import { deleteMasterDataCustomer, fetchMasterDataCustomer, fetchMasterDataCustomerDetail } from 'src/store/apps/master/customer'
+import {
+  deleteMasterDataCustomer,
+  fetchMasterDataCustomer,
+  fetchMasterDataCustomerDetail
+} from 'src/store/apps/master/customer'
 import ModalAddMasterCustomer from './ModalAddMasterCustomer'
 import TableHeaderMasterCustomer from './TableHeaderMasterCustomer'
 import { useRouter } from 'next/router'
@@ -53,7 +57,7 @@ const RowOptions = ({ id, name, router }) => {
   )
 }
 
-export default function TableMasterCustomer({ }) {
+export default function TableMasterCustomer({}) {
   const dispatch = useDispatch()
   const router = useRouter()
   const [openModalAdd, setOpenModalAdd] = useState(false)
@@ -66,7 +70,7 @@ export default function TableMasterCustomer({ }) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({ data, keys: ["name"], searchValue, setData: setFilteredData })
+    HandleSearh({ data, keys: ['name'], searchValue, setData: setFilteredData })
   }
 
   useEffect(() => {
@@ -102,30 +106,10 @@ export default function TableMasterCustomer({ }) {
             field: 'name',
             headerName: 'Nama Customer',
             renderCell: params => {
-              const isPosCustomer = params?.row?.isPosCustomer
               return (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.name}
-                  </Typography>
-                  {isPosCustomer && (
-                    <Box
-                      sx={{
-                        backgroundColor: 'primary.main',
-                        color: 'primary.contrastText',
-                        fontSize: '0.6rem',
-                        fontWeight: 400,
-                        borderRadius: '3px',
-                        padding: '1px 4px',
-                        width: 'fit-content',
-                        textAlign: 'center',
-                        opacity: 0.8
-                      }}
-                    >
-                      POS
-                    </Box>
-                  )}
-                </Box>
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  {params.row.name}
+                </Typography>
               )
             }
           },
@@ -178,6 +162,24 @@ export default function TableMasterCustomer({ }) {
             }
           },
           {
+            flex: 0.05,
+            minWidth: 80,
+            field: 'isPosCustomer',
+            headerName: 'Tipe',
+            renderCell: params => {
+              const isPosCustomer = params?.row?.isPosCustomer
+              return (
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                  {isPosCustomer && (
+                    <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                      POS
+                    </Typography>
+                  )}
+                </Box>
+              )
+            }
+          },
+          {
             flex: 0.07,
             minWidth: 100,
             field: 'rankName',
@@ -208,7 +210,7 @@ export default function TableMasterCustomer({ }) {
             field: 'actions',
             headerName: 'Actions',
             renderCell: ({ row }) => (
-              <div onClick={(e) => e.stopPropagation()}>
+              <div onClick={e => e.stopPropagation()}>
                 <RowOptions id={row.id} name={row.name} router={router} />
               </div>
             )
@@ -237,7 +239,7 @@ export default function TableMasterCustomer({ }) {
             placeholder: 'Cari nama customer',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd,
+            openModalAdd: setOpenModalAdd
           }
         }}
       />
