@@ -7,16 +7,25 @@ const DashboardCardPo = ({ dataDashboardCountPo, loadingDashboardCountPo }) => {
     <Grid container spacing={4}>
       {/* Card Lunas */}
       <Grid item xs={12} md={6}>
-        <Card sx={{ backgroundColor: 'rgba(76, 175, 80, 0.08)' }}>
-          <CardContent sx={{ gap: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Card sx={{ border: '2px solid rgba(76, 175, 80, 0.5)' }}>
+          <CardContent
+            sx={{
+              gap: 3,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              py: 1.5,
+              '&:last-child': { pb: 1.5 }
+            }}
+          >
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-              <Typography variant='h5' sx={{ mb: 0.5 }}>
+              <Typography variant='h5' sx={{ mb: 0 }}>
                 {loadingDashboardCountPo ? '...' : dataDashboardCountPo.countPaid || 0}
               </Typography>
               <Typography variant='body2'>PO Lunas</Typography>
             </Box>
-            <CustomAvatar skin='light' color='success' sx={{ width: 42, height: 42 }}>
-              <Icon icon='tabler:circle-check' fontSize='1.625rem' />
+            <CustomAvatar skin='light' color='success' sx={{ width: 38, height: 38 }}>
+              <Icon icon='tabler:circle-check' fontSize='1.5rem' />
             </CustomAvatar>
           </CardContent>
         </Card>
@@ -24,16 +33,25 @@ const DashboardCardPo = ({ dataDashboardCountPo, loadingDashboardCountPo }) => {
 
       {/* Card Belum Lunas */}
       <Grid item xs={12} md={6}>
-        <Card sx={{ backgroundColor: 'rgba(244, 67, 54, 0.08)' }}>
-          <CardContent sx={{ gap: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Card sx={{ border: '2px solid rgba(244, 67, 54, 0.5)' }}>
+          <CardContent
+            sx={{
+              gap: 3,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              py: 1.5,
+              '&:last-child': { pb: 1.5 }
+            }}
+          >
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-              <Typography variant='h5' sx={{ mb: 0.5 }}>
+              <Typography variant='h5' sx={{ mb: 0 }}>
                 {loadingDashboardCountPo ? '...' : dataDashboardCountPo.countDebt || 0}
               </Typography>
               <Typography variant='body2'>PO Belum Lunas</Typography>
             </Box>
-            <CustomAvatar skin='light' color='error' sx={{ width: 42, height: 42 }}>
-              <Icon icon='tabler:clock-hour-4' fontSize='1.625rem' />
+            <CustomAvatar skin='light' color='error' sx={{ width: 38, height: 38 }}>
+              <Icon icon='tabler:clock-hour-4' fontSize='1.5rem' />
             </CustomAvatar>
           </CardContent>
         </Card>

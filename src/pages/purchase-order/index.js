@@ -23,7 +23,7 @@ export default function InternalTransfer() {
   }, [dispatch])
 
   return (
-    <Grid container spacing={6}>
+    <Grid container spacing={3}>
       {/* Dashboard Cards */}
       <Grid item xs={12}>
         <DashboardCardPo
