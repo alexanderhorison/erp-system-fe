@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { Box, Typography, Button, Stack } from '@mui/material'
-import { printItem, printPointOfSale } from 'src/utils/printerHelper'
 import { useDispatch } from 'react-redux'
 import ModalSendEmailCustomer from './ModalSendEmailCustomer'
+import { printPos } from 'src/store/apps/pos'
 
 export default function PaymentSuccess({
   alreadyPayment,
@@ -16,7 +16,7 @@ export default function PaymentSuccess({
 }) {
   const dispatch = useDispatch()
   const handlePrintReceipt = () => {
-    printPointOfSale(dispatch, dataPayment.code)
+    dispatch(printPos(dataPayment.code))
   }
 
   const [openModalEmail, setOpenModalEmail] = useState(false)
@@ -102,7 +102,14 @@ export default function PaymentSuccess({
           </Stack>
         </Box>
       )}
-      {openModalEmail && <ModalSendEmailCustomer open={openModalEmail} setOpen={setOpenModalEmail} customer={customer} code={dataPayment.code} />}
+      {openModalEmail && (
+        <ModalSendEmailCustomer
+          open={openModalEmail}
+          setOpen={setOpenModalEmail}
+          customer={customer}
+          code={dataPayment.code}
+        />
+      )}
     </>
   )
 }

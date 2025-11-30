@@ -15,10 +15,12 @@ import TableCell from '@mui/material/TableCell'
 
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
-import { companyInfo } from 'src/data/companyInfo'
 import { Status } from 'src/@core/components/common'
 import { priceFormat } from 'src/helpers/priceFormatter'
-import { CompanySvg } from 'src/data/companySvg'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
+import Logo from 'src/icons/logo'
 
 const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
@@ -41,6 +43,13 @@ const CalcWrapper = styled(Box)(({ theme }) => ({
 const DetailPagePurchaseOrder = ({ data }) => {
   // ** Hook
   const theme = useTheme()
+  const dispatch = useDispatch()
+
+  const { rawCompany: companyInfo } = useSelector(state => state.companyConfig)
+
+  useEffect(() => {
+    dispatch(fetchCompanyInfo())
+  }, [dispatch])
 
   if (data) {
     return (
@@ -50,16 +59,16 @@ const DetailPagePurchaseOrder = ({ data }) => {
             <Grid item sm={6} xs={12}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CompanySvg />
+                  <Logo width={30} />
                   <Typography variant='h4' sx={{ ml: 2.5, fontWeight: 500, lineHeight: '18px' }}>
                     {themeConfig.templateName}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.companyName}</Typography>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.address}</Typography>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.city}</Typography>
-                  <Typography sx={{ color: `'text.secondary'` }}>{companyInfo.phoneNumber}</Typography>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.companyName}</Typography>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.address}</Typography>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.city}</Typography>
+                  <Typography sx={{ color: `'text.secondary'` }}>{companyInfo?.phoneNumber}</Typography>
                 </Box>
               </Box>
             </Grid>
@@ -275,7 +284,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
           <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
             <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
               {data?.grandTotal > 0
-                ? `${companyInfo.ptName} harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`
+                ? `${companyInfo?.ptName} harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`
                 : `Vendor ${data?.vendor?.name?.toUpperCase() || ''} harus melakukan pembayaran sebesar Rp. ${Math.abs(
                     data?.grandTotal
                   ).toLocaleString()}`}
@@ -306,8 +315,8 @@ const DetailPagePurchaseOrder = ({ data }) => {
                   <Typography sx={{ color: 'text.secondary' }}>( ................... )</Typography>
                 </Box>
                 <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{companyInfo.ownerName}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{companyInfo.ownerTitle}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{companyInfo?.ownerName}</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>{companyInfo?.ownerTitle}</Typography>
                 </Box>
               </Box>
             </Grid>

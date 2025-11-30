@@ -13,17 +13,25 @@ import { useTheme } from '@mui/material/styles'
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
 import { Card, CardContent, Box } from '@mui/material'
-import { companyInfo } from 'src/data/companyInfo'
 import { priceFormat } from 'src/helpers/priceFormatter'
-import { CompanySvg } from 'src/data/companySvg'
 import { MUITableCell } from './PrintSalesOrder'
-import React, { forwardRef, useContext } from 'react'
+import React, { forwardRef, useEffect } from 'react'
 import { UseAuth } from 'src/hooks/useAuth'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
+import Logo from 'src/icons/logo'
 
 const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
   const theme = useTheme()
   const { user } = UseAuth()
   const isAdmin = user?.roleId === 1
+  const dispatch = useDispatch()
+
+  const { rawCompany: companyInfo } = useSelector(state => state.companyConfig)
+
+  useEffect(() => {
+    dispatch(fetchCompanyInfo())
+  }, [dispatch])
 
   const calculatePageBreaks = (productCount, barterCount) => {
     const maxItemsPerPage = 14 // Maximum items per page
@@ -70,18 +78,18 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
           <Grid item sm={5} xs={12}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <CompanySvg />
+                <Logo width={30} />
                 <Typography variant='h5' sx={{ ml: 2.5, fontWeight: 900, lineHeight: '18px', textWrap: 'nowrap' }}>
                   {themeConfig.templateName}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
                 <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary', textWrap: 'nowrap' }}>
-                  {companyInfo.companyName}
+                  {companyInfo?.companyName}
                 </Typography>
-                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo.address}</Typography>
-                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo.city}</Typography>
-                <Typography sx={{ fontWeight: 900, color: 'text.secondary' }}>{companyInfo.phoneNumber}</Typography>
+                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo?.address}</Typography>
+                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo?.city}</Typography>
+                <Typography sx={{ fontWeight: 900, color: 'text.secondary' }}>{companyInfo?.phoneNumber}</Typography>
               </Box>
             </Box>
           </Grid>
@@ -342,7 +350,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
           {/* Left Aligned Typography */}
           <Grid item xs={6} lg={6} md={6} sx={{ textAlign: 'left' }}>
             <Box sx={{ display: 'flex-col', alignItems: 'center' }}>
-              {/* <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>{companyInfo.bank}</Typography> */}
+              {/* <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>{companyInfo?.bank}</Typography> */}
             </Box>
           </Grid>
 
@@ -380,7 +388,7 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
         }}
       >
         <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>Silahkan transfer ke rekening:</Typography>
-        <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>{companyInfo.bank}</Typography>
+        <Typography sx={{ fontWeight: 800, color: 'text.secondary' }}>{companyInfo?.bank}</Typography>
       </Box>
 
       <div className='no-page-break'>
@@ -406,8 +414,8 @@ const GeneratePdfSalesOrder = forwardRef(({ id, data }, ref) => {
                   <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>( ................... )</Typography>
                 </Box>
                 <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerName}</Typography>
-                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerTitle}</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo?.ownerName}</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo?.ownerTitle}</Typography>
                 </Box>
               </Box>
             </Grid>

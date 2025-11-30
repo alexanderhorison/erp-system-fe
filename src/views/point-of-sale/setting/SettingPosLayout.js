@@ -3,38 +3,17 @@ import { Box } from '@mui/system'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
-import { fetchAllPrinter } from 'src/store/apps/config/configPrinter'
+import { fetchAllPrinter, fetchPrinterHealthCheck } from 'src/store/apps/config/configPrinter'
 import Icon from 'src/@core/components/icon'
 import SettingSectionPrinter from './SettingSectionPrinter'
-import { changePrinter, connectToPrinter } from 'src/utils/printerHelper'
 
 export default function SettingPosLayout({ setWarehouse, user, isMobile, isTablet, isLowHeight }) {
   const dispatch = useDispatch()
-  // const { data: warehouseList } = useSelector(state => state.warehouse)
-  const { listPrinter, loadingListPrinter } = useSelector(state => state.printer)
+  const { listPrinter, loadingListPrinter, printerHealthStatus } = useSelector(state => state.printer)
   const [selectedSettings, setSelectedSettings] = useState('')
+  const [refreshKey, setRefreshKey] = useState(0)
 
-  const menus = [
-    // { label: 'Pilih Gudang', value: 'SETTING_WAREHOUSE', icon: 'tabler:building-warehouse' },
-    { label: 'Pilih Printer', value: 'SETTING_PRINTER', icon: 'tabler:printer' }
-  ]
-
-  // const handleSelectWarehouse = data => {
-  //   swalConfirmationOnly({
-  //     title: 'Pilih Gudang',
-  //     text: `Apakah anda ingin mengganti gudang menjadi ${data.name}?`,
-  //     confirmButtonText: 'Ya, Konfirmasi',
-  //     showCancelButton: true,
-  //     cancelButtonText: 'Tidak',
-  //     onClickYes: () => {
-  //       localStorage.setItem('warehousePos', JSON.stringify({ warehouseId: data.id, warehouseName: data.name }))
-  //       setWarehouse({
-  //         warehouseId: data.id,
-  //         warehouseName: data.name
-  //       })
-  //     }
-  //   })
-  // }
+  const menus = [{ label: 'Pilih Printer', value: 'SETTING_PRINTER', icon: 'tabler:printer' }]
 
   const handleSelectPrinter = printer => {
     swalConfirmationOnly({
@@ -44,17 +23,16 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
       showCancelButton: true,
       cancelButtonText: 'Tidak',
       onClickYes: () => {
-        changePrinter()
         let printerPos = {
           id: printer.id,
-          name: printer.value,
+          name: printer.description,
           ip: printer.value_json.ip,
           port: printer.value_json.port,
           domain_type: printer.value_json.domain_type,
           connection_type: printer.value_json.connection_type
         }
         localStorage.setItem('printerPos', JSON.stringify(printerPos))
-        connectToPrinter({ printerConfig: printerPos, dispatch })
+        setRefreshKey(prev => prev + 1) // Force re-render
       }
     })
   }
@@ -63,25 +41,32 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
     setSelectedSettings(value)
     if (value === 'SETTING_PRINTER') {
       if (!listPrinter.length) {
-        dispatch(fetchAllPrinter({}))
+        dispatch(
+          fetchAllPrinter({
+            query: {
+              category: 'PRINTER',
+              key: 'PRINTER_POS'
+            }
+          })
+        )
+      }
+      // Fetch printer health check only if not already fetched
+      if (!printerHealthStatus || printerHealthStatus.length === 0) {
+        dispatch(fetchPrinterHealthCheck())
       }
     }
-    // if (value === 'SETTING_WAREHOUSE') {
-    //   if (user?.warehouseId) return
-    //   if (!warehouseList.length) {
-    //     dispatch(fetchMasterDataWarehouse({}))
-    //   }
-    // }
   }
 
   return (
-    <Box sx={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden',
-      p: isLowHeight ? 1 : { xs: 1, md: 3 }
-    }}>
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        p: isLowHeight ? 1 : { xs: 1, md: 3 }
+      }}
+    >
       {/* Header Section */}
       <Box sx={{ flexShrink: 0, mb: isLowHeight ? 1 : 2 }}>
         <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
@@ -94,13 +79,15 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <Grid container spacing={{ xs: 1, md: 3 }} sx={{ height: '100%' }}>
           <Grid item xs={12} md={6} sx={{ height: '100%' }}>
-            <Box sx={{
-              bgcolor: '#f0f0f0',
-              overflowY: 'auto',
-              height: '100%',
-              p: isLowHeight ? 1 : { xs: 2, md: 3 },
-              borderRadius: 2
-            }}>
+            <Box
+              sx={{
+                bgcolor: '#f0f0f0',
+                overflowY: 'auto',
+                height: '100%',
+                p: isLowHeight ? 1 : { xs: 2, md: 3 },
+                borderRadius: 2
+              }}
+            >
               <Grid container spacing={{ xs: 1, md: 2 }}>
                 {menus.map(menu => (
                   <Grid item xs={6} md={3} key={menu.value}>
@@ -122,7 +109,7 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
                       }}
                     >
                       <Icon icon={menu.icon} width={isMobile ? 20 : 24} height={isMobile ? 20 : 24} />
-                      <Typography variant='body2' fontSize={{ xs: '0.65rem', md: '0.75rem' }} mt={1} textAlign="center">
+                      <Typography variant='body2' fontSize={{ xs: '0.65rem', md: '0.75rem' }} mt={1} textAlign='center'>
                         {menu.label}
                       </Typography>
                     </Box>
@@ -132,19 +119,22 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
             </Box>
           </Grid>
           <Grid item xs={12} md={6} sx={{ height: '100%' }}>
-            <Box sx={{
-              bgcolor: '#f0f0f0',
-              overflowY: 'auto',
-              height: '100%',
-              p: isLowHeight ? 1 : { xs: 2, md: 3 },
-              borderRadius: 2
-            }}>
-              {/* {selectedSettings === 'SETTING_WAREHOUSE' && (
-                <SettingSectionWarehouse warehouseList={warehouseList} handleSelectWarehouse={handleSelectWarehouse} />
-              )} */}
-
+            <Box
+              sx={{
+                bgcolor: '#f0f0f0',
+                overflowY: 'auto',
+                height: '100%',
+                p: isLowHeight ? 1 : { xs: 2, md: 3 },
+                borderRadius: 2
+              }}
+            >
               {selectedSettings === 'SETTING_PRINTER' && (
-                <SettingSectionPrinter printerList={listPrinter} handleSelectPrinter={handleSelectPrinter} />
+                <SettingSectionPrinter
+                  key={refreshKey}
+                  printerList={listPrinter}
+                  printerHealthStatus={printerHealthStatus}
+                  handleSelectPrinter={handleSelectPrinter}
+                />
               )}
             </Box>
           </Grid>

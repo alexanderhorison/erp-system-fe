@@ -116,6 +116,9 @@ export const appMasterProductSlice = createSlice({
     loadingDetailInternalTransfer: false,
     errorDetailInternalTransfer: false,
 
+    loadingCreateInternalTransfer: false,
+    errorCreateInternalTransfer: false,
+
     loadingUpdateInternalTransfer: false,
     errorUpdateInternalTransfer: false,
 
@@ -150,6 +153,17 @@ export const appMasterProductSlice = createSlice({
         state.detailInternalTransfer = {}
         state.loadingDetailInternalTransfer = false
         state.errorDetailInternalTransfer = action.error.message
+      })
+
+      .addCase(createInternalTransfer.pending, (state, action) => {
+        state.loadingCreateInternalTransfer = true
+      })
+      .addCase(createInternalTransfer.fulfilled, (state, action) => {
+        state.loadingCreateInternalTransfer = false
+      })
+      .addCase(createInternalTransfer.rejected, (state, action) => {
+        state.loadingCreateInternalTransfer = false
+        state.errorCreateInternalTransfer = action.error.message
       })
 
       .addCase(updateInternalTransfer.pending, (state, action) => {

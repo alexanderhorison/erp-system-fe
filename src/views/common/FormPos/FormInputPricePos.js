@@ -4,6 +4,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 
 // Function to format the number to Rupiah format
 const formatToRupiah = (value) => {
+  if (value == 0) return "0";
   if (!value) return "";
   return value
     .toString()

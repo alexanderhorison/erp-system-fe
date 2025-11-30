@@ -253,6 +253,13 @@ export default function TableAllPurchaseOrder({ timeFilter }) {
         pageSizeOptions={[5, 10, 25, 50]}
         onCellClick={e => handleRowClick(e)}
         slots={{ toolbar: TableHeaderPurchaseOrder }}
+        getRowClassName={params => {
+          const amountDebt = params.row.amountDebt
+          if (amountDebt !== null && amountDebt !== 0 && amountDebt !== '0') {
+            return 'row-with-debt'
+          }
+          return ''
+        }}
         columns={[
           {
             flex: 0.1,
@@ -370,6 +377,12 @@ export default function TableAllPurchaseOrder({ timeFilter }) {
           },
           '& .MuiDataGrid-cell': {
             cursor: 'pointer'
+          },
+          '& .row-with-debt': {
+            backgroundColor: 'rgba(244, 67, 54, 0.08)',
+            '&:hover': {
+              backgroundColor: 'rgba(244, 67, 54, 0.12)'
+            }
           }
         }}
         slotProps={{

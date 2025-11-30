@@ -15,7 +15,6 @@ import TableCell from '@mui/material/TableCell'
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
 import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
-import { companyInfo } from 'src/data/companyInfo'
 import IconTjahayaBerkatAbadi from '../common/iconTjahayaBerkatAbadi'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
@@ -24,6 +23,7 @@ import { useTheme } from '@mui/system'
 import { Alert, CircularProgress } from '@mui/material'
 import HeaderReceiptOrderOutstanding from './HeaderReceiptOrderOutstanding'
 import Link from 'next/link'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 
 export default function PrintReceiptOrderOutstanding({ code }) {
   // ** Hook
@@ -35,6 +35,7 @@ export default function PrintReceiptOrderOutstanding({ code }) {
     errorDetail,
     loadingDetail
   } = useSelector(state => state.deliveryOrderReceiptOutstanding)
+  const { rawCompany: companyInfo } = useSelector(state => state.companyConfig)
 
   useEffect(() => {
     if (data?.code === code) {
@@ -47,6 +48,7 @@ export default function PrintReceiptOrderOutstanding({ code }) {
   useEffect(() => {
     if (code) {
       dispatch(fetchDetailReceiptOrderOutstanding({ code }))
+      dispatch(fetchCompanyInfo())
     }
   }, [code, dispatch])
 
@@ -89,10 +91,10 @@ export default function PrintReceiptOrderOutstanding({ code }) {
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.companyName}</Typography>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.address}</Typography>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo.city}</Typography>
-                  <Typography sx={{ color: `'text.secondary'` }}>{companyInfo.phoneNumber}</Typography>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.companyName}</Typography>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.address}</Typography>
+                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.city}</Typography>
+                  <Typography sx={{ color: `'text.secondary'` }}>{companyInfo?.phoneNumber}</Typography>
                 </Box>
               </Box>
             </Grid>

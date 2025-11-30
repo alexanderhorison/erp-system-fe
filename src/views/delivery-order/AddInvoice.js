@@ -1,13 +1,10 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid, IconButton, Typography } from '@mui/material'
+import { Button, Card, CardContent, CircularProgress, Divider, Grid, IconButton, Typography } from '@mui/material'
 import { useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
 import CustomTextField from 'src/@core/components/mui/text-field'
-import { fetchMasterDataProduct } from 'src/store/apps/master/product'
-import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
-
 import Icon from 'src/@core/components/icon'
 import * as yup from 'yup'
 import { useRouter } from 'next/router'
@@ -21,6 +18,7 @@ export default function AddInvoice({ warehouse }) {
 
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
   const { dataListProductWarehouse: listProduct } = useSelector(state => state.deliveryOrder)
+  const { loadingCreateDeliveryOrder } = useSelector(state => state.deliveryOrder)
 
   const schema = yup.object({
     warehouseOrigin: yup.string().required('Gudang asal harus diisi'),
@@ -358,17 +356,28 @@ export default function AddInvoice({ warehouse }) {
             justifyContent='flex-end'
             gap={6}
           >
-            <Button
-              variant='tonal'
-              color='secondary'
-              onClick={() => router.back()}
-              startIcon={<Icon icon='tabler:x' />}
-            >
-              Cancel
-            </Button>
-            <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-              Submit
-            </Button>
+            {
+              loadingCreateDeliveryOrder ? (
+                <Button variant='contained' disabled>
+                  <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                  Submitting...
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant='tonal'
+                    color='secondary'
+                    onClick={() => router.back()}
+                    startIcon={<Icon icon='tabler:x' />}
+                  >
+                    Cancel
+                  </Button>
+                  <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
+                    Submit
+                  </Button>
+                </>
+              )
+            }
           </Grid>
         </Grid>
       </form>

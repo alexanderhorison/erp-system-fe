@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import { useDispatch, useSelector, redu } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import Link from 'next/link'
 
@@ -13,9 +13,7 @@ import ToolbarSalesOrder from 'src/views/sales-order/ToolbarSalesOrder'
 import DetailPageSalesOrder from 'src/views/sales-order/DetailPageSalesOrder'
 import { fetchAllSalesOrderPayment, resetSalesOrderPayments } from 'src/store/apps/sales-order-payment'
 import TablePayment from 'src/views/sales-order-payment/TablePayment'
-import { Card, CardContent, CardHeader, Typography } from '@mui/material'
-import CustomChip from 'src/@core/components/mui/chip'
-import { priceFormat } from 'src/helpers/priceFormatter'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 
 export default function DetailSalesOrder({ }) {
   const dispatch = useDispatch()
@@ -32,6 +30,7 @@ export default function DetailSalesOrder({ }) {
     if (id) {
       dispatch(resetSalesOrderPayments())
       dispatch(fetchDetailSalesOrder(id))
+      dispatch(fetchCompanyInfo())
     }
   }, [id, dispatch])
 

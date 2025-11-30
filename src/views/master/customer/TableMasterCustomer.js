@@ -7,7 +7,11 @@ import Icon from 'src/@core/components/icon'
 
 import HandleSearh from 'src/helpers/handleSearch'
 
-import { deleteMasterDataCustomer, fetchMasterDataCustomer, fetchMasterDataCustomerDetail } from 'src/store/apps/master/customer'
+import {
+  deleteMasterDataCustomer,
+  fetchMasterDataCustomer,
+  fetchMasterDataCustomerDetail
+} from 'src/store/apps/master/customer'
 import ModalAddMasterCustomer from './ModalAddMasterCustomer'
 import TableHeaderMasterCustomer from './TableHeaderMasterCustomer'
 import { useRouter } from 'next/router'
@@ -53,7 +57,7 @@ const RowOptions = ({ id, name, router }) => {
   )
 }
 
-export default function TableMasterCustomer({ }) {
+export default function TableMasterCustomer({}) {
   const dispatch = useDispatch()
   const router = useRouter()
   const [openModalAdd, setOpenModalAdd] = useState(false)
@@ -66,7 +70,7 @@ export default function TableMasterCustomer({ }) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({ data, keys: ["name"], searchValue, setData: setFilteredData })
+    HandleSearh({ data, keys: ['name'], searchValue, setData: setFilteredData })
   }
 
   useEffect(() => {
@@ -110,28 +114,68 @@ export default function TableMasterCustomer({ }) {
             }
           },
           {
-            flex: 0.08,
-            minWidth: 100,
-            field: 'phoneNumber',
-            headerName: 'Nomor Telepon',
+            flex: 0.15,
+            minWidth: 140,
+            field: 'contact',
+            headerName: 'Email / Nomor Telepon',
             renderCell: params => {
+              const email = params?.row?.email || ''
+              const phoneNumber = params?.row?.phoneNumber || ''
+
+              // Jika keduanya kosong, tampilkan -
+              if (!email && !phoneNumber) {
+                return (
+                  <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+                    -
+                  </Typography>
+                )
+              }
+
+              // Jika hanya salah satu yang ada, tampilkan yang ada saja
+              if (email && !phoneNumber) {
+                return (
+                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                    {email}
+                  </Typography>
+                )
+              }
+
+              if (!email && phoneNumber) {
+                return (
+                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                    {phoneNumber}
+                  </Typography>
+                )
+              }
+
+              // Jika keduanya ada, tampilkan email di atas dan nomor telepon di bawah
               return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params?.row?.phoneNumber}
-                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Typography variant='body2' sx={{ color: 'text.primary', fontSize: '0.8rem', opacity: 0.9 }}>
+                    {email}
+                  </Typography>
+                  <Typography variant='body2' sx={{ color: 'text.secondary', fontSize: '0.8rem', opacity: 0.8 }}>
+                    {phoneNumber}
+                  </Typography>
+                </Box>
               )
             }
           },
           {
-            flex: 0.1,
-            minWidth: 100,
-            field: 'email',
-            headerName: 'Email',
+            flex: 0.05,
+            minWidth: 80,
+            field: 'isPosCustomer',
+            headerName: 'Tipe',
             renderCell: params => {
+              const isPosCustomer = params?.row?.isPosCustomer
               return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params?.row?.email}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                  {isPosCustomer && (
+                    <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                      POS
+                    </Typography>
+                  )}
+                </Box>
               )
             }
           },
@@ -166,7 +210,7 @@ export default function TableMasterCustomer({ }) {
             field: 'actions',
             headerName: 'Actions',
             renderCell: ({ row }) => (
-              <div onClick={(e) => e.stopPropagation()}>
+              <div onClick={e => e.stopPropagation()}>
                 <RowOptions id={row.id} name={row.name} router={router} />
               </div>
             )
@@ -195,7 +239,7 @@ export default function TableMasterCustomer({ }) {
             placeholder: 'Cari nama customer',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd,
+            openModalAdd: setOpenModalAdd
           }
         }}
       />

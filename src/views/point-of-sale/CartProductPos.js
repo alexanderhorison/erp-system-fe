@@ -36,7 +36,7 @@ export default function CartProductPos({
   const cartHeight = getCartHeight();
 
   const handleOpenEditProduct = (item, index) => {
-    if (item?.isCustom) {
+    if (item?.isCustom && !item?.isDebt) {
       swalConfirmationOnly({
         title: `Anda yakin ingin menghapus ${item?.productName} ini?`,
         text: 'Anda tidak dapat mengembalikan produk ini lagi.',
@@ -139,7 +139,7 @@ export default function CartProductPos({
                   )}
                 />
                 {
-                  item?.isCustom && (
+                  item?.isCustom && !item?.isDebt && (
                     <IconButton
                       disableRipple
                       onClick={e => {

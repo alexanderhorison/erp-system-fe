@@ -6,7 +6,7 @@ const label = 'Dashboard'
 
 // 1.⁠ ⁠Daftar barang habis
 // 2.⁠ ⁠TOP 5 barang tidak bergerak  (Tambahkan Config Get data Days)
-// 3.⁠ ⁠Top 5 barang gerak cepat 
+// 3.⁠ ⁠Top 5 barang gerak cepat
 // 4.⁠ ⁠TOP 5 barang dengan quantity terbanyak (API berubah ngambil data dari suatu unit limit 5 data) Fetch semua Unit (total 25 data)
 // 5.⁠ ⁠Statistik total quantity per unit (API ada Perubahan)
 // 6. Statistik jumlah surat (API ada perubahan)
@@ -28,274 +28,357 @@ const label = 'Dashboard'
 // 1. Summary Customer
 
 // 1. DashboardBarangHabis.js
-export const fetchDashboardBarangHabis = createAsyncThunk('appDashboard/fetchDashboardBarangHabis', async ({ query }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/minimum-stock',
-      params: query
-    })
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchDashboardBarangHabis = createAsyncThunk(
+  'appDashboard/fetchDashboardBarangHabis',
+  async ({ query }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/minimum-stock',
+        params: query
+      })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // 2. DashboardBarangTidakBergerak.js
-export const fetchDashboardBarangTidakBergerak = createAsyncThunk('appDashboard/fetchDashboardBarangTidakBergerak', async ({ query }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/slow-stock',
-      params: query
-    })
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchDashboardBarangTidakBergerak = createAsyncThunk(
+  'appDashboard/fetchDashboardBarangTidakBergerak',
+  async ({ query }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/slow-stock',
+        params: query
+      })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // 3. DashboardBarangCepat.js
-export const fetchDashboardBarangCepat = createAsyncThunk('appDashboard/fetchDashboardBarangCepat', async ({ query }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/fast-stock',
-      params: query
-    })
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchDashboardBarangCepat = createAsyncThunk(
+  'appDashboard/fetchDashboardBarangCepat',
+  async ({ query }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/fast-stock',
+        params: query
+      })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // 4. DashboardBarangQuantityTerbanyak.js
-export const fetchDashboardBarangQuantityTerbanyak = createAsyncThunk('appDashboard/fetchDashboardBarangQuantityTerbanyak', async ({ query, unitId }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/max-quantity-by-unit',
-      params: {
-        ...query,
-        unitId
-      }
-    })
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchDashboardBarangQuantityTerbanyak = createAsyncThunk(
+  'appDashboard/fetchDashboardBarangQuantityTerbanyak',
+  async ({ query, unitId }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/max-quantity-by-unit',
+        params: {
+          ...query,
+          unitId
+        }
+      })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // 5. DashboardTotalQuantityPerUnit.js
-export const fetchDashboardTotalQuantityPerUnit = createAsyncThunk('appDashboard/fetchDashboardTotalQuantityPerUnit', async ({ query }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/total-product-in-warehouse',
-      params: query
-    })
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchDashboardTotalQuantityPerUnit = createAsyncThunk(
+  'appDashboard/fetchDashboardTotalQuantityPerUnit',
+  async ({ query }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/total-product-in-warehouse',
+        params: query
+      })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // 6. DashboardJumlahSurat.js
-export const fetchDashboardJumlahSurat = createAsyncThunk('appDashboard/fetchDashboardJumlahSurat', async ({ query }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/total-surat',
-      params: query
-    })
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchDashboardJumlahSurat = createAsyncThunk(
+  'appDashboard/fetchDashboardJumlahSurat',
+  async ({ query }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/total-surat',
+        params: query
+      })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // 7. DashboardJumlahSuratPending.js
-export const fetchDashboardJumlahSuratPending = createAsyncThunk('appDashboard/fetchDashboardJumlahSuratPending', async ({ query }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/total-surat-pending',
-      params: query
-    })
+export const fetchDashboardJumlahSuratPending = createAsyncThunk(
+  'appDashboard/fetchDashboardJumlahSuratPending',
+  async ({ query }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/total-surat-pending',
+        params: query
+      })
 
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // 8. DashboardProductBanyakHilang.js
-export const fetchDashboardProductBanyakHilang = createAsyncThunk('appDashboard/fetchDashboardProductBanyakHilang', async ({ query }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/most-lost-product-outstanding',
-      params: query
-    })
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchDashboardProductBanyakHilang = createAsyncThunk(
+  'appDashboard/fetchDashboardProductBanyakHilang',
+  async ({ query }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/most-lost-product-outstanding',
+        params: query
+      })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // 9. DashboardProductQuantityBanyakHilang.js
-export const fetchDashboardProductQuantityBanyakHilang = createAsyncThunk('appDashboard/fetchDashboardProductQuantityBanyakHilang', async ({ query }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/most-lost-quantity-product-outstanding',
-      params: query
-    })
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchDashboardProductQuantityBanyakHilang = createAsyncThunk(
+  'appDashboard/fetchDashboardProductQuantityBanyakHilang',
+  async ({ query }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/most-lost-quantity-product-outstanding',
+        params: query
+      })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
-
+)
 
 // SUMMARY CUSTOMER
-export const fetchDashboardSummaryCustomer = createAsyncThunk('appDashboard/fetchDashboardSummaryCustomer', async ({ id }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/summary-customer/' + id,
-    })
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchDashboardSummaryCustomer = createAsyncThunk(
+  'appDashboard/fetchDashboardSummaryCustomer',
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/summary-customer/' + id
+      })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
-export const fetchDashboardSummaryVendor = createAsyncThunk('appDashboard/fetchDashboardSummaryVendor', async ({ id }, { rejectWithValue }) => {
+export const fetchDashboardSummaryVendor = createAsyncThunk(
+  'appDashboard/fetchDashboardSummaryVendor',
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/summary-vendor/' + id
+      })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
+// DASHBOARD SALES ORDER 1 - 4
+export const fetchDashboardSalesOrder = createAsyncThunk(
+  'appDashboard/fetchDashboardSalesOrder',
+  async ({ query }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/sales-order/so1'
+      })
+      return response?.data?.data || {}
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
+// DASHBOARD SALES ORDER OVER DUE DATE
+export const fetchDashboardSalesOrderOverDueDate = createAsyncThunk(
+  'appDashboard/fetchDashboardSalesOrderOverDueDate',
+  async (query, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/sales-order/so6',
+        query: query
+      })
+
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+    }
+  }
+)
+
+// DASHBOARD COUNT SO - LUNAS & BELUM LUNAS
+export const dashboardCountSo = createAsyncThunk('appDashboard/dashboardCountSo', async (_, { rejectWithValue }) => {
   try {
     const response = await axios({
       method: 'GET',
-      url: '/dashboard/summary-vendor/' + id,
+      url: '/dashboard/sales-order/menu'
     })
+
     return response.data.data
   } catch (error) {
     swalToastError({ label, error })
-    return rejectWithValue([])
+    return rejectWithValue({ countPaid: 0, countDebt: 0 })
   }
 })
 
 // DASHBOARD SALES ORDER 1 - 4
-export const fetchDashboardSalesOrder = createAsyncThunk('appDashboard/fetchDashboardSalesOrder', async ({ query }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/sales-order/so1',
-    })
-    return response?.data?.data || {}
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchDashboardPurchaseOrder = createAsyncThunk(
+  'appDashboard/fetchDashboardPurchaseOrder',
+  async ({ query }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/purchase-order/po1'
+      })
+
+      return response?.data?.data || {}
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
 // DASHBOARD SALES ORDER OVER DUE DATE
-export const fetchDashboardSalesOrderOverDueDate = createAsyncThunk('appDashboard/fetchDashboardSalesOrderOverDueDate', async (query, { rejectWithValue }) => {
+export const fetchDashboardPurchaseOrderOverDueDate = createAsyncThunk(
+  'appDashboard/fetchDashboardPurchaseOrderOverDueDate',
+  async (query, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/purchase-order/po6',
+        params: query
+      })
+
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+    }
+  }
+)
+
+// DASHBOARD COUNT PO - LUNAS & BELUM LUNAS
+export const dashboardCountPo = createAsyncThunk('appDashboard/dashboardCountPo', async (_, { rejectWithValue }) => {
   try {
     const response = await axios({
       method: 'GET',
-      url: '/dashboard/sales-order/so6',
-      query: query
+      url: '/dashboard/purchase-order/menu'
     })
 
     return response.data.data
   } catch (error) {
     swalToastError({ label, error })
+    return rejectWithValue({ countPaid: 0, countDebt: 0 })
   }
 })
 
-// DASHBOARD SALES ORDER 1 - 4
-export const fetchDashboardPurchaseOrder = createAsyncThunk('appDashboard/fetchDashboardPurchaseOrder', async ({ query }, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/purchase-order/po1',
-    })
+export const fetchDashboardFinanceRevenue = createAsyncThunk(
+  'appDashboard/fetchDashboardFinanceRevenue',
+  async (query, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/finance/revenue',
+        params: query
+      })
 
-    return response?.data?.data || {}
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
-// DASHBOARD SALES ORDER OVER DUE DATE
-export const fetchDashboardPurchaseOrderOverDueDate = createAsyncThunk('appDashboard/fetchDashboardPurchaseOrderOverDueDate', async (query, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/purchase-order/po6',
-      params: query
-    })
+export const fetchDashboardFinanceProfitLoss = createAsyncThunk(
+  'appDashboard/fetchDashboardFinanceProfitLoss',
+  async (query, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/finance/profit-loss',
+        params: query
+      })
 
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
+)
 
-export const fetchDashboardFinanceRevenue = createAsyncThunk('appDashboard/fetchDashboardFinanceRevenue', async (query, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/finance/revenue',
-      params: query
-    })
-
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
+export const fetchDashboardFinanceProfitLossYearly = createAsyncThunk(
+  'appDashboard/fetchDashboardFinanceProfitLossYearly',
+  async (query, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/dashboard/finance/profit-loss-yearly',
+        params: query
+      })
+      return response.data.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
   }
-})
-
-export const fetchDashboardFinanceProfitLoss = createAsyncThunk('appDashboard/fetchDashboardFinanceProfitLoss', async (query, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/finance/profit-loss',
-      params: query
-    })
-
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
-  }
-})
-
-export const fetchDashboardFinanceProfitLossYearly = createAsyncThunk('appDashboard/fetchDashboardFinanceProfitLossYearly', async (query, { rejectWithValue }) => {
-  try {
-    const response = await axios({
-      method: 'GET',
-      url: '/dashboard/finance/profit-loss-yearly',
-      params: query
-    })
-    return response.data.data
-  } catch (error) {
-    swalToastError({ label, error })
-    return rejectWithValue([])
-  }
-})
+)
 
 // REDUCER DASHBOARD
 export const appMasterRankSlice = createSlice({
@@ -338,7 +421,6 @@ export const appMasterRankSlice = createSlice({
     loadingDashboardProductQuantityBanyakHilang: false,
     errorDashboardProductQuantityBanyakHilang: false,
 
-
     // DASHBOARD SUMMARY CUSTOMER
     dataDashboardSummaryCustomer: [],
     loadingDashboardSummaryCustomer: false,
@@ -354,7 +436,7 @@ export const appMasterRankSlice = createSlice({
       dashboard1: [],
       dashboard2: [],
       dashboard3: [],
-      dashboard4: [],
+      dashboard4: []
     },
     loadingDashboardSalesOrder: false,
     errorDashboardSalesOrder: false,
@@ -362,28 +444,41 @@ export const appMasterRankSlice = createSlice({
     dataDashboardSalesOrderOverDueDate: {
       data: [],
       totalPage: 0,
-      totalData: 0,
+      totalData: 0
     },
     loadingDashboardSalesOrderOverDueDate: false,
     errorDashboardSalesOrderOverDueDate: false,
-
+    // DASHBOARD COUNT SO - LUNAS & BELUM LUNAS
+    dataDashboardCountSo: {
+      countPaid: 0,
+      countDebt: 0
+    },
+    loadingDashboardCountSo: false,
+    errorDashboardCountSo: false,
 
     // DASHBOARD PURCHASE ORDER
     dataDashboardPurchaseOrder: {
       dashboard1: [],
       dashboard2: [],
       dashboard3: [],
-      dashboard4: [],
+      dashboard4: []
     },
     loadingDashboardPurchaseOrder: false,
     errorDashboardPurchaseOrder: false,
     // OVER DUE DATE PO
     dataDashboardPurchaseOrderOverDueDate: {
       data: [],
-      totalPage: 0,
+      totalPage: 0
     },
     loadingDashboardPurchaseOrderOverDueDate: false,
     errorDashboardPurchaseOrderOverDueDate: false,
+    // DASHBOARD COUNT PO - LUNAS & BELUM LUNAS
+    dataDashboardCountPo: {
+      countPaid: 0,
+      countDebt: 0
+    },
+    loadingDashboardCountPo: false,
+    errorDashboardCountPo: false,
 
     // DASHBOARD FINANCE
     dataDashboardFinanceRevenue: [],
@@ -396,7 +491,7 @@ export const appMasterRankSlice = createSlice({
 
     dataDashboardFinanceProfitLossYearly: [],
     loadingDashboardFinanceProfitLossYearly: false,
-    errorDashboardFinanceProfitLossYearly: false,
+    errorDashboardFinanceProfitLossYearly: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -569,6 +664,18 @@ export const appMasterRankSlice = createSlice({
         state.loadingDashboardSalesOrderOverDueDate = false
         state.errorDashboardSalesOrderOverDueDate = true
       })
+      // DATA DASHBOARD COUNT SO - LUNAS & BELUM LUNAS
+      .addCase(dashboardCountSo.pending, (state, action) => {
+        state.loadingDashboardCountSo = true
+      })
+      .addCase(dashboardCountSo.fulfilled, (state, action) => {
+        state.loadingDashboardCountSo = false
+        state.dataDashboardCountSo = action.payload
+      })
+      .addCase(dashboardCountSo.rejected, (state, action) => {
+        state.loadingDashboardCountSo = false
+        state.errorDashboardCountSo = true
+      })
 
       // DATA DASHBOARD PURCHASE ORDER 1 - 4
       .addCase(fetchDashboardPurchaseOrder.pending, (state, action) => {
@@ -594,6 +701,18 @@ export const appMasterRankSlice = createSlice({
       .addCase(fetchDashboardPurchaseOrderOverDueDate.rejected, (state, action) => {
         state.loadingDashboardPurchaseOrderOverDueDate = false
         state.errorDashboardPurchaseOrderOverDueDate = true
+      })
+      // DATA DASHBOARD COUNT PO - LUNAS & BELUM LUNAS
+      .addCase(dashboardCountPo.pending, (state, action) => {
+        state.loadingDashboardCountPo = true
+      })
+      .addCase(dashboardCountPo.fulfilled, (state, action) => {
+        state.loadingDashboardCountPo = false
+        state.dataDashboardCountPo = action.payload
+      })
+      .addCase(dashboardCountPo.rejected, (state, action) => {
+        state.loadingDashboardCountPo = false
+        state.errorDashboardCountPo = true
       })
 
       // DATA DASHBOARD FINANCE REVENUE

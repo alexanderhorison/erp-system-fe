@@ -1,5 +1,5 @@
 // ** React Imports
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useEffect } from 'react'
 
 // ** Next Import
 
@@ -18,9 +18,10 @@ import TableContainer from '@mui/material/TableContainer'
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
 import { Card, CardContent, Box } from '@mui/material'
-import { companyInfo } from 'src/data/companyInfo'
 import { priceFormat } from 'src/helpers/priceFormatter'
-import { CompanySvg } from 'src/data/companySvg'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
+import Logo from 'src/icons/logo'
 
 const MUITableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 0,
@@ -33,6 +34,13 @@ const MUITableCell = styled(TableCell)(({ theme }) => ({
 const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
   // ** Hooks
   const theme = useTheme()
+  const dispatch = useDispatch()
+
+  const { rawCompany: companyInfo } = useSelector(state => state.companyConfig)
+
+  useEffect(() => {
+    dispatch(fetchCompanyInfo())
+  }, [dispatch])
 
   const calculatePageBreaks = (productCount, barterCount) => {
     const maxItemsPerPage = 14 // Maximum items per page
@@ -79,18 +87,18 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
           <Grid item sm={5} xs={12}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <CompanySvg />
+                <Logo width={30} />
                 <Typography variant='h5' sx={{ ml: 2.5, fontWeight: 900, lineHeight: '18px', textWrap: 'nowrap' }}>
                   {themeConfig.templateName}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 4 }}>
                 <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary', textWrap: 'nowrap' }}>
-                  {companyInfo.companyName}
+                  {companyInfo?.companyName}
                 </Typography>
-                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo.address}</Typography>
-                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo.city}</Typography>
-                <Typography sx={{ fontWeight: 900, color: 'text.secondary' }}>{companyInfo.phoneNumber}</Typography>
+                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo?.address}</Typography>
+                <Typography sx={{ mb: 2, fontWeight: 900, color: 'text.secondary' }}>{companyInfo?.city}</Typography>
+                <Typography sx={{ fontWeight: 900, color: 'text.secondary' }}>{companyInfo?.phoneNumber}</Typography>
               </Box>
             </Box>
           </Grid>
@@ -389,8 +397,8 @@ const GeneratePdfPurchaseOrder = forwardRef(({ id, data }, ref) => {
                   <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>( ................... )</Typography>
                 </Box>
                 <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerName}</Typography>
-                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo.ownerTitle}</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo?.ownerName}</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontWeight: 800 }}>{companyInfo?.ownerTitle}</Typography>
                 </Box>
               </Box>
             </Grid>

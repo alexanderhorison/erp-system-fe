@@ -1,13 +1,13 @@
-import { Grid, Typography } from "@mui/material";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchMasterDataVendorDetail } from "src/store/apps/master/vendor";
-import ButtonBack from "src/views/common/ButtonBack";
-import CustomTab from "src/views/common/CustomTab";
-import DetailVendor from "src/views/master/vendor/DetailVendor";
-import SummaryVendor from "src/views/master/vendor/SummaryVendor";
-import TablePurchaseOrderVendor from "src/views/master/vendor/TablePurchaseOrderVendor";
+import { Grid, Typography } from '@mui/material'
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchMasterDataVendorDetail } from 'src/store/apps/master/vendor'
+import ButtonBack from 'src/views/common/ButtonBack'
+import CustomTab from 'src/views/common/CustomTab'
+import DetailVendor from 'src/views/master/vendor/DetailVendor'
+import SummaryVendor from 'src/views/master/vendor/SummaryVendor'
+import TablePurchaseOrderVendor from 'src/views/master/vendor/TablePurchaseOrderVendor'
 
 export default function DetailMasterVendor() {
   const dispatch = useDispatch()
@@ -18,7 +18,7 @@ export default function DetailMasterVendor() {
   const { loadingDetail, detail: detailVendor } = useSelector(state => state.masterVendor)
 
   useEffect(() => {
-    if (query?.id){
+    if (query?.id) {
       dispatch(fetchMasterDataVendorDetail(query?.id))
     }
   }, [query.id])
@@ -27,22 +27,22 @@ export default function DetailMasterVendor() {
     {
       label: 'Summary',
       value: 'summary',
-      icon: 'tabler:wallet',
+      icon: 'tabler:wallet'
     },
     {
       label: 'Purchase Order',
       value: 'purchase-order',
-      icon: 'tabler:truck-delivery',
+      icon: 'tabler:truck-delivery'
     }
   ]
 
   return (
     <Grid container spacing={6}>
       <ButtonBack name='Detail Data Vendor' paddingY={0} />
-      <Grid item xs={12}>
+      <Grid item xs={4}>
         <DetailVendor data={detailVendor} loading={loadingDetail} />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={8}>
         <CustomTab
           tabContentList={tabList}
           activeTab={activeTab}
@@ -50,22 +50,17 @@ export default function DetailMasterVendor() {
           loading={loadingTab}
           setLoadingTab={setLoadingTab}
         />
-      </Grid>
-      {/* FOR PURCHASE ORDER */}
-      {
-        activeTab === 'summary' && (
-          <Grid item xs={12}>
+        {activeTab === 'summary' && (
+          <Grid item xs={12} sx={{ mt: 3 }}>
             <SummaryVendor />
           </Grid>
-        )
-      }
-      {
-        activeTab === 'purchase-order' && (
-          <Grid item xs={12}>
+        )}
+        {activeTab === 'purchase-order' && (
+          <Grid item xs={12} sx={{ mt: 3 }}>
             <TablePurchaseOrderVendor />
           </Grid>
-        )
-      }
+        )}
+      </Grid>
     </Grid>
   )
 }

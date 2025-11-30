@@ -43,7 +43,7 @@ export default function DetailCustomer({ data, loading }) {
         <Typography variant='body2' sx={{ mb: 2.5 }}>
           {data.alias}
         </Typography>
-        <Grid container spacing={2} mt={2} justifyContent='center'>
+        {/* <Grid container spacing={2} mt={2} justifyContent='center'>
           <Grid item>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <CustomAvatar skin='light' color={'primary'}>
@@ -68,7 +68,7 @@ export default function DetailCustomer({ data, loading }) {
               </Box>
             </Box>
           </Grid>
-        </Grid>
+        </Grid> */}
         <Typography variant='h5' textAlign={'left'} sx={{ mt: '1.5rem' }}>
           Details
         </Typography>

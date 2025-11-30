@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
 import { swalConfirmationAdd, swalNotifSuccess, swalToastError } from 'src/helpers/swalFunction'
 import { fetchMasterDataCustomer } from '../master/customer'
-import { swalConfirmationChargePos } from 'src/helpers/swalFunctionPos'
+import { swalConfirmationChargePos, swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
 
 const label = 'produk'
 // GET ALL WAREHOUSE
@@ -150,7 +150,7 @@ export const chargePos = createAsyncThunk(
     try {
       await swalConfirmationChargePos({
         title: `Pembayaran menggunakan ${selectedPayment?.label}?`,
-        text: `Sebesar Rp.${subTotalPrice}`,
+        text: `Sebesar Rp. ${subTotalPrice || 0}`,
         width: 500,
         axiosRequest: () => {
           return axios({
@@ -187,6 +187,23 @@ export const fetchAllPointOfSaleByWarehouseId = createAsyncThunk(
   }
 )
 
+// GET ALL POINT OF SALE BY CUSTOMERID
+export const fetchAllPointOfSaleByCustomerId = createAsyncThunk(
+  'appProductPos/fetchAllPointOfSaleByCustomerId',
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/point-of-sale/get-all-point-of-sale-by-customer/' + id
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
 // GET DETAIL PURCHASE ORDER
 export const fetchDetailPointOfSale = createAsyncThunk(
   'appProductPos/fetchDetailPointOfSale',
@@ -203,6 +220,60 @@ export const fetchDetailPointOfSale = createAsyncThunk(
     }
   }
 )
+
+// PRINT POS
+export const printPos = createAsyncThunk('appProductPos/printPos', async (code, { rejectWithValue }) => {
+  // Show confirmation first
+  return new Promise((resolve, reject) => {
+    swalConfirmationOnly({
+      title: 'Print Point of Sale',
+      text: 'Apakah anda yakin ingin mencetak Point of Sale ini?',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Cetak',
+      cancelButtonText: 'Tidak',
+      onClickYes: async () => {
+        try {
+          // Validasi code
+          const codeString = typeof code === 'object' ? code.code || code.id : code
+          if (!codeString) {
+            throw new Error('Code tidak valid untuk print')
+          }
+
+          // Get printer data from localStorage
+          const printerPosData = localStorage.getItem('printerPos')
+          const printerPos = printerPosData ? JSON.parse(printerPosData) : null
+
+          // Prepare request body with printer info
+          const requestBody = printerPos
+            ? {
+                ip: printerPos.ip,
+                name: printerPos.name
+              }
+            : {}
+
+          // Kirim request ke backend - BE yang handle semua printing logic
+          const response = await axios({
+            method: 'POST',
+            url: `/point-of-sale/print-v3/${codeString}`,
+            data: requestBody
+          })
+
+          swalNotifSuccess({ message: response?.data?.message || 'Struk berhasil dicetak!' })
+          resolve(response.data)
+        } catch (error) {
+          console.error('❌ Print Error:', error)
+          swalToastError({ label: 'Print', error })
+          reject(error)
+          return rejectWithValue([])
+        }
+      },
+      onClickNo: () => {
+        // User cancelled
+        resolve({ cancelled: true })
+      }
+    })
+  })
+})
 
 export const sendEmailPos = createAsyncThunk('appProductPos/sendEmail', async (formData, { rejectWithValue }) => {
   try {
@@ -247,7 +318,11 @@ export const appPosSlice = createSlice({
 
     detailPointOfSale: {},
     loadingDetailPointOfSale: true,
-    errorDetailPointOfSale: false
+    errorDetailPointOfSale: false,
+
+    dataPointOfSaleCustomer: [],
+    loadingDataPointOfSaleCustomer: true,
+    errorDataPointOfSaleCustomer: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -331,6 +406,20 @@ export const appPosSlice = createSlice({
         state.detailPointOfSale = {}
         state.loadingDetailPointOfSale = false
         state.errorDetailPointOfSale = action.error.message
+      })
+
+      // List Point Of Sale By Customer
+      .addCase(fetchAllPointOfSaleByCustomerId.pending, (state, action) => {
+        state.loadingDataPointOfSaleCustomer = true
+      })
+      .addCase(fetchAllPointOfSaleByCustomerId.fulfilled, (state, action) => {
+        state.dataPointOfSaleCustomer = action.payload.data
+        state.loadingDataPointOfSaleCustomer = false
+      })
+      .addCase(fetchAllPointOfSaleByCustomerId.rejected, (state, action) => {
+        state.dataPointOfSaleCustomer = []
+        state.loadingDataPointOfSaleCustomer = false
+        state.errorDataPointOfSaleCustomer = action.error.message
       })
   }
 })

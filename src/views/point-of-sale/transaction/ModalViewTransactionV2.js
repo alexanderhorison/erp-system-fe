@@ -1,12 +1,10 @@
 import React from 'react'
-import { Grid, Typography, Divider, Card, Alert, CircularProgress, Dialog, DialogContent } from '@mui/material'
+import { Grid, Typography, Card, Alert, CircularProgress, Dialog, DialogContent } from '@mui/material'
 import { useSelector } from 'react-redux'
 import Link from 'next/link'
 import { Box } from '@mui/system'
-import { priceFormat, priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { CustomCloseButton } from 'src/views/pages/dialog-examples/DialogEditUserInfo'
 import Icon from 'src/@core/components/icon'
-import { Status } from 'src/@core/components/common'
 import DetailOpenBillAndTransaction from '../open-bill/DetailOpenBillAndTransaction'
 
 export default function ModalViewTransactionV2({ open, setOpen }) {

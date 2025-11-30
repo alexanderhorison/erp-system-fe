@@ -47,20 +47,32 @@ export default function TableHeaderPrinter(props) {
           }
         }}
       />
-      <Button
-        onClick={() => props.handleAdd(true)}
-        variant='contained'
-        sx={{
-          width: '100%',
-          '@media (min-width: 600px)': {
-            width: 'auto'
-          },
-          '& svg': { mr: 2 }
-        }}
-      >
-        <Icon fontSize='1.125rem' icon='tabler:plus' />
-        Tambah Printer
-      </Button>
+      <Box sx={{ display: 'flex', gap: 2, width: { xs: '100%', sm: 'auto' } }}>
+        <Button
+          onClick={props.handleCheckPrinter}
+          variant='outlined'
+          color='primary'
+          disabled={props.loadingCheck}
+          sx={{
+            width: { xs: '100%', sm: 'auto' },
+            '& svg': { mr: 2 }
+          }}
+        >
+          <Icon fontSize='1.125rem' icon='tabler:refresh' />
+          {props.loadingCheck ? 'Mengecek...' : 'Cek Printer'}
+        </Button>
+        <Button
+          onClick={() => props.handleAdd(true)}
+          variant='contained'
+          sx={{
+            width: { xs: '100%', sm: 'auto' },
+            '& svg': { mr: 2 }
+          }}
+        >
+          <Icon fontSize='1.125rem' icon='tabler:plus' />
+          Tambah Printer
+        </Button>
+      </Box>
     </Box>
   )
 }
