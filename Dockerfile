@@ -35,6 +35,10 @@ ARG PORT
 
 WORKDIR /app
 
+# Set timezone to Asia/Jakarta
+ENV TZ=Asia/Jakarta
+RUN apk add --no-cache tzdata
+
 # Set to production environment
 ENV NODE_ENV=production
 
