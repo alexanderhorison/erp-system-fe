@@ -39,7 +39,9 @@ export default function TablePurchaseOrderVendor() {
 
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
 
-  const { dataPurchaseOrderVendor: data, loadingDataPurchaseOrderVendor: loading } = useSelector(state => state.purchaseOrder)
+  const { dataPurchaseOrderVendor: data, loadingDataPurchaseOrderVendor: loading } = useSelector(
+    state => state.purchaseOrder
+  )
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
@@ -62,9 +64,11 @@ export default function TablePurchaseOrderVendor() {
   }
 
   useEffect(() => {
-    dispatch(fetchAllPurchaseOrderVendor({
-      id
-    }))
+    dispatch(
+      fetchAllPurchaseOrderVendor({
+        id
+      })
+    )
   }, [id])
 
   useEffect(() => {
@@ -191,12 +195,25 @@ export default function TablePurchaseOrderVendor() {
         slots={{ toolbar: TableHeaderPurchaseOrderVendor }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
+        getRowClassName={params => {
+          const amountDebt = params.row.amountDebt
+          if (amountDebt !== null && amountDebt !== 0 && amountDebt !== '0') {
+            return 'row-with-debt'
+          }
+          return ''
+        }}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
           },
           '& .MuiDataGrid-cell': {
             cursor: 'pointer'
+          },
+          '& .row-with-debt': {
+            backgroundColor: 'rgba(244, 67, 54, 0.08)',
+            '&:hover': {
+              backgroundColor: 'rgba(244, 67, 54, 0.12)'
+            }
           }
         }}
         slotProps={{
@@ -208,7 +225,7 @@ export default function TablePurchaseOrderVendor() {
             value: searchText,
             placeholder: 'Cari code purchase order',
             clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
+            onChange: event => handleSearch(event.target.value)
           }
         }}
       />

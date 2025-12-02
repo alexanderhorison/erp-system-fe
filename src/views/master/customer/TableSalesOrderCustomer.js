@@ -195,12 +195,25 @@ export default function TableSalesOrderCustomer() {
         slots={{ toolbar: TableHeaderSalesOrderCustomer }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
+        getRowClassName={params => {
+          const amountDebt = params.row.amountDebt
+          if (amountDebt !== null && amountDebt !== 0 && amountDebt !== '0') {
+            return 'row-with-debt'
+          }
+          return ''
+        }}
         sx={{
           '& .MuiSvgIcon-root': {
             fontSize: '1.125rem'
           },
           '& .MuiDataGrid-cell': {
             cursor: 'pointer'
+          },
+          '& .row-with-debt': {
+            backgroundColor: 'rgba(244, 67, 54, 0.08)',
+            '&:hover': {
+              backgroundColor: 'rgba(244, 67, 54, 0.12)'
+            }
           }
         }}
         slotProps={{
