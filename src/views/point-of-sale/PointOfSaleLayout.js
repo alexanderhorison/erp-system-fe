@@ -627,9 +627,17 @@ export default function PointOfSaleLayout({
                       disabled={disableButtonClear}
                       fullWidth
                       sx={{
-                        backgroundColor: '#d6bdab',
+                        backgroundColor: '#ffcdd2',
+                        color: '#c62828',
                         height: '100%',
-                        fontSize: isLowHeight ? '0.7rem' : 'inherit'
+                        fontSize: isLowHeight ? '0.7rem' : 'inherit',
+                        '&:hover': {
+                          backgroundColor: '#ef9a9a'
+                        },
+                        '&:disabled': {
+                          backgroundColor: '#e0e0e0',
+                          color: '#9e9e9e'
+                        }
                       }}
                       onClick={() => {
                         swalConfirmationOnly({

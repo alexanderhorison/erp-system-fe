@@ -113,7 +113,7 @@ export default function ModalChargePos({
 
   const [dataSuccessPayment, setDataSuccessPayment] = useState({})
 
-  const { listPaymentType, loadingListPaymentType } = useSelector(state => state.pos)
+  const { listPaymentType, loadingListPaymentType, loadingChargePos } = useSelector(state => state.pos)
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
@@ -207,6 +207,16 @@ export default function ModalChargePos({
     }
   }, [])
 
+  // Auto-select CASH payment method when modal opens
+  useEffect(() => {
+    if (open && listPaymentType.length > 0 && !selectedPayment) {
+      const cashPayment = listPaymentType.find(payment => payment.code === 'CASH')
+      if (cashPayment) {
+        setSelectedPayment(cashPayment)
+      }
+    }
+  }, [open, listPaymentType])
+
   const selectAmount = value => {
     setValue('amount', value)
   }
@@ -255,25 +265,24 @@ export default function ModalChargePos({
                       <CircularProgress />
                     </Grid>
                   ) : (
-                    listPaymentType
-                      .map((item, index) => (
-                        <CustomPaymentTypePos
-                          key={index}
-                          data={{
-                            id: item?.id,
-                            title: item?.label,
-                            value: item?.id,
-                            icon: item?.icon,
-                            description: item?.description
-                          }}
-                          selected={selectedPayment?.id}
-                          icon={defaultIconPayment({ icon: item?.icon })}
-                          handleChange={() => setSelectedPayment(item)}
-                          gridProps={{ xs: 4, sm: 3 }}
-                          iconHeight={40}
-                          iconWidth={40}
-                        />
-                      ))
+                    listPaymentType.map((item, index) => (
+                      <CustomPaymentTypePos
+                        key={index}
+                        data={{
+                          id: item?.id,
+                          title: item?.label,
+                          value: item?.id,
+                          icon: item?.icon,
+                          description: item?.description
+                        }}
+                        selected={selectedPayment?.id}
+                        icon={defaultIconPayment({ icon: item?.icon })}
+                        handleChange={() => setSelectedPayment(item)}
+                        gridProps={{ xs: 4, sm: 3 }}
+                        iconHeight={40}
+                        iconWidth={40}
+                      />
+                    ))
                   )}
                 </Grid>
               </Box>
@@ -382,10 +391,11 @@ export default function ModalChargePos({
                     color="primary"
                     size="large"
                     onClick={handleSubmit(handleSubmitCharge)}
-                    disabled={!selectedPayment}
+                    disabled={!selectedPayment || loadingChargePos}
                     sx={{ borderRadius: 2, py: 1.2 }}
+                    startIcon={loadingChargePos ? <CircularProgress size={20} color='inherit' /> : null}
                   >
-                    Charge
+                    {loadingChargePos ? 'Processing...' : 'Charge'}
                   </Button>
                 </Grid>
               </Grid>

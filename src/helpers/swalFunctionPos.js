@@ -2,7 +2,15 @@ import swal from 'src/pages/sweetalert'
 import { swalError } from './swalFunction'
 
 // ONLY FOR ADD
-export async function swalConfirmationChargePos({ label, text, width = 300, name = 'Data', axiosRequest, dispatchRequest, title }) {
+export async function swalConfirmationChargePos({
+  label,
+  text,
+  width = 300,
+  name = 'Data',
+  axiosRequest,
+  dispatchRequest,
+  title
+}) {
   try {
     const result = await swal.fire({
       title: title,
@@ -17,6 +25,19 @@ export async function swalConfirmationChargePos({ label, text, width = 300, name
     })
     if (result.dismiss) {
     } else {
+      // Show loading state
+      swal.fire({
+        title: 'Processing...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        allowEnterKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          swal.showLoading()
+        }
+      })
+
       const response = await axiosRequest()
       if (dispatchRequest) {
         dispatchRequest(response)
