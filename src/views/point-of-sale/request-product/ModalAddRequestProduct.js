@@ -136,7 +136,7 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
   }, [dispatch])
 
   useEffect(() => {
-    if (['VIEW', 'EDIT'].includes(typeModal) && detailRequestOrder) {
+    if (typeModal === 'EDIT' && detailRequestOrder) {
       reset({
         data: detailRequestOrder?.listProducts || [],
         notes: detailRequestOrder?.notes || ''
@@ -156,9 +156,9 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
         open={open}
         onClose={handleClose}
         onSubmit={handleSubmit(onSubmit)}
-        title={typeModal === 'ADD' ? 'Tambahkan Request Produk' : typeModal === 'VIEW' ? 'Detail Request Produk' : 'Ubah Request Produk'}
+        title={typeModal === 'ADD' ? 'Tambahkan Request Produk' : 'Ubah Request Produk'}
         size="md"
-        showActions={typeModal !== 'VIEW'}
+        showActions={true}
       >
         {loadingMasterProduct && loadingMasterUnit && loadingDetailRequestOrder ? (
           <Box
@@ -200,17 +200,6 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
                           control={control}
                           rules={{ required: true }}
                           render={({ field: { value, onChange } }) => {
-                            if (typeModal === 'VIEW') {
-                              return (
-                                <CustomTextField
-                                  fullWidth
-                                  label='Produk'
-                                  value={item.productName || ''}
-                                  disabled
-                                  sx={{ display: 'block' }}
-                                />
-                              )
-                            }
                             return (
                               <CustomAutocomplete
                                 options={masterProduct}
@@ -219,7 +208,6 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
                                 onChange={(event, newValue) => {
                                   onChange(+newValue?.id)
                                 }}
-                                disabled={typeModal === 'VIEW'}
                                 value={masterProduct.find(option => option.id === value) || null}
                                 renderInput={params => (
                                   <CustomTextField
@@ -244,17 +232,6 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
                           control={control}
                           rules={{ required: true }}
                           render={({ field: { value, onChange } }) => {
-                            if (typeModal === 'VIEW') {
-                              return (
-                                <CustomTextField
-                                  fullWidth
-                                  label='Satuan'
-                                  value={item.unitName || ''}
-                                  disabled
-                                  sx={{ display: 'block' }}
-                                />
-                              )
-                            }
                             return (
                               <CustomAutocomplete
                                 options={masterUnit}
@@ -263,7 +240,6 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
                                 onChange={(event, newValue) => {
                                   onChange(+newValue?.id)
                                 }}
-                                disabled={typeModal === 'VIEW'}
                                 value={masterUnit.find(option => option.id === value) || null}
                                 renderInput={params => (
                                   <CustomTextField
@@ -293,7 +269,6 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
                                 fullWidth
                                 label='Kuantiti'
                                 value={value}
-                                disabled={typeModal === 'VIEW'}
                                 onChange={onChange}
                                 type='number'
                                 sx={{ display: 'block' }}
@@ -306,40 +281,32 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
                           )}
                         />
                       </Grid>
-                      {
-                        typeModal !== 'VIEW' && (
-                          <Grid item xs={0.5} md={0.5} sx={{ marginTop: '1.2rem', ml: -4 }}>
-                            <IconButton onClick={() => remove(index)} sx={{ color: 'text.primary' }}>
-                              <Icon icon='tabler:trash' />
-                            </IconButton>
-                          </Grid>
-                        )
-                      }
+                      <Grid item xs={0.5} md={0.5} sx={{ marginTop: '1.2rem', ml: -4 }}>
+                        <IconButton onClick={() => remove(index)} sx={{ color: 'text.primary' }}>
+                          <Icon icon='tabler:trash' />
+                        </IconButton>
+                      </Grid>
                     </Grid>
                   </CardContent>
                 </React.Fragment>
               ))}
             </Box>
-            {
-              typeModal !== 'VIEW' && (
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3, mt: 3 }}>
-                  <Button
-                    onClick={() =>
-                      append({
-                        productId: '',
-                        unitId: '',
-                        quantityRequested: '',
-                      })
-                    }
-                    startIcon={<Icon icon='tabler:plus' />}
-                    variant='outlined'
-                  >
-                    Tambahkan Produk
-                  </Button>
-                </Box>
-              )
-            }
-            <Grid item xs={12} sx={{ mt: typeModal == 'VIEW' ? 3 : 0 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3, mt: 3 }}>
+              <Button
+                onClick={() =>
+                  append({
+                    productId: '',
+                    unitId: '',
+                    quantityRequested: '',
+                  })
+                }
+                startIcon={<Icon icon='tabler:plus' />}
+                variant='outlined'
+              >
+                Tambahkan Produk
+              </Button>
+            </Box>
+            <Grid item xs={12} sx={{ mt: 0 }}>
               <Controller
                 name={`notes`}
                 control={control}
@@ -350,8 +317,7 @@ export default function ModalAddRequestProduct({ open, setOpen, typeModal = 'ADD
                     rows={3}
                     fullWidth
                     label='Catatan'
-                    disabled={typeModal === 'VIEW'}
-                    placeholder={typeModal === 'VIEW' ? "" : 'Catatan...'}
+                    placeholder='Catatan...'
                     value={value}
                     onChange={e => {
                       onChange(e.target.value)

@@ -15,32 +15,33 @@ export default function RequestProductLayout({ warehouseId, isMobile, isTablet, 
 
   useEffect(() => {
     if (warehouseId) {
-      dispatch(fetchAllRequestOrder())
+      dispatch(fetchAllRequestOrder({ isPosLayout: true }))
     }
   }, [warehouseId])
 
   return (
-    <Box sx={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden'
-    }}>
-      {/* Header Section */}
-      <Box sx={{
-        flexShrink: 0,
-        gap: 1,
+    <Box
+      sx={{
+        height: '100%',
         display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        paddingY: isLowHeight ? 1 : { xs: 2, md: 3 },
-        marginBottom: isLowHeight ? 1 : 2,
-        flexDirection: { xs: 'column', sm: 'row' }
-      }}>
-        <Typography
-          fontSize={isLowHeight ? 14 : { xs: 16, md: 20 }}
-          sx={{ ml: { xs: 0, md: '10px' } }}
-        >
+        flexDirection: 'column',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Header Section */}
+      <Box
+        sx={{
+          flexShrink: 0,
+          gap: 1,
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          paddingY: isLowHeight ? 1 : { xs: 2, md: 3 },
+          marginBottom: isLowHeight ? 1 : 2,
+          flexDirection: { xs: 'column', sm: 'row' }
+        }}
+      >
+        <Typography fontSize={isLowHeight ? 14 : { xs: 16, md: 20 }} sx={{ ml: { xs: 0, md: '10px' } }}>
           Daftar Product Request
         </Typography>
         <TimeFilter timeFilter={timeFilter} setTimeFilter={setTimeFilter} />

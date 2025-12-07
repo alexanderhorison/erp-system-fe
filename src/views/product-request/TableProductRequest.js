@@ -211,7 +211,7 @@ export default function TableRequestProduct({ timeFilter }) {
             }
           ]}
           pageSizeOptions={[5, 10]}
-          onCellClick={e => handleRowClick(e)}
+          onCellClick={e => handleView(e.row)}
           paginationModel={paginationModel}
           slots={{ toolbar: TableHeaderRequestProduct }}
           onPaginationModelChange={setPaginationModel}

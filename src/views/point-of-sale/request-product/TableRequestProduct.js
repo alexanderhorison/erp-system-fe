@@ -12,6 +12,7 @@ import { returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
 import TableHeaderRequestProduct from './TableHeaderRequestProduct'
 import ModalAddRequestProduct from './ModalAddRequestProduct'
+import ModalViewRequestProduct from './ModalViewRequestProduct'
 import { fetchDetailRequestOrder } from 'src/store/apps/product-request-order'
 
 
@@ -38,6 +39,7 @@ export default function TableRequestProduct({ timeFilter, isMobile, isTablet, is
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: isLowHeight ? 5 : 10 })
   const [openModalForm, setOpenModalForm] = useState(false)
+  const [openModalView, setOpenModalView] = useState(false)
   const [typeModal, setTypeModal] = useState('ADD')
   const userData = JSON.parse(localStorage.getItem('userData'))
 
@@ -65,8 +67,7 @@ export default function TableRequestProduct({ timeFilter, isMobile, isTablet, is
 
   const handleView = row => {
     dispatch(fetchDetailRequestOrder(row.code))
-    setTypeModal('VIEW')
-    setOpenModalForm(true)
+    setOpenModalView(true)
   }
 
   const handleRowClick = row => {
@@ -256,6 +257,7 @@ export default function TableRequestProduct({ timeFilter, isMobile, isTablet, is
           }}
         />
         <ModalAddRequestProduct open={openModalForm} setOpen={setOpenModalForm} typeModal={typeModal} />
+        <ModalViewRequestProduct open={openModalView} setOpen={setOpenModalView} />
       </Card>
     </>
   )
