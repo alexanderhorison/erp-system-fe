@@ -35,8 +35,8 @@ const DefaultPalette = (mode, skin) => {
     },
     primary: {
       light: '#8479F2',
-      main: '#6F4E37',
-      dark: '#6F4E37',
+      main: `${process.env.NEXT_PUBLIC_ENVIRONTMENT == 'development' ? '#1976D2' : '#6F4E37'}`,
+      dark: `${process.env.NEXT_PUBLIC_ENVIRONTMENT == 'development' ? '#1976D2' : '#6F4E37'}`,
       contrastText: whiteColor
     },
     secondary: {

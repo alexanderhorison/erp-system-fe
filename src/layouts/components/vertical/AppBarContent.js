@@ -128,7 +128,7 @@ const AppBarContent = props => {
     if (url.includes('/point-of-sale/')) {
       return 'Point of Sale V 1.0'
     }
-    return systemInfo.systemName
+    return `${systemInfo.systemName} ${process.env.NEXT_PUBLIC_ENVIRONTMENT === 'development' ? 'Development' : 'Production'}`
   })
 
   return (
