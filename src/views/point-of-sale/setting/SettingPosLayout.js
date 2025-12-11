@@ -1,4 +1,4 @@
-import { Divider, Grid, Typography } from '@mui/material'
+import { Divider, Grid, Typography, CircularProgress } from '@mui/material'
 import { Box } from '@mui/system'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -128,14 +128,31 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
                 borderRadius: 2
               }}
             >
-              {selectedSettings === 'SETTING_PRINTER' && (
-                <SettingSectionPrinter
-                  key={refreshKey}
-                  printerList={listPrinter}
-                  printerHealthStatus={printerHealthStatus}
-                  handleSelectPrinter={handleSelectPrinter}
-                />
-              )}
+              {selectedSettings === 'SETTING_PRINTER' &&
+                (loadingListPrinter ? (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      height: '100%',
+                      flexDirection: 'column',
+                      gap: 2
+                    }}
+                  >
+                    <CircularProgress />
+                    <Typography variant='body2' color='textSecondary'>
+                      Loading printer list...
+                    </Typography>
+                  </Box>
+                ) : (
+                  <SettingSectionPrinter
+                    key={refreshKey}
+                    printerList={listPrinter}
+                    printerHealthStatus={printerHealthStatus}
+                    handleSelectPrinter={handleSelectPrinter}
+                  />
+                ))}
             </Box>
           </Grid>
         </Grid>

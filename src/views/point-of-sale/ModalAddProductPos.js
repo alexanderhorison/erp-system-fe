@@ -74,15 +74,24 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
     control,
     handleSubmit,
     getValues,
+    setValue,
     formState: { errors },
     watch
   } = useForm({
-    values: {
-      price: selected?.basePrice || null
+    defaultValues: {
+      price: null,
+      quantity: null
     },
     mode: 'onChange',
     resolver: yupResolver(schema)
   })
+
+  // Update price when selected changes
+  useEffect(() => {
+    if (selected?.basePrice) {
+      setValue('price', selected.basePrice)
+    }
+  }, [selected?.basePrice])
 
   // ON SUBMIT
   const onSubmit = val => {
@@ -138,6 +147,17 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
     // Dispatch Product Base Price
     dispatch(fetchMasterDataProductPrice(data?.productId))
   }, [data?.id])
+
+  // Auto-select first unit when detailProductPos is loaded or updated
+  useEffect(() => {
+    if (detailProductPos && detailProductPos.length > 0) {
+      const firstUnit = detailProductPos[0]
+      setSelected(firstUnit)
+
+      // Always set quantity to 1 regardless of stock
+      setValue('quantity', 1)
+    }
+  }, [detailProductPos])
 
   const handleTransformation = () => {
     setDataTransformation({ ...selected, qty: getValues('quantity') })
@@ -259,7 +279,21 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
                                 <Button
                                   fullWidth
                                   variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'}
-                                  onClick={() => setSelected(item)}
+                                  onClick={() => {
+                                    setSelected(item)
+                                    const hasStock = item.quantity && item.quantity > 0
+
+                                    if (hasStock) {
+                                      // Set quantity to 1 if stock is available
+                                      const currentQuantity = getValues('quantity')
+                                      if (!currentQuantity || currentQuantity === '' || currentQuantity === null) {
+                                        setValue('quantity', 1)
+                                      }
+                                    } else {
+                                      // Clear quantity if stock is empty
+                                      setValue('quantity', null)
+                                    }
+                                  }}
                                   sx={{
                                     mb: 1,
                                     height: '4rem',
@@ -355,24 +389,22 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
                             <Typography variant='h6' sx={{ color: 'text.primary' }}>
                               Harga
                             </Typography>
-                            {
-                              userData?.actions?.includes(enumActions.EDIT_POS_BASE_PRICE.value) && (
-                                <Typography
-                                  variant='subtitle2'
-                                  sx={{
-                                    cursor: 'pointer',
-                                    color: 'text.secondary',
-                                    textDecoration: 'underline',
-                                    fontSize: '0.8rem'
-                                  }}
-                                  onClick={() => {
-                                    setOpenModalBasePrice(true)
-                                  }}
-                                >
-                                  Add Base Price
-                                </Typography>
-                              )
-                            }
+                            {userData?.actions?.includes(enumActions.EDIT_POS_BASE_PRICE.value) && (
+                              <Typography
+                                variant='subtitle2'
+                                sx={{
+                                  cursor: 'pointer',
+                                  color: 'text.secondary',
+                                  textDecoration: 'underline',
+                                  fontSize: '0.8rem'
+                                }}
+                                onClick={() => {
+                                  setOpenModalBasePrice(true)
+                                }}
+                              >
+                                Add Base Price
+                              </Typography>
+                            )}
                           </Box>
                           <Grid container spacing={2}>
                             <Grid item xs={12}>

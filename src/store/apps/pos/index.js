@@ -322,7 +322,10 @@ export const appPosSlice = createSlice({
 
     dataPointOfSaleCustomer: [],
     loadingDataPointOfSaleCustomer: true,
-    errorDataPointOfSaleCustomer: false
+    errorDataPointOfSaleCustomer: false,
+
+    loadingChargePos: false,
+    errorChargePos: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -420,6 +423,18 @@ export const appPosSlice = createSlice({
         state.dataPointOfSaleCustomer = []
         state.loadingDataPointOfSaleCustomer = false
         state.errorDataPointOfSaleCustomer = action.error.message
+      })
+
+      // Charge POS
+      .addCase(chargePos.pending, (state, action) => {
+        state.loadingChargePos = true
+      })
+      .addCase(chargePos.fulfilled, (state, action) => {
+        state.loadingChargePos = false
+      })
+      .addCase(chargePos.rejected, (state, action) => {
+        state.loadingChargePos = false
+        state.errorChargePos = action.error.message
       })
   }
 })

@@ -16,6 +16,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { styled, useTheme } from '@mui/material/styles'
 import InputAdornment from '@mui/material/InputAdornment'
 import MuiFormControlLabel from '@mui/material/FormControlLabel'
+import CircularProgress from '@mui/material/CircularProgress'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -94,6 +95,7 @@ const defaultValues = {
 const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   // ** Hooks
   const auth = UseAuth()
@@ -118,7 +120,11 @@ const LoginPage = () => {
 
   const onSubmit = data => {
     const { email, password } = data
-    auth.login({ email, password, rememberMe }, () => {
+    // Sanitize and trim email
+    const sanitizedEmail = email.trim().toLowerCase()
+    setLoading(true)
+    auth.login({ email: sanitizedEmail, password, rememberMe }, () => {
+      setLoading(false)
       setError('email', {
         type: 'manual',
         message: 'Email or Password is invalid'
@@ -265,8 +271,15 @@ const LoginPage = () => {
             )}
           </Box>
 
-          <Button fullWidth type='submit' variant='contained' sx={{ mb: 4 }}>
-            Login
+          <Button fullWidth type='submit' variant='contained' sx={{ mb: 4 }} disabled={loading}>
+            {loading ? (
+              <>
+                <CircularProgress size={20} sx={{ mr: 2, color: 'inherit' }} />
+                Loading...
+              </>
+            ) : (
+              'Login'
+            )}
           </Button>
 
           {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (

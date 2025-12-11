@@ -20,11 +20,11 @@ export default function CardPrinter({ printer, printerHealthStatus, handleSelect
   return (
     <Card
       sx={{
-        mb: 2,
         cursor: 'pointer',
         bgcolor: isSelected ? '#d6bdab' : 'background.paper',
         border: isSelected ? '2px solid #8b6f47' : '1px solid transparent',
-        position: 'relative'
+        position: 'relative',
+        height: '100%'
       }}
       onClick={() => handleSelectPrinter(printer)}
     >
