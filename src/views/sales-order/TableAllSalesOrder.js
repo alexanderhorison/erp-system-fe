@@ -171,6 +171,10 @@ export default function TableAllSalesOrder({ timeFilter }) {
     router.push(`/sales-order/add`)
   }
 
+  const handleAddLoan = () => {
+    router.push(`/sales-order/add-loan-stock`)
+  }
+
   const handlePaginationChange = newPaginationModel => {
     setPaginationModel(newPaginationModel)
 
@@ -291,9 +295,18 @@ export default function TableAllSalesOrder({ timeFilter }) {
             },
             renderCell: params => {
               return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.code}
-                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
+                    {params.row.code}
+                  </Typography>
+                  {
+                    params.row.isLoanStockSO && (
+                      <Typography noWrap variant='caption' sx={{ textAlign: 'center', fontStyle: 'italic' }}>
+                        Loan Stock SO
+                      </Typography>
+                    )
+                  }
+                </Box>
               )
             }
           },
@@ -434,6 +447,7 @@ export default function TableAllSalesOrder({ timeFilter }) {
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
             handleAdd: handleAdd,
+            handleAddLoan: handleAddLoan,
             filters: filters,
             onFilterChange: handleFilterChange
           }

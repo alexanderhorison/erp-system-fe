@@ -17,7 +17,8 @@ export default function TableHeaderSalesOrder(props) {
     clearSearch,
     handleAdd,
     filters = {},
-    onFilterChange
+    onFilterChange,
+    handleAddLoan,
   } = props
 
   return (
@@ -110,6 +111,21 @@ export default function TableHeaderSalesOrder(props) {
           </Button>
         )}
       </Box>
+
+      <Button
+        onClick={() => handleAddLoan(true)}
+        variant='contained'
+        sx={{
+          width: {
+            xs: '100%',
+            sm: 'auto'
+          },
+          '& svg': { mr: 2 }
+        }}
+      >
+        <Icon fontSize='1.125rem' icon='tabler:plus' />
+        Buat Sales Order Loan
+      </Button>
 
       {/* Right side: Add Button */}
       <Button

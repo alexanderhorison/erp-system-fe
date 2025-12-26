@@ -29,6 +29,9 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
   const [shippingDate, setShippingDate] = useState(new Date())
   const [customer, setCustomer] = useState({})
 
+  // Conditionally skip stock validation for Loan Stock SO
+  const isLoanStockSO = data?.isLoanStockSO || false
+
   const schema = yup.object({
     customerId: yup.string().required('Customer harus diisi'),
     grandTotal: yup.number().typeError('Grand Total harus ada'),
@@ -41,17 +44,25 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
         warehouseId: yup.number().typeError('Gudang asal harus ada'),
         warehouseProductId: yup.number().typeError('Id product warehouse harus diisi'),
         price: yup.number().typeError('Price product harus diisi'),
-        quantity: yup
-          .number()
-          .typeError('Kuantiti harus diisi')
-          .test('max', 'Kuantiti tidak boleh lebih besar dari stock tersedia', function (value) {
-            const { qty } = this.parent
-            return value <= qty
-          })
-          .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
-            const num = Number(value)
-            return num >= 0
-          }),
+        quantity: isLoanStockSO
+          ? yup
+              .number()
+              .typeError('Kuantiti harus diisi')
+              .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
+                const num = Number(value)
+                return num >= 0
+              })
+          : yup
+              .number()
+              .typeError('Kuantiti harus diisi')
+              .test('max', 'Kuantiti tidak boleh lebih besar dari stock tersedia', function (value) {
+                const { qty } = this.parent
+                return value <= qty
+              })
+              .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
+                const num = Number(value)
+                return num >= 0
+              }),
         subTotal: yup.number().typeError('Sub Total Product harus diisi'),
         modal: yup.number().typeError('Modal Product harus diisi')
       })

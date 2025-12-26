@@ -50,7 +50,6 @@ const DetailPageSalesOrder = ({ data }) => {
 
   const { rawCompany: companyInfo } = useSelector(state => state.companyConfig)
 
-
   if (data) {
     return (
       <Card>
@@ -80,6 +79,11 @@ const DetailPageSalesOrder = ({ data }) => {
                       <MUITableCell>
                         <Typography variant='h6'>Sales Order</Typography>
                         <Typography variant='h6'>{`#${data.code}`}</Typography>
+                        {data.isLoanStockSO && (
+                          <Typography noWrap variant='caption' sx={{ textAlign: 'center', fontStyle: 'italic' }}>
+                            Loan Stock SO
+                          </Typography>
+                        )}
                       </MUITableCell>
                     </TableRow>
                     <TableRow>
@@ -91,7 +95,9 @@ const DetailPageSalesOrder = ({ data }) => {
                     <TableRow>
                       <MUITableCell>
                         <Typography variant='h6'>Tgl. Pengiriman</Typography>
-                        <Typography variant='h6'>{`${returnToLocaleDateString(data.shippingDate) || data.dueDate}`}</Typography>
+                        <Typography variant='h6'>{`${
+                          returnToLocaleDateString(data.shippingDate) || data.dueDate
+                        }`}</Typography>
                       </MUITableCell>
                     </TableRow>
                     <TableRow>
@@ -293,10 +299,11 @@ const DetailPageSalesOrder = ({ data }) => {
             <Typography sx={{ fontWeight: 500, color: 'text.secondary', textAlign: 'left' }}>
               {data?.grandTotal < 0
                 ? `${companyInfo?.ptName} harus melakukan pembayaran sebesar Rp. ${Math.abs(
-                  data?.grandTotal
-                ).toLocaleString()}`
-                : `Customer ${data?.customer?.name?.toUpperCase() || ''
-                } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
+                    data?.grandTotal
+                  ).toLocaleString()}`
+                : `Customer ${
+                    data?.customer?.name?.toUpperCase() || ''
+                  } harus melakukan pembayaran sebesar Rp. ${priceFormat(data?.grandTotal)}`}
             </Typography>
           </Box>
         </CardContent>

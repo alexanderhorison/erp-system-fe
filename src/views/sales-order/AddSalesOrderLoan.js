@@ -1,18 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import {
-  Button,
-  Card,
-  CardContent,
-  Checkbox,
-  CircularProgress,
-  Divider,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  Typography,
-  useTheme
-} from '@mui/material'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Button, Card, CardContent, Checkbox, CircularProgress, Divider, FormControlLabel, Grid, IconButton, Typography, useTheme } from '@mui/material'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
@@ -25,20 +13,19 @@ import { fetchInvoiceListProductByWarehouseId } from 'src/store/apps/delivery-or
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
 import OptionsGroup from 'src/helpers/groupedInput'
 import { fetchMasterDataCustomer } from 'src/store/apps/master/customer'
-import { createSalesOrder } from 'src/store/apps/sales-order'
 import PickersComponent from '../forms/form-elements/pickers/PickersCustomInput'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
-import { Box } from '@mui/system'
-import ModalTransformProductSalesOrder from './ModalTransformProductSalesOrder'
-import ModalAddMasterCustomer from '../master/customer/ModalAddMasterCustomer'
 import { fetchOneMasterDataModal } from 'src/store/apps/master/modal'
+import { Box } from '@mui/system'
+import ModalAddMasterCustomer from '../master/customer/ModalAddMasterCustomer'
 import { UseAuth } from 'src/hooks/useAuth'
 import { returnFormatDateIsoString } from 'src/helpers/formatDate'
+import { createSalesOrder } from 'src/store/apps/sales-order'
 
-export default function AddSalesOrder({}) {
+export default function AddSalesOrderLoan({}) {
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -50,9 +37,7 @@ export default function AddSalesOrder({}) {
   const [date, setDate] = useState(new Date())
   const [shippingDate, setShippingDate] = useState(new Date())
   const [customerData, setCustomerData] = useState({})
-  const [openModalTransformation, setOpenModalTransformation] = useState(false)
   const [openModalCustomer, setOpenModalCustomer] = useState(false)
-  const [transformationData, setTransformationData] = useState({})
   const [warehouseId, setWarehouseId] = useState()
   const [helperTextChanges, setHelperTextChanges] = useState(false)
   const [dataWarehouseIds, setDataWarehouseIds] = useState({})
@@ -76,10 +61,6 @@ export default function AddSalesOrder({}) {
         quantity: yup
           .number()
           .typeError('Kuantiti harus diisi')
-          .test('max', 'Kuantiti tidak boleh lebih besar dari stock tersedia', function (value) {
-            const { qty } = this.parent
-            return value <= qty
-          })
           .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
             const num = Number(value)
             return num >= 0
@@ -143,7 +124,7 @@ export default function AddSalesOrder({}) {
     resolver: yupResolver(schema)
   })
 
-  // Barang Sales Order
+  // Barang Sales Order Loan
   const { fields, remove, append, update } = useFieldArray({
     control,
     name: 'data'
@@ -215,7 +196,8 @@ export default function AddSalesOrder({}) {
         shippingDate: returnFormatDateIsoString(shippingDate),
         notes: data.notes,
         listProduct: listItems,
-        listBarterProduct: listBarter
+        listBarterProduct: listBarter,
+        isLoanStockSO: true
       }
       dispatch(createSalesOrder({ data: sendData, router }))
     }
@@ -227,13 +209,6 @@ export default function AddSalesOrder({}) {
 
   const deleteItem = itemIndex => {
     remove(itemIndex)
-  }
-
-  const onSelectTransform = itemIndex => {
-    let temp = getValues(`data.${itemIndex}`)
-    setWarehouseId(getValues(`data.${itemIndex}.warehouseId`))
-    setTransformationData({ ...temp, indexForm: itemIndex })
-    setOpenModalTransformation(true)
   }
 
   const calculateTotals = () => {
@@ -258,6 +233,7 @@ export default function AddSalesOrder({}) {
 
   useEffect(() => {
     calculateTotals()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formField, formBarter])
 
   useEffect(() => {
@@ -273,6 +249,7 @@ export default function AddSalesOrder({}) {
     }
     dispatch(fetchMasterDataWarehouse())
     dispatch(fetchMasterDataCustomer())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch])
 
   // Set WarehouseId and Fetch data list product by warehouse Id
@@ -309,70 +286,19 @@ export default function AddSalesOrder({}) {
     }
   }
 
-  const handleTransformProductUpdate = (warehouseId, indexForm, transformedProduct) => {
-    // belum handle jika penambahan product baru yang di transformasi maka si dropdown select akan kosong
-    setDataWarehouseIds(prevState => {
-      // Copy the previous state for immutability
-      const updatedWarehouseData = { ...prevState }
-
-      // To update product so immutable
-      const currentProducts = updatedWarehouseData[warehouseId]
-        ? [...updatedWarehouseData[warehouseId]] // Create a shallow copy of the array
-        : []
-
-      // Check if data exists for the specified warehouseId
-      // Add or replace the transformed product in the list
-      const existingIndex = currentProducts.findIndex(
-        product => product.productWarehouseId == transformedProduct.productWarehouseId
-      )
-
-      if (existingIndex >= 0) {
-        // Replace the existing product
-        currentProducts[existingIndex] = transformedProduct
-      } else {
-        // Add the transformed product
-        currentProducts.push(transformedProduct)
-      }
-
-      // Update the state with the modified array
-      updatedWarehouseData[warehouseId] = currentProducts
-
-      return updatedWarehouseData // Return the updated state
-    })
-    setValue(`data[${indexForm}].warehouseId`, +warehouseId)
-    setValue(`data[${indexForm}].warehouseProductId`, transformedProduct.productWarehouseId)
-    // fetch default base price after transformation
-    handleFetchDefaultBasePrice({
-      productId: transformedProduct.masterProductId,
-      unitId: transformedProduct.masterUnitId,
-      index: indexForm,
-      fieldName: 'data'
-    })
-    // fetch default modal after transformation
-    handleFetchDefaultBaseModal({
-      productId: transformedProduct.masterProductId,
-      unitId: transformedProduct.masterUnitId,
-      index: indexForm,
-      fieldName: 'data'
-    })
-  }
-
   const titleProductInfo = index => {
     const infos = {
-      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${
-        getValues(`data[${index}].unitName`) || '-'
-      }`,
-      titleQuantity: `QTY: ${getValues(`data[${index}].qty`) || '-'}`,
-      titleTransformation: getValues(`data[${index}].quantity`) > 0 ? '| Transformasi Produk' : ''
+      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${getValues(`data[${index}].unitName`) || '-'
+        }`,
+      titleQuantity: `QTY: ${getValues(`data[${index}].qty`) || '-'}`
     }
     return infos
   }
 
   const titleBarterInfo = index => {
     const infos = {
-      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${
-        getValues(`barterProduct[${index}].unitName`) || '-'
-      }`,
+      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${getValues(`barterProduct[${index}].unitName`) || '-'
+        }`,
       titleQuantity: `QTY: ${getValues(`barterProduct[${index}].qty`) || '-'}`
     }
     return infos
@@ -554,7 +480,7 @@ export default function AddSalesOrder({}) {
           <Grid item xs={12} md={6} sx={{ textAlign: 'left' }}>
             <Card sx={{ height: '100%' }}>
               <CardContent>
-                <Grid container spacing={6}>
+                <Grid container spacing={6} >
                   <Grid item xs={12} md={4}>
                     <DatePicker
                       selected={date}
@@ -572,7 +498,8 @@ export default function AddSalesOrder({}) {
                       popperPlacement={popperPlacement}
                       onChange={date => setShippingDate(date)}
                       fullWidth
-                      customInput={<PickersComponent label='Tanggal Pengiriman' />}
+                      customInput={<PickersComponent
+                        label='Tanggal Pengiriman' />}
                     />
                   </Grid>
                 </Grid>
@@ -662,16 +589,16 @@ export default function AddSalesOrder({}) {
                                         index,
                                         fieldName: 'data'
                                       })
-                                      handleResetValueAndForm({
-                                        fieldName: 'data',
-                                        index
-                                      })
                                       // Fetch modal base on selected product
                                       handleFetchDefaultBaseModal({
                                         productId: selectedProduct.masterProductId,
                                         unitId: selectedProduct.masterUnitId,
                                         index,
                                         fieldName: 'data'
+                                      })
+                                      handleResetValueAndForm({
+                                        fieldName: 'data',
+                                        index
                                       })
                                     } else {
                                       setValue(`data[${index}].qty`, '')
@@ -680,41 +607,16 @@ export default function AddSalesOrder({}) {
                                     }
                                   }}
                                   renderInput={params => (
-                                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                      <Box display='flex' alignItems='center' mb={0}>
-                                        <Box
-                                          component='span'
-                                          sx={{
-                                            fontWeight: '',
-                                            fontSize: '0.85rem',
-                                            mr: 1
-                                          }}
-                                        >
-                                          {`Produk `}
-                                        </Box>
-                                        <Box
-                                          component='span'
-                                          sx={{
-                                            fontSize: '0.85rem',
-                                            marginTop: '',
-                                            cursor: 'pointer',
-                                            ':hover': { color: 'blue' }
-                                          }}
-                                          onClick={() => onSelectTransform(index)}
-                                        >
-                                          {titleProductInfo(index).titleTransformation}
-                                        </Box>
-                                      </Box>
-                                      <CustomTextField
-                                        value={item.warehouseProductId}
-                                        {...params}
-                                        sx={{ zIndex: 0 }}
-                                        error={Boolean(errors?.data?.[index]?.warehouseProductId)}
-                                        {...(errors?.data?.[index]?.warehouseProductId && {
-                                          helperText: errors?.data?.[index]?.warehouseProductId.message
-                                        })}
-                                      />
-                                    </Box>
+                                    <CustomTextField
+                                      value={item.warehouseProductId}
+                                      {...params}
+                                      sx={{ zIndex: 0 }}
+                                      error={Boolean(errors?.data?.[index]?.warehouseProductId)}
+                                      {...(errors?.data?.[index]?.warehouseProductId && {
+                                        helperText: errors?.data?.[index]?.warehouseProductId.message
+                                      })}
+                                      label='Produk'
+                                    />
                                   )}
                                 />
                                 <Typography variant='body2' color='textSecondary' sx={{ marginTop: '4px' }}>
@@ -943,7 +845,12 @@ export default function AddSalesOrder({}) {
                           defaultValue={false}
                           render={({ field: { value, onChange } }) => (
                             <FormControlLabel
-                              control={<Checkbox checked={value} onChange={e => onChange(e.target.checked)} />}
+                              control={
+                                <Checkbox
+                                  checked={value}
+                                  onChange={e => onChange(e.target.checked)}
+                                />
+                              }
                               label='Modal Baru'
                             />
                           )}
@@ -1231,44 +1138,31 @@ export default function AddSalesOrder({}) {
             justifyContent='flex-end'
             gap={6}
           >
-            {loadingCreateSalesOrder ? (
-              <Button variant='contained' disabled>
-                <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
-                Submitting...
-              </Button>
-            ) : (
-              <>
-                <Button
-                  variant='tonal'
-                  color='secondary'
-                  onClick={() => router.back()}
-                  startIcon={<Icon icon='tabler:x' />}
-                >
-                  Cancel
+            {
+              loadingCreateSalesOrder ? (
+                <Button variant='contained' disabled>
+                  <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                  Submitting...
                 </Button>
-                <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-                  Submit
-                </Button>
-              </>
-            )}
+              ) : (
+                <>
+                  <Button
+                    variant='tonal'
+                    color='secondary'
+                    onClick={() => router.back()}
+                    startIcon={<Icon icon='tabler:x' />}
+                  >
+                    Cancel
+                  </Button>
+                  <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
+                    Submit
+                  </Button>
+                </>
+              )
+            }
           </Grid>
         </Grid>
       </form>
-      {openModalTransformation && (
-        <ModalTransformProductSalesOrder
-          open={openModalTransformation}
-          setOpen={setOpenModalTransformation}
-          warehouseProductId={transformationData?.warehouseProductId}
-          quantity={transformationData?.quantity}
-          setValue={setValue}
-          getValues={getValues}
-          indexForm={transformationData?.indexForm}
-          update={update}
-          warehouseId={warehouseId}
-          handleTransformProductUpdate={handleTransformProductUpdate}
-          setDataWarehouseIds={setDataWarehouseIds}
-        />
-      )}
       {openModalCustomer && (
         <ModalAddMasterCustomer open={openModalCustomer} setOpen={setOpenModalCustomer} typeModal={'ADD'} />
       )}

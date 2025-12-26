@@ -32,7 +32,13 @@ export const createSalesOrder = createAsyncThunk(
         url: '/sales-order/create',
         data
       })
-      swalSuccess({ label, name: 'Sales Order', response })
+      const isLoan = !!data?.isLoanStockSO
+      // adjust label / name shown in the swal
+      swalSuccess({
+        label: `${label}${isLoan ? ' Loan' : ''}`,
+        name: isLoan ? 'Sales Order Loan' : 'Sales Order',
+        response
+      })
       router.push(`/sales-order`)
       return
     } catch (error) {
