@@ -17,7 +17,7 @@ import { ENUM, exportReport } from 'src/store/apps/export'
 import { useDispatch, useSelector } from 'react-redux'
 
 // Report that need month and year
-const REPORTS_WITH_MONTH_YEAR = [ENUM.SALES_ORDER] // add other report types as needed
+const REPORTS_WITH_MONTH_YEAR = [ENUM.SALES_ORDER, ENUM.PURCHASE_ORDER] // add other report types as needed
 
 const ReportPage = () => {
   const schema = yup.object({
@@ -58,8 +58,9 @@ const ReportPage = () => {
 
   const typeReport = [
     { id: 1, label: 'Sales Order', value: ENUM.SALES_ORDER },
-    { id: 2, label: 'Customer', value: ENUM.CUSTOMER },
-    { id: 3, label: 'Pos', value: ENUM.POS }
+    { id: 2, label: 'Purchase Order', value: ENUM.PURCHASE_ORDER },
+    { id: 3, label: 'Customer', value: ENUM.CUSTOMER },
+    { id: 4, label: 'Pos', value: ENUM.POS }
   ]
   const month = [
     { id: 1, label: 'January', value: 1 },
