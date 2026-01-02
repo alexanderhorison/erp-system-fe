@@ -4,6 +4,7 @@ import { swalNotifSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 export const ENUM = {
   SALES_ORDER: 'SALES_ORDER',
+  PURCHASE_ORDER: 'PURCHASE_ORDER',
   CUSTOMER: 'CUSTOMER',
   POS: 'POS'
 }
