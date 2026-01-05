@@ -380,6 +380,22 @@ export const findProductWarehouse = createAsyncThunk('appProductWarehouse/find',
   }
 })
 
+export const fetchHistoryLoanProduct = createAsyncThunk(
+  'appMasterProduct/historyLoanProduct',
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: '/product-warehouse/history-loan/' + id
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue([])
+    }
+  }
+)
+
 export const appMasterProductSlice = createSlice({
   name: 'appProductWarehouse',
   initialState: {
@@ -416,7 +432,15 @@ export const appMasterProductSlice = createSlice({
 
     singleProductWarehouse: {},
     loadingSingleProductWarehouse: false,
-    errorSingleProductWarehouse: false
+    errorSingleProductWarehouse: false,
+
+    // HISTORY LOAN
+    listHistoryLoan: {
+      history: [],
+      product: {}
+    },
+    loadingListHistoryLoan: true,
+    errorListHistoryLoan: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -528,6 +552,23 @@ export const appMasterProductSlice = createSlice({
         state.loadingSingleProductWarehouse = false
         state.errorSingleProductWarehouse = action.error.message
         state.singleProductWarehouse = {}
+      })
+
+      // HISTORY LOAN
+      .addCase(fetchHistoryLoanProduct.pending, (state, action) => {
+        state.loadingListHistoryLoan = true
+      })
+      .addCase(fetchHistoryLoanProduct.fulfilled, (state, action) => {
+        state.listHistoryLoan = action.payload.data
+        state.loadingListHistoryLoan = false
+      })
+      .addCase(fetchHistoryLoanProduct.rejected, (state, action) => {
+        state.loadingListHistoryLoan = false
+        state.errorListHistoryLoan = action.error.message
+        state.listHistoryLoan = {
+          history: [],
+          product: {}
+        }
       })
   }
 })

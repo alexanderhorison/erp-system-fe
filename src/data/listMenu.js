@@ -128,6 +128,12 @@ export const listMenu = [
     ]
   },
   {
+    title: 'Loan Stock',
+    path: '/loan-stock/',
+    icon: 'tabler:truck-loading',
+    menuId: 41
+  },
+  {
     title: 'Stock Opname',
     path: '/stock-opname/',
     icon: 'tabler:clipboard-check',
