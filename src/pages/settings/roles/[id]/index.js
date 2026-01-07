@@ -31,7 +31,7 @@ export default function DetailRole() {
 
   const [inputField, setInputField] = useState({
     name: '',
-    description: '',
+    description: ''
   })
 
   const handleSubmit = async event => {
@@ -52,10 +52,10 @@ export default function DetailRole() {
   }
 
   useEffect(() => {
-    dispatch(fetchOneRole(id)).then((result) => {
+    dispatch(fetchOneRole(id)).then(result => {
       setInputField({
-        name: result.payload.data.name ?? "",
-        description: result.payload.data.description ?? "",
+        name: result.payload.data.name ?? '',
+        description: result.payload.data.description ?? ''
       })
     })
     dispatch(fetchMenus())
@@ -77,7 +77,7 @@ export default function DetailRole() {
             label='Nama'
             onChange={e => setInputField(prev => ({ ...prev, name: e.target.value }))}
             error={Boolean(!inputField.name)}
-            {...(!inputField.name && { helperText: "Nama Role harus ada" })}
+            {...(!inputField.name && { helperText: 'Nama Role harus ada' })}
           />
           <CustomTextField
             fullWidth
@@ -124,6 +124,24 @@ export default function DetailRole() {
                   checkedMenuIds={checkedMenuIds}
                 />
                 <MenuTitle name={'Inventory'} />
+                <MenuItem
+                  name={'Stock Opname'}
+                  menuId={15}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={'Product Request'}
+                  menuId={44}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
+                <MenuItem
+                  name={'Loan Stock'}
+                  menuId={45}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
                 <MenuSubTitle name={'Data Inventory'} />
                 <MenuItem
                   name={'Produk'}
@@ -195,24 +213,6 @@ export default function DetailRole() {
                 <MenuItem
                   name={'Barang Terhapus'}
                   menuId={26}
-                  setCheckedMenuIds={setCheckedMenuIds}
-                  checkedMenuIds={checkedMenuIds}
-                />
-                <MenuItem
-                  name={'Stock Opname'}
-                  menuId={15}
-                  setCheckedMenuIds={setCheckedMenuIds}
-                  checkedMenuIds={checkedMenuIds}
-                />
-                <MenuItem
-                  name={'Product Request'}
-                  menuId={44}
-                  setCheckedMenuIds={setCheckedMenuIds}
-                  checkedMenuIds={checkedMenuIds}
-                />
-                <MenuItem
-                  name={'Loan Stock'}
-                  menuId={45}
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
                 />
@@ -379,9 +379,7 @@ export default function DetailRole() {
                 <MenuItem
                   name={'Point Of Sale'}
                   menuId={27}
-                  actions={[
-                    enumActions.EDIT_POS_BASE_PRICE,
-                  ]}
+                  actions={[enumActions.EDIT_POS_BASE_PRICE]}
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
                   setCheckedActions={setCheckedActions}
@@ -405,10 +403,13 @@ export default function DetailRole() {
 }
 
 const MenuItem = ({
-  name, menuId, setCheckedMenuIds, checkedMenuIds,
+  name,
+  menuId,
+  setCheckedMenuIds,
+  checkedMenuIds,
   actions = [],
   checkedActions = [], // ✅ default fallback
-  setCheckedActions = () => {}, // ✅ no-op if not passed
+  setCheckedActions = () => {} // ✅ no-op if not passed
 }) => {
   const { detailRole } = useSelector(state => state.role)
 
@@ -421,9 +422,7 @@ const MenuItem = ({
       }
 
       // Find which actions belong to this menuId
-      const roleActionsForMenu = detailRole.actions
-        ?.filter((a) => a.menuId === menuId)
-        ?.map((a) => a.name)
+      const roleActionsForMenu = detailRole.actions?.filter(a => a.menuId === menuId)?.map(a => a.name)
 
       // Initialize checkedActions for this menu
       if (roleActionsForMenu?.length) {
@@ -432,7 +431,7 @@ const MenuItem = ({
     }
   }, [detailRole, menuId])
 
-  const handleMenuChange = (event) => {
+  const handleMenuChange = event => {
     if (event.target.checked) {
       setCheckedMenuIds([...checkedMenuIds, menuId])
     } else {
@@ -441,7 +440,7 @@ const MenuItem = ({
     }
   }
 
-  const handleActionChange = (action) => {
+  const handleActionChange = action => {
     if (checkedActions.includes(action)) {
       setCheckedActions(checkedActions.filter(a => a !== action))
     } else {
@@ -453,12 +452,7 @@ const MenuItem = ({
     <ListItem sx={{ flexDirection: 'column', alignItems: 'flex-start', p: 1 }}>
       {/* Main menu checkbox */}
       <FormControlLabel
-        control={
-          <Checkbox
-            checked={checkedMenuIds?.includes(menuId)}
-            onChange={handleMenuChange}
-          />
-        }
+        control={<Checkbox checked={checkedMenuIds?.includes(menuId)} onChange={handleMenuChange} />}
         label={name}
       />
 
