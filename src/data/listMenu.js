@@ -131,7 +131,7 @@ export const listMenu = [
     title: 'Loan Stock',
     path: '/loan-stock/',
     icon: 'tabler:truck-loading',
-    menuId: 41
+    menuId: 45
   },
   {
     title: 'Stock Opname',

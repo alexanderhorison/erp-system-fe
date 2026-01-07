@@ -210,6 +210,12 @@ export default function DetailRole() {
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
                 />
+                <MenuItem
+                  name={'Loan Stock'}
+                  menuId={45}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
                 <MenuSubTitle name={'Surat Jalan'} />
                 <MenuItem
                   name={'Surat Jalan'}
