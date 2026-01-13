@@ -208,9 +208,9 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
                 pb: theme => `${theme.spacing(12)} !important`, // Reduced bottom padding for fixed buttons
                 px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`], // Reduced horizontal padding
                 overflowY: 'auto',
-                height: 'calc(30rem - 60px)', // Adjusted height for smaller padding
-                maxHeight: 'calc(30rem - 60px)',
-                pt: theme => [`${theme.spacing(16)} !important`, `${theme.spacing(16)} !important`] // Increased top padding for fixed header
+                height: data?.description ? 'calc(30rem - 80px)' : 'calc(30rem - 60px)', // Dynamic height based on description presence
+                maxHeight: data?.description ? 'calc(30rem - 80px)' : 'calc(30rem - 60px)',
+                pt: theme => [`${theme.spacing(data?.description ? 20 : 16)} !important`, `${theme.spacing(data?.description ? 20 : 16)} !important`] // Dynamic top padding based on description presence
               }}
             >
               {/* FIXED PRODUCT NAME HEADER WITHIN MODAL */}
@@ -228,37 +228,50 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
                   py: theme => `${theme.spacing(3)} !important`,
                   textAlign: 'center',
                   display: 'flex',
+                  flexDirection: 'column',
                   justifyContent: 'center',
-                  alignItems: 'center',
-                  gap: 2
+                  alignItems: 'center'
                 }}
               >
-                <Typography
-                  variant='h4'
-                  sx={{
-                    margin: 0
-                  }}
-                >
-                  {data?.productName}
-                </Typography>
-                <IconButton
-                  onClick={handleFav}
-                  sx={{
-                    margin: 0,
-                    color: isFavorite ? 'orange' : 'grey.500',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 152, 0, 0.1)'
-                    }
-                  }}
-                >
-                  <Icon
-                    icon={isFavorite ? 'tabler:star-filled' : 'tabler:star'}
-                    fontSize='1.5rem'
-                    style={{
-                      color: isFavorite ? 'orange' : 'inherit'
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: data?.description ? 1 : 0 }}>
+                  <Typography
+                    variant='h4'
+                    sx={{
+                      margin: 0
                     }}
-                  />
-                </IconButton>
+                  >
+                    {data?.productName}
+                  </Typography>
+                  <IconButton
+                    onClick={handleFav}
+                    sx={{
+                      color: isFavorite ? 'orange' : 'grey.500',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 152, 0, 0.1)'
+                      }
+                    }}
+                  >
+                    <Icon
+                      icon={isFavorite ? 'tabler:star-filled' : 'tabler:star'}
+                      fontSize='1.5rem'
+                      style={{
+                        color: isFavorite ? 'orange' : 'inherit'
+                      }}
+                    />
+                  </IconButton>
+                </Box>
+                {data?.description && (
+                  <Typography
+                    variant='body2'
+                    sx={{
+                      margin: 0,
+                      color: 'text.secondary',
+                      fontStyle: 'italic'
+                    }}
+                  >
+                    ({data?.description})
+                  </Typography>
+                )}
               </Box>
 
               <Grid container spacing={4} mt={0.5}>
