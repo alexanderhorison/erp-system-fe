@@ -47,15 +47,45 @@ export default function TableHeaderMasterPoduct(props) {
           }
         }}
       />
-      <Button onClick={() => props.openModalAdd(true)} variant='contained' sx={{
-        width: '100%',
-        '@media (min-width: 600px)': {
-          width: 'auto',
-        }, '& svg': { mr: 2 }
-      }}>
-        <Icon fontSize='1.125rem' icon='tabler:plus' />
-        Tambahkan Produk
-      </Button>
+      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+        <Button
+          onClick={props.onDownloadTemplate}
+          variant='contained'
+          disabled={props.loadingDownload}
+          sx={{
+            '& svg': { mr: 2 }
+          }}
+        >
+          <Icon fontSize='1.125rem' icon='tabler:download' />
+          Download Template
+        </Button>
+        <Button
+          variant='contained'
+          component='label'
+          disabled={props.loadingImport}
+          sx={{
+            '& svg': { mr: 2 }
+          }}
+        >
+          <Icon fontSize='1.125rem' icon='tabler:upload' />
+          Import Template
+          <input
+            type='file'
+            accept='.xlsx,.xls'
+            hidden
+            onChange={props.onImportTemplate}
+          />
+        </Button>
+        <Button onClick={() => props.openModalAdd(true)} variant='contained' sx={{
+          width: '100%',
+          '@media (min-width: 600px)': {
+            width: 'auto',
+          }, '& svg': { mr: 2 }
+        }}>
+          <Icon fontSize='1.125rem' icon='tabler:plus' />
+          Tambahkan Produk
+        </Button>
+      </Box>
     </Box>
   )
 }
