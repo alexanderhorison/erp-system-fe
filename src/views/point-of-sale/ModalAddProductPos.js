@@ -148,11 +148,13 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
     dispatch(fetchMasterDataProductPrice(data?.productId))
   }, [data?.id])
 
-  // Auto-select first unit when detailProductPos is loaded or updated
+
   useEffect(() => {
     if (detailProductPos && detailProductPos.length > 0) {
-      const firstUnit = detailProductPos[0]
-      setSelected(firstUnit)
+      const slopUnit = detailProductPos.find(unit => unit.unitName === 'SLOP')
+      const selectedUnit = slopUnit || detailProductPos[0]
+
+      setSelected(selectedUnit)
 
       // Always set quantity to 1 regardless of stock
       setValue('quantity', 1)
