@@ -4,6 +4,7 @@ import { Controller } from "react-hook-form";
 import { priceFormatWithZero } from 'src/helpers/priceFormatter'
 import Icon from 'src/@core/components/icon'
 import { swalConfirmationOnly } from "src/helpers/swalFunctionPos";
+import { environtmentColor } from 'src/helpers/getEnvirontmentColor'
 
 const fontSizeProduct = "0.75rem";
 const fontSizeQuantity = "0.75rem";
@@ -45,7 +46,7 @@ export default function CartProductPos({
         confirmButtonText: 'Ya, Hapus',
         cancelButtonText: 'Tidak',
         reverseButtons: true,
-        confirmButtonColor: '#6F4E37',
+        confirmButtonColor: environtmentColor(),
         onClickYes: () => {
           handleDeleteCustom(item, index)
         },

@@ -1,4 +1,5 @@
 import swal from 'src/pages/sweetalert'
+import { environtmentColor } from 'src/helpers/getEnvirontmentColor'
 
 // ONLY FOR DELETE
 export async function swalConfirmationDelete({ label, name = 'Data', axiosRequest, dispatchRequest, title }) {
@@ -10,7 +11,7 @@ export async function swalConfirmationDelete({ label, name = 'Data', axiosReques
       confirmButtonText: 'Iya',
       cancelButtonText: 'Tidak',
       reverseButtons: true,
-      confirmButtonColor: '#6F4E37'
+      confirmButtonColor: environtmentColor()
     })
     if (result.dismiss === swal.DismissReason.cancel) {
       swal.fire({
@@ -27,7 +28,7 @@ export async function swalConfirmationDelete({ label, name = 'Data', axiosReques
       swal.fire({
         title: response?.data?.message || `"${name}" berhasil dihapus`,
         icon: 'success',
-        confirmButtonColor: '#6F4E37'
+        confirmButtonColor: environtmentColor()
       })
     }
   } catch (error) {
@@ -54,7 +55,7 @@ export async function swalConfirmationAdd({
       confirmButtonText: 'Iya',
       cancelButtonText: 'Tidak',
       reverseButtons: true,
-      confirmButtonColor: '#6F4E37',
+      confirmButtonColor: environtmentColor(),
       ...(paymentSelection && {
         // Use built-in input radio to avoid custom preConfirm issues
         input: 'radio',
@@ -91,7 +92,7 @@ export async function swalConfirmationAdd({
       swal.fire({
         title: response?.data?.message || `${name} berhasil ditambahkan`,
         icon: 'success',
-        confirmButtonColor: '#6F4E37'
+        confirmButtonColor: environtmentColor()
       })
       return response
     }
@@ -118,7 +119,7 @@ export async function swalConfirmationEdit({
       confirmButtonText: 'Iya',
       cancelButtonText: 'Tidak',
       reverseButtons: true,
-      confirmButtonColor: '#6F4E37'
+      confirmButtonColor: environtmentColor()
     })
     if (result.dismiss) {
       cancelAction && cancelAction()
@@ -130,7 +131,7 @@ export async function swalConfirmationEdit({
       swal.fire({
         title: response?.data?.message || `${name} berhasil diubah`,
         icon: 'success',
-        confirmButtonColor: '#6F4E37'
+        confirmButtonColor: environtmentColor()
       })
       return response
     }
@@ -150,7 +151,7 @@ export async function swalConfirmationRestore({ label, name = 'Data', axiosReque
       confirmButtonText: 'Iya',
       cancelButtonText: 'Tidak',
       reverseButtons: true,
-      confirmButtonColor: '#6F4E37'
+      confirmButtonColor: environtmentColor()
     })
     if (result.dismiss) {
     } else {
@@ -161,7 +162,7 @@ export async function swalConfirmationRestore({ label, name = 'Data', axiosReque
       swal.fire({
         title: response?.data?.message || `${name} berhasil dikembalikan`,
         icon: 'success',
-        confirmButtonColor: '#6F4E37'
+        confirmButtonColor: environtmentColor()
       })
       return response
     }
@@ -175,7 +176,7 @@ export function swalSuccess({ name, response }) {
   return swal.fire({
     title: response?.data?.message || `"${name}" berhasil dihapus`,
     icon: 'success',
-    confirmButtonColor: '#6F4E37'
+    confirmButtonColor: environtmentColor()
   })
 }
 
@@ -185,7 +186,7 @@ export function swalError({ error, label }) {
     icon: 'error',
     title: error?.response?.data?.message || `Gagal melakukan aksi pada ${label}`,
     // timer: 2000,
-    confirmButtonColor: '#6F4E37'
+    confirmButtonColor: environtmentColor()
   })
 }
 
@@ -195,7 +196,7 @@ export function swalToastError({ error, label }) {
     icon: 'error',
     title: error?.response?.data?.message || `Gagal melakukan aksi pada ${label}`,
     timer: 2000,
-    confirmButtonColor: '#6F4E37'
+    confirmButtonColor: environtmentColor()
   })
 }
 
@@ -203,7 +204,7 @@ export function swalNotifSuccess({ message }) {
   return swal.fire({
     title: message || `berhasil`,
     icon: 'success',
-    confirmButtonColor: '#6F4E37',
+    confirmButtonColor: environtmentColor(),
     timer: 1500
   })
 }
@@ -213,7 +214,7 @@ export function swalNotifError({ message, timer = 1500 }) {
     icon: 'error',
     title: message || `Gagal`,
     timer,
-    confirmButtonColor: '#6F4E37'
+    confirmButtonColor: environtmentColor()
   })
 }
 
@@ -222,75 +223,6 @@ export function swalInfo(message) {
     icon: 'info',
     title: message || `Email Telah Dikirim`,
     timer: 1000,
-    confirmButtonColor: '#6F4E37'
+    confirmButtonColor: environtmentColor()
   })
 }
-
-// export async function swalConfirmationAddPayment({
-//   label,
-//   name = 'Data',
-//   axiosRequest,
-//   dispatchRequest,
-//   title,
-//   cancelAction,
-//   paymentSelection = false // NEW: optional flag
-// }) {
-//   try {
-//     const result = await swal.fire({
-//       title: title ? title : `Anda akan menambahkan produk?`,
-//       icon: 'question',
-//       showCancelButton: true,
-//       confirmButtonText: 'Iya',
-//       cancelButtonText: 'Tidak',
-//       reverseButtons: true,
-//       confirmButtonColor: '#6F4E37',
-//       ...(paymentSelection && {
-//         html: `
-//           <div style="text-align: left">
-//             <label><strong>Pilih Terms of Payment:</strong></label>
-//             <div style="margin-top: 8px">
-//               <label>
-//                 <input type="radio" name="payment" value="NO_PAYMENT" checked />
-//                 Tanpa Pembayaran
-//               </label><br/>
-//               <label>
-//                 <input type="radio" name="payment" value="FULL_PAYMENT" />
-//                 Pembayaran Lunas
-//               </label>
-//             </div>
-//           </div>
-//         `,
-//         preConfirm: () => {
-//           const selected = document.querySelector('input[name="payment"]:checked')?.value
-//           if (!selected) {
-//             swal.showValidationMessage('Silakan pilih Terms of Payment')
-//             return false
-//           }
-//           return selected
-//         }
-//       })
-//     })
-
-//     if (result.dismiss) {
-//       cancelAction && cancelAction()
-//     } else {
-//       // Pass paymentType if selection was enabled
-//       const response = paymentSelection ? await axiosRequest(result.value) : await axiosRequest()
-
-//       if (dispatchRequest) {
-//         dispatchRequest(result.value)
-//       }
-
-//       swal.fire({
-//         title: response?.data?.message || `${name} berhasil ditambahkan`,
-//         icon: 'success',
-//         confirmButtonColor: '#6F4E37'
-//       })
-
-//       return response
-//     }
-//   } catch (error) {
-//     swalError({ error, label })
-//     throw error
-//   }
-// }

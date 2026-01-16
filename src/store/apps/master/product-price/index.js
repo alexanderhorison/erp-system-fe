@@ -70,7 +70,12 @@ export const downloadProductPriceTemplate = createAsyncThunk(
       })
 
       const type = response.headers['content-type']
-      const filename = 'Template_Product_Price.xlsx'
+      // Format date as DDMMYYYY
+      const today = new Date()
+      const day = String(today.getDate()).padStart(2, '0')
+      const month = String(today.getMonth() + 1).padStart(2, '0')
+      const year = today.getFullYear()
+      const filename = `Template_Product_Price_${day}${month}${year}.xlsx`
 
       // Create Blob from response
       const blob = new Blob([response.data], { type })
@@ -87,11 +92,11 @@ export const downloadProductPriceTemplate = createAsyncThunk(
       // Cleanup Blob URL
       window.URL.revokeObjectURL(blobUrl)
 
-      swalNotifSuccess({ message: 'Template Downloaded Successfully' })
+      swalNotifSuccess({ message: 'Template Base Price Downloaded Successfully' })
       return { success: true }
     } catch (error) {
       console.error('Error downloading template:', error)
-      swalToastError({ label: 'Download Template Failed' })
+      swalToastError({ label: 'Download Template Base Price Failed' })
       return rejectWithValue({ success: false })
     }
   }
@@ -122,7 +127,7 @@ export const importProductPriceTemplate = createAsyncThunk(
       return { success: true }
     } catch (error) {
       console.error('Error starting import:', error)
-      swalError({ error, label: 'Import Template' })
+      swalError({ error, label: 'Import Base Price' })
       return rejectWithValue({})
     }
   }
@@ -146,7 +151,7 @@ export const appMasterProductPriceSlice = createSlice({
     importTimestamp: null
   },
   reducers: {
-    clearImportLoading: (state) => {
+    clearImportLoading: state => {
       state.loadingImport = false
       state.importTimestamp = null
     }

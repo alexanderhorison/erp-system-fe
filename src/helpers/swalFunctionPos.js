@@ -1,5 +1,6 @@
 import swal from 'src/pages/sweetalert'
 import { swalError } from './swalFunction'
+import { environtmentColor } from 'src/helpers/getEnvirontmentColor'
 
 // ONLY FOR ADD
 export async function swalConfirmationChargePos({
@@ -20,7 +21,7 @@ export async function swalConfirmationChargePos({
       confirmButtonText: 'Iya',
       cancelButtonText: 'Tidak',
       reverseButtons: true,
-      confirmButtonColor: '#6F4E37',
+      confirmButtonColor: environtmentColor(),
       width: width,
     })
     if (result.dismiss) {
@@ -70,7 +71,7 @@ export async function swalConfirmationOnly({
     confirmButtonText: 'Iya',
     cancelButtonText: 'Tidak',
     reverseButtons: true,
-    confirmButtonColor: '#6F4E37',
+    confirmButtonColor: environtmentColor(),
   });
 
   if (result.isConfirmed) {

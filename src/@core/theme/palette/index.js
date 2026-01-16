@@ -1,3 +1,5 @@
+import { environtmentColor } from "src/helpers/getEnvirontmentColor"
+
 const DefaultPalette = (mode, skin) => {
   // ** Vars
   const whiteColor = '#FFF'
@@ -35,8 +37,8 @@ const DefaultPalette = (mode, skin) => {
     },
     primary: {
       light: '#8479F2',
-      main: `${process.env.NEXT_PUBLIC_ENVIRONTMENT == 'development' ? '#1976D2' : '#6F4E37'}`,
-      dark: `${process.env.NEXT_PUBLIC_ENVIRONTMENT == 'development' ? '#1976D2' : '#6F4E37'}`,
+      main: environtmentColor(),
+      dark: environtmentColor(),
       contrastText: whiteColor
     },
     secondary: {

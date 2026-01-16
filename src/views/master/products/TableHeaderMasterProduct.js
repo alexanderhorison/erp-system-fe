@@ -57,7 +57,7 @@ export default function TableHeaderMasterPoduct(props) {
           }}
         >
           <Icon fontSize='1.125rem' icon='tabler:download' />
-          Download Template
+          Download Template Base Price
         </Button>
         <Button
           variant='contained'
@@ -68,7 +68,7 @@ export default function TableHeaderMasterPoduct(props) {
           }}
         >
           <Icon fontSize='1.125rem' icon='tabler:upload' />
-          Import Template
+          Import Base Price
           <input
             type='file'
             accept='.xlsx,.xls'
