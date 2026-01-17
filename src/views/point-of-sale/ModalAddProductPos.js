@@ -158,6 +158,11 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
 
       // Always set quantity to 1 regardless of stock
       setValue('quantity', 1)
+
+      // Update price saat auto pilih unit
+      if (selectedUnit?.basePrice) {
+        setValue('price', selectedUnit.basePrice)
+      }
     }
   }, [detailProductPos])
 
