@@ -65,7 +65,7 @@ export default function PaymentSuccess({
                   Total Payment:
                 </Typography>
                 <Typography variant='subtitle1' sx={{ fontWeight: 'bold', mt: 0.3 }}>
-                  Rp {totalAmount.toLocaleString('id-ID')}
+                  Rp {Number(totalAmount || 0).toLocaleString('id-ID')}
                 </Typography>
               </Box>
             </Box>
@@ -79,7 +79,7 @@ export default function PaymentSuccess({
                   Paid:
                 </Typography>
                 <Typography variant='subtitle1' sx={{ fontWeight: 'bold', mt: 0.3 }}>
-                  Rp {totalPayment.toLocaleString('id-ID')}
+                  Rp {Number(totalPayment || 0).toLocaleString('id-ID')}
                 </Typography>
               </Box>
             </Box>
