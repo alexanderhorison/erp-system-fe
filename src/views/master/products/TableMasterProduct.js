@@ -9,6 +9,11 @@ import {
   fetchMasterDataProduct,
   fetchMasterDataProductDetail
 } from 'src/store/apps/master/product'
+import {
+  downloadProductPriceTemplate,
+  importProductPriceTemplate,
+  clearImportLoading
+} from 'src/store/apps/master/product-price'
 import ModalAddMasterProduct from './ModalAddMasterProduct'
 import HandleSearh from 'src/helpers/handleSearch'
 import { useRouter } from 'next/router'
@@ -74,6 +79,7 @@ export default function TableMasterProduct({}) {
   const { data: categoryData } = useSelector(state => state.category)
   const { data: typeData } = useSelector(state => state.type)
   const { data: companyData } = useSelector(state => state.company)
+  const { loadingDownload, loadingImport } = useSelector(state => state.masterProductPrice)
 
   const [filterInput, setFilterInput] = useState(defaultFilter)
 
@@ -153,6 +159,26 @@ export default function TableMasterProduct({}) {
       setFilterInput({ ...filterInput, [name]: value })
     },
     [filterInput]
+  )
+
+  const handleDownloadTemplate = useCallback(() => {
+    dispatch(downloadProductPriceTemplate())
+  }, [dispatch])
+
+  const handleImportTemplate = useCallback(
+    e => {
+      const file = e.target.files[0]
+      if (file) {
+        dispatch(importProductPriceTemplate(file))
+        // Clear loading state after 10 seconds
+        setTimeout(() => {
+          dispatch(clearImportLoading())
+        }, 10000)
+        // Reset the input value so the same file can be uploaded again
+        e.target.value = ''
+      }
+    },
+    [dispatch]
   )
 
   return (
@@ -266,7 +292,11 @@ export default function TableMasterProduct({}) {
             placeholder: 'Cari produk, kategori atau tipe',
             clearSearch: () => handleSearch(''),
             onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd
+            openModalAdd: setOpenModalAdd,
+            onDownloadTemplate: handleDownloadTemplate,
+            onImportTemplate: handleImportTemplate,
+            loadingDownload,
+            loadingImport
           }
         }}
       />

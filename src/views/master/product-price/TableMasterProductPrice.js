@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import swal from 'src/pages/sweetalert'
 import { forceUpdateMasterDataModal } from 'src/store/apps/master/modal'
 import { addMasterDataProductPrice } from 'src/store/apps/master/product-price'
+import { environtmentColor } from 'src/helpers/getEnvirontmentColor'
 
 export default function TableMasterProductPrice({ product }) {
   const dispatch = useDispatch()
@@ -76,7 +77,7 @@ export default function TableMasterProductPrice({ product }) {
           icon: 'error',
           title: 'Base price harus lebih dari 0',
           timer: 2000,
-          confirmButtonColor: '#6F4E37'
+          confirmButtonColor: environtmentColor()
         })
       }
       if (newRow.basePricePos < 0) {
@@ -85,7 +86,7 @@ export default function TableMasterProductPrice({ product }) {
           icon: 'error',
           title: 'Base price pos harus lebih dari 0',
           timer: 2000,
-          confirmButtonColor: '#6F4E37'
+          confirmButtonColor: environtmentColor()
         })
       }
       dispatch(addMasterDataProductPrice(newRow))
@@ -97,7 +98,7 @@ export default function TableMasterProductPrice({ product }) {
           icon: 'error',
           title: 'Master Modal harus lebih dari 0',
           timer: 2000,
-          confirmButtonColor: '#6F4E37'
+          confirmButtonColor: environtmentColor()
         })
       } else {
         dispatch(forceUpdateMasterDataModal({

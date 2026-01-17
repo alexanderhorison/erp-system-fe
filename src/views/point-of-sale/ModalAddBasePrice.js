@@ -6,6 +6,7 @@ import { addMasterDataProductPrice } from 'src/store/apps/master/product-price'
 import { DataGrid } from '@mui/x-data-grid'
 import swal from 'src/pages/sweetalert'
 import { fetchDetailProductPos } from 'src/store/apps/pos'
+import { environtmentColor } from 'src/helpers/getEnvirontmentColor'
 
 export default function ModalAddBasePrice({ open, setOpen, product, setSelected }) {
   const dispatch = useDispatch()
@@ -59,7 +60,7 @@ export default function ModalAddBasePrice({ open, setOpen, product, setSelected 
         icon: 'error',
         title: 'Base price pos harus lebih dari 0',
         timer: 2000,
-        confirmButtonColor: '#6F4E37'
+        confirmButtonColor: environtmentColor()
       })
     } else {
       dispatch(addMasterDataProductPrice(newRow))

@@ -93,7 +93,11 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
                   <Grid item xs={6} md={3} key={menu.value}>
                     <Box
                       border={0}
-                      bgcolor={selectedSettings === menu.value ? '#d6bdab' : 'white'}
+                      bgcolor={
+                        selectedSettings === menu.value
+                          ? `${process.env.NEXT_PUBLIC_ENVIRONTMENT == 'development' ? '#E3F2FD' : '#d6bdab'}`
+                          : 'white'
+                      }
                       boxShadow={1}
                       borderRadius={1}
                       height={{ xs: 80, md: 100 }}

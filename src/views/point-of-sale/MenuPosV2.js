@@ -8,7 +8,7 @@ const MenuBox = ({ icon, title, action, selected, disable, notification = false 
     <Grid item xs={6} sm={4} md={2}>
       <Box
         border={0}
-        bgcolor={disable ? '#f0f0f0' : selected ? '#d6bdab' : 'white'}
+        bgcolor={disable ? '#f0f0f0' : selected ? `${process.env.NEXT_PUBLIC_ENVIRONTMENT == 'development' ? "#E3F2FD" : "#d6bdab"}` : 'white'}
         boxShadow={1}
         borderRadius={1}
         height={{ xs: '4rem', md: '6rem' }}

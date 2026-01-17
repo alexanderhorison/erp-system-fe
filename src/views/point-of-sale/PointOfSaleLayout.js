@@ -160,9 +160,8 @@ export default function PointOfSaleLayout({
 
   const helperTextPrice = index => {
     const info = {
-      detailItem: `${getValues(`formData[${index}].unitName`) ? getValues(`formData[${index}].unitName`) : ''} ${
-        getValues(`formData[${index}].unitName`) ? `@` : ''
-      } ${priceFormatWithZero(getValues(`formData[${index}].price`))}`
+      detailItem: `${getValues(`formData[${index}].unitName`) ? getValues(`formData[${index}].unitName`) : ''} ${getValues(`formData[${index}].unitName`) ? `@` : ''
+        } ${priceFormatWithZero(getValues(`formData[${index}].price`))}`
     }
     return info
   }
@@ -510,10 +509,21 @@ export default function PointOfSaleLayout({
                         height: '5.5rem',
                         backgroundColor: 'primary',
                         textWrap: 'wrap',
-                        marginBottom: 1
+                        marginBottom: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                       }}
                     >
-                      {data.productName}
+                      <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+                        {data.productName}
+                      </Typography>
+                      {data.description && (
+                        <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>
+                          {`(${data.description})`}
+                        </Typography>
+                      )}
                     </Button>
                   </Grid>
                 ))}

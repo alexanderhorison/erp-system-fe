@@ -196,6 +196,7 @@ export default function ModalChargePos({
           const billId = JSON.parse(localStorage.getItem('billId'))
           const newArray = openBill.filter(bill => bill.id !== billId)
           localStorage.setItem('openBill', JSON.stringify(newArray))
+          resetAllField()
         }
       })
     )
@@ -207,12 +208,13 @@ export default function ModalChargePos({
     }
   }, [])
 
-  // Auto-select CASH payment method when modal opens
   useEffect(() => {
-    if (open && listPaymentType.length > 0 && !selectedPayment) {
-      const cashPayment = listPaymentType.find(payment => payment.code === 'CASH')
+    if (open && listPaymentType.length > 0) {
+      const cashPayment = listPaymentType.find(payment => payment.label === 'CASH' || payment.code === 'CASH' || payment.name === 'CASH')
       if (cashPayment) {
         setSelectedPayment(cashPayment)
+      } else {
+        setSelectedPayment(listPaymentType[0])
       }
     }
   }, [open, listPaymentType])
@@ -294,6 +296,26 @@ export default function ModalChargePos({
                   mb: 3,
                 }}
               >
+                {/* Total yang Harus Dibayar - Highlight */}
+                <Box
+                  sx={{
+                    p: 1.5,
+                    mb: 2,
+                    borderRadius: 2,
+                    border: '2px solid',
+                    borderColor: 'primary.main',
+                    textAlign: 'center',
+                    bgcolor: 'transparent'
+                  }}
+                >
+                  <Typography variant="body1" sx={{ fontWeight: 600, color: 'primary.main', mb: 0.5 }}>
+                    JUMLAH YANG HARUS DIBAYAR
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary' }}>
+                    Rp {priceFormat(subTotalPrice())}
+                  </Typography>
+                </Box>
+
                 {/* Input Amount */}
                 <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
                   <Grid item xs={12}>

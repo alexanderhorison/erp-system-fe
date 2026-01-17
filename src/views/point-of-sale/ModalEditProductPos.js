@@ -178,12 +178,12 @@ export default function ModalEditProductPos({ open, setOpen, data, updateProduct
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogContent
             sx={{
-              pb: theme => `${theme.spacing(12)} !important`, // Reduced bottom padding for fixed buttons
-              px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`], // Reduced horizontal padding
+              pb: theme => `${theme.spacing(12)} !important`,
+              px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`],
               overflowY: 'auto',
-              height: 'calc(30rem - 60px)', // Adjusted height for smaller padding
-              maxHeight: 'calc(30rem - 60px)',
-              pt: theme => [`${theme.spacing(16)} !important`, `${theme.spacing(16)} !important`] // Increased top padding for fixed header
+              height: data?.description ? 'calc(30rem - 80px)' : 'calc(30rem - 60px)',
+              maxHeight: data?.description ? 'calc(30rem - 80px)' : 'calc(30rem - 60px)',
+              pt: theme => [`${theme.spacing(data?.description ? 20 : 16)} !important`, `${theme.spacing(data?.description ? 20 : 16)} !important`]
             }}
           >
             {/* FIXED PRODUCT NAME HEADER WITHIN MODAL */}
@@ -201,9 +201,9 @@ export default function ModalEditProductPos({ open, setOpen, data, updateProduct
                 py: theme => `${theme.spacing(3)} !important`,
                 textAlign: 'center',
                 display: 'flex',
+                flexDirection: 'column',
                 justifyContent: 'center',
-                alignItems: 'center',
-                gap: 2
+                alignItems: 'center'
               }}
             >
               <Typography
@@ -214,6 +214,18 @@ export default function ModalEditProductPos({ open, setOpen, data, updateProduct
               >
                 {data?.productName}
               </Typography>
+              {data?.description && (
+                <Typography
+                  variant='body2'
+                  sx={{
+                    margin: 0,
+                    color: 'text.secondary',
+                    fontStyle: 'italic'
+                  }}
+                >
+                  ({data?.description})
+                </Typography>
+              )}
             </Box>
 
             <Grid container spacing={6}>

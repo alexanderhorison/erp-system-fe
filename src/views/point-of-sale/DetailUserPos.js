@@ -4,6 +4,7 @@ import { Box } from '@mui/system'
 import Icon from 'src/@core/components/icon'
 import { UseAuth } from 'src/hooks/useAuth'
 import swal from 'src/pages/sweetalert'
+import { environtmentColor } from 'src/helpers/getEnvirontmentColor'
 
 export default function DetailUserPos({ user, warehouse, setOpenSetting }) {
   const auth = UseAuth()
@@ -18,7 +19,7 @@ export default function DetailUserPos({ user, warehouse, setOpenSetting }) {
         confirmButtonText: 'Ya, Logout',
         cancelButtonText: 'Batal',
         reverseButtons: true,
-        confirmButtonColor: '#6F4E37'
+        confirmButtonColor: environtmentColor()
       })
 
       if (result.isConfirmed) {
@@ -30,7 +31,7 @@ export default function DetailUserPos({ user, warehouse, setOpenSetting }) {
           showConfirmButton: false,
           timer: 1000,
           timerProgressBar: true,
-          confirmButtonColor: '#6F4E37'
+          confirmButtonColor: environtmentColor()
         })
 
         // Perform logout after a short delay
