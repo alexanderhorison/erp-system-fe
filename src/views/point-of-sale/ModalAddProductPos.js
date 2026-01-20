@@ -88,7 +88,7 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
 
   // Update price when selected changes
   useEffect(() => {
-    if (selected?.basePrice) {
+    if (selected && selected.basePrice !== undefined && selected.basePrice !== null) {
       setValue('price', selected.basePrice)
     }
   }, [selected?.basePrice])
@@ -159,8 +159,8 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
       // Always set quantity to 1 regardless of stock
       setValue('quantity', 1)
 
-      // Update price saat auto pilih unit
-      if (selectedUnit?.basePrice) {
+      // Update price saat auto pilih unit (also handle zero price)
+      if (selectedUnit && selectedUnit.basePrice !== undefined && selectedUnit.basePrice !== null) {
         setValue('price', selectedUnit.basePrice)
       }
     }
@@ -433,7 +433,10 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
                                 name='price'
                                 errors={errors}
                                 label=''
-                                disabled={selected?.basePrice != 0 || !selected}
+                                disabled={
+                                  !selected ||
+                                  (selected.basePrice !== undefined && selected.basePrice !== null && selected.basePrice !== 0)
+                                }
                                 fullWidth
                               />
                             </Grid>

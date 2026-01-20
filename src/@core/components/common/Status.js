@@ -7,6 +7,8 @@ export default function Status(props) {
       return props?.color
     }
     switch (props?.status) {
+      case 'VOID':
+        return 'error'
       case 'PENDING':
         return 'info'
       case 'APPROVED':

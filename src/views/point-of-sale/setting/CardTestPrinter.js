@@ -24,7 +24,8 @@ export default function CardTestPrinter({ printer }) {
       showCancelButton: true,
       cancelButtonText: 'Batal',
       icon: 'question',
-      onClickYes: handleTestPrint
+      onClickYes: handleTestPrint,
+      autoSuccess: false
     })
   }
 

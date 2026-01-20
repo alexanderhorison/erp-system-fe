@@ -59,7 +59,7 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
 
   return (
     <>
-      <Box sx={{ height: '90%', overflow: 'auto' }}>
+      <Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant='h4'>{title[type]}</Typography>
           {type != 'openbill' && (

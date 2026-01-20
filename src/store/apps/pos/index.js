@@ -228,6 +228,7 @@ export const printPos = createAsyncThunk('appProductPos/printPos', async (code, 
     swalConfirmationOnly({
       title: 'Print Point of Sale',
       text: 'Apakah anda yakin ingin mencetak Point of Sale ini?',
+      autoSuccess: false,
       showCancelButton: true,
       confirmButtonText: 'Ya, Cetak',
       cancelButtonText: 'Tidak',
@@ -246,9 +247,9 @@ export const printPos = createAsyncThunk('appProductPos/printPos', async (code, 
           // Prepare request body with printer info
           const requestBody = printerPos
             ? {
-                ip: printerPos.ip,
-                name: printerPos.name
-              }
+              ip: printerPos.ip,
+              name: printerPos.name
+            }
             : {}
 
           // Kirim request ke backend - BE yang handle semua printing logic
@@ -271,9 +272,54 @@ export const printPos = createAsyncThunk('appProductPos/printPos', async (code, 
         // User cancelled
         resolve({ cancelled: true })
       }
+    }).catch(error => {
+      // ensure outer promise rejects to avoid unhandled rejection
+      reject(error)
+      return rejectWithValue([])
     })
   })
 })
+
+// VOID POS
+export const voidPointOfSale = createAsyncThunk(
+  'appProductPos/voidPointOfSale',
+  async ({ code, adminUserId, pin, warehouseId }, { dispatch, rejectWithValue }) => {
+    // Show confirmation first (handled in action level)
+    return new Promise((resolve, reject) => {
+      swalConfirmationOnly({
+        title: 'Konfirmasi VOID',
+        text: `Apakah anda yakin ingin VOID transaksi ${code}?`,
+        onClickYes: async () => {
+          try {
+            const response = await axios({
+              method: 'POST',
+              url: `/point-of-sale/void/${code}`,
+              data: { adminUserId, pin }
+            })
+
+            // Refresh list and detail
+            if (warehouseId) dispatch(fetchAllPointOfSaleByWarehouseId(warehouseId))
+            dispatch(fetchDetailPointOfSale(code))
+
+            // let confirmation helper display success animation
+            resolve(response.data)
+          } catch (error) {
+            // Let the confirmation helper show the error modal so it stays visible
+            throw error
+          }
+        },
+        onClickNo: () => {
+          resolve({ cancelled: true })
+        },
+        successMessage: 'Transaksi berhasil di-VOID'
+      }).catch(error => {
+        // ensure outer promise rejects to avoid unhandled rejection
+        reject(error)
+        return rejectWithValue([])
+      })
+    })
+  }
+)
 
 export const sendEmailPos = createAsyncThunk('appProductPos/sendEmail', async (formData, { rejectWithValue }) => {
   try {
@@ -326,6 +372,9 @@ export const appPosSlice = createSlice({
 
     loadingChargePos: false,
     errorChargePos: false
+    ,
+    loadingVoidPos: false,
+    errorVoidPos: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -435,6 +484,17 @@ export const appPosSlice = createSlice({
       .addCase(chargePos.rejected, (state, action) => {
         state.loadingChargePos = false
         state.errorChargePos = action.error.message
+      })
+      // VOID POS
+      .addCase(voidPointOfSale.pending, (state, action) => {
+        state.loadingVoidPos = true
+      })
+      .addCase(voidPointOfSale.fulfilled, (state, action) => {
+        state.loadingVoidPos = false
+      })
+      .addCase(voidPointOfSale.rejected, (state, action) => {
+        state.loadingVoidPos = false
+        state.errorVoidPos = action.error.message
       })
   }
 })

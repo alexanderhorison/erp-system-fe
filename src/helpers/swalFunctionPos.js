@@ -61,7 +61,8 @@ export async function swalConfirmationOnly({
   onClickYes = () => { },
   onClickNo = () => { },
   title,
-  successMessage = 'Sukses'
+  successMessage = 'Sukses',
+  autoSuccess = true
 }) {
   const result = await swal.fire({
     title: title,
@@ -75,13 +76,49 @@ export async function swalConfirmationOnly({
   });
 
   if (result.isConfirmed) {
-    onClickYes();
-    swal.fire({
-      title: successMessage,
-      icon: 'success',
-      timer: 1000,
-      showConfirmButton: false
-    })
+    try {
+      // show loading
+      swal.fire({
+        title: 'Processing...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        allowEnterKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          swal.showLoading()
+        }
+      })
+
+      // await caller's async operation
+      await onClickYes()
+
+      // close loading
+      swal.close()
+
+      // show success if caller didn't handle it
+      if (autoSuccess) {
+        await swal.fire({
+          title: successMessage,
+          icon: 'success',
+          timer: 1000,
+          showConfirmButton: false
+        })
+      }
+    } catch (error) {
+      // close loading then show error modal so user knows what failed
+      try { swal.close() } catch (e) { }
+      const message = error?.response?.data?.message || error?.message || 'Terjadi kesalahan'
+      try {
+        await swal.fire({
+          title: 'Error',
+          text: message,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        })
+      } catch (e) { }
+      throw error
+    }
   } else if (result.dismiss === swal.DismissReason.cancel) {
     onClickNo();
   }
