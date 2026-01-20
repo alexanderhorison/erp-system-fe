@@ -135,13 +135,10 @@ const columns = [
           <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
             <Typography
               noWrap
-              component={Link}
-              href='/apps/user/view/account'
+              component='span'
               sx={{
                 fontWeight: 500,
-                textDecoration: 'none',
-                color: 'text.secondary',
-                '&:hover': { color: 'primary.main' }
+                color: 'text.secondary'
               }}
             >
               {name}
