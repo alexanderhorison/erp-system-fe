@@ -105,16 +105,20 @@ const App = props => {
   const guestGuard = Component.guestGuard ?? false
   const aclAbilities = Component.acl ?? defaultACLObj
 
+  const env = process.env.NEXT_PUBLIC_ENVIRONTMENT || process.env.NEXT_PUBLIC_ENVIRONMENT || 'production'
+  const baseTitle = 'TBA Point of Sales'
+  const pageTitle = env === 'development' ? `${baseTitle} - Dev` : baseTitle
+  const faviconHref = env === 'development' ? '/favicon-dev.svg?v=2' : '/favicon.ico'
+
   return (
     <Provider store={store}>
       <SweetAlertContext.Provider value={Swal}>
         <CacheProvider value={emotionCache}>
           <Head>
-            <title>{`${themeConfig.templateName}`}</title>
-            <meta
-              name='description'
-              content={`${themeConfig.templateName}`}
-            />
+            <title>{pageTitle}</title>
+            <meta name='description' content={pageTitle} />
+            <link rel="icon" href={faviconHref} />
+            <link rel="shortcut icon" href={faviconHref} />
             <link rel="manifest" href="/manifest.json" />
             <meta name='keywords' content='' />
             <meta name='viewport' content='initial-scale=1, width=device-width' />
