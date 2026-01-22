@@ -299,7 +299,11 @@ export const voidPointOfSale = createAsyncThunk(
 
             // Refresh list and detail
             if (warehouseId) dispatch(fetchAllPointOfSaleByWarehouseId(warehouseId))
-            dispatch(fetchDetailPointOfSale(code))
+            const detailResult = await dispatch(fetchDetailPointOfSale(code))
+            const detailData = detailResult?.payload?.data || detailResult?.payload
+            if (detailData) {
+              dispatch(populateCartFromTransaction(detailData))
+            }
 
             // let confirmation helper display success animation
             resolve(response.data)
@@ -366,6 +370,9 @@ export const appPosSlice = createSlice({
     loadingDetailPointOfSale: true,
     errorDetailPointOfSale: false,
 
+    // When a transaction is VOID'd, backend detail can be used to repopulate cart
+    cartFromTransaction: null,
+
     dataPointOfSaleCustomer: [],
     loadingDataPointOfSaleCustomer: true,
     errorDataPointOfSaleCustomer: false,
@@ -376,7 +383,11 @@ export const appPosSlice = createSlice({
     loadingVoidPos: false,
     errorVoidPos: false
   },
-  reducers: {},
+  reducers: {
+    populateCartFromTransaction: (state, action) => {
+      state.cartFromTransaction = action.payload
+    }
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchListProductPos.pending, (state, action) => {
@@ -498,5 +509,7 @@ export const appPosSlice = createSlice({
       })
   }
 })
+
+export const { populateCartFromTransaction } = appPosSlice.actions
 
 export default appPosSlice.reducer

@@ -50,6 +50,7 @@ export default function PointOfSaleLayout({
   const { data: categoryData } = useSelector(state => state.category)
 
   const { listProductPos } = useSelector(state => state.pos)
+  const cartFromTransaction = useSelector(state => state.pos.cartFromTransaction)
 
   const [openModalProduct, setOpenModalProduct] = useState(false)
   const [openModalEditProduct, setOpenModalEditProduct] = useState(false)
@@ -292,6 +293,45 @@ export default function PointOfSaleLayout({
       if (findDebtIndex !== -1) remove(findDebtIndex)
     }
   }, [selectedCustomerPos])
+
+  // When a VOID transaction is populated into store, map it to cart and customer
+  useEffect(() => {
+    if (!cartFromTransaction) return
+
+    const products = cartFromTransaction?.listProducts || []
+    const mapped = products.map(item => ({
+      // keep any existing id if present
+      id: item.id || item.warehouseProductId || Math.random().toString(36).slice(2),
+      isCustom: !item.productName || item.title ? true : false,
+      isDebt: item.isDebt || false,
+      debtDate: item.debtDate || null,
+      price: item.price || item.unitPrice || 0,
+      productName: item.productName || item.title || 'Custom Amount',
+      quantity: item.quantity || 1,
+      subTotal: item.subTotal || (item.price || 0) * (item.quantity || 1),
+      title: item.title || '',
+      warehouseProductId: item.warehouseProductId || null,
+      unitName: item.unitName || ''
+    }))
+
+    // set form values and persist to localStorage
+    setValue('formData', mapped)
+    localStorage.setItem('listProductPos', JSON.stringify(mapped))
+
+    // populate customer if exists
+    if (cartFromTransaction?.customer && cartFromTransaction.customer.id) {
+      const cust = {
+        id: cartFromTransaction.customer.id,
+        name: cartFromTransaction.customer.name,
+        email: cartFromTransaction.customer.email || ''
+      }
+      setSelectedCustomerPos(cust)
+      localStorage.setItem('selectedCustomerPos', JSON.stringify({ id: cust.id, name: cust.name }))
+    } else {
+      setSelectedCustomerPos({})
+      localStorage.removeItem('selectedCustomerPos')
+    }
+  }, [cartFromTransaction])
 
   return (
     <Box
