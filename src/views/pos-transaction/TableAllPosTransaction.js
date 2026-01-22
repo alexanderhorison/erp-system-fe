@@ -357,7 +357,7 @@ export default function TableAllPosTransaction({ timeFilter }) {
           }
         }}
       />
-      <ModalViewTransactionV2 setOpen={setOpenModalDetail} open={openModalDetail} />
+      <ModalViewTransactionV2 setOpen={setOpenModalDetail} open={openModalDetail} disableActions={true} />
     </Card>
   )
 }

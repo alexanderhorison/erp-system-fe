@@ -24,7 +24,7 @@ import DetailOpenBillAndTransaction from '../open-bill/DetailOpenBillAndTransact
 import { fetchDataUsers } from 'src/store/apps/user'
 import { voidPointOfSale } from 'src/store/apps/pos'
 
-export default function ModalViewTransactionV2({ open, setOpen }) {
+export default function ModalViewTransactionV2({ open, setOpen, disableActions = false }) {
   const dispatch = useDispatch()
   const { detailPointOfSale: data, errorDetailPointOfSale, loadingDetailPointOfSale } = useSelector(state => state.pos)
   const users = useSelector(state => state.user?.dataUsers || [])
@@ -149,7 +149,7 @@ export default function ModalViewTransactionV2({ open, setOpen }) {
             </Grid>
           ) : (
             <>
-              <DetailOpenBillAndTransaction data={data} type={'transaction'} />
+              <DetailOpenBillAndTransaction data={data} type={'transaction'} disableActions={disableActions} />
             </>
           )}
           {/* VOID Dialog */}
@@ -216,7 +216,7 @@ export default function ModalViewTransactionV2({ open, setOpen }) {
           </Dialog>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'flex-start', py: theme => `${theme.spacing(1)} !important`, px: theme => `${theme.spacing(3)} !important` }}>
-          {data && data.status !== 'VOID' && (
+          {data && data.status !== 'VOID' && !disableActions && (
             <Button color='error' variant='contained' onClick={() => setOpenVoid(true)}>
               VOID
             </Button>

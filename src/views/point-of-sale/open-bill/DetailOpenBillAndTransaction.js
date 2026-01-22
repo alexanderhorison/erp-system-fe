@@ -8,7 +8,7 @@ import { generateIdProduct } from 'src/helpers/pos/autoSavePos'
 import { returnFormatDate, returnFormatDateDay, returnFormatTime } from 'src/helpers/formatDate'
 import ModalSendEmailCustomer from '../ModalSendEmailCustomer'
 
-export default function DetailOpenBillAndTransaction({ data, type }) {
+export default function DetailOpenBillAndTransaction({ data, type, disableActions = false }) {
   const [openModalEmail, setOpenModalEmail] = useState(false)
   const [userData, setUserData] = useState(null)
 
@@ -62,7 +62,7 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
       <Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant='h4'>{title[type]}</Typography>
-          {type != 'openbill' && (
+          {type != 'openBill' && !disableActions && (
             <Button
               variant='contained'
               color='primary'
