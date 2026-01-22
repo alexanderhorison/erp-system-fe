@@ -102,7 +102,7 @@ export default function ModalViewTransactionV2({ open, setOpen, disableActions =
             overflowY: 'auto',
             height: 'calc(34rem - 60px)',
             maxHeight: 'calc(34rem - 60px)',
-            pt: theme => [`${theme.spacing(20)} !important`, `${theme.spacing(20)} !important`]
+            pt: theme => [`${theme.spacing(23)} !important`, `${theme.spacing(23)} !important`]
           }}
         >
           <Box

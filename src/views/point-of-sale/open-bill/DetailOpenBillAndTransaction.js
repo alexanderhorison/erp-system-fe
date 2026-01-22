@@ -10,7 +10,6 @@ import ModalSendEmailCustomer from '../ModalSendEmailCustomer'
 
 export default function DetailOpenBillAndTransaction({ data, type, disableActions = false }) {
   const [openModalEmail, setOpenModalEmail] = useState(false)
-  const [userData, setUserData] = useState(null)
 
   const title = {
     openBill: 'Bill Details',
