@@ -76,6 +76,17 @@ export default function CompanyInfoCard({ companyInfo, onUpdate }) {
             <Grid item xs={12} sm={6}>
               <Box mb={3}>
                 <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                  Company Name POS
+                </Typography>
+                <Typography variant="body1">
+                  {companyData?.companyNamePos || '-'}
+                </Typography>
+              </Box>
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <Box mb={3}>
+                <Typography variant="subtitle2" color="textSecondary" gutterBottom>
                   PT Name
                 </Typography>
                 <Typography variant="body1">

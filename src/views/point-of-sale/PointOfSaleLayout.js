@@ -396,7 +396,8 @@ export default function PointOfSaleLayout({
           sx={{
             height: '100%',
             maxHeight: '100%',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            minHeight: 0
           }}
         >
           {/* Section Filter */}
@@ -408,7 +409,8 @@ export default function PointOfSaleLayout({
               display: showFilter ? 'flex' : 'none',
               height: '100%',
               maxHeight: '100%',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              minHeight: 0
             }}
           >
             <Box
@@ -476,7 +478,8 @@ export default function PointOfSaleLayout({
               maxHeight: '100%',
               overflow: 'hidden',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              minHeight: 0
             }}
           >
             {/* All Product */}
@@ -553,7 +556,8 @@ export default function PointOfSaleLayout({
               maxHeight: '100%',
               overflow: 'hidden',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              minHeight: 0
             }}
           >
             {/* <Grid container spacing={{ xs: 1, md: 2 }} sx={{ height: showBreakdown ? '95%' : '100%' }}> */}
