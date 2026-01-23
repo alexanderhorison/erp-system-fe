@@ -44,6 +44,7 @@ export default function DetailOpenBillAndTransaction({ data, type, disableAction
       temp.warehouseName = data?.warehouseName
       temp.status = data?.status
       temp.code = data?.code
+      temp.queueNumber = data?.queueNumber
       temp.totalQuantity = data?.totalItems
       temp.change = data?.totalPayment - data?.grandTotal
       temp.createdAt = data?.createdAt
@@ -99,16 +100,19 @@ export default function DetailOpenBillAndTransaction({ data, type, disableAction
 
           <Grid item xs={12} sm={3}>
             <Typography variant='subtitle1' fontWeight='bold'>
-              Status
-            </Typography>
-            <Status status={mappedData.status} />
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <Typography variant='subtitle1' fontWeight='bold'>
               Cashier
             </Typography>
             <Typography variant='body1'>{mappedData?.createdBy || 'Unknown Cashier'}</Typography>
           </Grid>
+
+          <Grid item xs={12} sm={3}>
+            <Typography variant='subtitle1' fontWeight='bold'>
+              Status
+            </Typography>
+            <Status status={mappedData.status} />
+          </Grid>
+
+
           <Divider style={{ width: '100%', margin: '20px 0' }} />
 
           <Grid item xs={12}>
