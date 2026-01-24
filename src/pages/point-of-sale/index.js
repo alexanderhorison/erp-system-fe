@@ -69,6 +69,8 @@ export default function PointOfSale() {
     code: 'POS'
   })
 
+  const cartFromTransaction = useSelector(state => state.pos.cartFromTransaction)
+
   useEffect(() => {
     // Disable scrolling on this page
     document.body.style.overflow = 'hidden'
@@ -92,6 +94,12 @@ export default function PointOfSale() {
     // Save to localstorage
     localStorage.setItem('warehousePos', JSON.stringify(warehouse))
   }, [warehouse])
+
+  useEffect(() => {
+    if (cartFromTransaction) {
+      setSelectedMenu({ name: 'POS', code: 'POS' })
+    }
+  }, [cartFromTransaction])
 
   // Check printer health status periodically (every 30 seconds)
   useEffect(() => {
