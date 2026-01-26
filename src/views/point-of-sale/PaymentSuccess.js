@@ -22,10 +22,10 @@ export default function PaymentSuccess({
 
   const handlePrintReceipt2x = async () => {
     try {
-      const result1 = await dispatch(printPos(dataPayment.code))
-      if (result1.payload && !result1.payload.cancelled) {
-        // Jika pertama berhasil, print kedua
-        await dispatch(printPos(dataPayment.code))
+      const result1 = await dispatch(printPos(dataPayment.code)).unwrap()
+      if (result1 && !result1.cancelled) {
+        // Jika pertama berhasil, print kedua dengan flag isCopy
+        await dispatch(printPos({ code: dataPayment.code, isCopy: true })).unwrap()
       }
     } catch (error) {
       console.error('Error printing 2x:', error)

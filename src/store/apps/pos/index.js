@@ -222,9 +222,12 @@ export const fetchDetailPointOfSale = createAsyncThunk(
 )
 
 // PRINT POS
-export const printPos = createAsyncThunk('appProductPos/printPos', async (code, { rejectWithValue }) => {
+export const printPos = createAsyncThunk('appProductPos/printPos', async (params, { rejectWithValue }) => {
   // Show confirmation first
   return new Promise((resolve, reject) => {
+    const code = typeof params === 'object' && params.code ? params.code : params
+    const isCopy = typeof params === 'object' ? params.isCopy : false
+
     swalConfirmationOnly({
       title: 'Print Point of Sale',
       text: 'Apakah anda yakin ingin mencetak Point of Sale ini?',
@@ -244,13 +247,16 @@ export const printPos = createAsyncThunk('appProductPos/printPos', async (code, 
           const printerPosData = localStorage.getItem('printerPos')
           const printerPos = printerPosData ? JSON.parse(printerPosData) : null
 
-          // Prepare request body with printer info
+          // Prepare request body with printer info and isCopy flag
           const requestBody = printerPos
             ? {
               ip: printerPos.ip,
-              name: printerPos.name
+              name: printerPos.name,
+              isCopy: isCopy
             }
-            : {}
+            : {
+              isCopy: isCopy
+            }
 
           // Kirim request ke backend - BE yang handle semua printing logic
           const response = await axios({
