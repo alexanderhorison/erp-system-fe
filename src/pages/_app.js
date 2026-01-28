@@ -106,7 +106,7 @@ const App = props => {
   const aclAbilities = Component.acl ?? defaultACLObj
 
   const env = process.env.NEXT_PUBLIC_ENVIRONTMENT || process.env.NEXT_PUBLIC_ENVIRONMENT || 'production'
-  const baseTitle = 'TBA Point of Sales'
+  const baseTitle = themeConfig.templateName
   const pageTitle = env === 'development' ? `${baseTitle} - Dev` : baseTitle
   const faviconHref = env === 'development' ? '/favicon-dev.svg?v=2' : '/favicon.ico'
   const manifestHref = env === 'development' ? '/manifest-dev.json' : '/manifest.json'
