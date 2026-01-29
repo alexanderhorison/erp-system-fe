@@ -13,7 +13,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Select
+  Select,
+  Chip
 } from '@mui/material'
 import { useSelector, useDispatch } from 'react-redux'
 import Link from 'next/link'
@@ -102,7 +103,7 @@ export default function ModalViewTransactionV2({ open, setOpen, disableActions =
             overflowY: 'auto',
             height: 'calc(34rem - 60px)',
             maxHeight: 'calc(34rem - 60px)',
-            pt: theme => [`${theme.spacing(20)} !important`, `${theme.spacing(20)} !important`]
+            pt: theme => [`${theme.spacing(23)} !important`, `${theme.spacing(23)} !important`]
           }}
         >
           <Box
@@ -129,9 +130,12 @@ export default function ModalViewTransactionV2({ open, setOpen, disableActions =
                 Detail Transaction POS
               </Typography>
             </Box>
-            <Typography variant='body2' sx={{ margin: 0, color: 'text.secondary' }}>
-              {data?.code}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
+              <Typography variant='body2' sx={{ margin: 0, color: 'text.secondary' }}>
+                {data?.code}
+              </Typography>
+              <Chip size='small' label={`Queue ${data?.queueNumber ?? '-'}`} />
+            </Box>
           </Box>
           {loadingDetailPointOfSale ? (
             <Box sx={{ mt: 11, width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>

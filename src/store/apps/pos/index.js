@@ -222,9 +222,12 @@ export const fetchDetailPointOfSale = createAsyncThunk(
 )
 
 // PRINT POS
-export const printPos = createAsyncThunk('appProductPos/printPos', async (code, { rejectWithValue }) => {
+export const printPos = createAsyncThunk('appProductPos/printPos', async (params, { rejectWithValue }) => {
   // Show confirmation first
   return new Promise((resolve, reject) => {
+    const code = typeof params === 'object' && params.code ? params.code : params
+    const isCopy = typeof params === 'object' ? params.isCopy : false
+
     swalConfirmationOnly({
       title: 'Print Point of Sale',
       text: 'Apakah anda yakin ingin mencetak Point of Sale ini?',
@@ -244,13 +247,16 @@ export const printPos = createAsyncThunk('appProductPos/printPos', async (code, 
           const printerPosData = localStorage.getItem('printerPos')
           const printerPos = printerPosData ? JSON.parse(printerPosData) : null
 
-          // Prepare request body with printer info
+          // Prepare request body with printer info and isCopy flag
           const requestBody = printerPos
             ? {
               ip: printerPos.ip,
-              name: printerPos.name
+              name: printerPos.name,
+              isCopy: isCopy
             }
-            : {}
+            : {
+              isCopy: isCopy
+            }
 
           // Kirim request ke backend - BE yang handle semua printing logic
           const response = await axios({
@@ -299,7 +305,11 @@ export const voidPointOfSale = createAsyncThunk(
 
             // Refresh list and detail
             if (warehouseId) dispatch(fetchAllPointOfSaleByWarehouseId(warehouseId))
-            dispatch(fetchDetailPointOfSale(code))
+            const detailResult = await dispatch(fetchDetailPointOfSale(code))
+            const detailData = detailResult?.payload?.data || detailResult?.payload
+            if (detailData) {
+              dispatch(populateCartFromTransaction(detailData))
+            }
 
             // let confirmation helper display success animation
             resolve(response.data)
@@ -366,6 +376,9 @@ export const appPosSlice = createSlice({
     loadingDetailPointOfSale: true,
     errorDetailPointOfSale: false,
 
+    // When a transaction is VOID'd, backend detail can be used to repopulate cart
+    cartFromTransaction: null,
+
     dataPointOfSaleCustomer: [],
     loadingDataPointOfSaleCustomer: true,
     errorDataPointOfSaleCustomer: false,
@@ -376,7 +389,11 @@ export const appPosSlice = createSlice({
     loadingVoidPos: false,
     errorVoidPos: false
   },
-  reducers: {},
+  reducers: {
+    populateCartFromTransaction: (state, action) => {
+      state.cartFromTransaction = action.payload
+    }
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchListProductPos.pending, (state, action) => {
@@ -498,5 +515,7 @@ export const appPosSlice = createSlice({
       })
   }
 })
+
+export const { populateCartFromTransaction } = appPosSlice.actions
 
 export default appPosSlice.reducer

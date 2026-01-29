@@ -19,6 +19,7 @@ export default function CompanyInfoModal({
 
   const schema = yup.object().shape({
     companyName: yup.string().required('Company name is required'),
+    companyNamePos: yup.string().optional(),
     ptName: yup.string().required('PT name is required'),
     address: yup.string().required('Address is required'),
     city: yup.string().required('City is required'),
@@ -35,6 +36,7 @@ export default function CompanyInfoModal({
 
   const defaultValues = {
     companyName: companyData?.companyName || "Toko Jaya Makmur",
+    companyNamePos: companyData?.companyNamePos || "Toko Jaya Makmur",
     ptName: companyData?.ptName || "PT TJAHAYA BERKAT ABADI",
     address: companyData?.address || "Jl. Raya Kebayoran Lama No. 555",
     city: companyData?.city || "Grogol Selatan, Jakarta Selatan 12220",
@@ -64,6 +66,7 @@ export default function CompanyInfoModal({
       category: "COMPANY_INFO",
       value_json: {
         companyName: data.companyName,
+        companyNamePos: data.companyNamePos,
         ptName: data.ptName,
         address: data.address,
         city: data.city,
@@ -143,6 +146,17 @@ export default function CompanyInfoModal({
             errors={errors}
             loading={loadingUpdateCompanyInfo}
             required
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <FormInputText
+            name="companyNamePos"
+            control={control}
+            label="Company Name POS"
+            placeholder="Enter POS company name (optional)"
+            errors={errors}
+            loading={loadingUpdateCompanyInfo}
           />
         </Grid>
 

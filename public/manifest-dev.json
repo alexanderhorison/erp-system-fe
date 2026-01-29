@@ -1,0 +1,23 @@
+{
+  "name": "TBA-POS - Dev",
+  "short_name": "TBA-POS-Dev",
+  "description": "Tjahaya Berkat Abadi POS (Development)",
+  "start_url": "/point-of-sale/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1976d2",
+  "icons": [
+    {
+      "src": "/web-app-manifest-192x192-dev.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/web-app-manifest-512x512-dev.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

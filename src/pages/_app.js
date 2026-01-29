@@ -106,9 +106,10 @@ const App = props => {
   const aclAbilities = Component.acl ?? defaultACLObj
 
   const env = process.env.NEXT_PUBLIC_ENVIRONTMENT || process.env.NEXT_PUBLIC_ENVIRONMENT || 'production'
-  const baseTitle = 'TBA Point of Sales'
+  const baseTitle = themeConfig.templateName
   const pageTitle = env === 'development' ? `${baseTitle} - Dev` : baseTitle
   const faviconHref = env === 'development' ? '/favicon-dev.svg?v=2' : '/favicon.ico'
+  const manifestHref = env === 'development' ? '/manifest-dev.json' : '/manifest.json'
 
   return (
     <Provider store={store}>
@@ -119,7 +120,7 @@ const App = props => {
             <meta name='description' content={pageTitle} />
             <link rel="icon" href={faviconHref} />
             <link rel="shortcut icon" href={faviconHref} />
-            <link rel="manifest" href="/manifest.json" />
+            <link rel="manifest" href={manifestHref} />
             <meta name='keywords' content='' />
             <meta name='viewport' content='initial-scale=1, width=device-width' />
             <meta name="robots" content="noindex, nofollow" />

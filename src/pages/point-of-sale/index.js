@@ -69,6 +69,8 @@ export default function PointOfSale() {
     code: 'POS'
   })
 
+  const cartFromTransaction = useSelector(state => state.pos.cartFromTransaction)
+
   useEffect(() => {
     // Disable scrolling on this page
     document.body.style.overflow = 'hidden'
@@ -92,6 +94,12 @@ export default function PointOfSale() {
     // Save to localstorage
     localStorage.setItem('warehousePos', JSON.stringify(warehouse))
   }, [warehouse])
+
+  useEffect(() => {
+    if (cartFromTransaction) {
+      setSelectedMenu({ name: 'POS', code: 'POS' })
+    }
+  }, [cartFromTransaction])
 
   // Check printer health status periodically (every 30 seconds)
   useEffect(() => {
@@ -124,7 +132,7 @@ export default function PointOfSale() {
           height: responsiveHeight.headerHeight,
           minHeight: responsiveHeight.headerHeight,
           maxHeight: responsiveHeight.headerHeight,
-          mb: isLowHeight ? 0.5 : -8,
+          mb: isLowHeight ? 0.5 : -3,
           flexShrink: 0
         }}
       >
@@ -163,7 +171,7 @@ export default function PointOfSale() {
           minHeight: 0,
           display: 'flex',
           overflow: 'hidden',
-          maxHeight: 'calc(100vh - 140px)' // Perbesar lagi tinggi maksimal
+          maxHeight: `calc(100vh - ${responsiveHeight.headerHeight})` // Use actual header height to avoid overflow
         }}
       >
         <Card
@@ -180,7 +188,9 @@ export default function PointOfSale() {
             sx={{
               height: '100%',
               p: isLowHeight ? 1 : 2,
+              pb: isLowHeight ? 2 : 3,
               overflow: 'auto',
+              minHeight: 0,
               display: 'flex',
               flexDirection: 'column'
             }}
