@@ -151,8 +151,15 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
 
   useEffect(() => {
     if (detailProductPos && detailProductPos.length > 0) {
-      const slopUnit = detailProductPos.find(unit => unit.unitName === 'SLOP')
-      const selectedUnit = slopUnit || detailProductPos[0]
+      let unit = null;
+      let selectedUnit = null;
+      if (data?.productName?.toUpperCase().includes("KALENG")){
+        unit = detailProductPos.find(unit => unit.unitName === 'KALENG')
+        selectedUnit = unit || detailProductPos[0]
+      } else {
+        unit = detailProductPos.find(unit => unit.unitName === 'PCS')
+        selectedUnit = unit || detailProductPos[0]
+      }
 
       setSelected(selectedUnit)
 
