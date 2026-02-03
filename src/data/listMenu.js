@@ -249,6 +249,12 @@ export const listMenu = [
     menuId: 47
   },
   {
+    title: 'Shift',
+    path: '/master/shift/',
+    icon: 'tabler:clock',
+    menuId: 48
+  },
+  {
     sectionTitle: 'Daily Cost',
     menuId: [29, 31, 32, 33]
   },

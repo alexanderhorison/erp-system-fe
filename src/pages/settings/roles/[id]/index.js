@@ -391,6 +391,12 @@ export default function DetailRole() {
                   setCheckedMenuIds={setCheckedMenuIds}
                   checkedMenuIds={checkedMenuIds}
                 />
+                <MenuItem
+                  name={'Shift'}
+                  menuId={48}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
               </List>
             </Grid>
           </Grid>
