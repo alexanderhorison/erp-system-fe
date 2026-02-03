@@ -108,7 +108,12 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
         open={open}
         maxWidth='md'
         scroll='body'
-        onClose={handleClose}
+        // Prevent closing modal when clicking outside (backdrop) or pressing Escape
+        onClose={(event, reason) => {
+          if (reason === 'backdropClick' || reason === 'escapeKeyDown') return
+          handleClose()
+        }}
+        disableEscapeKeyDown
         sx={{ '& .MuiDialog-paper': { overflow: 'visible' }, zoom: 1 }}
       >
         <DialogContent

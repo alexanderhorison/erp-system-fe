@@ -113,6 +113,13 @@ export default function ModalChargePos({
 
   const [dataSuccessPayment, setDataSuccessPayment] = useState({})
 
+  // State untuk menyimpan nilai payment saat sukses
+  const [savedPaymentData, setSavedPaymentData] = useState({
+    totalAmount: 0,
+    totalPayment: 0,
+    change: 0
+  })
+
   const { listPaymentType, loadingListPaymentType, loadingChargePos } = useSelector(state => state.pos)
 
   // SHCEMA YUP VALIDATION
@@ -190,6 +197,12 @@ export default function ModalChargePos({
         selectedPayment: selectedPayment,
         subTotalPrice: priceFormat(totalPayment),
         onComplete: data => {
+          // Simpan nilai payment sebelum reset
+          setSavedPaymentData({
+            totalAmount: subTotalPrice(),
+            totalPayment: totalPayment,
+            change: totalPayment - subTotalPrice()
+          })
           setAlreadyPayment(true)
           setDataSuccessPayment(data)
           const openBill = JSON.parse(localStorage.getItem('openBill'))
@@ -241,9 +254,9 @@ export default function ModalChargePos({
             <PaymentSuccess
               alreadyPayment={alreadyPayment}
               customer={customer}
-              totalPayment={priceFormat(getValues('amount'))}
-              totalAmount={priceFormat(subTotalPrice())}
-              change={getValues('amount') - subTotalPrice()}
+              totalPayment={savedPaymentData.totalPayment}
+              totalAmount={savedPaymentData.totalAmount}
+              change={savedPaymentData.change}
               setOpen={setOpen}
               resetAll={resetAllField}
               dataPayment={dataSuccessPayment}

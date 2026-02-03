@@ -1,7 +1,7 @@
 import { Box, Button, Grid, MenuItem, Typography } from '@mui/material'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import { priceFormat, priceFormatWithZero } from 'src/helpers/priceFormatter'
 import ModalAddProductPos from './ModalAddProductPos'
@@ -12,6 +12,7 @@ import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
 import ModalEditProductPos from './ModalEditProductPos'
 import ProductCustomField from './ProductCustomField'
 import { autoSavePos, generateIdOpenBill } from 'src/helpers/pos/autoSavePos'
+import { populateCartFromTransaction } from 'src/store/apps/pos'
 import Script from 'next/script'
 import TotalSectionPos from './TotalSectionPos'
 
@@ -50,6 +51,9 @@ export default function PointOfSaleLayout({
   const { data: categoryData } = useSelector(state => state.category)
 
   const { listProductPos } = useSelector(state => state.pos)
+  const cartFromTransaction = useSelector(state => state.pos.cartFromTransaction)
+
+  const dispatch = useDispatch()
 
   const [openModalProduct, setOpenModalProduct] = useState(false)
   const [openModalEditProduct, setOpenModalEditProduct] = useState(false)
@@ -293,6 +297,46 @@ export default function PointOfSaleLayout({
     }
   }, [selectedCustomerPos])
 
+  // When a VOID transaction is populated into store, map it to cart and customer
+  useEffect(() => {
+    if (!cartFromTransaction) return
+
+    const products = cartFromTransaction?.listProducts || []
+    const mapped = products.map(item => ({
+      // keep any existing id if present
+      id: item.id || item.warehouseProductId || Math.random().toString(36).slice(2),
+      isCustom: !item.productName || item.title ? true : false,
+      isDebt: item.isDebt || false,
+      debtDate: item.debtDate || null,
+      price: item.price || item.unitPrice || 0,
+      productName: item.productName || item.title || 'Custom Amount',
+      quantity: item.quantity || 1,
+      subTotal: item.subTotal || (item.price || 0) * (item.quantity || 1),
+      title: item.title || '',
+      warehouseProductId: item.warehouseProductId || null,
+      unitName: item.unitName || ''
+    }))
+
+    // set form values and persist to localStorage
+    setValue('formData', mapped)
+    localStorage.setItem('listProductPos', JSON.stringify(mapped))
+
+    // populate customer if exists
+    if (cartFromTransaction?.customer && cartFromTransaction.customer.id) {
+      const cust = {
+        id: cartFromTransaction.customer.id,
+        name: cartFromTransaction.customer.name,
+        email: cartFromTransaction.customer.email || ''
+      }
+      setSelectedCustomerPos(cust)
+      localStorage.setItem('selectedCustomerPos', JSON.stringify({ id: cust.id, name: cust.name }))
+    } else {
+      setSelectedCustomerPos({})
+      localStorage.removeItem('selectedCustomerPos')
+    }
+    dispatch(populateCartFromTransaction(null))
+  }, [cartFromTransaction])
+
   return (
     <Box
       sx={{
@@ -396,7 +440,8 @@ export default function PointOfSaleLayout({
           sx={{
             height: '100%',
             maxHeight: '100%',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            minHeight: 0
           }}
         >
           {/* Section Filter */}
@@ -408,7 +453,8 @@ export default function PointOfSaleLayout({
               display: showFilter ? 'flex' : 'none',
               height: '100%',
               maxHeight: '100%',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              minHeight: 0
             }}
           >
             <Box
@@ -476,7 +522,8 @@ export default function PointOfSaleLayout({
               maxHeight: '100%',
               overflow: 'hidden',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              minHeight: 0
             }}
           >
             {/* All Product */}
@@ -553,7 +600,8 @@ export default function PointOfSaleLayout({
               maxHeight: '100%',
               overflow: 'hidden',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              minHeight: 0
             }}
           >
             {/* <Grid container spacing={{ xs: 1, md: 2 }} sx={{ height: showBreakdown ? '95%' : '100%' }}> */}

@@ -172,7 +172,7 @@ export const listMenu = [
   },
   {
     sectionTitle: 'Sales Order',
-    menuId: [21, 22]
+    menuId: [21, 22, 23]
   },
   {
     title: 'Data Customer',
@@ -209,7 +209,7 @@ export const listMenu = [
   },
   {
     sectionTitle: 'Purchase Order',
-    menuId: [1, 2]
+    menuId: [24, 25]
   },
   {
     title: 'Data Vendor',
@@ -228,15 +228,25 @@ export const listMenu = [
   {
     title: 'Purchase Order',
     icon: 'tabler:shopping-bag',
-    menuId: [24],
+    menuId: [25],
     children: [
       {
         title: 'Purchase Order',
         path: '/purchase-order',
-        menuId: 24
+        menuId: 25
         // icon: 'tabler:receipt'
       }
     ]
+  },
+  {
+    sectionTitle: 'Point of Sale',
+    menuId: [47]
+  },
+  {
+    title: 'POS Transaction',
+    path: '/pos-transaction/',
+    icon: 'tabler:building-store',
+    menuId: 47
   },
   {
     sectionTitle: 'Daily Cost',

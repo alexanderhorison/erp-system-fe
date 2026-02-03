@@ -83,7 +83,7 @@ const FormControlLabel = styled(MuiFormControlLabel)(({ theme }) => ({
 }))
 
 const schema = yup.object().shape({
-  email: yup.string().email().required(),
+  email: yup.string().required("Email or Username is required"),
   password: yup.string().min(5).required()
 })
 
@@ -206,7 +206,7 @@ const LoginPage = () => {
                 <CustomTextField
                   fullWidth
                   autoFocus
-                  label='Email'
+                  label='Email or Username'
                   value={value}
                   onBlur={onBlur}
                   onChange={onChange}

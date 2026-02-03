@@ -20,6 +20,18 @@ export default function PaymentSuccess({
     dispatch(printPos(dataPayment.code))
   }
 
+  const handlePrintReceipt2x = async () => {
+    try {
+      const result1 = await dispatch(printPos(dataPayment.code)).unwrap()
+      if (result1 && !result1.cancelled) {
+        // Jika pertama berhasil, print kedua dengan flag isCopy
+        await dispatch(printPos({ code: dataPayment.code, isCopy: true })).unwrap()
+      }
+    } catch (error) {
+      console.error('Error printing 2x:', error)
+    }
+  }
+
   const [openModalEmail, setOpenModalEmail] = useState(false)
 
   const handleEmailReceipt = () => {
@@ -65,7 +77,7 @@ export default function PaymentSuccess({
                   Total Payment:
                 </Typography>
                 <Typography variant='subtitle1' sx={{ fontWeight: 'bold', mt: 0.3 }}>
-                  Rp {totalAmount.toLocaleString('id-ID')}
+                  Rp {Number(totalAmount || 0).toLocaleString('id-ID')}
                 </Typography>
               </Box>
             </Box>
@@ -79,7 +91,7 @@ export default function PaymentSuccess({
                   Paid:
                 </Typography>
                 <Typography variant='subtitle1' sx={{ fontWeight: 'bold', mt: 0.3 }}>
-                  Rp {totalPayment.toLocaleString('id-ID')}
+                  Rp {Number(totalPayment || 0).toLocaleString('id-ID')}
                 </Typography>
               </Box>
             </Box>
@@ -102,6 +114,14 @@ export default function PaymentSuccess({
           {/* Removed full-width CTA per design update */}
 
           <Stack direction='row' spacing={2} justifyContent='center'>
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={handlePrintReceipt2x}
+              sx={{ textTransform: 'none', fontWeight: 'bold' }}
+            >
+              Print 2x Receipt
+            </Button>
             <Button
               variant='contained'
               color='primary'

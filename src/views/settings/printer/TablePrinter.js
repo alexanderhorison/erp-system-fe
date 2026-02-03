@@ -62,6 +62,7 @@ export default function TablePrinter({ filterData, printerHealthStatus, setOpenM
     swalConfirmationOnly({
       title: 'Test Print',
       text: `Apakah anda ingin melakukan test print pada ${printerName}?`,
+      autoSuccess: false,
       confirmButtonText: 'Ya, Test Print',
       showCancelButton: true,
       cancelButtonText: 'Tidak',

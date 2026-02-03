@@ -44,6 +44,11 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
       .required(),
     email: yup.string().email('Masukkan email yang valid').required('Email harus diisi'),
     description: yup.string().optional(),
+    pin: yup
+      .string()
+      .nullable()
+      .matches(/^\d{4}$/, 'Pin harus 4 digit')
+      .optional(),
     roleId: yup.string().required('Otoritas harus diisi'),
     warehouseId: yup
       .string()
@@ -300,6 +305,25 @@ export default function ModalUserEdit({ data, isOpen, closePress, isView }) {
                       value={value}
                       onChange={onChange}
                       placeholder='akun cakra'
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Controller
+                  name='pin'
+                  control={control}
+                  defaultValue={data?.pin || '1234'}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      fullWidth
+                      value={value}
+                      label='PIN (4 digit)'
+                      onChange={onChange}
+                      placeholder='1234'
+                      error={Boolean(errors.pin)}
+                      {...(errors.pin && { helperText: errors.pin.message })}
+                      disabled={isView}
                     />
                   )}
                 />

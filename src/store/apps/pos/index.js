@@ -222,12 +222,16 @@ export const fetchDetailPointOfSale = createAsyncThunk(
 )
 
 // PRINT POS
-export const printPos = createAsyncThunk('appProductPos/printPos', async (code, { rejectWithValue }) => {
+export const printPos = createAsyncThunk('appProductPos/printPos', async (params, { rejectWithValue }) => {
   // Show confirmation first
   return new Promise((resolve, reject) => {
+    const code = typeof params === 'object' && params.code ? params.code : params
+    const isCopy = typeof params === 'object' ? params.isCopy : false
+
     swalConfirmationOnly({
       title: 'Print Point of Sale',
       text: 'Apakah anda yakin ingin mencetak Point of Sale ini?',
+      autoSuccess: false,
       showCancelButton: true,
       confirmButtonText: 'Ya, Cetak',
       cancelButtonText: 'Tidak',
@@ -243,13 +247,16 @@ export const printPos = createAsyncThunk('appProductPos/printPos', async (code, 
           const printerPosData = localStorage.getItem('printerPos')
           const printerPos = printerPosData ? JSON.parse(printerPosData) : null
 
-          // Prepare request body with printer info
+          // Prepare request body with printer info and isCopy flag
           const requestBody = printerPos
             ? {
-                ip: printerPos.ip,
-                name: printerPos.name
-              }
-            : {}
+              ip: printerPos.ip,
+              name: printerPos.name,
+              isCopy: isCopy
+            }
+            : {
+              isCopy: isCopy
+            }
 
           // Kirim request ke backend - BE yang handle semua printing logic
           const response = await axios({
@@ -271,9 +278,58 @@ export const printPos = createAsyncThunk('appProductPos/printPos', async (code, 
         // User cancelled
         resolve({ cancelled: true })
       }
+    }).catch(error => {
+      // ensure outer promise rejects to avoid unhandled rejection
+      reject(error)
+      return rejectWithValue([])
     })
   })
 })
+
+// VOID POS
+export const voidPointOfSale = createAsyncThunk(
+  'appProductPos/voidPointOfSale',
+  async ({ code, adminUserId, pin, warehouseId }, { dispatch, rejectWithValue }) => {
+    // Show confirmation first (handled in action level)
+    return new Promise((resolve, reject) => {
+      swalConfirmationOnly({
+        title: 'Konfirmasi VOID',
+        text: `Apakah anda yakin ingin VOID transaksi ${code}?`,
+        onClickYes: async () => {
+          try {
+            const response = await axios({
+              method: 'POST',
+              url: `/point-of-sale/void/${code}`,
+              data: { adminUserId, pin }
+            })
+
+            // Refresh list and detail
+            if (warehouseId) dispatch(fetchAllPointOfSaleByWarehouseId(warehouseId))
+            const detailResult = await dispatch(fetchDetailPointOfSale(code))
+            const detailData = detailResult?.payload?.data || detailResult?.payload
+            if (detailData) {
+              dispatch(populateCartFromTransaction(detailData))
+            }
+
+            // let confirmation helper display success animation
+            resolve(response.data)
+          } catch (error) {
+            // Let the confirmation helper show the error modal so it stays visible
+            throw error
+          }
+        },
+        onClickNo: () => {
+          resolve({ cancelled: true })
+        },
+        successMessage: 'Transaksi berhasil di-VOID'
+      }).catch(error => {
+        // ensure outer promise rejects to avoid unhandled rejection
+        reject(error)
+        return rejectWithValue([])
+      })
+    })
+  }
+)
 
 export const sendEmailPos = createAsyncThunk('appProductPos/sendEmail', async (formData, { rejectWithValue }) => {
   try {
@@ -320,14 +376,24 @@ export const appPosSlice = createSlice({
     loadingDetailPointOfSale: true,
     errorDetailPointOfSale: false,
 
+    // When a transaction is VOID'd, backend detail can be used to repopulate cart
+    cartFromTransaction: null,
+
     dataPointOfSaleCustomer: [],
     loadingDataPointOfSaleCustomer: true,
     errorDataPointOfSaleCustomer: false,
 
     loadingChargePos: false,
     errorChargePos: false
+    ,
+    loadingVoidPos: false,
+    errorVoidPos: false
   },
-  reducers: {},
+  reducers: {
+    populateCartFromTransaction: (state, action) => {
+      state.cartFromTransaction = action.payload
+    }
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchListProductPos.pending, (state, action) => {
@@ -436,7 +502,20 @@ export const appPosSlice = createSlice({
         state.loadingChargePos = false
         state.errorChargePos = action.error.message
       })
+      // VOID POS
+      .addCase(voidPointOfSale.pending, (state, action) => {
+        state.loadingVoidPos = true
+      })
+      .addCase(voidPointOfSale.fulfilled, (state, action) => {
+        state.loadingVoidPos = false
+      })
+      .addCase(voidPointOfSale.rejected, (state, action) => {
+        state.loadingVoidPos = false
+        state.errorVoidPos = action.error.message
+      })
   }
 })
+
+export const { populateCartFromTransaction } = appPosSlice.actions
 
 export default appPosSlice.reducer

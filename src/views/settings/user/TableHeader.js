@@ -28,6 +28,7 @@ export const defaultValues = {
   userName: '',
   description: '',
   password: '',
+  pin: '1234',
   roleId: '',
   warehouseId: ''
 }
@@ -68,6 +69,10 @@ const TableHeader = props => {
       .string()
       .min(5, obj => showErrors('Password', obj.value.length, obj.min))
       .required(),
+    pin: yup
+      .string()
+      .matches(/^\d{4}$/, 'Pin harus 4 digit')
+      .required('Pin harus diisi'),
     email: yup.string().email('Masukkan email yang valid').required('Email harus diisi'),
     description: yup.string().optional(),
     roleId: yup.string().required('Otoritas harus diisi'),
@@ -274,6 +279,23 @@ const TableHeader = props => {
                           </InputAdornment>
                         )
                       }}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Controller
+                  name='pin'
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      fullWidth
+                      value={value}
+                      label='PIN (4 digit)'
+                      onChange={onChange}
+                      placeholder='1234'
+                      error={Boolean(errors.pin)}
+                      {...(errors.pin && { helperText: errors.pin.message })}
                     />
                   )}
                 />

@@ -12,6 +12,8 @@ import { createEmotionCache } from 'src/@core/utils/create-emotion-cache'
 
 class CustomDocument extends Document {
   render() {
+    const env = process.env.NEXT_PUBLIC_ENVIRONTMENT || process.env.NEXT_PUBLIC_ENVIRONMENT || 'production'
+    const faviconHref = env === 'development' ? '/favicon-dev.svg?v=2' : '/favicon.ico'
     return (
       <Html lang='en'>
         <Head>
@@ -22,7 +24,7 @@ class CustomDocument extends Document {
             href='https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap'
           />
           <link rel='apple-touch-icon' sizes='180x180' href='/images/apple-touch-icon.png' />
-          <link rel='shortcut icon' href='/images/logo.png' />
+          <link rel='shortcut icon' href={faviconHref} />
           <link
             rel="stylesheet"
             type="text/css"

@@ -8,9 +8,8 @@ import { generateIdProduct } from 'src/helpers/pos/autoSavePos'
 import { returnFormatDate, returnFormatDateDay, returnFormatTime } from 'src/helpers/formatDate'
 import ModalSendEmailCustomer from '../ModalSendEmailCustomer'
 
-export default function DetailOpenBillAndTransaction({ data, type }) {
+export default function DetailOpenBillAndTransaction({ data, type, disableActions = false }) {
   const [openModalEmail, setOpenModalEmail] = useState(false)
-  const [userData, setUserData] = useState(null)
 
   const title = {
     openBill: 'Bill Details',
@@ -45,6 +44,7 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
       temp.warehouseName = data?.warehouseName
       temp.status = data?.status
       temp.code = data?.code
+      temp.queueNumber = data?.queueNumber
       temp.totalQuantity = data?.totalItems
       temp.change = data?.totalPayment - data?.grandTotal
       temp.createdAt = data?.createdAt
@@ -59,10 +59,10 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
 
   return (
     <>
-      <Box sx={{ height: '90%', overflow: 'auto' }}>
+      <Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant='h4'>{title[type]}</Typography>
-          {type != 'openbill' && (
+          {type != 'openBill' && !disableActions && (
             <Button
               variant='contained'
               color='primary'
@@ -100,16 +100,19 @@ export default function DetailOpenBillAndTransaction({ data, type }) {
 
           <Grid item xs={12} sm={3}>
             <Typography variant='subtitle1' fontWeight='bold'>
-              Status
-            </Typography>
-            <Status status={mappedData.status} />
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <Typography variant='subtitle1' fontWeight='bold'>
               Cashier
             </Typography>
             <Typography variant='body1'>{mappedData?.createdBy || 'Unknown Cashier'}</Typography>
           </Grid>
+
+          <Grid item xs={12} sm={3}>
+            <Typography variant='subtitle1' fontWeight='bold'>
+              Status
+            </Typography>
+            <Status status={mappedData.status} />
+          </Grid>
+
+
           <Divider style={{ width: '100%', margin: '20px 0' }} />
 
           <Grid item xs={12}>

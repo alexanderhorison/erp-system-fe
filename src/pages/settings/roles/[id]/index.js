@@ -385,6 +385,12 @@ export default function DetailRole() {
                   setCheckedActions={setCheckedActions}
                   checkedActions={checkedActions}
                 />
+                <MenuItem
+                  name={'POS Transaction'}
+                  menuId={47}
+                  setCheckedMenuIds={setCheckedMenuIds}
+                  checkedMenuIds={checkedMenuIds}
+                />
               </List>
             </Grid>
           </Grid>

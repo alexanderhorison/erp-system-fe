@@ -105,17 +105,22 @@ const App = props => {
   const guestGuard = Component.guestGuard ?? false
   const aclAbilities = Component.acl ?? defaultACLObj
 
+  const env = process.env.NEXT_PUBLIC_ENVIRONTMENT || process.env.NEXT_PUBLIC_ENVIRONMENT || 'production'
+  const baseTitle = themeConfig.templateName
+  const pageTitle = env === 'development' ? `${baseTitle} - Dev` : baseTitle
+  const faviconHref = env === 'development' ? '/favicon-dev.svg?v=2' : '/favicon.ico'
+  const manifestHref = env === 'development' ? '/manifest-dev.json' : '/manifest.json'
+
   return (
     <Provider store={store}>
       <SweetAlertContext.Provider value={Swal}>
         <CacheProvider value={emotionCache}>
           <Head>
-            <title>{`${themeConfig.templateName}`}</title>
-            <meta
-              name='description'
-              content={`${themeConfig.templateName}`}
-            />
-            <link rel="manifest" href="/manifest.json" />
+            <title>{pageTitle}</title>
+            <meta name='description' content={pageTitle} />
+            <link rel="icon" href={faviconHref} />
+            <link rel="shortcut icon" href={faviconHref} />
+            <link rel="manifest" href={manifestHref} />
             <meta name='keywords' content='' />
             <meta name='viewport' content='initial-scale=1, width=device-width' />
             <meta name="robots" content="noindex, nofollow" />
