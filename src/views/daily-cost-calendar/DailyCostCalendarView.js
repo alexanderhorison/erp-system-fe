@@ -220,8 +220,9 @@ export default function DailyCostCalendarView({ }) {
   };
 
   useEffect(() => {
-    if (selectedMonth && selectedYear) {
-      dispatch(fetchAllDailyCost({ date: `${selectedMonth + 1}-01-${selectedYear}` }));
+    if (selectedMonth !== undefined && selectedYear) {
+      const formattedDate = dayjs(`${selectedYear}-${selectedMonth + 1}-01`).format('YYYY-MM-DD');
+      dispatch(fetchAllDailyCost({ date: formattedDate }));
     }
   }, [selectedMonth, selectedYear]);
 
