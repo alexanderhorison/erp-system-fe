@@ -15,6 +15,7 @@ import {
   CardContent,
   Chip
 } from '@mui/material'
+import { useRouter } from 'next/router'
 import axios from 'src/configs/axios'
 import toast from 'react-hot-toast'
 import Icon from 'src/@core/components/icon'
@@ -23,6 +24,7 @@ import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 
 const EndShiftModal = ({ open, onClose, onShiftEnded }) => {
+  const router = useRouter()
   const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showConfirmation, setShowConfirmation] = useState(false)
@@ -57,8 +59,17 @@ const EndShiftModal = ({ open, onClose, onShiftEnded }) => {
 
       if (response.data?.success) {
         toast.success('Shift berhasil diakhiri')
-        onShiftEnded()
         handleClose()
+
+        // Call onShiftEnded callback first
+        if (onShiftEnded) {
+          onShiftEnded()
+        }
+
+        // Redirect to shift selection page
+        setTimeout(() => {
+          router.push('/point-of-sale-shift')
+        }, 500)
       }
     } catch (error) {
       console.error('Error ending shift:', error)
@@ -95,8 +106,8 @@ const EndShiftModal = ({ open, onClose, onShiftEnded }) => {
         </DialogTitle>
         <DialogContent>
           <Typography>
-            Apakah Anda yakin ingin mengakhiri shift sekarang? Setelah shift diakhiri, Anda perlu memilih shift baru
-            untuk melanjutkan transaksi.
+            Apakah Anda yakin ingin mengakhiri shift sekarang? Setelah shift diakhiri, Anda akan kembali ke halaman
+            pemilihan shift.
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -217,7 +228,8 @@ const EndShiftModal = ({ open, onClose, onShiftEnded }) => {
             {/* Additional Info */}
             <Alert severity='info' sx={{ mb: 2 }}>
               <Typography variant='body2'>
-                Setelah mengakhiri shift, Anda perlu memilih shift baru untuk melanjutkan transaksi Point of Sale.
+                Setelah mengakhiri shift, Anda akan diarahkan ke halaman pemilihan shift. Anda dapat memilih shift baru
+                atau logout dari sistem.
               </Typography>
             </Alert>
           </Box>

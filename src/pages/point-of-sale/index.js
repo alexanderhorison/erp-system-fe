@@ -15,13 +15,14 @@ import DetailUserPos from 'src/views/point-of-sale/DetailUserPos'
 import SettingPosLayout from 'src/views/point-of-sale/setting/SettingPosLayout'
 import RequestProductLayout from 'src/views/point-of-sale/request-product/RequestProductLayout'
 import { fetchPrinterHealthCheck } from 'src/store/apps/config/configPrinter'
-import ShiftSelectionModal from 'src/views/point-of-sale/shift/ShiftSelectionModal'
 import axios from 'src/configs/axios'
+import { useRouter } from 'next/router'
 
 export default function PointOfSale() {
   const dispatch = useDispatch()
   const { user } = UseAuth()
   const theme = useTheme()
+  const router = useRouter()
 
   // Responsive breakpoints
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
@@ -64,7 +65,6 @@ export default function PointOfSale() {
 
   // Shift management state
   const [currentShift, setCurrentShift] = useState(null)
-  const [showShiftSelection, setShowShiftSelection] = useState(false)
   const [shiftLoading, setShiftLoading] = useState(true)
 
   const { printerStatus } = useSelector(state => state.printer)
@@ -89,31 +89,28 @@ export default function PointOfSale() {
       const response = await axios.get('/user-shift/current')
       if (response.data?.success && response.data.data) {
         setCurrentShift(response.data.data)
-        setShowShiftSelection(false)
       } else {
         // No current shift or shift is null (from previous day)
-        setShowShiftSelection(true)
+        // Redirect to shift selection page
+        router.push('/point-of-sale-shift')
       }
     } catch (error) {
-      // If 404, user needs to select shift
-      if (error.response?.status === 404) {
-        setShowShiftSelection(true)
+      // If 404 or 400, user needs to select shift
+      if (error.response?.status === 404 || error.response?.status === 400) {
+        router.push('/point-of-sale-shift')
       } else {
         console.error('Error checking current shift:', error)
+        router.push('/point-of-sale-shift')
       }
     } finally {
       setShiftLoading(false)
     }
   }
 
-  const handleShiftSelected = shift => {
-    setCurrentShift(shift)
-    setShowShiftSelection(false)
-  }
-
   const handleShiftEnded = () => {
     setCurrentShift(null)
-    setShowShiftSelection(true)
+    // Redirect to shift selection page
+    router.push('/point-of-sale-shift')
   }
 
   useEffect(() => {
@@ -165,14 +162,21 @@ export default function PointOfSale() {
     )
   }
 
+  // If no current shift, don't render anything (redirecting...)
+  if (!currentShift) {
+    return (
+      <Box display='flex' justifyContent='center' alignItems='center' height='100vh' flexDirection='column' gap={2}>
+        <CircularProgress />
+        <Typography>Mengalihkan ke pemilihan shift...</Typography>
+      </Box>
+    )
+  }
+
   // Status printer akan di-fetch otomatis dari backend via Redux
   // Tidak perlu manual connect dari frontend lagi
 
   return (
     <>
-      {/* Shift Selection Modal */}
-      <ShiftSelectionModal open={showShiftSelection} onShiftSelected={handleShiftSelected} />
-
       <Box
         sx={{
           height: '100vh',
