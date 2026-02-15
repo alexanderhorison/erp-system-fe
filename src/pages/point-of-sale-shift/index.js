@@ -196,71 +196,78 @@ const PointOfSaleShiftPage = () => {
       <Container maxWidth='lg' sx={{ mb: 3 }}>
         <Card sx={{ border: 1, borderColor: 'divider' }}>
           <CardContent>
-            <Box display='flex' justifyContent='space-between' alignItems='center' minHeight={60}>
+            <Grid container alignItems='center' minHeight={60}>
               {/* Left: User Info */}
-              <Box display='flex' alignItems='center' gap={2}>
-                <Box
-                  sx={{
-                    width: 50,
-                    height: 50,
-                    borderRadius: '50%',
-                    bgcolor: 'primary.main',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontWeight: 700,
-                    fontSize: '1.2rem'
-                  }}
-                >
-                  {auth.user?.name?.charAt(0).toUpperCase() || 'U'}
+              <Grid item xs={4}>
+                <Box display='flex' alignItems='center' gap={2} justifyContent='flex-start'>
+                  <Box
+                    sx={{
+                      width: 50,
+                      height: 50,
+                      borderRadius: '50%',
+                      bgcolor: 'primary.main',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontWeight: 700,
+                      fontSize: '1.2rem'
+                    }}
+                  >
+                    {auth.user?.name?.charAt(0).toUpperCase() || 'U'}
+                  </Box>
+                  <Box>
+                    <Typography variant='h6' fontWeight={600} color='text.primary'>
+                      {auth.user?.name || 'User'}
+                    </Typography>
+                    <Box display='flex' alignItems='center' gap={1}>
+                      <Typography variant='body2' color='text.secondary' fontWeight={500}>
+                        {auth.user?.Role?.name || 'Cashier'}
+                      </Typography>
+                    </Box>
+                  </Box>
                 </Box>
-                <Box>
-                  <Typography variant='h6' fontWeight={600} color='text.primary'>
-                    {auth.user?.name || 'User'}
+              </Grid>
+
+              {/* Center: Date & Time */}
+              <Grid item xs={4}>
+                <Box textAlign='center'>
+                  <Typography variant='body2' color='text.secondary' fontWeight={500}>
+                    {formatCurrentDate()}
                   </Typography>
-                  <Box display='flex' alignItems='center' gap={1}>
-                    <Icon icon='mdi:shield-account' fontSize={16} color={theme.palette.secondary.main} />
-                    <Typography variant='body2' color='text.secondary' fontWeight={500}>
-                      {auth.user?.Role?.name || 'Cashier'}
+                  <Box display='flex' alignItems='center' justifyContent='center' gap={0.5} mt={0.5}>
+                    <Icon icon='mdi:clock-outline' fontSize={18} color={theme.palette.primary.main} />
+                    <Typography variant='h6' fontWeight={600} color='primary.main'>
+                      {formatCurrentTime()}
                     </Typography>
                   </Box>
                 </Box>
-              </Box>
-
-              {/* Center: Date & Time */}
-              <Box textAlign='center' display={{ xs: 'none', md: 'block' }}>
-                <Typography variant='body2' color='text.secondary' fontWeight={500}>
-                  {formatCurrentDate()}
-                </Typography>
-                <Box display='flex' alignItems='center' justifyContent='center' gap={0.5} mt={0.5}>
-                  <Icon icon='mdi:clock-outline' fontSize={18} color={theme.palette.primary.main} />
-                  <Typography variant='h6' fontWeight={600} color='primary.main'>
-                    {formatCurrentTime()}
-                  </Typography>
-                </Box>
-              </Box>
+              </Grid>
 
               {/* Right: Logout Button */}
-              <Tooltip title='Logout'>
-                <IconButton
-                  onClick={handleLogoutClick}
-                  sx={{
-                    border: 2,
-                    borderColor: 'error.main',
-                    color: 'error.main',
-                    '&:hover': {
-                      borderColor: 'error.dark',
-                      bgcolor: 'error.light',
-                      transform: 'scale(1.05)'
-                    },
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <Icon icon='mdi:logout' fontSize={24} />
-                </IconButton>
-              </Tooltip>
-            </Box>
+              <Grid item xs={4}>
+                <Box display='flex' justifyContent='flex-end'>
+                  <Tooltip title='Logout'>
+                    <IconButton
+                      onClick={handleLogoutClick}
+                      sx={{
+                        border: 2,
+                        borderColor: 'error.main',
+                        color: 'error.main',
+                        '&:hover': {
+                          borderColor: 'error.dark',
+                          bgcolor: 'error.light',
+                          transform: 'scale(1.05)'
+                        },
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <Icon icon='mdi:logout' fontSize={24} />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </Grid>
+            </Grid>
           </CardContent>
         </Card>
       </Container>
@@ -380,20 +387,7 @@ const PointOfSaleShiftPage = () => {
                     py: 1.5,
                     fontSize: '1rem',
                     fontWeight: 600,
-                    borderRadius: 2,
-                    bgcolor: 'success.main',
-                    color: 'white',
-                    textTransform: 'none',
-                    '&:hover': {
-                      bgcolor: 'success.dark',
-                      transform: 'translateY(-2px)',
-                      boxShadow: 4
-                    },
-                    '&:disabled': {
-                      bgcolor: 'grey.400',
-                      color: 'grey.200'
-                    },
-                    transition: 'all 0.2s ease-in-out'
+                    textTransform: 'none'
                   }}
                 >
                   {starting ? 'Memulai Shift...' : 'Mulai Shift'}

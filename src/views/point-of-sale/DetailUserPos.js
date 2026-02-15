@@ -157,13 +157,7 @@ export default function DetailUserPos({ user, warehouse, setOpenSetting, current
                   borderRadius: 1,
                   px: 1,
                   py: 0.25,
-                  minHeight: 'auto',
-                  '&:hover': {
-                    bgcolor: 'warning.light',
-                    borderColor: 'warning.main',
-                    transform: 'scale(1.02)',
-                    transition: 'all 0.2s ease-in-out'
-                  }
+                  minHeight: 'auto'
                 }}
               >
                 End Shift

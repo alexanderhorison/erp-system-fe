@@ -154,7 +154,7 @@ export default function ModalChargePos({
     let dicount = 0
     let subTotal = 0
     let listSendProduct = []
-    let totalDebt = 0;
+    let totalDebt = 0
     const totalPayment = getValues('amount')
     listSelectedProduct.forEach(item => {
       subTotal += item.quantity * item.price
@@ -169,7 +169,7 @@ export default function ModalChargePos({
         notes: item?.notes || '',
         title: item?.title || '',
         isDebt: item?.isDebt || false,
-        debtDate: item?.debtDate || '',
+        debtDate: item?.debtDate || ''
       })
     })
     let sendData = {
@@ -223,7 +223,9 @@ export default function ModalChargePos({
 
   useEffect(() => {
     if (open && listPaymentType.length > 0) {
-      const cashPayment = listPaymentType.find(payment => payment.label === 'CASH' || payment.code === 'CASH' || payment.name === 'CASH')
+      const cashPayment = listPaymentType.find(
+        payment => payment.label === 'CASH' || payment.code === 'CASH' || payment.name === 'CASH'
+      )
       if (cashPayment) {
         setSelectedPayment(cashPayment)
       } else {
@@ -267,16 +269,16 @@ export default function ModalChargePos({
               <Box
                 sx={{
                   p: 2,
-                  mb: 3,
+                  mb: 3
                 }}
               >
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                <Typography variant='h6' sx={{ fontWeight: 600, mb: 2 }}>
                   Metode Pembayaran
                 </Typography>
 
                 <Grid container spacing={2}>
                   {loadingListPaymentType ? (
-                    <Grid item xs={12} sx={{ height: '120px' }} textAlign="center">
+                    <Grid item xs={12} sx={{ height: '120px' }} textAlign='center'>
                       <CircularProgress />
                     </Grid>
                   ) : (
@@ -306,7 +308,7 @@ export default function ModalChargePos({
               <Box
                 sx={{
                   p: 2,
-                  mb: 3,
+                  mb: 3
                 }}
               >
                 {/* Total yang Harus Dibayar - Highlight */}
@@ -321,22 +323,22 @@ export default function ModalChargePos({
                     bgcolor: 'transparent'
                   }}
                 >
-                  <Typography variant="body1" sx={{ fontWeight: 600, color: 'primary.main', mb: 0.5 }}>
+                  <Typography variant='body1' sx={{ fontWeight: 600, color: 'primary.main', mb: 0.5 }}>
                     JUMLAH YANG HARUS DIBAYAR
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary' }}>
+                  <Typography variant='h5' sx={{ fontWeight: 700, color: 'text.primary' }}>
                     Rp {priceFormat(subTotalPrice())}
                   </Typography>
                 </Box>
 
                 {/* Input Amount */}
-                <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
+                <Grid container spacing={2} alignItems='center' sx={{ mb: 2 }}>
                   <Grid item xs={12}>
                     <FormInputPricePos
                       control={control}
-                      name="amount"
+                      name='amount'
                       errors={errors}
-                      label="Amount"
+                      label='Amount'
                       disabled={false}
                       fullWidth
                     />
@@ -358,7 +360,7 @@ export default function ModalChargePos({
 
               {/* Ringkasan Transaksi */}
               <Card
-                variant="outlined"
+                variant='outlined'
                 sx={{
                   p: 2,
                   mb: 3,
@@ -367,12 +369,12 @@ export default function ModalChargePos({
                   boxShadow: 'none'
                 }}
               >
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: 'primary.main' }}>
+                <Typography variant='h6' sx={{ fontWeight: 600, mb: 1, color: 'primary.main' }}>
                   Ringkasan Transaksi
                 </Typography>
 
                 {(() => {
-                  const { totalBarang, totalHutang, grandTotal } = getTotals();
+                  const { totalBarang, totalHutang, grandTotal } = getTotals()
                   return [
                     { label: 'Total Barang', value: priceFormat(totalBarang) },
                     { label: 'Total Hutang', value: priceFormat(totalHutang) },
@@ -381,15 +383,15 @@ export default function ModalChargePos({
                     <Grid
                       container
                       key={idx}
-                      justifyContent="space-between"
-                      alignItems="center"
+                      justifyContent='space-between'
+                      alignItems='center'
                       sx={{
                         py: 0.6,
                         borderBottom: idx !== 2 ? theme => `1px dashed ${theme.palette.divider}` : 'none'
                       }}
                     >
                       <Typography
-                        variant="body1"
+                        variant='body1'
                         sx={{ fontWeight: idx === 2 ? 700 : 500, color: idx === 2 ? 'primary.main' : 'text.secondary' }}
                       >
                         {item.label}
@@ -401,33 +403,25 @@ export default function ModalChargePos({
                         Rp {item.value || 0}
                       </Typography>
                     </Grid>
-                  ));
+                  ))
                 })()}
               </Card>
 
               {/* Action Buttons */}
               <Grid container spacing={2}>
                 <Grid item xs={6}>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    color="inherit"
-                    size="large"
-                    onClick={handleClose}
-                    sx={{ borderRadius: 2, py: 1.2 }}
-                  >
+                  <Button fullWidth variant='outlined' color='inherit' size='large' onClick={handleClose}>
                     Cancel
                   </Button>
                 </Grid>
                 <Grid item xs={6}>
                   <Button
                     fullWidth
-                    variant="contained"
-                    color="primary"
-                    size="large"
+                    variant='contained'
+                    color='primary'
+                    size='large'
                     onClick={handleSubmit(handleSubmitCharge)}
                     disabled={!selectedPayment || loadingChargePos}
-                    sx={{ borderRadius: 2, py: 1.2 }}
                     startIcon={loadingChargePos ? <CircularProgress size={20} color='inherit' /> : null}
                   >
                     {loadingChargePos ? 'Processing...' : 'Charge'}

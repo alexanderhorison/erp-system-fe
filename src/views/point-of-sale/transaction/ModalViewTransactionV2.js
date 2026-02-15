@@ -157,13 +157,20 @@ export default function ModalViewTransactionV2({ open, setOpen, disableActions =
             </>
           )}
           {/* VOID Dialog */}
-          <Dialog open={openVoid} onClose={() => {
-            setOpenVoid(false)
-            setSelectedAdmin('')
-            setPin('')
-          }} maxWidth='xs' fullWidth>
+          <Dialog
+            open={openVoid}
+            onClose={() => {
+              setOpenVoid(false)
+              setSelectedAdmin('')
+              setPin('')
+            }}
+            maxWidth='xs'
+            fullWidth
+          >
             <DialogContent component='form' autoComplete='off'>
-              <Typography variant='h6' sx={{ mb: 2 }}>Void Transaction {data?.code}</Typography>
+              <Typography variant='h6' sx={{ mb: 2 }}>
+                Void Transaction {data?.code}
+              </Typography>
               {/* dummy input to prevent browser autofill */}
               <input type='text' name='prevent_autofill_username' autoComplete='off' style={{ display: 'none' }} />
               <FormControl fullWidth sx={{ mb: 2 }}>
@@ -175,7 +182,9 @@ export default function ModalViewTransactionV2({ open, setOpen, disableActions =
                   onChange={e => setSelectedAdmin(e.target.value)}
                 >
                   {users.map(u => (
-                    <MenuItem key={u.id} value={u.id}>{u.name}</MenuItem>
+                    <MenuItem key={u.id} value={u.id}>
+                      {u.name}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -201,11 +210,15 @@ export default function ModalViewTransactionV2({ open, setOpen, disableActions =
               />
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => {
-                setOpenVoid(false)
-                setSelectedAdmin('')
-                setPin('')
-              }}>Batal</Button>
+              <Button
+                onClick={() => {
+                  setOpenVoid(false)
+                  setSelectedAdmin('')
+                  setPin('')
+                }}
+              >
+                Batal
+              </Button>
               <Button
                 color='error'
                 variant='contained'
@@ -219,7 +232,13 @@ export default function ModalViewTransactionV2({ open, setOpen, disableActions =
             </DialogActions>
           </Dialog>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: 'flex-start', py: theme => `${theme.spacing(1)} !important`, px: theme => `${theme.spacing(3)} !important` }}>
+        <DialogActions
+          sx={{
+            justifyContent: 'flex-start',
+            py: theme => `${theme.spacing(1)} !important`,
+            px: theme => `${theme.spacing(3)} !important`
+          }}
+        >
           {data && data.status !== 'VOID' && !disableActions && (
             <Button color='error' variant='contained' onClick={() => setOpenVoid(true)}>
               VOID
