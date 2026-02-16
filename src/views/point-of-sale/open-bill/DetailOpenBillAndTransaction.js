@@ -111,20 +111,6 @@ export default function DetailOpenBillAndTransaction({ data, type, disableAction
             <Status status={mappedData.status} />
           </Grid>
 
-          {type === 'transaction' && data?.shift && (
-            <Grid item xs={12} sm={3}>
-              <Typography variant='subtitle1' fontWeight='bold'>
-                Shift
-              </Typography>
-              <Typography variant='body1'>{data.shift.shiftName || '-'}</Typography>
-              <Typography variant='body2'>ID: {data.shift.id || '-'}</Typography>
-              <Typography variant='body2'>
-                {data.shift.startShift ? data.shift.startShift.substring(0, 5) : '-'} -{' '}
-                {data.shift.endShift ? data.shift.endShift.substring(0, 5) : '-'}
-              </Typography>
-            </Grid>
-          )}
-
           <Divider style={{ width: '100%', margin: '20px 0' }} />
 
           <Grid item xs={12}>

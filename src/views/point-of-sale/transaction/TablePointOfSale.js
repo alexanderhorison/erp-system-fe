@@ -13,7 +13,7 @@ import { Status } from 'src/@core/components/common'
 import TableHeaderPointOfSale from './TableHeaderPointOfSale'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { fetchDetailPointOfSale, printPos } from 'src/store/apps/pos'
-import ModalViewTransactionV2 from './ModalViewTransactionV2'
+import ModalViewTransactionV4 from './ModalViewTransactionV4'
 
 const RowOptions = ({ handleView, handlePrint }) => {
   return (
@@ -265,7 +265,7 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
             }
           }}
         />
-        <ModalViewTransactionV2 setOpen={setOpenModalDetail} open={openModalDetail} />
+        <ModalViewTransactionV4 setOpen={setOpenModalDetail} open={openModalDetail} />
       </Card>
     </>
   )

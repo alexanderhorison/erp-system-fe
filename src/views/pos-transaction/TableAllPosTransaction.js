@@ -11,7 +11,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import { returnFormatTime } from 'src/helpers/formatDate'
 import { fetchAllPointOfSaleByWarehouseId, fetchDetailPointOfSale, printPos } from 'src/store/apps/pos'
 import TableHeaderPosTransaction from './TableHeaderPosTransaction'
-import ModalViewTransactionV2 from 'src/views/point-of-sale/transaction/ModalViewTransactionV2'
+import ModalViewTransactionV4 from 'src/views/point-of-sale/transaction/ModalViewTransactionV4'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { Status } from 'src/@core/components/common'
 
@@ -357,7 +357,7 @@ export default function TableAllPosTransaction({ timeFilter }) {
           }
         }}
       />
-      <ModalViewTransactionV2 setOpen={setOpenModalDetail} open={openModalDetail} disableActions={true} />
+      <ModalViewTransactionV4 setOpen={setOpenModalDetail} open={openModalDetail} disableActions={true} />
     </Card>
   )
 }
