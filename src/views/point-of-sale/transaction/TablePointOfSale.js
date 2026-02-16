@@ -148,6 +148,36 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
               }
             },
             {
+              flex: 0.15,
+              minWidth: 120,
+              field: 'shift',
+              headerName: 'Shift',
+              renderCell: params => {
+                const { row } = params
+                console.log(row)
+                return (
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      {row.shift ? (
+                        <>
+                          <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
+                            {row.shift.shiftName}
+                          </Typography>
+                          <Typography noWrap variant='caption'>
+                            {row.shift.startShift} - {row.shift.endShift}
+                          </Typography>
+                        </>
+                      ) : (
+                        <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
+                          -
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                )
+              }
+            },
+            {
               flex: 0.16,
               minWidth: 120,
               field: 'grandTotal',
