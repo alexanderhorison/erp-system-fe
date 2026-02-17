@@ -302,7 +302,7 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
                 <Card sx={{ flex: 1, minWidth: 280 }}>
                   <CardHeader
                     avatar={
-                      <Avatar sx={{ bgcolor: 'success.main' }}>
+                      <Avatar sx={{ bgcolor: 'primary.main' }}>
                         <Icon icon='mdi:cash-multiple' fontSize={20} />
                       </Avatar>
                     }
@@ -385,7 +385,7 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
               <Card>
                 <CardHeader
                   avatar={
-                    <Avatar sx={{ bgcolor: 'info.main' }}>
+                    <Avatar sx={{ bgcolor: 'primary.main' }}>
                       <Icon icon='mdi:account-outline' fontSize={20} />
                     </Avatar>
                   }
@@ -426,7 +426,7 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
               <Card>
                 <CardHeader
                   avatar={
-                    <Avatar sx={{ bgcolor: 'warning.main' }}>
+                    <Avatar sx={{ bgcolor: 'primary.main' }}>
                       <Icon icon='mdi:package-variant' fontSize={20} />
                     </Avatar>
                   }
