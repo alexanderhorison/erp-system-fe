@@ -63,14 +63,18 @@ const PointOfSaleShiftPage = () => {
         toast.success('Melanjutkan shift aktif')
         router.push('/point-of-sale')
         return
+      } else {
+        // No active shift, proceed to shift selection
+        fetchAvailableShifts()
       }
     } catch (error) {
-      // No active shift, continue to show shift selection
+      // Handle errors
       if (error.response?.status === 404 || error.response?.status === 400) {
         fetchAvailableShifts()
       } else {
         console.error('Error checking current shift:', error)
         toast.error('Gagal memeriksa shift aktif')
+        setLoading(false)  // Ensure loading is set to false to prevent stuck
       }
     }
   }
