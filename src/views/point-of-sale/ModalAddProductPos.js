@@ -95,6 +95,11 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
 
   // ON SUBMIT
   const onSubmit = val => {
+    if (!selected) {
+      console.error('Selected unit is null, cannot submit')
+      return
+    }
+
     let tempProduct = {
       subTotal: val?.price * val?.quantity,
       quantity: val?.quantity,
@@ -139,6 +144,7 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
   }, [watch('price'), watch('quantity')])
 
   useEffect(() => {
+    setSelected(null) // Reset selected when data changes
     const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
     dispatch(fetchDetailProductPos({ warehouseId: warehouse?.warehouseId, productId: data?.productId }))
     if (data?.isFavorite) {
@@ -146,7 +152,7 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
     }
     // Dispatch Product Base Price
     dispatch(fetchMasterDataProductPrice(data?.productId))
-  }, [data?.id])
+  }, [data?.productId])
 
 
   useEffect(() => {
