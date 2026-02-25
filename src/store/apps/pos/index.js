@@ -143,6 +143,24 @@ export const fetchListPaymentTypePos = createAsyncThunk(
   }
 )
 
+// VALIDATE PRICE BEFORE CHARGE
+export const validatePricePos = createAsyncThunk(
+  'appProductPos/validatePricePos',
+  async ({ listProduct }, { rejectWithValue }) => {
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: '/point-of-sale/validate-price',
+        data: { listProduct }
+      })
+      return response.data
+    } catch (error) {
+      swalToastError({ label, error })
+      return rejectWithValue(null)
+    }
+  }
+)
+
 // CHARGE PAYMENT
 export const chargePos = createAsyncThunk(
   'appProductPos/chargePos',
@@ -387,7 +405,10 @@ export const appPosSlice = createSlice({
     errorChargePos: false
     ,
     loadingVoidPos: false,
-    errorVoidPos: false
+    errorVoidPos: false,
+
+    loadingValidatePrice: false,
+    errorValidatePrice: false
   },
   reducers: {
     populateCartFromTransaction: (state, action) => {
@@ -501,6 +522,18 @@ export const appPosSlice = createSlice({
       .addCase(chargePos.rejected, (state, action) => {
         state.loadingChargePos = false
         state.errorChargePos = action.error.message
+      })
+      // VALIDATE PRICE POS
+      .addCase(validatePricePos.pending, (state) => {
+        state.loadingValidatePrice = true
+        state.errorValidatePrice = false
+      })
+      .addCase(validatePricePos.fulfilled, (state) => {
+        state.loadingValidatePrice = false
+      })
+      .addCase(validatePricePos.rejected, (state, action) => {
+        state.loadingValidatePrice = false
+        state.errorValidatePrice = action.error.message
       })
       // VOID POS
       .addCase(voidPointOfSale.pending, (state, action) => {

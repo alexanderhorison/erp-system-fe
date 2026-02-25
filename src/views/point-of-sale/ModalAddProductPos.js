@@ -112,7 +112,8 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
       productName: selected?.productName,
       notes: val?.notes,
       title: val?.title || '',
-      productId: selected?.productId
+      productId: selected?.productId,
+      MasterProductPriceId: selected?.MasterProductPriceId
     }
     addProduct(tempProduct)
     saveToLocalStorage([...fields, tempProduct])
@@ -166,6 +167,8 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
         unit = detailProductPos.find(unit => unit.unitName === 'PCS')
         selectedUnit = unit || detailProductPos[0]
       }
+
+      console.log('Selected unit on load:', selectedUnit)
 
       setSelected(selectedUnit)
 

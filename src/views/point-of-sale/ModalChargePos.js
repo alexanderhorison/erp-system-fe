@@ -1,5 +1,5 @@
 // ** React Imports
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as yup from 'yup'
 import React from 'react'
 // ** MUI Imports
@@ -14,7 +14,7 @@ import Icon from 'src/@core/components/icon'
 
 // ** Store Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { chargePos, fetchListPaymentTypePos } from 'src/store/apps/pos'
+import { chargePos, fetchListPaymentTypePos, validatePricePos } from 'src/store/apps/pos'
 import { priceFormat } from 'src/helpers/priceFormatter'
 
 import PaymentSuccess from './PaymentSuccess'
@@ -23,6 +23,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import CustomPaymentTypePos from './CustomPaymentTypePos'
 import { swalNotifError } from 'src/helpers/swalFunction'
+import ModalPriceValidation from './ModalPriceValidation'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -103,14 +104,15 @@ export default function ModalChargePos({
   customer,
   resetAllField,
   warehouse,
-  getTotals
+  getTotals,
+  isCartValidated,
+  applyValidatedPrices,
+  onCartChange
 }) {
   const dispatch = useDispatch()
 
   const [selectedPayment, setSelectedPayment] = useState(null)
-
   const [alreadyPayment, setAlreadyPayment] = useState(false)
-
   const [dataSuccessPayment, setDataSuccessPayment] = useState({})
 
   // State untuk menyimpan nilai payment saat sukses
@@ -120,7 +122,14 @@ export default function ModalChargePos({
     change: 0
   })
 
-  const { listPaymentType, loadingListPaymentType, loadingChargePos } = useSelector(state => state.pos)
+  // State untuk modal validasi harga
+  const [priceValidationOpen, setPriceValidationOpen] = useState(false)
+  const [priceValidationResult, setPriceValidationResult] = useState([])
+
+  // Ref untuk menyimpan sendData sementara, dipakai setelah user confirm di modal validasi
+  const pendingSendDataRef = useRef(null)
+
+  const { listPaymentType, loadingListPaymentType, loadingChargePos, loadingValidatePrice } = useSelector(state => state.pos)
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
@@ -147,57 +156,20 @@ export default function ModalChargePos({
     if (alreadyPayment) {
       resetAllField()
     }
+    setPriceValidationOpen(false)
+    pendingSendDataRef.current = null
     setOpen(false)
   }
 
-  const handleSubmitCharge = () => {
-    let dicount = 0
-    let subTotal = 0
-    let listSendProduct = []
-    let totalDebt = 0
+  // ─── STEP 2: eksekusi charge (dipanggil setelah validasi harga selesai) ────────
+  const doCharge = sendData => {
     const totalPayment = getValues('amount')
-    listSelectedProduct.forEach(item => {
-      subTotal += item.quantity * item.price
-      if (item.isDebt) {
-        totalDebt = item.price
-      }
-      listSendProduct.push({
-        warehouseProductId: item.warehouseProductId,
-        price: item.price,
-        quantity: item.quantity,
-        subTotal: item.subTotal,
-        notes: item?.notes || '',
-        title: item?.title || '',
-        isDebt: item?.isDebt || false,
-        debtDate: item?.debtDate || ''
-      })
-    })
-    let sendData = {
-      customerId: customer?.id,
-      subTotal: subTotal,
-      totalDiscount: dicount,
-      grandTotal: subTotal - dicount,
-      totalPayment: totalPayment - dicount,
-      warehouseId: warehouse?.warehouseId,
-      notes: '',
-      listProduct: listSendProduct,
-      paymentTypeId: selectedPayment.id,
-      totalDebt: totalDebt
-    }
-    console.log('sendData', totalPayment)
-
-    // JIKA ADA HUTANG, HARUS ADA CUSTOMERNYA
-    if (sendData.totalPayment - sendData.grandTotal < 0 && !sendData.customerId) {
-      swalNotifError({ timer: 5000, message: 'Silahkan pilih Customer jika ingin berhutang' })
-      return
-    }
     dispatch(
       chargePos({
         data: sendData,
         selectedPayment: selectedPayment,
         subTotalPrice: priceFormat(totalPayment),
         onComplete: data => {
-          // Simpan nilai payment sebelum reset
           setSavedPaymentData({
             totalAmount: subTotalPrice(),
             totalPayment: totalPayment,
@@ -213,6 +185,128 @@ export default function ModalChargePos({
         }
       })
     )
+  }
+
+  // ─── Callback dari ModalPriceValidation ──────────────────────────────────────
+  // appliedItems = [{warehouseProductId, backendPrice}] — item yang user pilih untuk di-apply
+  // Flow baru: terapkan harga ke cart di parent, tutup modal charge, user kembali ke cart
+  const handlePriceValidationConfirm = appliedItems => {
+    setPriceValidationOpen(false)
+    pendingSendDataRef.current = null
+
+    // Terapkan harga ke cart (di PointOfSaleLayout) dan set isCartValidated=true,
+    // lalu tutup ModalCharge supaya user bisa melihat cart yang sudah diupdate
+    applyValidatedPrices(appliedItems, () => setOpen(false))
+  }
+
+  // ─── STEP 1: build listSendProduct, validasi harga ke backend, buka modal ────
+  const handleSubmitCharge = async () => {
+    let discount = 0
+    let subTotal = 0
+    let listSendProduct = []
+    let totalDebt = 0
+    const totalPayment = getValues('amount')
+    listSelectedProduct.forEach((item, index) => {
+      subTotal += item.quantity * item.price
+      if (item.isDebt) {
+        totalDebt = item.price
+      }
+      listSendProduct.push({
+        cartIndex: index,          // identifier unik — aman untuk item duplikat (warehouseProductId sama)
+        warehouseProductId: item.warehouseProductId,
+        price: item.price,
+        quantity: item.quantity,
+        subTotal: item.subTotal,
+        notes: item?.notes || '',
+        title: item?.title || '',
+        isDebt: item?.isDebt || false,
+        debtDate: item?.debtDate || '',
+        MasterProductPriceId: item?.MasterProductPriceId ?? null,
+        isPriceUpdated: item?.isPriceUpdated ?? false,
+        // Bawa data tampilan untuk modal preview
+        productName: item?.productName || item?.title || '',
+        unitName: item?.unitName || ''
+      })
+    })
+
+    const sendData = {
+      customerId: customer?.id,
+      subTotal: subTotal,
+      totalDiscount: discount,
+      grandTotal: subTotal - discount,
+      totalPayment: totalPayment - discount,
+      warehouseId: warehouse?.warehouseId,
+      notes: '',
+      listProduct: listSendProduct,
+      paymentTypeId: selectedPayment.id,
+      totalDebt: totalDebt
+    }
+
+    // JIKA ADA HUTANG, HARUS ADA CUSTOMERNYA
+    if (sendData.totalPayment - sendData.grandTotal < 0 && !sendData.customerId) {
+      swalNotifError({ timer: 5000, message: 'Silahkan pilih Customer jika ingin berhutang' })
+      return
+    }
+
+    // ── Jika cart sudah tervalidasi (user sudah review harga), langsung charge ──
+    if (isCartValidated) {
+      doCharge(sendData)
+      return
+    }
+
+    // ── VALIDASI HARGA: semua produk yang punya MasterProductPriceId dicek ──
+    const productsToValidate = listSendProduct.filter(
+      item => item.MasterProductPriceId !== null && item.MasterProductPriceId !== undefined
+    )
+
+    if (productsToValidate.length > 0) {
+      const validateResult = await dispatch(validatePricePos({ listProduct: productsToValidate }))
+
+      if (validatePricePos.rejected.match(validateResult)) {
+        // Error sudah ditampilkan oleh swalToastError di dalam thunk
+        return
+      }
+
+      // Backend mengembalikan list produk dengan cartPrice vs backendPrice
+      // Struktur yang diharapkan: { data: Array<{...}> } atau langsung Array
+      const responseItems = validateResult.payload?.data ?? validateResult.payload ?? []
+
+      if (Array.isArray(responseItems) && responseItems.length > 0) {
+        // Enrich dengan data lokal (productName, unitName, cartIndex) supaya modal bisa tampilkan
+        // Backend return per warehouseProductId — match ke productsToValidate menggunakan index urutan
+        // (productsToValidate dan responseItems harus sejajar; jika tidak, fallback ke find by warehouseProductId)
+        const enriched = responseItems.map((r, rIdx) => {
+          // Coba match berdasarkan cartIndex yang backend return; jika tidak ada, match by posisi urutan
+          const matchByCartIndex = r.cartIndex !== undefined
+            ? productsToValidate.find(p => p.cartIndex === r.cartIndex)
+            : null
+          const matchByOrder = productsToValidate[rIdx]
+          const match = matchByCartIndex ?? matchByOrder
+          const qty = r.quantity ?? Number(match?.quantity ?? 1)
+          const cartPrice = r.cartPrice ?? Number(match?.price ?? 0)
+          const backendPrice = r.backendPrice ?? cartPrice
+          return {
+            ...r,
+            cartIndex: r.cartIndex ?? match?.cartIndex ?? rIdx,  // pastikan cartIndex selalu ada
+            productName: r.productName ?? match?.productName ?? '',
+            unitName: r.unitName ?? match?.unitName ?? '',
+            quantity: qty,
+            cartPrice,
+            backendPrice,
+            cartSubTotal: r.cartSubTotal ?? cartPrice * qty,
+            backendSubTotal: r.backendSubTotal ?? backendPrice * qty,
+            isPriceDifferent: r.isPriceDifferent ?? cartPrice !== backendPrice
+          }
+        })
+        // Buka modal preview validasi harga
+        setPriceValidationResult(enriched)
+        setPriceValidationOpen(true)
+        return
+      }
+    }
+
+    // Tidak ada produk untuk divalidasi, atau validasi OK tanpa perbedaan → langsung charge
+    doCharge(sendData)
   }
 
   useEffect(() => {
@@ -421,10 +515,10 @@ export default function ModalChargePos({
                     color='primary'
                     size='large'
                     onClick={handleSubmit(handleSubmitCharge)}
-                    disabled={!selectedPayment || loadingChargePos}
-                    startIcon={loadingChargePos ? <CircularProgress size={20} color='inherit' /> : null}
+                    disabled={!selectedPayment || loadingChargePos || loadingValidatePrice}
+                    startIcon={(loadingChargePos || loadingValidatePrice) ? <CircularProgress size={20} color='inherit' /> : null}
                   >
-                    {loadingChargePos ? 'Processing...' : 'Charge'}
+                    {loadingValidatePrice ? 'Validating...' : loadingChargePos ? 'Processing...' : 'Charge'}
                   </Button>
                 </Grid>
               </Grid>
@@ -432,6 +526,14 @@ export default function ModalChargePos({
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Modal Preview Validasi Harga */}
+      <ModalPriceValidation
+        open={priceValidationOpen}
+        onClose={() => setPriceValidationOpen(false)}
+        onConfirm={handlePriceValidationConfirm}
+        validationResult={priceValidationResult}
+      />
     </Card>
   )
 }

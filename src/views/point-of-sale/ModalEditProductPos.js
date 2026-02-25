@@ -79,20 +79,50 @@ export default function ModalEditProductPos({ open, setOpen, data, updateProduct
 
   // ON SUBMIT
   const onSubmit = val => {
+    // Determine isPriceUpdated based on the 3 conditions:
+    const originalUnitName = data?.unitName
+    const originalPrice = data?.price
+    const currentUnitName = selected?.unitName
+    const currentPrice = Number(val?.price)
+
+    // Find the price that came directly from the selected unit's backend data
+    const unitFromDetail = detailProductPos?.find(item => item.unitName === currentUnitName)
+    const backendPriceForUnit = unitFromDetail?.basePrice
+
+    let isPriceUpdated = false
+
+    if (currentUnitName === originalUnitName) {
+      // Kondisi 1: Unit sama, harga beda → isPriceUpdated true
+      isPriceUpdated = currentPrice !== Number(originalPrice)
+    } else {
+      // Unit diganti
+      if (backendPriceForUnit !== undefined && currentPrice === Number(backendPriceForUnit)) {
+        // Kondisi 2: Unit diganti, memakai harga as-is dari data backend → isPriceUpdated false
+        // MasterProductPriceId sudah diset dari klik unit button
+        isPriceUpdated = false
+      } else {
+        // Kondisi 3: Unit diganti, harga diubah manual → isPriceUpdated true
+        isPriceUpdated = true
+      }
+    }
+
     let tempProduct = {
       id: selected?.id,
       subTotal: val?.price * val?.quantity,
       quantity: +val?.quantity,
-      price: val?.price,
+      price: currentPrice,
       warehouseProductId: selected?.warehouseProductId,
       qty: +selected?.qty,
       masterProductId: selected?.productId,
       rackName: selected?.rackName,
       unitName: selected?.unitName,
+      unitId: selected?.unitId,
       productName: selected?.productName,
-      notes: val?.notes,
+      notes: val?.notes || '',
       title: val?.title || '',
-      productId: selected?.productId
+      productId: selected?.productId,
+      MasterProductPriceId: selected?.MasterProductPriceId ?? null,
+      isPriceUpdated
     }
     updateProduct(data?.index, tempProduct)
     const listProductPos = JSON.parse(localStorage.getItem('listProductPos'))
@@ -246,7 +276,8 @@ export default function ModalEditProductPos({ open, setOpen, data, updateProduct
                             unitId: item?.unitId,
                             qty: item?.quantity,
                             quantity: '',
-                            price: item?.basePrice
+                            price: item?.basePrice,
+                            MasterProductPriceId: item?.MasterProductPriceId
                           })
                         }}
                       >
