@@ -1,4 +1,4 @@
-import { Box, Button, Grid, MenuItem, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, Grid, MenuItem, Typography } from '@mui/material'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useSelector, useDispatch } from 'react-redux'
@@ -12,9 +12,10 @@ import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
 import ModalEditProductPos from './ModalEditProductPos'
 import ProductCustomField from './ProductCustomField'
 import { autoSavePos, generateIdOpenBill } from 'src/helpers/pos/autoSavePos'
-import { populateCartFromTransaction } from 'src/store/apps/pos'
+import { populateCartFromTransaction, validatePricePos } from 'src/store/apps/pos'
 import Script from 'next/script'
 import TotalSectionPos from './TotalSectionPos'
+import ModalPriceValidation from './ModalPriceValidation'
 
 // Kedepannya jika tambah filter, bisa tambahkan field ini
 const listFilter = [
@@ -52,6 +53,7 @@ export default function PointOfSaleLayout({
 
   const { listProductPos } = useSelector(state => state.pos)
   const cartFromTransaction = useSelector(state => state.pos.cartFromTransaction)
+  const { loadingValidatePrice } = useSelector(state => state.pos)
 
   const dispatch = useDispatch()
 
@@ -69,8 +71,9 @@ export default function PointOfSaleLayout({
 
   const [showBreakdown, setShowBreakdown] = useState(false)
 
-  // Flag: cart sudah tervalidasi harga & user sudah review — tidak perlu validasi ulang kecuali cart berubah
-  const [isCartValidated, setIsCartValidated] = useState(false)
+  // State untuk modal validasi harga
+  const [priceValidationOpen, setPriceValidationOpen] = useState(false)
+  const [priceValidationResult, setPriceValidationResult] = useState([])
 
   const [filter, setFilter] = useState({
     type: 'COMPANY',
@@ -110,16 +113,11 @@ export default function PointOfSaleLayout({
     // resolver: yupResolver(schema)
   })
 
-  const { fields, remove: removeField, append: appendField, update: updateField } = useFieldArray({
+  const { fields, remove, append, update } = useFieldArray({
     control,
     name: 'formData'
   })
   const formField = watch('formData')
-
-  // Wrapper yang mereset validasi ketika cart berubah
-  const append = (...args) => { setIsCartValidated(false); appendField(...args) }
-  const update = (...args) => { setIsCartValidated(false); updateField(...args) }
-  const remove = (...args) => { setIsCartValidated(false); removeField(...args) }
 
   const filteredProducts = useMemo(() => {
     const { typeFilter, typeValue, typeProduct } = filterForm
@@ -166,7 +164,94 @@ export default function PointOfSaleLayout({
     setOpenModalAddCustomer(true)
   }
 
-  const handleClickCharge = () => {
+  // Handler tombol Validate di cart — selalu validasi harga ke backend sebelum charge
+  const handleClickCharge = async () => {
+    // Build listSendProduct lalu validasi ke backend
+    const currentFormData = getValues('formData')
+    const listSendProduct = currentFormData.map((item, index) => ({
+      cartIndex: index,
+      warehouseProductId: item.warehouseProductId,
+      price: item.price,
+      quantity: item.quantity,
+      subTotal: item.subTotal,
+      notes: item?.notes || '',
+      title: item?.title || '',
+      isDebt: item?.isDebt || false,
+      debtDate: item?.debtDate || '',
+      MasterProductPriceId: item?.MasterProductPriceId ?? null,
+      isPriceUpdated: item?.isPriceUpdated ?? false,
+      productName: item?.productName || item?.title || '',
+      unitName: item?.unitName || ''
+    }))
+
+    const productsToValidate = listSendProduct.filter(
+      item => item.MasterProductPriceId !== null && item.MasterProductPriceId !== undefined
+    )
+
+    if (productsToValidate.length > 0) {
+      const validateResult = await dispatch(validatePricePos({ listProduct: productsToValidate }))
+
+      if (validatePricePos.rejected.match(validateResult)) {
+        return
+      }
+
+      const responseItems = validateResult.payload?.data ?? validateResult.payload ?? []
+
+      if (Array.isArray(responseItems) && responseItems.length > 0) {
+        const enriched = responseItems.map((r, rIdx) => {
+          const matchByCartIndex = r.cartIndex !== undefined
+            ? productsToValidate.find(p => p.cartIndex === r.cartIndex)
+            : null
+          const matchByOrder = productsToValidate[rIdx]
+          const match = matchByCartIndex ?? matchByOrder
+          const qty = r.quantity ?? Number(match?.quantity ?? 1)
+          const cartPrice = r.cartPrice ?? Number(match?.price ?? 0)
+          const backendPrice = r.backendPrice ?? cartPrice
+          return {
+            ...r,
+            cartIndex: r.cartIndex ?? match?.cartIndex ?? rIdx,
+            productName: r.productName ?? match?.productName ?? '',
+            unitName: r.unitName ?? match?.unitName ?? '',
+            quantity: qty,
+            cartPrice,
+            backendPrice,
+            cartSubTotal: r.cartSubTotal ?? cartPrice * qty,
+            backendSubTotal: r.backendSubTotal ?? backendPrice * qty,
+            isPriceDifferent: r.isPriceDifferent ?? cartPrice !== backendPrice
+          }
+        })
+        setPriceValidationResult(enriched)
+        setPriceValidationOpen(true)
+        return
+      }
+    }
+
+    // Tidak ada produk untuk divalidasi, atau semua harga sudah sama → langsung buka charge
+    setOpenModalCharge(true)
+  }
+
+  // Dipanggil dari ModalPriceValidation setelah user konfirmasi penyesuaian harga
+  const handlePriceValidationConfirm = appliedItems => {
+    setPriceValidationOpen(false)
+
+    if (appliedItems.length > 0) {
+      const applyMap = {}
+      appliedItems.forEach(a => { applyMap[a.cartIndex] = a.backendPrice })
+
+      const current = getValues('formData')
+      const updated = current.map((item, index) => {
+        if (applyMap[index] !== undefined) {
+          const newPrice = Number(applyMap[index])
+          return { ...item, price: newPrice, subTotal: newPrice * Number(item.quantity), isPriceUpdated: false }
+        }
+        return item
+      })
+
+      setValue('formData', updated)
+      localStorage.setItem('listProductPos', JSON.stringify(updated))
+      autoSavePos()
+    }
+
     setOpenModalCharge(true)
   }
 
@@ -225,37 +310,6 @@ export default function PointOfSaleLayout({
     localStorage.setItem('listProductPos', JSON.stringify([]))
     localStorage.setItem('billId', JSON.stringify(generateIdOpenBill()))
     localStorage.removeItem('selectedCustomerPos')
-    setIsCartValidated(false)
-  }
-
-  /**
-   * Dipanggil dari ModalChargePos setelah user konfirmasi di ModalPriceValidation.
-   * appliedItems = [{warehouseProductId, backendPrice, backendSubTotal, quantity}]
-   * Fungsi ini mengupdate harga di cart (react-hook-form + localStorage),
-   * menandai cart sebagai sudah divalidasi, lalu menutup modal charge.
-   */
-  const applyValidatedPrices = (appliedItems, closeChargeModal) => {
-    if (appliedItems.length > 0) {
-      // Gunakan cartIndex sebagai key — aman untuk item duplikat (warehouseProductId sama)
-      const applyMap = {}
-      appliedItems.forEach(a => { applyMap[a.cartIndex] = a.backendPrice })
-
-      const current = getValues('formData')
-      const updated = current.map((item, index) => {
-        if (applyMap[index] !== undefined) {
-          const newPrice = Number(applyMap[index])
-          return { ...item, price: newPrice, subTotal: newPrice * Number(item.quantity), isPriceUpdated: false }
-        }
-        return item
-      })
-
-      setValue('formData', updated)
-      localStorage.setItem('listProductPos', JSON.stringify(updated))
-      autoSavePos()
-    }
-
-    setIsCartValidated(true)
-    if (closeChargeModal) closeChargeModal()
   }
 
   const handleClickCustom = () => {
@@ -287,7 +341,6 @@ export default function PointOfSaleLayout({
     const updatedFields = formField.filter((_, i) => i !== index)
     localStorage.setItem('listProductPos', JSON.stringify(updatedFields))
     autoSavePos()
-    setIsCartValidated(false)
   }
 
   const handleSaveBill = () => {
@@ -705,16 +758,21 @@ export default function PointOfSaleLayout({
                       </Grid>
                       <Grid item xs={6}>
                         <Button
-                          disabled={disableButtonCharge}
+                          disabled={disableButtonCharge || loadingValidatePrice}
                           fullWidth
                           variant={'contained'}
+                          color={'warning'}
                           onClick={handleClickCharge}
+                          startIcon={loadingValidatePrice ? <CircularProgress size={16} color='inherit' /> : null}
                           sx={{
                             height: '100%',
                             fontSize: isLowHeight ? '0.7rem' : 'inherit'
                           }}
                         >
-                          Charge {isLowHeight ? '' : priceFormat(getValues('grandTotal'))}
+                          {loadingValidatePrice
+                            ? 'Memvalidasi...'
+                              : `Validate ${isLowHeight ? '' : priceFormat(getValues('grandTotal'))}`
+                          }
                         </Button>
                       </Grid>
                     </Grid>
@@ -799,11 +857,15 @@ export default function PointOfSaleLayout({
           resetAllField={resetAllField}
           warehouse={warehouse}
           getTotals={getTotals}
-          isCartValidated={isCartValidated}
-          applyValidatedPrices={applyValidatedPrices}
-          onCartChange={() => setIsCartValidated(false)}
         />
       )}
+      {/* Modal Preview Validasi Harga */}
+      <ModalPriceValidation
+        open={priceValidationOpen}
+        onClose={() => setPriceValidationOpen(false)}
+        onConfirm={handlePriceValidationConfirm}
+        validationResult={priceValidationResult}
+      />
       {openModalEditProduct && (
         <ModalEditProductPos
           open={openModalEditProduct}
