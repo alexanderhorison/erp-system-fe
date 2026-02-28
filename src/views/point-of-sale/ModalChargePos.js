@@ -255,7 +255,13 @@ export default function ModalChargePos({
         maxWidth='md'
         scroll='body'
         onClose={handleClose}
-        sx={{ '& .MuiDialog-paper': { overflow: 'visible' }, zoom: 1.2 }}
+        sx={{
+          '& .MuiDialog-paper': {
+            overflow: 'visible',
+            maxHeight: '90vh'
+          },
+          zoom: 1.2
+        }}
       >
         <DialogContent>
           <CustomCloseButton onClick={handleClose}>

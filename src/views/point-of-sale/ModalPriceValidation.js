@@ -116,8 +116,16 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
       sx={{
         '& .MuiDialog-paper': {
           borderRadius: 2,
-          maxHeight: '90vh'
-        }
+          // Responsive width: keep tablet-ish layout while expanding on larger screens
+          width: {
+            xs: '95%',
+            sm: '92%',
+            md: '880px',
+            lg: '1100px'
+          },
+          maxHeight: '95vh',
+        },
+        zoom: 1.2
       }}
     >
       {/* ── Header ── */}
@@ -176,7 +184,7 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
           sx={{
             borderRadius: 1,
             mb: 2,
-            maxHeight: 272,
+            maxHeight: 360,
             overflowY: 'auto',
             overflowX: 'hidden',
             '&::-webkit-scrollbar': { width: 6 },
@@ -185,7 +193,7 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
             '&::-webkit-scrollbar-thumb:hover': { background: '#9e9e9e' }
           }}
         >
-          <Table size='small' stickyHeader sx={{ tableLayout: 'fixed', width: '100%' }}>
+          <Table size='medium' stickyHeader sx={{ tableLayout: 'fixed', width: '100%' }}>
             <TableHead>
               <TableRow>
                 <TableCell padding='checkbox' sx={{ bgcolor: 'grey.100', width: 40 }}>
@@ -198,13 +206,13 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
                     />
                   )}
                 </TableCell>
-                <TableCell sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '27%' }}>Produk</TableCell>
-                <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: 36 }}>Qty</TableCell>
-                <TableCell align='right' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '22%' }}>
+                <TableCell sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '23%' }}>Produk</TableCell>
+                <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '20%' }}>Qty</TableCell>
+                <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '20%' }}>
                   Harga Keranjang
                 </TableCell>
                 <TableCell align='center' sx={{ bgcolor: 'grey.100', width: 24, px: 0 }}></TableCell>
-                <TableCell align='right' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '22%' }}>
+                <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '20%' }}>
                   Harga Sistem
                 </TableCell>
                 <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: 100 }}>
@@ -249,7 +257,7 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
                     <TableCell sx={{ fontSize: '0.75rem', py: 0.75, overflow: 'hidden' }}>
                       <Typography
                         variant='body2'
-                        sx={{ fontWeight: 600, lineHeight: 1.2, fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                        sx={{ fontWeight: 600, lineHeight: 1.2, fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'wrap' }}
                         title={item.productName}
                       >
                         {item.productName || '-'}
@@ -265,7 +273,7 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
                     </TableCell>
 
                     {/* Cart Price + SubTotal */}
-                    <TableCell align='right' sx={{ py: 0.75 }}>
+                    <TableCell align='center' sx={{ py: 0.75 }}>
                       <Typography
                         variant='body2'
                         sx={{
@@ -306,7 +314,7 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
                     </TableCell>
 
                     {/* Backend Price + SubTotal */}
-                    <TableCell align='right' sx={{ py: 0.75 }}>
+                    <TableCell align='center' sx={{ py: 0.75 }}>
                       <Typography
                         variant='body2'
                         sx={{
