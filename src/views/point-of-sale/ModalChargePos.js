@@ -258,7 +258,6 @@ export default function ModalChargePos({
         sx={{
           '& .MuiDialog-paper': {
             overflow: 'visible',
-            maxHeight: '90vh'
           },
           zoom: 1.2
         }}

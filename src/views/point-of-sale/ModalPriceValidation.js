@@ -123,7 +123,6 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
             md: '880px',
             lg: '1100px'
           },
-          maxHeight: '95vh',
         },
         zoom: 1.2
       }}
