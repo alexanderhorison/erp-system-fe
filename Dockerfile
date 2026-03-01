@@ -3,11 +3,11 @@
 FROM node:18-alpine AS deps
 WORKDIR /app
 
-# Copy package files
-COPY package.json ./
+# Copy package files (package-lock.json included when available)
+COPY package.json package-lock.json ./
 
-# Install production dependencies only
-RUN npm install --only=production && \
+# Install production dependencies only (ci for deterministic installs)
+RUN npm ci --only=production && \
     npm cache clean --force
 
 # Stage 2: Builder
@@ -15,10 +15,10 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package.json ./
+COPY package.json package-lock.json ./
 
-# Install all dependencies (including devDependencies for build)
-RUN npm install && \
+# Install all dependencies including devDependencies (ci for deterministic installs)
+RUN npm ci && \
     npm cache clean --force
 
 # Copy all source files
@@ -48,16 +48,13 @@ RUN addgroup --system --gid 1001 nodejs && \
 
 # Copy necessary configuration files
 COPY --from=builder /app/next.config.js ./
-COPY --from=builder /app/jsconfig.json ./
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/server.js ./
 
-# Copy public, src, and styles folders
+# Copy public folder (static assets)
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/src ./src
-COPY --from=builder --chown=nextjs:nodejs /app/styles ./styles
 
-# Copy built application
+# Copy built application output only (src/ not needed at runtime)
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 
 # Copy production dependencies from deps stage

@@ -34,8 +34,6 @@ yarn-error.log*
 *.tsbuildinfo
 
 /.vscode
-# package-lock
-package-lock.json
 yarn.lock
 
 notes.js
