@@ -1,16 +1,5 @@
 # Multi-stage build for optimized Next.js application
-# Stage 1: Dependencies
-FROM node:18-alpine AS deps
-WORKDIR /app
-
-# Copy package files (package-lock.json included when available)
-COPY package.json package-lock.json ./
-
-# Install production dependencies only
-RUN npm install --only=production && \
-    npm cache clean --force
-
-# Stage 2: Builder
+# Stage 1: Builder
 FROM node:18-alpine AS builder
 WORKDIR /app
 
@@ -24,10 +13,10 @@ RUN npm install && \
 # Copy all source files
 COPY . .
 
-# Build the application
+# Build the application (standalone output bundles only required files)
 RUN npm run build
 
-# Stage 3: Runner (Production)
+# Stage 2: Runner (Production)
 FROM node:18-alpine AS runner
 
 # Accept PORT as a build argument
@@ -46,19 +35,14 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy necessary configuration files
-COPY --from=builder /app/next.config.js ./
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/server.js ./
+# Copy standalone output — includes only the minimal node_modules needed
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 
-# Copy public folder (static assets)
-COPY --from=builder /app/public ./public
+# Copy static assets
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy built application output only (src/ not needed at runtime)
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-
-# Copy production dependencies from deps stage
-COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+# Copy public folder
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # Switch to non-root user
 USER nextjs
@@ -66,5 +50,5 @@ USER nextjs
 # Expose port from build argument
 EXPOSE ${PORT}
 
-# Start the application
+# Use Next.js standalone server (supports PORT env var natively)
 CMD ["node", "server.js"]

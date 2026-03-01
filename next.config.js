@@ -18,6 +18,7 @@ const withPWA = require('next-pwa')({
 
 /** @type {import('next').NextConfig} */
 module.exports = withPWA({
+  output: 'standalone',
   trailingSlash: true,
   reactStrictMode: false, // Set false if needed
   swcMinify: true,
