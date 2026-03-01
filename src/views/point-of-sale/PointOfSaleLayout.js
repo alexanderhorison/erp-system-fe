@@ -184,46 +184,42 @@ export default function PointOfSaleLayout({
       unitName: item?.unitName || ''
     }))
 
-    const productsToValidate = listSendProduct.filter(
-      item => item.MasterProductPriceId !== null && item.MasterProductPriceId !== undefined
-    )
+    // Send the whole cart to backend for validation; backend will decide which items to check
+    const validateResult = await dispatch(validatePricePos({ listProduct: listSendProduct }))
 
-    if (productsToValidate.length > 0) {
-      const validateResult = await dispatch(validatePricePos({ listProduct: productsToValidate }))
+    if (validatePricePos.rejected.match(validateResult)) {
+      return
+    }
 
-      if (validatePricePos.rejected.match(validateResult)) {
-        return
-      }
+    const responseItems = validateResult.payload?.data ?? validateResult.payload ?? []
 
-      const responseItems = validateResult.payload?.data ?? validateResult.payload ?? []
-
-      if (Array.isArray(responseItems) && responseItems.length > 0) {
-        const enriched = responseItems.map((r, rIdx) => {
-          const matchByCartIndex = r.cartIndex !== undefined
-            ? productsToValidate.find(p => p.cartIndex === r.cartIndex)
-            : null
-          const matchByOrder = productsToValidate[rIdx]
-          const match = matchByCartIndex ?? matchByOrder
-          const qty = r.quantity ?? Number(match?.quantity ?? 1)
-          const cartPrice = r.cartPrice ?? Number(match?.price ?? 0)
-          const backendPrice = r.backendPrice ?? cartPrice
-          return {
-            ...r,
-            cartIndex: r.cartIndex ?? match?.cartIndex ?? rIdx,
-            productName: r.productName ?? match?.productName ?? '',
-            unitName: r.unitName ?? match?.unitName ?? '',
-            quantity: qty,
-            cartPrice,
-            backendPrice,
-            cartSubTotal: r.cartSubTotal ?? cartPrice * qty,
-            backendSubTotal: r.backendSubTotal ?? backendPrice * qty,
-            isPriceDifferent: r.isPriceDifferent ?? cartPrice !== backendPrice
-          }
-        })
-        setPriceValidationResult(enriched)
-        setPriceValidationOpen(true)
-        return
-      }
+    if (Array.isArray(responseItems) && responseItems.length > 0) {
+      // Backend may return items with cartIndex or in the same order — enrich using cartIndex or order
+      const enriched = responseItems.map((r, rIdx) => {
+        const matchByCartIndex = r.cartIndex !== undefined
+          ? listSendProduct.find(p => p.cartIndex === r.cartIndex)
+          : null
+        const matchByOrder = listSendProduct[rIdx]
+        const match = matchByCartIndex ?? matchByOrder
+        const qty = r.quantity ?? Number(match?.quantity ?? 1)
+        const cartPrice = r.cartPrice ?? Number(match?.price ?? 0)
+        const backendPrice = r.backendPrice ?? cartPrice
+        return {
+          ...r,
+          cartIndex: r.cartIndex ?? match?.cartIndex ?? rIdx,
+          productName: r.productName ?? match?.productName ?? '',
+          unitName: r.unitName ?? match?.unitName ?? '',
+          quantity: qty,
+          cartPrice,
+          backendPrice,
+          cartSubTotal: r.cartSubTotal ?? cartPrice * qty,
+          backendSubTotal: r.backendSubTotal ?? backendPrice * qty,
+          isPriceDifferent: r.isPriceDifferent ?? cartPrice !== backendPrice
+        }
+      })
+      setPriceValidationResult(enriched)
+      setPriceValidationOpen(true)
+      return
     }
 
     // Tidak ada produk untuk divalidasi, atau semua harga sudah sama → langsung buka charge

@@ -263,7 +263,7 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
                         {item.productName || '-'}
                       </Typography>
                       <Typography variant='caption' sx={{ color: 'text.secondary', fontSize: '0.68rem' }}>
-                        {item.unitName || '-'}
+                        {item.unitName || item.notes || '-'}
                       </Typography>
                     </TableCell>
 
