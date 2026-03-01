@@ -3,7 +3,13 @@
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Declare NEXT_PUBLIC build-time args (baked into JS bundle by Next.js)
+# Copy package files and install deps FIRST so this layer is cached
+# independently of env var changes
+COPY package.json package-lock.json ./
+RUN npm install && \
+    npm cache clean --force
+
+# Declare NEXT_PUBLIC build-time args AFTER npm install to preserve cache
 ARG NEXT_PUBLIC_ENVIRONTMENT
 ARG NEXT_PUBLIC_BASE_URL
 ARG NEXT_PUBLIC_DEVELOPMENT_MODE
@@ -22,13 +28,6 @@ ENV NEXT_PUBLIC_ENABLE_PWA=${NEXT_PUBLIC_ENABLE_PWA}
 ENV NEXT_PUBLIC_JWT_EXPIRATION=${NEXT_PUBLIC_JWT_EXPIRATION}
 ENV NEXT_PUBLIC_JWT_SECRET=${NEXT_PUBLIC_JWT_SECRET}
 ENV NEXT_PUBLIC_JWT_REFRESH_TOKEN_SECRET=${NEXT_PUBLIC_JWT_REFRESH_TOKEN_SECRET}
-
-# Copy package files
-COPY package.json package-lock.json ./
-
-# Install all dependencies including devDependencies
-RUN npm install && \
-    npm cache clean --force
 
 # Copy all source files
 COPY . .
