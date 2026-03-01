@@ -6,8 +6,8 @@ WORKDIR /app
 # Copy package files (package-lock.json included when available)
 COPY package.json package-lock.json ./
 
-# Install production dependencies only (ci for deterministic installs)
-RUN npm ci --only=production && \
+# Install production dependencies only
+RUN npm install --only=production && \
     npm cache clean --force
 
 # Stage 2: Builder
@@ -17,8 +17,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json ./
 
-# Install all dependencies including devDependencies (ci for deterministic installs)
-RUN npm ci && \
+# Install all dependencies including devDependencies
+RUN npm install && \
     npm cache clean --force
 
 # Copy all source files
