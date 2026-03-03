@@ -124,7 +124,6 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
             lg: '1100px'
           },
         },
-        zoom: 1.2
       }}
     >
       {/* ── Header ── */}

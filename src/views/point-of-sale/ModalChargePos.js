@@ -259,7 +259,6 @@ export default function ModalChargePos({
           '& .MuiDialog-paper': {
             overflow: 'visible',
           },
-          zoom: 1.2
         }}
       >
         <DialogContent>
