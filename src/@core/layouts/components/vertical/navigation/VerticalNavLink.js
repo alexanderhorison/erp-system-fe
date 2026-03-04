@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 
 // ** MUI Imports
+import Badge from '@mui/material/Badge'
 import Chip from '@mui/material/Chip'
 import ListItem from '@mui/material/ListItem'
 import { styled } from '@mui/material/styles'
@@ -22,6 +23,9 @@ import CanViewNavLink from 'src/layouts/components/acl/CanViewNavLink'
 // ** Util Imports
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 import { handleURLQueries } from 'src/@core/layouts/utils'
+
+// ** Redux
+import { useSelector } from 'react-redux'
 
 // ** Styled Components
 const MenuNavLink = styled(ListItemButton)(({ theme }) => ({
@@ -77,6 +81,7 @@ const VerticalNavLink = ({
 }) => {
   // ** Hooks
   const router = useRouter()
+  const pendingCounts = useSelector(state => state.notification?.pendingCounts ?? {})
 
   // ** Vars
   const { navCollapsed } = settings
@@ -134,7 +139,23 @@ const VerticalNavLink = ({
               }
             }}
           >
-            <UserIcon icon={icon} />
+            <Badge
+              badgeContent={pendingCounts[item.menuId] || 0}
+              color='warning'
+              overlap='circular'
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+              sx={{
+                '& .MuiBadge-badge': {
+                  fontSize: '0.6rem',
+                  minWidth: 16,
+                  height: 16,
+                  padding: '0 3px',
+                  fontWeight: 700
+                }
+              }}
+            >
+              <UserIcon icon={icon} />
+            </Badge>
           </ListItemIcon>
 
           <MenuItemTextMetaWrapper
