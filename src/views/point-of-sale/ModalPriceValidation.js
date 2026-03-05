@@ -118,8 +118,8 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
           borderRadius: 2,
           // Responsive width: keep tablet-ish layout while expanding on larger screens
           width: {
-            xs: '95%',
-            sm: '92%',
+            xs: '100%',
+            sm: '100%',
             md: '880px',
             lg: '1100px'
           },
@@ -149,7 +149,7 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
         </Box>
       </DialogTitle>
 
-      <DialogContent sx={{ px: 3, pt: '12px !important', pb: 0 }}>
+  <DialogContent sx={{ px: 2, pt: '12px !important', pb: 0 }}>
         {/* ── Summary chips ── */}
         <Box sx={{ display: 'flex', gap: 1, mb: 1.5, flexWrap: 'wrap' }}>
           <Chip
@@ -182,7 +182,8 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
           sx={{
             borderRadius: 1,
             mb: 2,
-            maxHeight: 360,
+            // increase visible rows without changing modal chrome
+            maxHeight: 520,
             overflowY: 'auto',
             overflowX: 'hidden',
             '&::-webkit-scrollbar': { width: 6 },
@@ -191,7 +192,7 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
             '&::-webkit-scrollbar-thumb:hover': { background: '#9e9e9e' }
           }}
         >
-          <Table size='medium' stickyHeader sx={{ tableLayout: 'fixed', width: '100%' }}>
+          <Table size='small' stickyHeader sx={{ tableLayout: 'fixed', width: '100%' }}>
             <TableHead>
               <TableRow>
                 <TableCell padding='checkbox' sx={{ bgcolor: 'grey.100', width: 40 }}>
@@ -204,10 +205,10 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
                     />
                   )}
                 </TableCell>
-                <TableCell sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '23%' }}>Produk</TableCell>
-                <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '20%' }}>Qty</TableCell>
-                <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '20%' }}>
-                  Harga Keranjang
+                <TableCell sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.7rem', width: '23%' }}>Produk</TableCell>
+                <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.7rem', width: '12%' }}>Qty</TableCell>
+                <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.7rem', width: '20%' }}>
+                  Harga
                 </TableCell>
                 <TableCell align='center' sx={{ bgcolor: 'grey.100', width: 24, px: 0 }}></TableCell>
                 <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '20%' }}>
@@ -252,30 +253,30 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
                     </TableCell>
 
                     {/* Product Name + Unit */}
-                    <TableCell sx={{ fontSize: '0.75rem', py: 0.75, overflow: 'hidden' }}>
+                    <TableCell sx={{ fontSize: '0.70rem', py: 0.5, overflow: 'hidden' }}>
                       <Typography
                         variant='body2'
-                        sx={{ fontWeight: 600, lineHeight: 1.2, fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'wrap' }}
+                        sx={{ fontWeight: 600, lineHeight: 1.15, fontSize: '0.72rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                         title={item.productName}
                       >
                         {item.productName || '-'}
                       </Typography>
-                      <Typography variant='caption' sx={{ color: 'text.secondary', fontSize: '0.68rem' }}>
+                      <Typography variant='caption' sx={{ color: 'text.secondary', fontSize: '0.64rem' }}>
                         {item.unitName || item.notes || '-'}
                       </Typography>
                     </TableCell>
 
                     {/* Qty */}
-                    <TableCell align='center' sx={{ fontSize: '0.75rem', color: 'text.secondary', py: 0.75 }}>
+                    <TableCell align='center' sx={{ fontSize: '0.70rem', color: 'text.secondary', py: 0.5 }}>
                       {qty}
                     </TableCell>
 
                     {/* Cart Price + SubTotal */}
-                    <TableCell align='center' sx={{ py: 0.75 }}>
+                    <TableCell align='center' sx={{ py: 0.5 }}>
                       <Typography
                         variant='body2'
                         sx={{
-                          fontSize: '0.75rem',
+                          fontSize: '0.72rem',
                           fontWeight: 500,
                           textDecoration: isDiff && isApplied ? 'line-through' : 'none',
                           opacity: isDiff && isApplied ? 0.5 : 1,
@@ -286,22 +287,13 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
                       >
                         {priceFormatWIthCurrency(item.cartPrice)}
                       </Typography>
-                      <Typography
-                        variant='caption'
-                        sx={{
-                          display: 'block',
-                          fontSize: '0.68rem',
-                          color: 'text.secondary',
-                          textDecoration: isDiff && isApplied ? 'line-through' : 'none',
-                          opacity: isDiff && isApplied ? 0.5 : 1
-                        }}
-                      >
+                      <Typography variant='caption' sx={{ display: 'block', fontSize: '0.62rem', color: 'text.secondary' }}>
                         ({priceFormatWIthCurrency(cartSubTotal)})
                       </Typography>
                     </TableCell>
 
                     {/* Arrow */}
-                    <TableCell align='center' sx={{ px: 0, py: 0.75 }}>
+                    <TableCell align='center' sx={{ px: 0, py: 0.5 }}>
                       {isDiff && (
                         <Icon
                           icon='tabler:arrow-right'
@@ -312,41 +304,33 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
                     </TableCell>
 
                     {/* Backend Price + SubTotal */}
-                    <TableCell align='center' sx={{ py: 0.75 }}>
+                    <TableCell align='center' sx={{ py: 0.5 }}>
                       <Typography
                         variant='body2'
                         sx={{
-                          fontSize: '0.75rem',
+                          fontSize: '0.72rem',
                           fontWeight: isDiff ? 700 : 400,
                           color: isDiff ? 'primary.main' : 'text.secondary'
                         }}
                       >
                         {priceFormatWIthCurrency(item.backendPrice)}
                       </Typography>
-                      <Typography
-                        variant='caption'
-                        sx={{
-                          display: 'block',
-                          fontSize: '0.68rem',
-                          fontWeight: isDiff && isApplied ? 700 : 400,
-                          color: isDiff && isApplied ? 'primary.main' : 'text.secondary'
-                        }}
-                      >
+                      <Typography variant='caption' sx={{ display: 'block', fontSize: '0.62rem', fontWeight: isDiff && isApplied ? 700 : 400, color: isDiff && isApplied ? 'primary.main' : 'text.secondary' }}>
                         ({priceFormatWIthCurrency(backendSubTotal)})
                       </Typography>
                     </TableCell>
 
                     {/* Status Chip */}
-                    <TableCell align='center' sx={{ py: 0.75 }}>
+                    <TableCell align='center' sx={{ py: 0.5 }}>
                       {!isDiff ? (
                         <Chip size='small' label='Sesuai' color='success' variant='outlined'
-                          sx={{ fontSize: '0.65rem', height: 20 }} />
+                          sx={{ fontSize: '0.62rem', height: 18 }} />
                       ) : isApplied ? (
                         <Chip size='small' label='Diperbarui' color='warning'
-                          sx={{ fontSize: '0.65rem', height: 20 }} />
+                          sx={{ fontSize: '0.62rem', height: 18 }} />
                       ) : (
                         <Chip size='small' label='Diabaikan' variant='outlined'
-                          sx={{ fontSize: '0.65rem', height: 20, color: 'text.disabled' }} />
+                          sx={{ fontSize: '0.62rem', height: 18, color: 'text.disabled' }} />
                       )}
                     </TableCell>
                   </TableRow>
