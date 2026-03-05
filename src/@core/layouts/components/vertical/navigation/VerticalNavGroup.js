@@ -5,6 +5,7 @@ import { useEffect, Fragment } from 'react'
 import { useRouter } from 'next/router'
 
 // ** MUI Imports
+import Badge from '@mui/material/Badge'
 import Chip from '@mui/material/Chip'
 import Collapse from '@mui/material/Collapse'
 import ListItem from '@mui/material/ListItem'
@@ -31,6 +32,9 @@ import VerticalNavItems from './VerticalNavItems'
 import UserIcon from 'src/layouts/components/UserIcon'
 import Translations from 'src/layouts/components/Translations'
 import CanViewNavGroup from 'src/layouts/components/acl/CanViewNavGroup'
+
+// ** Redux
+import { useSelector } from 'react-redux'
 
 const MenuItemTextWrapper = styled(Box)(({ theme }) => ({
   width: '100%',
@@ -152,6 +156,12 @@ const VerticalNavGroup = props => {
   const icon = parent && !item.icon ? themeConfig.navSubItemIcon : item.icon
   const menuGroupCollapsedStyles = navCollapsed && !navHover ? { opacity: 0 } : { opacity: 1 }
 
+  // ** Notification badge — sum pending counts for all children
+  const pendingCounts = useSelector(state => state.notification?.pendingCounts ?? {})
+  const groupPendingCount = item.children
+    ? item.children.reduce((sum, child) => sum + (pendingCounts[child.menuId] || 0), 0)
+    : 0
+
   return (
     <CanViewNavGroup navGroup={item}>
       <Fragment>
@@ -206,7 +216,23 @@ const VerticalNavGroup = props => {
                 ...(parent && item.children ? { ml: 1.5, mr: 3.5 } : {})
               }}
             >
-              <UserIcon icon={icon} {...(parent && { fontSize: '0.625rem' })} />
+              <Badge
+                badgeContent={groupPendingCount}
+                color='warning'
+                overlap='circular'
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                sx={{
+                  '& .MuiBadge-badge': {
+                    fontSize: '0.6rem',
+                    minWidth: 16,
+                    height: 16,
+                    padding: '0 3px',
+                    fontWeight: 700
+                  }
+                }}
+              >
+                <UserIcon icon={icon} {...(parent && { fontSize: '0.625rem' })} />
+              </Badge>
             </ListItemIcon>
             <MenuItemTextWrapper sx={{ ...menuGroupCollapsedStyles, ...(isSubToSub ? { ml: 2 } : {}) }}>
               <Typography

@@ -56,6 +56,7 @@ import shortTerm from './apps/liabilities/short-term'
 import equity from './apps/equity'
 import productRequest from './apps/product-request-order'
 import loanStock from './apps/loan-stock'
+import notification from './apps/notification'
 
 export const store = configureStore({
   reducer: {
@@ -111,7 +112,8 @@ export const store = configureStore({
     shortTerm,
     equity,
     productRequest,
-    loanStock
+    loanStock,
+    notification
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
