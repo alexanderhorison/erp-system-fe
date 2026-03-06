@@ -139,23 +139,28 @@ const VerticalNavLink = ({
               }
             }}
           >
-            <Badge
-              badgeContent={pendingCounts[item.menuId] || 0}
-              color='warning'
-              overlap='circular'
-              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-              sx={{
-                '& .MuiBadge-badge': {
-                  fontSize: '0.6rem',
-                  minWidth: 16,
-                  height: 16,
-                  padding: '0 3px',
-                  fontWeight: 700
-                }
-              }}
-            >
+            {!parent && pendingCounts[item.menuId] > 0 ? (
+              <Badge
+                badgeContent={pendingCounts[item.menuId]}
+                color='warning'
+                overlap='circular'
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                sx={{
+                  '& .MuiBadge-badge': {
+                    fontSize: '0.6rem',
+                    minWidth: 16,
+                    height: 16,
+                    padding: '0 3px',
+                    fontWeight: 700,
+                    transform: 'translate(8px, -8px)' // agak jauhan
+                  }
+                }}
+              >
+                <UserIcon icon={icon} />
+              </Badge>
+            ) : (
               <UserIcon icon={icon} />
-            </Badge>
+            )}
           </ListItemIcon>
 
           <MenuItemTextMetaWrapper
@@ -164,13 +169,30 @@ const VerticalNavLink = ({
               ...(navCollapsed && !navHover ? { opacity: 0 } : { opacity: 1 })
             }}
           >
-            <Typography
-              {...((themeConfig.menuTextTruncate || (!themeConfig.menuTextTruncate && navCollapsed && !navHover)) && {
-                noWrap: true
-              })}
-            >
-              <Translations text={item.title} />
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+              <Typography
+                {...((themeConfig.menuTextTruncate || (!themeConfig.menuTextTruncate && navCollapsed && !navHover)) && {
+                  noWrap: true
+                })}
+              >
+                <Translations text={item.title} />
+              </Typography>
+              {parent && pendingCounts[item.menuId] > 0 && (
+                <Badge
+                  badgeContent={pendingCounts[item.menuId]}
+                  color='warning'
+                  sx={{
+                    '& .MuiBadge-badge': {
+                      fontSize: '0.6rem',
+                      minWidth: 16,
+                      height: 16,
+                      padding: '0 3px',
+                      fontWeight: 700
+                    }
+                  }}
+                />
+              )}
+            </Box>
             {item.badgeContent ? (
               <Chip
                 size='small'
