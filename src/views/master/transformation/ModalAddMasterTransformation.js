@@ -41,7 +41,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 export default function ModalAddMasterTransformation({ open, setOpen, typeModal, product, id }) {
   const dispatch = useDispatch()
   const { data: masterDataUnit } = useSelector(state => state.unit)
-  const { defaultValue, detail: detailTransformation, loadingDetail } = useSelector(data => data.masterTransformation)
+  const { defaultValue, detail: detailTransformation, loadingDetail, loadingAdd, loadingEdit } = useSelector(data => data.masterTransformation)
 
   const [valueTransform, setValueTransform] = useState({
     unitFromId: '',
@@ -155,6 +155,7 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
       }
       size='sm'
       showActions={typeModal !== 'VIEW'}
+      loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
       <Grid container spacing={6}>
         <StyledGrid item xs={12} md={12}>

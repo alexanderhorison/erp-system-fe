@@ -29,7 +29,7 @@ export default function ModalAddPayment({
   salesOrderCode
 }) {
   const dispatch = useDispatch()
-  const { dataSalesOrderPayment: data, defaultValue, dataTypePayment } = useSelector(state => state.salesOrderPayment)
+  const { dataSalesOrderPayment: data, defaultValue, dataTypePayment, loadingCreateSalesOrderPayment } = useSelector(state => state.salesOrderPayment)
 
   const schema = yup.object({
     amount: yup
@@ -79,6 +79,7 @@ export default function ModalAddPayment({
       title={typeModal === 'ADD' ? 'Buat Pembayaran' : 'Detail Pembayaran'}
       size='sm'
       showActions={typeModal !== 'VIEW'}
+      loading={typeModal === 'ADD' ? loadingCreateSalesOrderPayment : false}
     >
       <Grid container spacing={6}>
         <Grid item xs={12}>

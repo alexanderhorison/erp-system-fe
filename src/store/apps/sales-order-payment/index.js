@@ -69,7 +69,10 @@ export const appMasterProductSlice = createSlice({
       { id: 1, value: 'TRANSFER', name: 'TRANSFER' },
       { id: 2, value: 'CASH', name: 'CASH' },
       { id: 3, value: 'GIRO', name: 'GIRO' }
-    ]
+    ],
+
+    loadingCreateSalesOrderPayment: false,
+    errorCreateSalesOrderPayment: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -88,6 +91,17 @@ export const appMasterProductSlice = createSlice({
       })
       .addCase(resetSalesOrderPayments.fulfilled, state => {
         state.dataSalesOrderPayment = []
+      })
+
+      .addCase(createSalesOrderPayment.pending, (state, action) => {
+        state.loadingCreateSalesOrderPayment = true
+      })
+      .addCase(createSalesOrderPayment.fulfilled, (state, action) => {
+        state.loadingCreateSalesOrderPayment = false
+      })
+      .addCase(createSalesOrderPayment.rejected, (state, action) => {
+        state.loadingCreateSalesOrderPayment = false
+        state.errorCreateSalesOrderPayment = action.error.message
       })
   }
 })

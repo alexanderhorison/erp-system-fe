@@ -123,7 +123,16 @@ export const appMasterWarehouseSlice = createSlice({
     loadingDetail: false,
     total: 1,
     params: {},
-    allData: []
+    allData: [],
+
+    loadingAdd: false,
+    errorAdd: false,
+
+    loadingEdit: false,
+    errorEdit: false,
+
+    loadingDelete: false,
+    errorDelete: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -151,6 +160,39 @@ export const appMasterWarehouseSlice = createSlice({
       .addCase(fetchMasterDataWarehouseDetail.rejected, (state, action) => {
         state.loadingDetail = false
         state.error = action.error.message
+      })
+
+      .addCase(addMasterDataWarehouse.pending, (state, action) => {
+        state.loadingAdd = true
+      })
+      .addCase(addMasterDataWarehouse.fulfilled, (state, action) => {
+        state.loadingAdd = false
+      })
+      .addCase(addMasterDataWarehouse.rejected, (state, action) => {
+        state.loadingAdd = false
+        state.errorAdd = action.error.message
+      })
+
+      .addCase(editMasterDataWarehouse.pending, (state, action) => {
+        state.loadingEdit = true
+      })
+      .addCase(editMasterDataWarehouse.fulfilled, (state, action) => {
+        state.loadingEdit = false
+      })
+      .addCase(editMasterDataWarehouse.rejected, (state, action) => {
+        state.loadingEdit = false
+        state.errorEdit = action.error.message
+      })
+
+      .addCase(deleteMasterDataWarehouse.pending, (state, action) => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteMasterDataWarehouse.fulfilled, (state, action) => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteMasterDataWarehouse.rejected, (state, action) => {
+        state.loadingDelete = false
+        state.errorDelete = action.error.message
       })
   }
 })

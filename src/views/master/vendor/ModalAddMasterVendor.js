@@ -23,7 +23,7 @@ import BaseModal from 'src/views/common/BaseModal'
 
 export default function ModalAddMasterVendor({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
-  const { defaultValue, detail: detailVendor } = useSelector(state => state.masterVendor)
+  const { defaultValue, detail: detailVendor, loadingAdd, loadingEdit } = useSelector(state => state.masterVendor)
   const { data: dataRank } = useSelector(state => state.masterRank)
 
   // SHCEMA YUP VALIDATION
@@ -74,6 +74,7 @@ export default function ModalAddMasterVendor({ open, setOpen, typeModal, id }) {
           : 'Ubah Vendor'}
       size="sm"
       showActions={typeModal !== 'VIEW'}
+      loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
       <Grid container spacing={6}>
         <Grid item xs={12}>

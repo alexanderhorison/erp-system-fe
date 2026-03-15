@@ -68,7 +68,7 @@ export const saveToDraftOutstandingProduct = createAsyncThunk(
 
 // APPROVE OUTSTANDING
 export const approveOutstandingProduct = createAsyncThunk(
-  'appStockOpname/updateStatusStockOpname',
+  'appStockOpname/approveOutstandingProduct',
   async ({ sendData, code, router, }, { dispatch, rejectWithValue }) => {
     try {
       const response = await swalConfirmationAdd({
@@ -106,6 +106,11 @@ export const ReceiptOrderOutstandingSlice = createSlice({
     loadingDetail: false,
     errorDetail: false,
 
+    loadingSaveDraft: false,
+    errorSaveDraft: false,
+
+    loadingApprove: false,
+    errorApprove: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -132,6 +137,28 @@ export const ReceiptOrderOutstandingSlice = createSlice({
       .addCase(fetchDetailReceiptOrderOutstanding.rejected, (state, action) => {
         state.loadingDetail = false
         state.errorDetail = action.error.message
+      })
+
+      .addCase(saveToDraftOutstandingProduct.pending, (state, action) => {
+        state.loadingSaveDraft = true
+      })
+      .addCase(saveToDraftOutstandingProduct.fulfilled, (state, action) => {
+        state.loadingSaveDraft = false
+      })
+      .addCase(saveToDraftOutstandingProduct.rejected, (state, action) => {
+        state.loadingSaveDraft = false
+        state.errorSaveDraft = action.error.message
+      })
+
+      .addCase(approveOutstandingProduct.pending, (state, action) => {
+        state.loadingApprove = true
+      })
+      .addCase(approveOutstandingProduct.fulfilled, (state, action) => {
+        state.loadingApprove = false
+      })
+      .addCase(approveOutstandingProduct.rejected, (state, action) => {
+        state.loadingApprove = false
+        state.errorApprove = action.error.message
       })
   }
 })

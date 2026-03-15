@@ -23,6 +23,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { addMasterDataWarehouse, editMasterDataWarehouse } from 'src/store/apps/master/warehouse'
+import CircularProgress from '@mui/material/CircularProgress'
 
 const CustomCloseButton = styled(IconButton)(({ theme }) => ({
   top: 0,
@@ -41,7 +42,7 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
 
 export default function ModalAddMasterWarehouse({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
-  const { defaultValue, detail: detailType } = useSelector(state => state.warehouse)
+  const { defaultValue, detail: detailType, loadingAdd, loadingEdit } = useSelector(state => state.warehouse)
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
@@ -200,12 +201,19 @@ export default function ModalAddMasterWarehouse({ open, setOpen, typeModal, id }
           >
             {typeModal !== 'VIEW' && (
               <>
-                <Button variant='tonal' color='secondary' onClick={handleClose} hidden={typeModal === 'VIEW'}>
+                <Button variant='tonal' color='secondary' onClick={handleClose} hidden={typeModal === 'VIEW'} disabled={typeModal === 'ADD' ? loadingAdd : loadingEdit}>
                   Cancel
                 </Button>
-                <Button type='submit' variant='contained' hidden={typeModal === 'VIEW'}>
-                  Submit
-                </Button>
+                {(typeModal === 'ADD' ? loadingAdd : loadingEdit) ? (
+                  <Button variant='contained' disabled>
+                    <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                    Submitting...
+                  </Button>
+                ) : (
+                  <Button type='submit' variant='contained' hidden={typeModal === 'VIEW'}>
+                    Submit
+                  </Button>
+                )}
               </>
             )}
           </DialogActions>

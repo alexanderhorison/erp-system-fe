@@ -1,8 +1,8 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Checkbox, Divider, FormControlLabel, Grid, Typography, useTheme } from '@mui/material'
+import { Button, Card, CardContent, Checkbox, CircularProgress, Divider, FormControlLabel, Grid, Typography, useTheme } from '@mui/material'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 
 import Icon from 'src/@core/components/icon'
@@ -21,6 +21,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
   const dispatch = useDispatch()
   const router = useRouter()
   const { user } = UseAuth()
+  const { loadingUpdateFormSalesOrder } = useSelector(state => state.salesOrder)
 
   const theme = useTheme()
   const { direction } = theme
@@ -871,12 +872,20 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
               color='secondary'
               onClick={() => router.back()}
               startIcon={<Icon icon='tabler:x' />}
+              disabled={loadingUpdateFormSalesOrder}
             >
               Cancel
             </Button>
-            <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-              Submit
-            </Button>
+            {loadingUpdateFormSalesOrder ? (
+              <Button variant='contained' disabled>
+                <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                Submitting...
+              </Button>
+            ) : (
+              <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
+                Submit
+              </Button>
+            )}
           </Grid>
         </Grid>
       </form>

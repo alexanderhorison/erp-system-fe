@@ -92,7 +92,9 @@ export const ReceiveOrderSlice = createSlice({
 
     loadingDataListOrderReceive: false,
     dataListOrderReceive: [],
-    errorDataListOrderReceive: false
+    errorDataListOrderReceive: false,
+
+    loadingCreateReceiveOrder: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -132,6 +134,16 @@ export const ReceiveOrderSlice = createSlice({
         state.dataListOrderReceive = []
         state.loadingDataListOrderReceive = false
         state.errorDataListOrderReceive = action.error.message
+      })
+
+      .addCase(createDeliveryOrderReceive.pending, (state, action) => {
+        state.loadingCreateReceiveOrder = true
+      })
+      .addCase(createDeliveryOrderReceive.fulfilled, (state, action) => {
+        state.loadingCreateReceiveOrder = false
+      })
+      .addCase(createDeliveryOrderReceive.rejected, (state, action) => {
+        state.loadingCreateReceiveOrder = false
       })
   }
 })

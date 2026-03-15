@@ -17,7 +17,7 @@ import BaseModal from 'src/views/common/BaseModal'
 
 export default function ModalAddMasterUnit({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
-  const { defaultValue, detail: detailType } = useSelector(state => state.unit)
+  const { defaultValue, detail: detailType, loadingAdd, loadingEdit } = useSelector(state => state.unit)
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
@@ -52,6 +52,7 @@ export default function ModalAddMasterUnit({ open, setOpen, typeModal, id }) {
       title={typeModal === 'ADD' ? 'Tambahkan Satuan Baru' : typeModal === 'VIEW' ? 'Detail Satuan' : 'Ubah Satuan'}
       size="sm"
       showActions={typeModal !== 'VIEW'}
+      loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
       <Grid container spacing={6}>
         <Grid item xs={12}>

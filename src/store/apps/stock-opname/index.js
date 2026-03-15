@@ -255,7 +255,22 @@ export const appStockOpnameSlice = createSlice({
     allData: [],
 
     loadingExport: false,
-    errorExport: false
+    errorExport: false,
+
+    loadingCreate: false,
+    errorCreate: false,
+
+    loadingUpdate: false,
+    errorUpdate: false,
+
+    loadingDelete: false,
+    errorDelete: false,
+
+    loadingUpdateStatus: false,
+    errorUpdateStatus: false,
+
+    loadingConfirm: false,
+    errorConfirm: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -305,6 +320,66 @@ export const appStockOpnameSlice = createSlice({
       .addCase(exportStockOpname.rejected, (state, action) => {
         state.loadingExport = false
         state.errorExport = action.payload
+      })
+
+      // CREATE
+      .addCase(createStockOpname.pending, (state, action) => {
+        state.loadingCreate = true
+      })
+      .addCase(createStockOpname.fulfilled, (state, action) => {
+        state.loadingCreate = false
+      })
+      .addCase(createStockOpname.rejected, (state, action) => {
+        state.loadingCreate = false
+        state.errorCreate = action.error.message
+      })
+
+      // UPDATE
+      .addCase(updateStockOpname.pending, (state, action) => {
+        state.loadingUpdate = true
+      })
+      .addCase(updateStockOpname.fulfilled, (state, action) => {
+        state.loadingUpdate = false
+      })
+      .addCase(updateStockOpname.rejected, (state, action) => {
+        state.loadingUpdate = false
+        state.errorUpdate = action.error.message
+      })
+
+      // DELETE
+      .addCase(deleteStockOpname.pending, (state, action) => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteStockOpname.fulfilled, (state, action) => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteStockOpname.rejected, (state, action) => {
+        state.loadingDelete = false
+        state.errorDelete = action.error.message
+      })
+
+      // UPDATE STATUS
+      .addCase(updateStatusStockOpname.pending, (state, action) => {
+        state.loadingUpdateStatus = true
+      })
+      .addCase(updateStatusStockOpname.fulfilled, (state, action) => {
+        state.loadingUpdateStatus = false
+      })
+      .addCase(updateStatusStockOpname.rejected, (state, action) => {
+        state.loadingUpdateStatus = false
+        state.errorUpdateStatus = action.error.message
+      })
+
+      // CONFIRM
+      .addCase(confirmStockOpname.pending, (state, action) => {
+        state.loadingConfirm = true
+      })
+      .addCase(confirmStockOpname.fulfilled, (state, action) => {
+        state.loadingConfirm = false
+      })
+      .addCase(confirmStockOpname.rejected, (state, action) => {
+        state.loadingConfirm = false
+        state.errorConfirm = action.error.message
       })
   }
 })

@@ -118,7 +118,13 @@ export const appMasterTypeSlice = createSlice({
     loadingDetail: false,
     total: 1,
     params: {},
-    allData: []
+    allData: [],
+    loadingAdd: false,
+    errorAdd: false,
+    loadingEdit: false,
+    errorEdit: false,
+    loadingDelete: false,
+    errorDelete: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -146,6 +152,39 @@ export const appMasterTypeSlice = createSlice({
       .addCase(fetchMasterDataTypeDetail.rejected, (state, action) => {
         state.loadingDetail = false
         state.error = action.error.message
+      })
+
+      .addCase(addMasterDataType.pending, (state, action) => {
+        state.loadingAdd = true
+      })
+      .addCase(addMasterDataType.fulfilled, (state, action) => {
+        state.loadingAdd = false
+      })
+      .addCase(addMasterDataType.rejected, (state, action) => {
+        state.loadingAdd = false
+        state.errorAdd = action.error.message
+      })
+
+      .addCase(editMasterDataType.pending, (state, action) => {
+        state.loadingEdit = true
+      })
+      .addCase(editMasterDataType.fulfilled, (state, action) => {
+        state.loadingEdit = false
+      })
+      .addCase(editMasterDataType.rejected, (state, action) => {
+        state.loadingEdit = false
+        state.errorEdit = action.error.message
+      })
+
+      .addCase(deleteMasterDataType.pending, (state, action) => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteMasterDataType.fulfilled, (state, action) => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteMasterDataType.rejected, (state, action) => {
+        state.loadingDelete = false
+        state.errorDelete = action.error.message
       })
   }
 })

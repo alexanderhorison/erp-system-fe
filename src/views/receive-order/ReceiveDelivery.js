@@ -1,8 +1,8 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, CardHeader, Divider, Grid, Typography } from '@mui/material'
+import { Button, Card, CardContent, CardHeader, CircularProgress, Divider, Grid, Typography } from '@mui/material'
 import { useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 
 import Icon from 'src/@core/components/icon'
@@ -11,10 +11,11 @@ import { useRouter } from 'next/router'
 import { createDeliveryOrderReceive } from 'src/store/apps/receive-order'
 import CustomChip from 'src/@core/components/mui/chip'
 
-
 export default function ReceiveDelivery({ data }) {
   const dispatch = useDispatch()
   const router = useRouter()
+
+  const { loadingCreateReceiveOrder } = useSelector(state => state.receiveOrder)
 
   const schema = yup.object({
     deliveryOrderId: yup.number().required('Delivery order id harus ada'),
@@ -53,7 +54,7 @@ export default function ReceiveDelivery({ data }) {
     let sendData = {
       data: data.data,
       deliveryOrderId: data.deliveryOrderId,
-      notes: data.notes,
+      notes: data.notes
     }
     dispatch(createDeliveryOrderReceive({ data: sendData, router }))
   }
@@ -260,7 +261,8 @@ export default function ReceiveDelivery({ data }) {
                   Tanpa approval, stock akan langsung masuk ke gudang sesuai kuantiti yang di terima
                 </Typography>
                 <Typography variant='body2' color='text.secondary'>
-                  Jika terdapat selisih antara kuantiti diterima dengan kuantiti asal akan masuk ke dalam surat outstanding
+                  Jika terdapat selisih antara kuantiti diterima dengan kuantiti asal akan masuk ke dalam surat
+                  outstanding
                 </Typography>
               </CardContent>
             </Card>
@@ -272,17 +274,26 @@ export default function ReceiveDelivery({ data }) {
             justifyContent='flex-end'
             gap={6}
           >
-            <Button
-              variant='tonal'
-              color='secondary'
-              onClick={() => router.back()}
-              startIcon={<Icon icon='tabler:x' />}
-            >
-              Cancel
-            </Button>
-            <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-              Submit
-            </Button>
+            {loadingCreateReceiveOrder ? (
+              <Button variant='contained' disabled>
+                <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                Submitting...
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant='tonal'
+                  color='secondary'
+                  onClick={() => router.back()}
+                  startIcon={<Icon icon='tabler:x' />}
+                >
+                  Cancel
+                </Button>
+                <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
+                  Submit
+                </Button>
+              </>
+            )}
           </Grid>
         </Grid>
       </form>

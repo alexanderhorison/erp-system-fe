@@ -15,6 +15,7 @@ import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
+import CircularProgress from '@mui/material/CircularProgress'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -54,7 +55,7 @@ const titleMap = {
 export default function ModalAdjustProduct({ open, setOpen, typeModal, warehouseId }) {
   const dispatch = useDispatch()
 
-  const { detailProductWarehouse } = useSelector(state => state.productWarehouse)
+  const { detailProductWarehouse, loadingEditProduct } = useSelector(state => state.productWarehouse)
 
   const title = useMemo(() => {
     return titleMap[typeModal] || 'Title Default'
@@ -254,12 +255,19 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, warehouse
           >
             {typeModal !== 'VIEW' && (
               <>
-                <Button variant='tonal' color='secondary' onClick={handleClose}>
+                <Button variant='tonal' color='secondary' onClick={handleClose} disabled={loadingEditProduct}>
                   Cancel
                 </Button>
-                <Button type='submit' variant='contained'>
-                  Submit
-                </Button>
+                {loadingEditProduct ? (
+                  <Button variant='contained' disabled>
+                    <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                    Submitting...
+                  </Button>
+                ) : (
+                  <Button type='submit' variant='contained'>
+                    Submit
+                  </Button>
+                )}
               </>
             )}
           </DialogActions>

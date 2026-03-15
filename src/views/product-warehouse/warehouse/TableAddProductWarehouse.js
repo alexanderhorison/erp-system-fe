@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid, IconButton } from '@mui/material'
+import { Button, Card, CardContent, CircularProgress, Divider, Grid, IconButton } from '@mui/material'
 import { useEffect, useRef } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -23,6 +23,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
   const { data: masterDataProduct } = useSelector(state => state.masterProduct)
   const { data: masterDataUnit } = useSelector(state => state.unit)
   const { data: masterWarehouseRack } = useSelector(state => state.masterWarehouseRack)
+  const { loadingInitiateProduct } = useSelector(state => state.productWarehouse)
 
 
   const schemaNew = yup.object({
@@ -313,12 +314,20 @@ export default function TableAddProductWarehouse({ warehouse }) {
                 color='secondary'
                 onClick={() => router.back()}
                 startIcon={<Icon icon='tabler:x' />}
+                disabled={loadingInitiateProduct}
               >
                 Cancel
               </Button>
-              <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-                Submit
-              </Button>
+              {loadingInitiateProduct ? (
+                <Button variant='contained' disabled>
+                  <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                  Submitting...
+                </Button>
+              ) : (
+                <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
+                  Submit
+                </Button>
+              )}
             </Grid>
           </Grid>
         </Grid>

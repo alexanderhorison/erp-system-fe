@@ -15,6 +15,7 @@ import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
+import CircularProgress from '@mui/material/CircularProgress'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -50,7 +51,7 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
   const [selectedUnit, setSelectedUnit] = useState({})
   const [qty, setQty] = useState(0)
 
-  const { detailProductWarehouse, listTransformation } = useSelector(state => state.productWarehouse)
+  const { detailProductWarehouse, listTransformation, loadingTransformProduct } = useSelector(state => state.productWarehouse)
 
   const title = useMemo(() => {
     return "Transformasi Produk"
@@ -246,12 +247,19 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
           >
             {typeModal !== 'VIEW' && (
               <>
-                <Button variant='tonal' color='secondary' onClick={handleClose}>
+                <Button variant='tonal' color='secondary' onClick={handleClose} disabled={loadingTransformProduct}>
                   Cancel
                 </Button>
-                <Button type='submit' variant='contained'>
-                  Submit
-                </Button>
+                {loadingTransformProduct ? (
+                  <Button variant='contained' disabled>
+                    <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                    Submitting...
+                  </Button>
+                ) : (
+                  <Button type='submit' variant='contained'>
+                    Submit
+                  </Button>
+                )}
               </>
             )}
           </DialogActions>

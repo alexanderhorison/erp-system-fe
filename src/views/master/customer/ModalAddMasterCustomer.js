@@ -14,7 +14,7 @@ import { addMasterDataCustomer, editMasterDataCustomer } from 'src/store/apps/ma
 
 export default function ModalAddMasterCustomer({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
-  const { defaultValue, detail: detailCustomer } = useSelector(state => state.masterCustomer)
+  const { defaultValue, detail: detailCustomer, loadingAdd, loadingEdit } = useSelector(state => state.masterCustomer)
 
   // SCHEMA YUP VALIDATION
   const schema = yup.object().shape({
@@ -55,6 +55,7 @@ export default function ModalAddMasterCustomer({ open, setOpen, typeModal, id })
       title={typeModal === 'ADD' ? 'Tambahkan Customer Baru' : typeModal === 'VIEW' ? 'Detail Customer' : 'Ubah Customer'}
       size="sm"
       showActions={typeModal !== 'VIEW'}
+      loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
       <Grid container spacing={6}>
         <Grid item xs={12}>

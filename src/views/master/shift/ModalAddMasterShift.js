@@ -18,7 +18,7 @@ import BaseModal from 'src/views/common/BaseModal'
 
 export default function ModalAddMasterShift({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
-  const { defaultValue, detail: detailShift } = useSelector(state => state.shift)
+  const { defaultValue, detail: detailShift, loadingAdd, loadingEdit } = useSelector(state => state.shift)
 
   // SCHEMA YUP VALIDATION
   const schema = yup.object({
@@ -56,6 +56,7 @@ export default function ModalAddMasterShift({ open, setOpen, typeModal, id }) {
       title={typeModal === 'ADD' ? 'Tambahkan Shift Baru' : typeModal === 'VIEW' ? 'Detail Shift' : 'Ubah Shift'}
       size="sm"
       showActions={typeModal !== 'VIEW'}
+      loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
       <Grid container spacing={6}>
         <Grid item xs={12}>

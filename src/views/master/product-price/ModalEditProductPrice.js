@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import BaseModal from 'src/views/common/BaseModal'
 import { addMasterDataProductPrice } from 'src/store/apps/master/product-price'
@@ -41,6 +41,7 @@ const schema = yup.object().shape({
 
 export default function ModalEditProductPrice({ open, setOpen, row }) {
   const dispatch = useDispatch()
+  const { loadingAdd } = useSelector(state => state.masterProductPrice)
 
   const {
     control,
@@ -107,6 +108,7 @@ export default function ModalEditProductPrice({ open, setOpen, row }) {
       size='sm'
       submitLabel='Simpan'
       cancelLabel='Batal'
+      loading={loadingAdd}
     >
       <Grid container spacing={4}>
         <Grid item xs={12}>

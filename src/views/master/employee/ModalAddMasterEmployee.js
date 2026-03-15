@@ -57,7 +57,7 @@ const CustomCloseButton = styled(IconButton)(({ theme }) => ({
 export default function ModalAddMasterEmployee({ open, setOpen, typeModal = 'ADD', id }) {
   const dispatch = useDispatch()
 
-  const { detail: dataDetail, defaultValue } = useSelector(state => state.masterEmployee)
+  const { detail: dataDetail, defaultValue, loadingAdd, loadingEdit } = useSelector(state => state.masterEmployee)
 
   const schema = yup.object({
     nama: yup.string().required('Nama karyawan harus diisi'),
@@ -123,6 +123,7 @@ export default function ModalAddMasterEmployee({ open, setOpen, typeModal = 'ADD
       title={typeModal === 'ADD' ? 'Tambahkan Karyawan Baru' : typeModal === 'VIEW' ? 'Detail Karyawan' : 'Ubah Karyawan'}
       size="md"
       showActions={typeModal !== 'VIEW'}
+      loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
       <Grid container spacing={6}>
         <Grid item xs={12} sm={6}>

@@ -21,7 +21,7 @@ import BaseModal from 'src/views/common/BaseModal'
 
 export default function ModalAddMasterUnexpectedCostCategory({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
-  const { defaultValue, detail: detailCategory } = useSelector(state => state.masterUnexpectedCostCategory)
+  const { defaultValue, detail: detailCategory, loadingAdd, loadingEdit } = useSelector(state => state.masterUnexpectedCostCategory)
 
   // SCHEMA YUP VALIDATION
   const schema = yup.object().shape({
@@ -61,6 +61,7 @@ export default function ModalAddMasterUnexpectedCostCategory({ open, setOpen, ty
           : 'Ubah Kategori Biaya Tak Terduga'}
       size="sm"
       showActions={typeModal !== 'VIEW'}
+      loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
       <Grid container spacing={6}>
         <Grid item xs={12}>

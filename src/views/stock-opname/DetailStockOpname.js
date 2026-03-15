@@ -1,7 +1,7 @@
 
-import { Alert, Button, Card, CardContent, Grid, Typography } from '@mui/material'
+import { Alert, Button, Card, CardContent, CircularProgress, Grid, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import 'react-datepicker/dist/react-datepicker.css'
 import Icon from 'src/@core/components/icon'
@@ -15,6 +15,7 @@ export default function DetailStockOpname({ stockOpnameId, detailStockOpname }) 
   const dispatch = useDispatch()
   const router = useRouter()
   const [selectedRows, setSelectedRows] = useState([])
+  const { loadingUpdateStatus, loadingConfirm } = useSelector(state => state.stockOpname)
 
   const listProduct = useMemo(() => {
     if (detailStockOpname && detailStockOpname.listProduct) {
@@ -104,21 +105,37 @@ export default function DetailStockOpname({ stockOpnameId, detailStockOpname }) 
         </Button>
         {
           (detailStockOpname?.status === 'DRAFT' || detailStockOpname?.status === 'PENDING') &&
-          <Button variant='tonal' color='error' onClick={() => handleReject()} startIcon={<Icon icon='tabler:ban' />}>
+          <Button variant='tonal' color='error' onClick={() => handleReject()} startIcon={<Icon icon='tabler:ban' />} disabled={loadingUpdateStatus}>
             Reject
           </Button>
         }
         {
-          (detailStockOpname?.status === 'DRAFT' || detailStockOpname?.status === 'PENDING') &&
-          <Button variant='tonal' color='success' onClick={() => handleApprove()} startIcon={<Icon icon='tabler:send' />}>
-            Approve
-          </Button>
+          (detailStockOpname?.status === 'DRAFT' || detailStockOpname?.status === 'PENDING') && (
+            loadingUpdateStatus ? (
+              <Button variant='tonal' color='success' disabled>
+                <CircularProgress size={20} sx={{ mr: 2 }} />
+                Submitting...
+              </Button>
+            ) : (
+              <Button variant='tonal' color='success' onClick={() => handleApprove()} startIcon={<Icon icon='tabler:send' />}>
+                Approve
+              </Button>
+            )
+          )
         }
         {
-          detailStockOpname?.status === 'APPROVED' &&
-          <Button variant='tonal' color='success' onClick={() => handleConfirm()} startIcon={<Icon icon='tabler:circle-dashed-check' />}>
-            Confirm
-          </Button>
+          detailStockOpname?.status === 'APPROVED' && (
+            loadingConfirm ? (
+              <Button variant='tonal' color='success' disabled>
+                <CircularProgress size={20} sx={{ mr: 2 }} />
+                Submitting...
+              </Button>
+            ) : (
+              <Button variant='tonal' color='success' onClick={() => handleConfirm()} startIcon={<Icon icon='tabler:circle-dashed-check' />}>
+                Confirm
+              </Button>
+            )
+          )
         }
       </Grid>
     </Grid>

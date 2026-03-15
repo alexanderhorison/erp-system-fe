@@ -124,7 +124,13 @@ export const appMasterUnexpectedCostCategorySlice = createSlice({
     loadingDetail: false,
     total: 1,
     params: {},
-    allData: []
+    allData: [],
+    loadingAdd: false,
+    errorAdd: false,
+    loadingEdit: false,
+    errorEdit: false,
+    loadingDelete: false,
+    errorDelete: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -152,6 +158,39 @@ export const appMasterUnexpectedCostCategorySlice = createSlice({
       .addCase(fetchMasterDataUnexpectedCostCategoryDetail.rejected, (state, action) => {
         state.loadingDetail = false
         state.error = action.error.message
+      })
+
+      .addCase(addMasterDataUnexpectedCostCategory.pending, (state, action) => {
+        state.loadingAdd = true
+      })
+      .addCase(addMasterDataUnexpectedCostCategory.fulfilled, (state, action) => {
+        state.loadingAdd = false
+      })
+      .addCase(addMasterDataUnexpectedCostCategory.rejected, (state, action) => {
+        state.loadingAdd = false
+        state.errorAdd = action.error.message
+      })
+
+      .addCase(editMasterDataUnexpectedCostCategory.pending, (state, action) => {
+        state.loadingEdit = true
+      })
+      .addCase(editMasterDataUnexpectedCostCategory.fulfilled, (state, action) => {
+        state.loadingEdit = false
+      })
+      .addCase(editMasterDataUnexpectedCostCategory.rejected, (state, action) => {
+        state.loadingEdit = false
+        state.errorEdit = action.error.message
+      })
+
+      .addCase(deleteMasterDataUnexpectedCostCategory.pending, (state, action) => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteMasterDataUnexpectedCostCategory.fulfilled, (state, action) => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteMasterDataUnexpectedCostCategory.rejected, (state, action) => {
+        state.loadingDelete = false
+        state.errorDelete = action.error.message
       })
   }
 })
