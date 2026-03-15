@@ -129,6 +129,9 @@ export const appMasterAssetCurrent = createSlice({
     piutangUsaha: 0,
     loadingPiutangUsaha: false,
     errorPiutangUsaha: null,
+
+    loadingAction: false,
+    errorAction: null,
   },
   reducers: {
     resetAssetCurrentState: (state) => {
@@ -177,6 +180,27 @@ export const appMasterAssetCurrent = createSlice({
         state.errorDetailAssetCurrent = action.error.message
       })
 
+      .addCase(addAsset.pending, (state, action) => {
+        state.loadingAction = true
+      })
+      .addCase(addAsset.fulfilled, (state, action) => {
+        state.loadingAction = false
+      })
+      .addCase(addAsset.rejected, (state, action) => {
+        state.loadingAction = false
+        state.errorAction = action.error.message
+      })
+
+      .addCase(editAsset.pending, (state, action) => {
+        state.loadingAction = true
+      })
+      .addCase(editAsset.fulfilled, (state, action) => {
+        state.loadingAction = false
+      })
+      .addCase(editAsset.rejected, (state, action) => {
+        state.loadingAction = false
+        state.errorAction = action.error.message
+      })
   }
 })
 

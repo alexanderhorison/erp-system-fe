@@ -37,7 +37,8 @@ export default function BaseModal({
   showActions = true,
   submitLabel = 'Save',
   cancelLabel = 'Cancel',
-  loading = false
+  loading = false,
+  loadingPage = false,
 }) {
   return (
     <Dialog
@@ -70,8 +71,14 @@ export default function BaseModal({
             </Box>
           )}
 
-          {/* Dynamic content */}
-          {children}
+          {/* Dynamic content — show spinner when loadingPage */}
+          {loadingPage ? (
+            <Box display='flex' justifyContent='center' alignItems='center' py={8}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            children
+          )}
         </DialogContent>
 
         {/* Actions */}
@@ -82,7 +89,6 @@ export default function BaseModal({
           }}
         >
           {showActions && (
-
             <>
               <Button variant='tonal' color='secondary' onClick={onClose} disabled={loading}>
                 {cancelLabel}

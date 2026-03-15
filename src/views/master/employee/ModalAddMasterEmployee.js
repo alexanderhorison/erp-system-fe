@@ -39,25 +39,10 @@ const roleOptions = [
   'Cleaning Service'
 ]
 
-const CustomCloseButton = styled(IconButton)(({ theme }) => ({
-  top: 0,
-  right: 0,
-  color: 'grey.500',
-  position: 'absolute',
-  boxShadow: theme.shadows[2],
-  transform: 'translate(10px, -10px)',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: `${theme.palette.background.paper} !important`,
-  transition: 'transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out',
-  '&:hover': {
-    transform: 'translate(7px, -5px)'
-  }
-}))
-
 export default function ModalAddMasterEmployee({ open, setOpen, typeModal = 'ADD', id }) {
   const dispatch = useDispatch()
 
-  const { detail: dataDetail, defaultValue, loadingAdd, loadingEdit } = useSelector(state => state.masterEmployee)
+  const { detail: dataDetail, loadingDetail, defaultValue, loadingAdd, loadingEdit } = useSelector(state => state.masterEmployee)
 
   const schema = yup.object({
     nama: yup.string().required('Nama karyawan harus diisi'),
@@ -124,6 +109,7 @@ export default function ModalAddMasterEmployee({ open, setOpen, typeModal = 'ADD
       size="md"
       showActions={typeModal !== 'VIEW'}
       loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
+      loadingPage={loadingDetail && typeModal !== 'ADD'}
     >
       <Grid container spacing={6}>
         <Grid item xs={12} sm={6}>

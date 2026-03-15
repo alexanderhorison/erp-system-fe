@@ -1,4 +1,4 @@
-import { Grid, Typography, CircularProgress } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import * as yup from 'yup'
@@ -36,7 +36,7 @@ export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) 
     notes: yup.string().optional().default('')
   })
 
-  const { loadingPiutangUsaha, detailAssetCurrent, loadingDetailAssetCurrent } = useSelector(
+  const { loadingPiutangUsaha, loadingAction, detailAssetCurrent, loadingDetailAssetCurrent } = useSelector(
     state => state.assetCurrent
   )
 
@@ -174,12 +174,11 @@ export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) 
       }
       size='sm'
       showActions={typeModal !== 'VIEW'}
+      loading={loadingAction}
+      loadingPage={loadingDetailAssetCurrent && typeModal !== 'ADD'}
     >
-      {loadingDetailAssetCurrent && typeModal !== 'ADD' ? (
-        <CircularProgress />
-      ) : (
-        <>
-          <Grid container spacing={6}>
+      <>
+        <Grid container spacing={6}>
             <Grid item xs={12} md={6}>
               <Controller
                 name='period'
@@ -274,7 +273,6 @@ export default function ModalFormCurrentAsset({ open, setOpen, typeModal, id }) 
             />
           </Grid>
         </>
-      )}
     </BaseModal>
   )
 }
