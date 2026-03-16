@@ -440,7 +440,19 @@ export const appMasterProductSlice = createSlice({
       product: {}
     },
     loadingListHistoryLoan: true,
-    errorListHistoryLoan: false
+    errorListHistoryLoan: false,
+
+    loadingInitiateProduct: false,
+    errorInitiateProduct: false,
+
+    loadingEditProduct: false,
+    errorEditProduct: false,
+
+    loadingTransformProduct: false,
+    errorTransformProduct: false,
+
+    loadingDeleteProduct: false,
+    errorDeleteProduct: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -569,6 +581,78 @@ export const appMasterProductSlice = createSlice({
           history: [],
           product: {}
         }
+      })
+
+      // INITIATE PRODUCT
+      .addCase(initiateProductWarehouse.pending, (state, action) => {
+        state.loadingInitiateProduct = true
+      })
+      .addCase(initiateProductWarehouse.fulfilled, (state, action) => {
+        state.loadingInitiateProduct = false
+      })
+      .addCase(initiateProductWarehouse.rejected, (state, action) => {
+        state.loadingInitiateProduct = false
+        state.errorInitiateProduct = action.error.message
+      })
+
+      // EDIT / ADJUST PRODUCT
+      .addCase(editProductWarehouse.pending, (state, action) => {
+        state.loadingEditProduct = true
+      })
+      .addCase(editProductWarehouse.fulfilled, (state, action) => {
+        state.loadingEditProduct = false
+      })
+      .addCase(editProductWarehouse.rejected, (state, action) => {
+        state.loadingEditProduct = false
+        state.errorEditProduct = action.error.message
+      })
+
+      // TRANSFORM PRODUCT
+      .addCase(transformProduct.pending, (state, action) => {
+        state.loadingTransformProduct = true
+      })
+      .addCase(transformProduct.fulfilled, (state, action) => {
+        state.loadingTransformProduct = false
+      })
+      .addCase(transformProduct.rejected, (state, action) => {
+        state.loadingTransformProduct = false
+        state.errorTransformProduct = action.error.message
+      })
+
+      // TRANSFORM PRODUCT FROM SALES ORDER
+      .addCase(transformProductFromSalesOrder.pending, (state, action) => {
+        state.loadingTransformProduct = true
+      })
+      .addCase(transformProductFromSalesOrder.fulfilled, (state, action) => {
+        state.loadingTransformProduct = false
+      })
+      .addCase(transformProductFromSalesOrder.rejected, (state, action) => {
+        state.loadingTransformProduct = false
+        state.errorTransformProduct = action.error.message
+      })
+
+      // TRANSFORM PRODUCT FROM POINT OF SALE
+      .addCase(transformProductFromPointOfSale.pending, (state, action) => {
+        state.loadingTransformProduct = true
+      })
+      .addCase(transformProductFromPointOfSale.fulfilled, (state, action) => {
+        state.loadingTransformProduct = false
+      })
+      .addCase(transformProductFromPointOfSale.rejected, (state, action) => {
+        state.loadingTransformProduct = false
+        state.errorTransformProduct = action.error.message
+      })
+
+      // DELETE PRODUCT
+      .addCase(fetchDeleteProductWarehouse.pending, (state, action) => {
+        state.loadingDeleteProduct = true
+      })
+      .addCase(fetchDeleteProductWarehouse.fulfilled, (state, action) => {
+        state.loadingDeleteProduct = false
+      })
+      .addCase(fetchDeleteProductWarehouse.rejected, (state, action) => {
+        state.loadingDeleteProduct = false
+        state.errorDeleteProduct = action.error.message
       })
   }
 })

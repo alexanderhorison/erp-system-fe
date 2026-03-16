@@ -53,7 +53,9 @@ export const appMasterModalSlice = createSlice({
     loadingDetail: false,
     detail: {
       modal: 0
-    }
+    },
+    loadingForceUpdate: false,
+    errorForceUpdate: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -72,6 +74,17 @@ export const appMasterModalSlice = createSlice({
       .addCase(fetchOneMasterDataModal.rejected, (state, action) => {
         state.loadingDetail = false
         state.error = action.error.message
+      })
+
+      .addCase(forceUpdateMasterDataModal.pending, (state, action) => {
+        state.loadingForceUpdate = true
+      })
+      .addCase(forceUpdateMasterDataModal.fulfilled, (state, action) => {
+        state.loadingForceUpdate = false
+      })
+      .addCase(forceUpdateMasterDataModal.rejected, (state, action) => {
+        state.loadingForceUpdate = false
+        state.errorForceUpdate = action.error.message
       })
   }
 })

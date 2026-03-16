@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, Grid } from '@mui/material'
+import { Button, Card, CardContent, CircularProgress, Grid } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -17,7 +17,7 @@ export default function EditStockOpname({ }) {
 
   const { id } = router.query
 
-  const { detailStockOpname, loading } = useSelector(
+  const { detailStockOpname, loading, loadingUpdate } = useSelector(
     state => state.stockOpname
   )
 
@@ -132,12 +132,19 @@ export default function EditStockOpname({ }) {
           justifyContent='flex-end'
           gap={6}
         >
-          <Button variant='tonal' color='secondary' onClick={() => router.push('/stock-opname')} startIcon={<Icon icon='tabler:x' />}>
+          <Button variant='tonal' color='secondary' onClick={() => router.push('/stock-opname')} startIcon={<Icon icon='tabler:x' />} disabled={loadingUpdate}>
             Cancel
           </Button>
-          <Button variant='contained' onClick={() => onSubmit("DRAFT")} startIcon={<Icon icon='tabler:send' />}>
-            Submit
-          </Button>
+          {loadingUpdate ? (
+            <Button variant='contained' disabled>
+              <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+              Submitting...
+            </Button>
+          ) : (
+            <Button variant='contained' onClick={() => onSubmit("DRAFT")} startIcon={<Icon icon='tabler:send' />}>
+              Submit
+            </Button>
+          )}
           {/* <Button variant='contained' onClick={() => onSubmit("PENDING")} startIcon={<Icon icon='tabler:square-rounded-check' />}>
             Selesaikan Stok Opname
           </Button> */}

@@ -127,7 +127,13 @@ export const appMasterCarSlice = createSlice({
     loadingDetail: false,
     total: 1,
     params: {},
-    allData: []
+    allData: [],
+    loadingAdd: false,
+    errorAdd: false,
+    loadingEdit: false,
+    errorEdit: false,
+    loadingDelete: false,
+    errorDelete: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -155,6 +161,39 @@ export const appMasterCarSlice = createSlice({
       .addCase(fetchMasterDataCarDetail.rejected, (state, action) => {
         state.loadingDetail = false
         state.error = action.error.message
+      })
+
+      .addCase(addMasterDataCar.pending, (state, action) => {
+        state.loadingAdd = true
+      })
+      .addCase(addMasterDataCar.fulfilled, (state, action) => {
+        state.loadingAdd = false
+      })
+      .addCase(addMasterDataCar.rejected, (state, action) => {
+        state.loadingAdd = false
+        state.errorAdd = action.error.message
+      })
+
+      .addCase(editMasterDataCar.pending, (state, action) => {
+        state.loadingEdit = true
+      })
+      .addCase(editMasterDataCar.fulfilled, (state, action) => {
+        state.loadingEdit = false
+      })
+      .addCase(editMasterDataCar.rejected, (state, action) => {
+        state.loadingEdit = false
+        state.errorEdit = action.error.message
+      })
+
+      .addCase(deleteMasterDataCar.pending, (state, action) => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteMasterDataCar.fulfilled, (state, action) => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteMasterDataCar.rejected, (state, action) => {
+        state.loadingDelete = false
+        state.errorDelete = action.error.message
       })
   }
 })

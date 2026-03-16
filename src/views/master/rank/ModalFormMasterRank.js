@@ -19,7 +19,7 @@ import BaseModal from 'src/views/common/BaseModal'
 
 export default function ModalFormMasterRank({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
-  const { defaultValue, detail: detailRank } = useSelector(state => state.masterRank)
+  const { defaultValue, detail: detailRank, loadingAdd, loadingEdit } = useSelector(state => state.masterRank)
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
@@ -64,6 +64,7 @@ export default function ModalFormMasterRank({ open, setOpen, typeModal, id }) {
           : 'Ubah Rank'}
       size="sm"
       showActions={typeModal !== 'VIEW'}
+      loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
       <Grid container spacing={6}>
         <Grid item xs={12}>

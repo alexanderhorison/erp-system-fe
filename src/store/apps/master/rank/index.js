@@ -123,7 +123,16 @@ export const appMasterRankSlice = createSlice({
     loadingDetail: false,
     total: 1,
     params: {},
-    allData: []
+    allData: [],
+
+    loadingAdd: false,
+    errorAdd: false,
+
+    loadingEdit: false,
+    errorEdit: false,
+
+    loadingDelete: false,
+    errorDelete: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -151,6 +160,39 @@ export const appMasterRankSlice = createSlice({
       .addCase(fetchMasterDataRankDetail.rejected, (state, action) => {
         state.loadingDetail = false
         state.error = action.error.message
+      })
+
+      .addCase(addMasterDataRank.pending, (state, action) => {
+        state.loadingAdd = true
+      })
+      .addCase(addMasterDataRank.fulfilled, (state, action) => {
+        state.loadingAdd = false
+      })
+      .addCase(addMasterDataRank.rejected, (state, action) => {
+        state.loadingAdd = false
+        state.errorAdd = action.error.message
+      })
+
+      .addCase(editMasterDataRank.pending, (state, action) => {
+        state.loadingEdit = true
+      })
+      .addCase(editMasterDataRank.fulfilled, (state, action) => {
+        state.loadingEdit = false
+      })
+      .addCase(editMasterDataRank.rejected, (state, action) => {
+        state.loadingEdit = false
+        state.errorEdit = action.error.message
+      })
+
+      .addCase(deleteMasterDataRank.pending, (state, action) => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteMasterDataRank.fulfilled, (state, action) => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteMasterDataRank.rejected, (state, action) => {
+        state.loadingDelete = false
+        state.errorDelete = action.error.message
       })
   }
 })

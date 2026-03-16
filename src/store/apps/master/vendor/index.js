@@ -132,7 +132,16 @@ export const appMasterVendorSlice = createSlice({
     loadingDetail: false,
     total: 1,
     params: {},
-    allData: []
+    allData: [],
+
+    loadingAdd: false,
+    errorAdd: false,
+
+    loadingEdit: false,
+    errorEdit: false,
+
+    loadingDelete: false,
+    errorDelete: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -160,6 +169,39 @@ export const appMasterVendorSlice = createSlice({
       .addCase(fetchMasterDataVendorDetail.rejected, (state, action) => {
         state.loadingDetail = false
         state.error = action.error.message
+      })
+
+      .addCase(addMasterDataVendor.pending, (state, action) => {
+        state.loadingAdd = true
+      })
+      .addCase(addMasterDataVendor.fulfilled, (state, action) => {
+        state.loadingAdd = false
+      })
+      .addCase(addMasterDataVendor.rejected, (state, action) => {
+        state.loadingAdd = false
+        state.errorAdd = action.error.message
+      })
+
+      .addCase(editMasterDataVendor.pending, (state, action) => {
+        state.loadingEdit = true
+      })
+      .addCase(editMasterDataVendor.fulfilled, (state, action) => {
+        state.loadingEdit = false
+      })
+      .addCase(editMasterDataVendor.rejected, (state, action) => {
+        state.loadingEdit = false
+        state.errorEdit = action.error.message
+      })
+
+      .addCase(deleteMasterDataVendor.pending, (state, action) => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteMasterDataVendor.fulfilled, (state, action) => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteMasterDataVendor.rejected, (state, action) => {
+        state.loadingDelete = false
+        state.errorDelete = action.error.message
       })
   }
 })

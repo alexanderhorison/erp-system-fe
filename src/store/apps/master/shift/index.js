@@ -120,7 +120,13 @@ export const appMasterShiftSlice = createSlice({
     loadingDetail: false,
     total: 1,
     params: {},
-    allData: []
+    allData: [],
+    loadingAdd: false,
+    errorAdd: false,
+    loadingEdit: false,
+    errorEdit: false,
+    loadingDelete: false,
+    errorDelete: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -160,6 +166,39 @@ export const appMasterShiftSlice = createSlice({
       .addCase(fetchMasterDataShiftDetail.rejected, (state, action) => {
         state.loadingDetail = false
         state.error = action.error.message
+      })
+
+      .addCase(addMasterDataShift.pending, (state, action) => {
+        state.loadingAdd = true
+      })
+      .addCase(addMasterDataShift.fulfilled, (state, action) => {
+        state.loadingAdd = false
+      })
+      .addCase(addMasterDataShift.rejected, (state, action) => {
+        state.loadingAdd = false
+        state.errorAdd = action.error.message
+      })
+
+      .addCase(editMasterDataShift.pending, (state, action) => {
+        state.loadingEdit = true
+      })
+      .addCase(editMasterDataShift.fulfilled, (state, action) => {
+        state.loadingEdit = false
+      })
+      .addCase(editMasterDataShift.rejected, (state, action) => {
+        state.loadingEdit = false
+        state.errorEdit = action.error.message
+      })
+
+      .addCase(deleteMasterDataShift.pending, (state, action) => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteMasterDataShift.fulfilled, (state, action) => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteMasterDataShift.rejected, (state, action) => {
+        state.loadingDelete = false
+        state.errorDelete = action.error.message
       })
   }
 })

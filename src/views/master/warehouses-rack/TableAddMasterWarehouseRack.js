@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Divider, Grid, IconButton, MenuItem, Typography } from '@mui/material'
+import { Button, Card, CardContent, CircularProgress, Divider, Grid, IconButton, MenuItem, Typography } from '@mui/material'
 import React from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -17,7 +17,7 @@ export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
-  const { keyAttributes, defaultValue, detail: warehouseRackDetail } = useSelector(state => state.masterWarehouseRack) // Ini state key nya hardcode
+  const { keyAttributes, defaultValue, detail: warehouseRackDetail, loadingAdd, loadingEdit } = useSelector(state => state.masterWarehouseRack) // Ini state key nya hardcode
 
   const schema = yup.object({
     name: yup.string().required('Nama Rak tidak boleh kosong'),
@@ -250,12 +250,20 @@ export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
                 color='secondary'
                 onClick={() => router.back()}
                 startIcon={<Icon icon='tabler:x' />}
+                disabled={typeModal === 'ADD' ? loadingAdd : loadingEdit}
               >
                 Cancel
               </Button>
-              <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-                Submit
-              </Button>
+              {(typeModal === 'ADD' ? loadingAdd : loadingEdit) ? (
+                <Button variant='contained' disabled>
+                  <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                  Submitting...
+                </Button>
+              ) : (
+                <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
+                  Submit
+                </Button>
+              )}
             </Grid>
           </Grid>
         </Grid>

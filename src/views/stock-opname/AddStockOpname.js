@@ -1,4 +1,4 @@
-import { Alert, Button, Card, CardContent, Grid, Skeleton, useTheme } from '@mui/material'
+import { Alert, Button, Card, CardContent, CircularProgress, Grid, Skeleton, useTheme } from '@mui/material'
 import { forwardRef, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -38,7 +38,7 @@ export default function AddStockOpname({ warehouse }) {
     state => state.productWarehouse
   )
 
-  const { checkStockOpname, loadingCheckStockOpname } = useSelector(state => state.stockOpname)
+  const { checkStockOpname, loadingCheckStockOpname, loadingCreate } = useSelector(state => state.stockOpname)
 
   const {
     control,
@@ -243,12 +243,19 @@ export default function AddStockOpname({ warehouse }) {
               Kembali
             </Button>
           )}
-          <Button variant='tonal' color='secondary' onClick={() => router.back()} startIcon={<Icon icon='tabler:x' />}>
+          <Button variant='tonal' color='secondary' onClick={() => router.back()} startIcon={<Icon icon='tabler:x' />} disabled={loadingCreate}>
             Batal
           </Button>
-          <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-            Simpan Draft
-          </Button>
+          {loadingCreate ? (
+            <Button variant='contained' disabled>
+              <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+              Submitting...
+            </Button>
+          ) : (
+            <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
+              Simpan Draft
+            </Button>
+          )}
           {/* <Button variant='contained' onClick={handlePending} startIcon={<Icon icon='tabler:square-rounded-check' />}>
             Selesaikan Stok Opname
           </Button> */}

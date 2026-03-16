@@ -122,7 +122,16 @@ export const appMasterProductSlice = createSlice({
     loadingDetail: false,
     total: 1,
     params: {},
-    allData: []
+    allData: [],
+
+    loadingAdd: false,
+    errorAdd: false,
+
+    loadingEdit: false,
+    errorEdit: false,
+
+    loadingDelete: false,
+    errorDelete: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -156,6 +165,39 @@ export const appMasterProductSlice = createSlice({
           typeId: '',
           description: ''
         }
+      })
+
+      .addCase(addMasterDataPorduct.pending, (state, action) => {
+        state.loadingAdd = true
+      })
+      .addCase(addMasterDataPorduct.fulfilled, (state, action) => {
+        state.loadingAdd = false
+      })
+      .addCase(addMasterDataPorduct.rejected, (state, action) => {
+        state.loadingAdd = false
+        state.errorAdd = action.error.message
+      })
+
+      .addCase(editMasterDataPorduct.pending, (state, action) => {
+        state.loadingEdit = true
+      })
+      .addCase(editMasterDataPorduct.fulfilled, (state, action) => {
+        state.loadingEdit = false
+      })
+      .addCase(editMasterDataPorduct.rejected, (state, action) => {
+        state.loadingEdit = false
+        state.errorEdit = action.error.message
+      })
+
+      .addCase(deleteMasterDataProduct.pending, (state, action) => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteMasterDataProduct.fulfilled, (state, action) => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteMasterDataProduct.rejected, (state, action) => {
+        state.loadingDelete = false
+        state.errorDelete = action.error.message
       })
   }
 })

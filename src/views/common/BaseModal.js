@@ -5,7 +5,8 @@ import {
   Typography,
   Button,
   IconButton,
-  Box
+  Box,
+  CircularProgress
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import Icon from 'src/@core/components/icon'
@@ -35,7 +36,9 @@ export default function BaseModal({
   children,
   showActions = true,
   submitLabel = 'Save',
-  cancelLabel = 'Cancel'
+  cancelLabel = 'Cancel',
+  loading = false,
+  loadingPage = false,
 }) {
   return (
     <Dialog
@@ -68,8 +71,14 @@ export default function BaseModal({
             </Box>
           )}
 
-          {/* Dynamic content */}
-          {children}
+          {/* Dynamic content — show spinner when loadingPage */}
+          {loadingPage ? (
+            <Box display='flex' justifyContent='center' alignItems='center' py={8}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            children
+          )}
         </DialogContent>
 
         {/* Actions */}
@@ -80,14 +89,20 @@ export default function BaseModal({
           }}
         >
           {showActions && (
-
             <>
-              <Button variant='tonal' color='secondary' onClick={onClose}>
+              <Button variant='tonal' color='secondary' onClick={onClose} disabled={loading}>
                 {cancelLabel}
               </Button>
-              <Button type='submit' variant='contained'>
-                {submitLabel}
-              </Button>
+              {loading ? (
+                <Button variant='contained' disabled>
+                  <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                  Submitting...
+                </Button>
+              ) : (
+                <Button type='submit' variant='contained'>
+                  {submitLabel}
+                </Button>
+              )}
             </>
           )}
         </DialogActions>

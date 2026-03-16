@@ -193,7 +193,13 @@ export const appMasterProductSlice = createSlice({
     loadingDataSalesOrderCustomer: true,
     errorDataSalesOrderCustomer: false,
 
-    loadingCreateSalesOrder: false
+    loadingCreateSalesOrder: false,
+
+    loadingUpdateFormSalesOrder: false,
+    errorUpdateFormSalesOrder: false,
+
+    loadingSendEmail: false,
+    errorSendEmail: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -281,6 +287,28 @@ export const appMasterProductSlice = createSlice({
         state.dataSalesOrderCustomer = []
         state.loadingDataSalesOrderCustomer = false
         state.errorDataSalesOrderCustomer = action.error.message
+      })
+
+      .addCase(updateFormSalesOrder.pending, (state, action) => {
+        state.loadingUpdateFormSalesOrder = true
+      })
+      .addCase(updateFormSalesOrder.fulfilled, (state, action) => {
+        state.loadingUpdateFormSalesOrder = false
+      })
+      .addCase(updateFormSalesOrder.rejected, (state, action) => {
+        state.loadingUpdateFormSalesOrder = false
+        state.errorUpdateFormSalesOrder = action.error.message
+      })
+
+      .addCase(sendEmail.pending, (state, action) => {
+        state.loadingSendEmail = true
+      })
+      .addCase(sendEmail.fulfilled, (state, action) => {
+        state.loadingSendEmail = false
+      })
+      .addCase(sendEmail.rejected, (state, action) => {
+        state.loadingSendEmail = false
+        state.errorSendEmail = action.error.message
       })
   }
 })

@@ -140,7 +140,13 @@ export const appMasterTransformationSlice = createSlice({
     params: {},
     allData: [],
     listTransformation: [],
-    loadingListTransformation: false
+    loadingListTransformation: false,
+    loadingAdd: false,
+    errorAdd: false,
+    loadingEdit: false,
+    errorEdit: false,
+    loadingDelete: false,
+    errorDelete: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -184,6 +190,39 @@ export const appMasterTransformationSlice = createSlice({
       .addCase(fetchTransformationByProductId.rejected, (state, action) => {
         state.loadingListTransformation = false
         state.error = action.error.message
+      })
+
+      .addCase(addMasterDataTransformation.pending, (state, action) => {
+        state.loadingAdd = true
+      })
+      .addCase(addMasterDataTransformation.fulfilled, (state, action) => {
+        state.loadingAdd = false
+      })
+      .addCase(addMasterDataTransformation.rejected, (state, action) => {
+        state.loadingAdd = false
+        state.errorAdd = action.error.message
+      })
+
+      .addCase(editMasterDataTransformation.pending, (state, action) => {
+        state.loadingEdit = true
+      })
+      .addCase(editMasterDataTransformation.fulfilled, (state, action) => {
+        state.loadingEdit = false
+      })
+      .addCase(editMasterDataTransformation.rejected, (state, action) => {
+        state.loadingEdit = false
+        state.errorEdit = action.error.message
+      })
+
+      .addCase(deleteMasterDataTransformation.pending, (state, action) => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteMasterDataTransformation.fulfilled, (state, action) => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteMasterDataTransformation.rejected, (state, action) => {
+        state.loadingDelete = false
+        state.errorDelete = action.error.message
       })
   }
 })

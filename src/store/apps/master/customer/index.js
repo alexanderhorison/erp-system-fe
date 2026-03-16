@@ -134,7 +134,16 @@ export const appMasterCustomerSlice = createSlice({
     loadingDetail: false,
     total: 1,
     params: {},
-    allData: []
+    allData: [],
+
+    loadingAdd: false,
+    errorAdd: false,
+
+    loadingEdit: false,
+    errorEdit: false,
+
+    loadingDelete: false,
+    errorDelete: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -162,6 +171,39 @@ export const appMasterCustomerSlice = createSlice({
       .addCase(fetchMasterDataCustomerDetail.rejected, (state, action) => {
         state.loadingDetail = false
         state.error = action.error.message
+      })
+
+      .addCase(addMasterDataCustomer.pending, (state, action) => {
+        state.loadingAdd = true
+      })
+      .addCase(addMasterDataCustomer.fulfilled, (state, action) => {
+        state.loadingAdd = false
+      })
+      .addCase(addMasterDataCustomer.rejected, (state, action) => {
+        state.loadingAdd = false
+        state.errorAdd = action.error.message
+      })
+
+      .addCase(editMasterDataCustomer.pending, (state, action) => {
+        state.loadingEdit = true
+      })
+      .addCase(editMasterDataCustomer.fulfilled, (state, action) => {
+        state.loadingEdit = false
+      })
+      .addCase(editMasterDataCustomer.rejected, (state, action) => {
+        state.loadingEdit = false
+        state.errorEdit = action.error.message
+      })
+
+      .addCase(deleteMasterDataCustomer.pending, (state, action) => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteMasterDataCustomer.fulfilled, (state, action) => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteMasterDataCustomer.rejected, (state, action) => {
+        state.loadingDelete = false
+        state.errorDelete = action.error.message
       })
   }
 })

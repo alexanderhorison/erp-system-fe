@@ -11,8 +11,8 @@ import CustomChip from 'src/@core/components/mui/chip'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 import { UseAuth } from 'src/hooks/useAuth'
-import { useDispatch } from 'react-redux'
-import { CardHeader, Typography } from '@mui/material'
+import { useDispatch, useSelector } from 'react-redux'
+import { CardHeader, Typography, CircularProgress } from '@mui/material'
 import { Box } from '@mui/system'
 import { approveOutstandingProduct, saveToDraftOutstandingProduct } from 'src/store/apps/receipt-order-outstanding'
 import DownloadButton from 'src/views/components/buttons/ButtonDownload'
@@ -23,6 +23,8 @@ const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAdd
   const dispatch = useDispatch()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+
+  const { loadingSaveDraft, loadingApprove } = useSelector(state => state.deliveryOrderReceiptOutstanding)
 
   const handleSave = () => {
     const product = data.productOutstandings.map(product => {
@@ -70,30 +72,44 @@ const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAdd
           </Button> */}
           {status == 'PENDING' ? (
             <>
-              <Button
-                fullWidth
-                variant='contained'
-                color='warning'
-                onClick={e => handleSave()}
-                sx={{ mb: 2, '& svg': { mr: 2 } }}
-              >
-                <Icon fontSize='1.125rem' icon='tabler:device-floppy' />
-                Simpan Surat
-              </Button>
+              {loadingSaveDraft ? (
+                <Button fullWidth variant='contained' color='warning' disabled sx={{ mb: 2 }}>
+                  <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                  Submitting...
+                </Button>
+              ) : (
+                <Button
+                  fullWidth
+                  variant='contained'
+                  color='warning'
+                  onClick={e => handleSave()}
+                  sx={{ mb: 2, '& svg': { mr: 2 } }}
+                >
+                  <Icon fontSize='1.125rem' icon='tabler:device-floppy' />
+                  Simpan Surat
+                </Button>
+              )}
             </>
           ) : null}
           {status == 'PENDING' ? (
             <>
-              <Button
-                fullWidth
-                variant='contained'
-                color='success'
-                onClick={e => handleApprove()}
-                sx={{ mb: 2, '& svg': { mr: 2 } }}
-              >
-                <Icon fontSize='1.125rem' icon='tabler:circle-dashed-check' />
-                Selesaikan Surat
-              </Button>
+              {loadingApprove ? (
+                <Button fullWidth variant='contained' color='success' disabled sx={{ mb: 2 }}>
+                  <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
+                  Submitting...
+                </Button>
+              ) : (
+                <Button
+                  fullWidth
+                  variant='contained'
+                  color='success'
+                  onClick={e => handleApprove()}
+                  sx={{ mb: 2, '& svg': { mr: 2 } }}
+                >
+                  <Icon fontSize='1.125rem' icon='tabler:circle-dashed-check' />
+                  Selesaikan Surat
+                </Button>
+              )}
             </>
           ) : null}
         </CardContent>

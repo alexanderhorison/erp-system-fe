@@ -202,6 +202,7 @@ export default function ModalFormEquity({ open, setOpen, typeModal = 'ADD', id }
         title={typeModal === 'ADD' ? 'Tambahkan Ekuitas' : typeModal === 'VIEW' ? 'Detail Ekuitas' : 'Ubah Ekuitas'}
         size='sm'
         showActions={typeModal !== 'VIEW'}
+        loadingPage={loadingDetailEquity && typeModal !== 'ADD'}
       >
         <Grid container spacing={6}>
           <Grid item xs={12} sm={6}>

@@ -1,6 +1,6 @@
 import { Grid } from '@mui/material'
 import { Controller, useForm } from 'react-hook-form'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import safeNumberHandler from 'src/helpers/formFormatter'
 import { fetchAddEmployeeDebt } from 'src/store/apps/master/employee'
@@ -14,6 +14,7 @@ const formatNumber = value => {
 
 export default function ModalFormDebt({ open, handleClose, type, employeeId }) {
   const dispatch = useDispatch()
+  const { loadingAddDebt } = useSelector(state => state.masterEmployee)
   const today = new Date().toISOString().split('T')[0]
 
   const {
@@ -46,6 +47,7 @@ export default function ModalFormDebt({ open, handleClose, type, employeeId }) {
       title={type === 'PEMINJAMAN' ? 'Tambah Kasbon' : type === 'PEMBAYARAN' ? 'Bayar Kasbon' : '-'}
       size='sm'
       showActions={type !== 'VIEW'}
+      loading={loadingAddDebt}
     >
       <Grid container spacing={6}>
         {' '}

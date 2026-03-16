@@ -148,7 +148,10 @@ export const appMasterProductPriceSlice = createSlice({
     },
     loadingDownload: false,
     loadingImport: false,
-    importTimestamp: null
+    importTimestamp: null,
+
+    loadingAdd: false,
+    errorAdd: false
   },
   reducers: {
     clearImportLoading: state => {
@@ -211,6 +214,17 @@ export const appMasterProductPriceSlice = createSlice({
         state.loadingImport = false
         state.importTimestamp = null
         state.error = action.error.message
+      })
+
+      .addCase(addMasterDataProductPrice.pending, (state, action) => {
+        state.loadingAdd = true
+      })
+      .addCase(addMasterDataProductPrice.fulfilled, (state, action) => {
+        state.loadingAdd = false
+      })
+      .addCase(addMasterDataProductPrice.rejected, (state, action) => {
+        state.loadingAdd = false
+        state.errorAdd = action.error.message
       })
   }
 })

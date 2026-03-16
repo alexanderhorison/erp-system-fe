@@ -213,7 +213,18 @@ export const appMasterEmployeeSlice = createSlice({
 
     employeeDebt: [],
     loadingEmployeeDebt: false,
-    errorEmployeeDebt: false
+    errorEmployeeDebt: false,
+
+    loadingAdd: false,
+    errorAdd: false,
+    loadingEdit: false,
+    errorEdit: false,
+    loadingDelete: false,
+    errorDelete: false,
+    loadingAddDebt: false,
+    errorAddDebt: false,
+    loadingDeleteDebt: false,
+    errorDeleteDebt: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -254,6 +265,61 @@ export const appMasterEmployeeSlice = createSlice({
       .addCase(fetchEmployeeDebt.rejected, (state, action) => {
         state.loadingEmployeeDebt = false
         state.errorEmployeeDebt = action.error.message
+      })
+
+      .addCase(addMasterDataEmployee.pending, (state, action) => {
+        state.loadingAdd = true
+      })
+      .addCase(addMasterDataEmployee.fulfilled, (state, action) => {
+        state.loadingAdd = false
+      })
+      .addCase(addMasterDataEmployee.rejected, (state, action) => {
+        state.loadingAdd = false
+        state.errorAdd = action.error.message
+      })
+
+      .addCase(editMasterDataEmployee.pending, (state, action) => {
+        state.loadingEdit = true
+      })
+      .addCase(editMasterDataEmployee.fulfilled, (state, action) => {
+        state.loadingEdit = false
+      })
+      .addCase(editMasterDataEmployee.rejected, (state, action) => {
+        state.loadingEdit = false
+        state.errorEdit = action.error.message
+      })
+
+      .addCase(deleteMasterDataEmployee.pending, (state, action) => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteMasterDataEmployee.fulfilled, (state, action) => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteMasterDataEmployee.rejected, (state, action) => {
+        state.loadingDelete = false
+        state.errorDelete = action.error.message
+      })
+
+      .addCase(fetchAddEmployeeDebt.pending, (state, action) => {
+        state.loadingAddDebt = true
+      })
+      .addCase(fetchAddEmployeeDebt.fulfilled, (state, action) => {
+        state.loadingAddDebt = false
+      })
+      .addCase(fetchAddEmployeeDebt.rejected, (state, action) => {
+        state.loadingAddDebt = false
+        state.errorAddDebt = action.error.message
+      })
+
+      .addCase(deleteEmployeeDebt.pending, (state, action) => {
+        state.loadingDeleteDebt = true
+      })
+      .addCase(deleteEmployeeDebt.fulfilled, (state, action) => {
+        state.loadingDeleteDebt = false
+      })
+      .addCase(deleteEmployeeDebt.rejected, (state, action) => {
+        state.loadingDeleteDebt = false
+        state.errorDeleteDebt = action.error.message
       })
   }
 })

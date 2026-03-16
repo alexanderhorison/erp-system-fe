@@ -179,7 +179,13 @@ export const appMasterProductSlice = createSlice({
     loadingDataPurchaseOrderVendor: true,
     errorDataPurchaseOrderVendor: false,
 
-    loadingCreatePurchaseOrder: false
+    loadingCreatePurchaseOrder: false,
+
+    loadingUpdateFormPurchaseOrder: false,
+    errorUpdateFormPurchaseOrder: false,
+
+    loadingSendEmail: false,
+    errorSendEmail: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -253,6 +259,28 @@ export const appMasterProductSlice = createSlice({
         state.dataPurchaseOrderVendor = []
         state.loadingDataPurchaseOrderVendor = false
         state.errorDataPurchaseOrderVendor = action.error.message
+      })
+
+      .addCase(updateFormPurchaseOrder.pending, (state, action) => {
+        state.loadingUpdateFormPurchaseOrder = true
+      })
+      .addCase(updateFormPurchaseOrder.fulfilled, (state, action) => {
+        state.loadingUpdateFormPurchaseOrder = false
+      })
+      .addCase(updateFormPurchaseOrder.rejected, (state, action) => {
+        state.loadingUpdateFormPurchaseOrder = false
+        state.errorUpdateFormPurchaseOrder = action.error.message
+      })
+
+      .addCase(sendEmail.pending, (state, action) => {
+        state.loadingSendEmail = true
+      })
+      .addCase(sendEmail.fulfilled, (state, action) => {
+        state.loadingSendEmail = false
+      })
+      .addCase(sendEmail.rejected, (state, action) => {
+        state.loadingSendEmail = false
+        state.errorSendEmail = action.error.message
       })
   }
 })

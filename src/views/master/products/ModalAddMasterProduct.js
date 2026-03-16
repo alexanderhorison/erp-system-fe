@@ -26,7 +26,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
   const { data: masterDataCategory } = useSelector(state => state.category)
   const { data: masterDataCompany } = useSelector(state => state.company)
   const { data: masterDataType } = useSelector(state => state.type)
-  const { defaultValue, detail: detailProduct } = useSelector(state => state.masterProduct)
+  const { defaultValue, detail: detailProduct, loadingAdd, loadingEdit } = useSelector(state => state.masterProduct)
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
@@ -80,6 +80,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
       title={typeModal === 'ADD' ? 'Tambahkan Produk Baru' : typeModal === 'VIEW' ? 'Detail Produk' : 'Ubah Produk'}
       size='sm'
       showActions={typeModal !== 'VIEW'}
+      loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
       <Grid container spacing={6}>
         <Grid item xs={12}>

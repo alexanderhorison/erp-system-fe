@@ -227,7 +227,8 @@ const VerticalNavGroup = props => {
                     minWidth: 16,
                     height: 16,
                     padding: '0 3px',
-                    fontWeight: 700
+                    fontWeight: 700,
+                    transform: 'translate(8px, -8px)'
                   }
                 }}
               >
