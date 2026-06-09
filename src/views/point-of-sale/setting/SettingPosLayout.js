@@ -1,17 +1,22 @@
 import { Divider, Grid, Typography, CircularProgress } from '@mui/material'
 import { Box } from '@mui/system'
-import { useState } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
 import { fetchAllPrinter, fetchPrinterHealthCheck } from 'src/store/apps/config/configPrinter'
 import Icon from 'src/@core/components/icon'
 import SettingSectionPrinter from './SettingSectionPrinter'
+import CardRefreshPrinter from './CardRefreshPrinter'
 
 export default function SettingPosLayout({ setWarehouse, user, isMobile, isTablet, isLowHeight }) {
   const dispatch = useDispatch()
-  const { listPrinter, loadingListPrinter, printerHealthStatus } = useSelector(state => state.printer)
+  const { listPrinter, loadingListPrinter, printerHealthStatus, loadingPrinterHealth } = useSelector(
+    state => state.printer
+  )
   const [selectedSettings, setSelectedSettings] = useState('')
   const [refreshKey, setRefreshKey] = useState(0)
+  const [lastRefreshed, setLastRefreshed] = useState(null)
+  const intervalRef = useRef(null)
 
   const menus = [{ label: 'Pilih Printer', value: 'SETTING_PRINTER', icon: 'tabler:printer' }]
 
@@ -37,6 +42,26 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
     })
   }
 
+  const handleRefreshPrinter = useCallback(() => {
+    dispatch(fetchPrinterHealthCheck())
+    setLastRefreshed(new Date())
+  }, [dispatch])
+
+  // Auto-refresh interval: start when SETTING_PRINTER is active, stop otherwise
+  useEffect(() => {
+    if (selectedSettings === 'SETTING_PRINTER') {
+      intervalRef.current = setInterval(() => {
+        handleRefreshPrinter()
+      }, 300000)
+    }
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
+  }, [selectedSettings, handleRefreshPrinter])
+
   const handleSelectMenu = value => {
     setSelectedSettings(value)
     if (value === 'SETTING_PRINTER') {
@@ -50,10 +75,9 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
           })
         )
       }
-      // Fetch printer health check only if not already fetched
-      if (!printerHealthStatus || printerHealthStatus.length === 0) {
-        dispatch(fetchPrinterHealthCheck())
-      }
+      // Fetch printer health check and record initial last refresh time
+      dispatch(fetchPrinterHealthCheck())
+      setLastRefreshed(new Date())
     }
   }
 
@@ -132,31 +156,39 @@ export default function SettingPosLayout({ setWarehouse, user, isMobile, isTable
                 borderRadius: 2
               }}
             >
-              {selectedSettings === 'SETTING_PRINTER' &&
-                (loadingListPrinter ? (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '100%',
-                      flexDirection: 'column',
-                      gap: 2
-                    }}
-                  >
-                    <CircularProgress />
-                    <Typography variant='body2' color='textSecondary'>
-                      Loading printer list...
-                    </Typography>
-                  </Box>
-                ) : (
-                  <SettingSectionPrinter
-                    key={refreshKey}
-                    printerList={listPrinter}
-                    printerHealthStatus={printerHealthStatus}
-                    handleSelectPrinter={handleSelectPrinter}
+              {selectedSettings === 'SETTING_PRINTER' && (
+                <>
+                  <CardRefreshPrinter
+                    onRefresh={handleRefreshPrinter}
+                    loadingPrinterHealth={loadingPrinterHealth}
+                    lastRefreshed={lastRefreshed}
                   />
-                ))}
+                  {loadingListPrinter ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '80%',
+                        flexDirection: 'column',
+                        gap: 2
+                      }}
+                    >
+                      <CircularProgress />
+                      <Typography variant='body2' color='textSecondary'>
+                        Loading printer list...
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <SettingSectionPrinter
+                      key={refreshKey}
+                      printerList={listPrinter}
+                      printerHealthStatus={printerHealthStatus}
+                      handleSelectPrinter={handleSelectPrinter}
+                    />
+                  )}
+                </>
+              )}
             </Box>
           </Grid>
         </Grid>

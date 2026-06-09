@@ -11,20 +11,28 @@ import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { addMasterDataCustomer, editMasterDataCustomer } from 'src/store/apps/master/customer'
+import { useEffect } from 'react'
+import { fetchMasterDataRank } from 'src/store/apps/master/rank'
+import FormSelectSimple from 'src/views/common/Form/FormSelectSimple'
 
 export default function ModalAddMasterCustomer({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
   const { defaultValue, detail: detailCustomer, loadingAdd, loadingEdit } = useSelector(state => state.masterCustomer)
-
+  const { data: dataRank } = useSelector(state => state.masterRank)
   // SCHEMA YUP VALIDATION
   const schema = yup.object().shape({
     name: yup.string().required('Nama customer harus diisi'),
     phoneNumber: yup.string().required('Nomor telepon harus diisi'),
     address: yup.string().optional(),
-    email: yup.string().email('Masukkan email yang valid').optional(),
+    rankId: yup.number().required('Rank harus dipilih'),
+    email: yup.string().email('Masukkan email yang valid').required('Email harus diisi'),
     description: yup.string().optional(),
     notes: yup.string().optional()
   })
+
+  useEffect(() => {
+    dispatch(fetchMasterDataRank())
+  }, [dispatch])
 
   // REACT FORM
   const {
@@ -39,21 +47,25 @@ export default function ModalAddMasterCustomer({ open, setOpen, typeModal, id })
 
   // ON SUBMIT
   const onSubmit = data => {
+    console.log(data)
     if (typeModal === 'ADD') {
-      dispatch(addMasterDataCustomer(data))
+      dispatch(addMasterDataCustomer({ data, setOpen }))
     } else {
-      dispatch(editMasterDataCustomer({ id, data }))
+      dispatch(editMasterDataCustomer({ id, data, setOpen }))
     }
     setOpen(false)
   }
+  console.log(detailCustomer)
 
   return (
     <BaseModal
       open={open}
       onClose={() => setOpen(false)}
       onSubmit={handleSubmit(onSubmit)}
-      title={typeModal === 'ADD' ? 'Tambahkan Customer Baru' : typeModal === 'VIEW' ? 'Detail Customer' : 'Ubah Customer'}
-      size="sm"
+      title={
+        typeModal === 'ADD' ? 'Tambahkan Customer Baru' : typeModal === 'VIEW' ? 'Detail Customer' : 'Ubah Customer'
+      }
+      size='sm'
       showActions={typeModal !== 'VIEW'}
       loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
@@ -144,20 +156,21 @@ export default function ModalAddMasterCustomer({ open, setOpen, typeModal, id })
             </Grid>
             <Grid item xs={12}>
               <Controller
-                name='description'
+                name='address'
                 control={control}
                 rules={{ required: false }}
                 render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    rows={4}
+                  <FormSelectSimple
+                    label={'Pilih Rank'}
+                    control={control}
+                    errors={errors}
                     value={value}
-                    fullWidth
-                    multiline
                     onChange={onChange}
                     disabled={typeModal === 'VIEW'}
-                    label='Deskripsi'
-                    error={Boolean(errors.description)}
-                    aria-describedby='validation-schema-description'
+                    data={dataRank}
+                    name={'rankId'}
+                    optionsValue={'id'}
+                    optionsLabel={'name'}
                   />
                 )}
               />

@@ -122,14 +122,19 @@ export const appMasterCustomerSlice = createSlice({
       id: '',
       name: '',
       description: '',
-      level: ''
+      level: '',
+      notes: ''
     },
     defaultValue: {
       id: '',
       name: '',
       description: '',
       level: '',
-      gender: 'Laki-laki'
+      rankId: 1,
+      email: '',
+      address: '',
+      gender: 'Laki-laki',
+      notes: ''
     },
     loadingDetail: false,
     total: 1,
