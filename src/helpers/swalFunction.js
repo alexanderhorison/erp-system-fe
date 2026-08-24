@@ -200,6 +200,15 @@ export function swalToastError({ error, label }) {
   })
 }
 
+export function swalToastSuccess({ response, label }) {
+  return swal.fire({
+    icon: 'success',
+    title: response?.data?.message || `Berhasil melakukan aksi pada ${label}`,
+    timer: 2000,
+    confirmButtonColor: environtmentColor()
+  })
+}
+
 export function swalNotifSuccess({ message }) {
   return swal.fire({
     title: message || `berhasil`,

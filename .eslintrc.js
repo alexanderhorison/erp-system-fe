@@ -7,6 +7,15 @@ module.exports = {
   parser: '@babel/eslint-parser',
   extends: ['next/core-web-vitals', 'prettier',],
   parserOptions: {
+    // Resolve Babel relative to this file and load Next's preset explicitly.
+    // Without this, editor-integrated ESLint (which may run from a different
+    // working directory) fails with:
+    //   Parsing error: Cannot find module 'next/babel'
+    requireConfigFile: false,
+    babelOptions: {
+      cwd: __dirname,
+      presets: [require.resolve('next/babel')]
+    },
     ecmaVersion: 11,
     sourceType: 'module',
     project: './jsconfig.json',

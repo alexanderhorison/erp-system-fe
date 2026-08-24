@@ -5,15 +5,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 
 // ** MUI Components
-import Alert from '@mui/material/Alert'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
 import Checkbox from '@mui/material/Checkbox'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
-import Box from '@mui/material/Box'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { styled, useTheme } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 import InputAdornment from '@mui/material/InputAdornment'
 import MuiFormControlLabel from '@mui/material/FormControlLabel'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -31,59 +28,70 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Hooks
 import { UseAuth } from 'src/hooks/useAuth'
-import useBgColor from 'src/@core/hooks/useBgColor'
-import { useSettings } from 'src/@core/hooks/useSettings'
 
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
+import { colors, radii, shadows, stone } from 'src/configs/designTokens'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
-// ** Demo Imports
-import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
+// ** Logo
 import Logo from 'src/icons/logo'
 
 // ** Styled Components
-const LoginIllustration = styled('img')(({ theme }) => ({
-  zIndex: 2,
-  maxHeight: 680,
-  marginTop: theme.spacing(12),
-  marginBottom: theme.spacing(12),
-  [theme.breakpoints.down(1540)]: {
-    maxHeight: 550
-  },
-  [theme.breakpoints.down('lg')]: {
-    maxHeight: 500
-  }
-}))
-
-const RightWrapper = styled(Box)(({ theme }) => ({
-  width: '100%',
-  [theme.breakpoints.up('md')]: {
-    maxWidth: 450
-  },
-  [theme.breakpoints.up('lg')]: {
-    maxWidth: 600
-  },
-  [theme.breakpoints.up('xl')]: {
-    maxWidth: 750
-  }
-}))
-
 const LinkStyled = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   color: `${theme.palette.primary.main} !important`
 }))
 
-const FormControlLabel = styled(MuiFormControlLabel)(({ theme }) => ({
+const FormControlLabel = styled(MuiFormControlLabel)(() => ({
+  marginLeft: 0,
+  gap: 12,
+  '& .MuiButtonBase-root': {
+    padding: 0
+  },
   '& .MuiFormControlLabel-label': {
-    color: theme.palette.text.secondary
+    fontSize: '0.875rem',
+    lineHeight: '20px',
+    color: colors.foregroundAlt
   }
 }))
 
+// ** Brand panel — hidden below `md`, where the form takes the full width.
+const BrandPanel = styled(Box)(({ theme }) => ({
+  position: 'relative',
+  overflow: 'hidden',
+  display: 'none',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  gap: theme.spacing(6),
+  padding: theme.spacing(8, 20),
+  color: colors.primaryForeground,
+  background: `radial-gradient(circle at 50% 50%, ${stone[600]} 0%, ${stone[700]} 100%)`,
+  boxShadow: shadows.sm,
+  [theme.breakpoints.up('md')]: {
+    display: 'flex',
+    flex: '1 1 50%',
+    padding: theme.spacing(8, 10)
+  },
+  [theme.breakpoints.up('lg')]: {
+    padding: theme.spacing(8, 20)
+  }
+}))
+
+const TaglineIcon = styled(Box)(() => ({
+  display: 'flex',
+  alignItems: 'center',
+  padding: 2,
+  borderRadius: radii['3xl'],
+  color: colors.primaryForeground,
+  backgroundColor: colors.outline,
+  border: `1px solid ${colors.border}`
+}))
+
 const schema = yup.object().shape({
-  email: yup.string().required("Email or Username is required"),
+  email: yup.string().required('Email or Username is required'),
   password: yup.string().min(5).required()
 })
 
@@ -92,6 +100,12 @@ const defaultValues = {
   email: ''
 }
 
+const TAGLINES = [
+  'Real-time multi-warehouse stock management',
+  'Sales orders and barter in a single system',
+  'Reports and transaction history, anytime'
+]
+
 const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
@@ -99,13 +113,6 @@ const LoginPage = () => {
 
   // ** Hooks
   const auth = UseAuth()
-  const theme = useTheme()
-  const bgColors = useBgColor()
-  const { settings } = useSettings()
-  const hidden = useMediaQuery(theme.breakpoints.down('md'))
-
-  // ** Vars
-  const { skin } = settings
 
   const {
     control,
@@ -120,6 +127,7 @@ const LoginPage = () => {
 
   const onSubmit = data => {
     const { email, password } = data
+
     // Sanitize and trim email
     const sanitizedEmail = email.trim().toLowerCase()
     setLoading(true)
@@ -131,170 +139,203 @@ const LoginPage = () => {
       })
     })
   }
-  const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
+
+  // ** A failed login is surfaced through `errors.email` (see `setError` above).
+  // The design shows it as a standalone message below both fields rather than as
+  // field helper text, so the manual error is rendered separately.
+  const loginFailed = errors.email?.type === 'manual'
 
   return (
     <Box
       sx={{
-        height: '100vh',
+        minHeight: '100vh',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'background.default',
-        position: 'relative',
-        overflow: 'hidden',
-        px: 4
+        alignItems: 'stretch',
+        backgroundColor: colors.accent2
       }}
     >
-      {/* Centered Login Card */}
-      <Box
-        sx={{
-          position: 'relative',
-          zIndex: 2,
-          width: '100%',
-          maxWidth: 420,
-          backgroundColor: 'background.paper',
-          borderRadius: 4,
-          boxShadow: 3,
-          p: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }}
-      >
-        <Logo width={80} style={{ marginBottom: 24 }} />
+      <BrandPanel>
+        {/* Oversized watermark logo */}
+        <Box
+          aria-hidden
+          sx={{
+            position: 'absolute',
+            top: -14,
+            left: -70,
+            width: 860,
+            height: 860,
+            opacity: 0.05,
+            mixBlendMode: 'soft-light',
+            pointerEvents: 'none'
+          }}
+        >
+          <Logo width={860} height={860} />
+        </Box>
 
-        <Typography variant='h4' sx={{ mb: 1, textAlign: 'center' }}>
-          {`Welcome to`}
-        </Typography>
-
-        <Typography variant='h4' sx={{ mb: 1, textAlign: 'center' }}>
-          {`${themeConfig.templateName}! 👋🏻`}
-        </Typography>
-
-        <Typography variant='body2' sx={{ color: 'text.secondary', mb: 6, textAlign: 'center' }}>
-          Please sign in to continue
-        </Typography>
-
-        {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
-          <Alert
-            icon={false}
-            sx={{
-              py: 3,
-              mb: 6,
-              ...bgColors.primaryLight,
-              '& .MuiAlert-message': { p: 0 }
-            }}
-          >
-            <Typography variant='body2' sx={{ mb: 2, color: 'primary.main' }}>
-              Admin: <strong>admin@vuexy.com</strong> / Pass: <strong>admin</strong>
-            </Typography>
-            <Typography variant='body2' sx={{ color: 'primary.main' }}>
-              Client: <strong>client@vuexy.com</strong> / Pass: <strong>client</strong>
-            </Typography>
-          </Alert>
-        )}
-
-        {/* Login Form */}
-        <Box component='form' noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)} sx={{ width: '100%' }}>
-          <Box sx={{ mb: 4 }}>
-            <Controller
-              name='email'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange, onBlur } }) => (
-                <CustomTextField
-                  fullWidth
-                  autoFocus
-                  label='Email or Username'
-                  value={value}
-                  onBlur={onBlur}
-                  onChange={onChange}
-                  placeholder=''
-                  error={Boolean(errors.email)}
-                  {...(errors.email && { helperText: errors.email.message })}
-                />
-              )}
-            />
-          </Box>
-
-          <Box sx={{ mb: 1.5 }}>
-            <Controller
-              name='password'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange, onBlur } }) => (
-                <CustomTextField
-                  fullWidth
-                  value={value}
-                  onBlur={onBlur}
-                  label='Password'
-                  onChange={onChange}
-                  id='auth-login-v2-password'
-                  error={Boolean(errors.password)}
-                  {...(errors.password && { helperText: errors.password.message })}
-                  type={showPassword ? 'text' : 'password'}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <IconButton
-                          edge='end'
-                          onMouseDown={e => e.preventDefault()}
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          <Icon fontSize='1.25rem' icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} />
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }}
-                />
-              )}
-            />
-          </Box>
-
+        <Box sx={{ position: 'relative', zIndex: 1 }}>
           <Box
             sx={{
-              mb: 3,
+              width: 112,
+              height: 112,
               display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: radii.full,
+              backgroundColor: colors.background,
+              mb: 6
             }}
           >
-            <FormControlLabel
-              label='Remember Me'
-              control={<Checkbox checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} />}
-            />
+            <Logo width={80} height={80} />
+          </Box>
+
+          <Typography sx={{ fontSize: '1.25rem', fontWeight: 600, lineHeight: '24px', mb: 1, color: colors.primaryForeground }}>
+            {themeConfig.templateName}
+          </Typography>
+          <Typography sx={{ fontSize: '0.875rem', lineHeight: '20px', mb: 6, color: colors.primaryForeground }}>
+            Inventory Management System
+          </Typography>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 6 }}>
+            {TAGLINES.map(tagline => (
+              <Box key={tagline} sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+                <TaglineIcon>
+                  <Icon icon='tabler:check' fontSize='1rem' />
+                </TaglineIcon>
+                <Typography sx={{ fontSize: '0.875rem', lineHeight: '20px', color: colors.primaryForeground }}>{tagline}</Typography>
+              </Box>
+            ))}
+          </Box>
+
+          <Typography sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.primaryForeground }}>
+            © {new Date().getFullYear()} Tjahaya Berkat Abadi. All rights reserved.
+          </Typography>
+        </Box>
+      </BrandPanel>
+
+      {/* Form panel */}
+      <Box
+        sx={{
+          flex: '1 1 50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: { xs: 4, sm: 8 },
+          backgroundColor: colors.background,
+          boxShadow: shadows.sm
+        }}
+      >
+        <Box sx={{ width: '100%', maxWidth: 360 }}>
+          {/* Compact logo — shown only when the brand panel is hidden */}
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, justifyContent: 'center', mb: 6 }}>
+            <Logo width={64} height={64} />
+          </Box>
+
+          <Typography variant='h3' sx={{ color: colors.foreground, mb: 1 }}>
+            Welcome
+          </Typography>
+          <Typography sx={{ fontSize: '0.875rem', lineHeight: '20px', color: colors.mutedForeground, mb: 4 }}>
+            Please sign in to your account.
+          </Typography>
+
+          <Box component='form' noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)} sx={{ width: '100%' }}>
+            <Box sx={{ mb: 4 }}>
+              <Controller
+                name='email'
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <CustomTextField
+                    fullWidth
+                    autoFocus
+                    label='Email'
+                    value={value}
+                    onBlur={onBlur}
+                    onChange={onChange}
+                    placeholder=''
+                    error={Boolean(errors.email)}
+                    {...(errors.email && !loginFailed && { helperText: errors.email.message })}
+                  />
+                )}
+              />
+            </Box>
+
+            <Box sx={{ mb: 4 }}>
+              <Controller
+                name='password'
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <CustomTextField
+                    fullWidth
+                    value={value}
+                    onBlur={onBlur}
+                    label='Password'
+                    onChange={onChange}
+                    id='auth-login-v2-password'
+                    error={Boolean(errors.password) || loginFailed}
+                    {...(errors.password && { helperText: errors.password.message })}
+                    type={showPassword ? 'text' : 'password'}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          <IconButton
+                            edge='end'
+                            onMouseDown={e => e.preventDefault()}
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            <Icon fontSize='1.25rem' icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                )}
+              />
+            </Box>
+
+            {loginFailed && (
+              <Typography
+                sx={{ fontSize: '0.875rem', lineHeight: '20px', color: colors.destructive, mb: 4 }}
+              >
+                The email or password you entered is incorrect. Please try again.
+              </Typography>
+            )}
+
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+              <FormControlLabel
+                label='Remember Me'
+                control={<Checkbox checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} />}
+              />
+              {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
+                <Typography component={LinkStyled} href='/forgot-password' sx={{ fontSize: '0.875rem' }}>
+                  Forgot Password?
+                </Typography>
+              )}
+            </Box>
+
+            <Button fullWidth type='submit' variant='contained' disabled={loading}>
+              {loading ? (
+                <>
+                  <CircularProgress size={20} sx={{ mr: 2, color: 'inherit' }} />
+                  Loading...
+                </>
+              ) : (
+                'Sign In'
+              )}
+            </Button>
+
             {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
-              <Typography component={LinkStyled} href='/forgot-password'>
-                Forgot Password?
+              <Typography sx={{ textAlign: 'center', color: colors.mutedForeground, mt: 4, fontSize: '0.875rem' }}>
+                New user? <LinkStyled href='/register'>Create an account</LinkStyled>
               </Typography>
             )}
           </Box>
-
-          <Button fullWidth type='submit' variant='contained' sx={{ mb: 4 }} disabled={loading}>
-            {loading ? (
-              <>
-                <CircularProgress size={20} sx={{ mr: 2, color: 'inherit' }} />
-                Loading...
-              </>
-            ) : (
-              'Login'
-            )}
-          </Button>
-
-          {process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' && (
-            <Typography sx={{ textAlign: 'center', color: 'text.secondary' }}>
-              New user? <LinkStyled href='/register'>Create an account</LinkStyled>
-            </Typography>
-          )}
         </Box>
       </Box>
-
-      {/* Footer Illustration */}
-      <FooterIllustrationsV2 />
     </Box>
   )
 }
+
 LoginPage.getLayout = page => <BlankLayout>{page}</BlankLayout>
 LoginPage.guestGuard = true
 

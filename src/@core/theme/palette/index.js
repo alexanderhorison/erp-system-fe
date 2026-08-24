@@ -1,8 +1,17 @@
-import { environtmentColor } from "src/helpers/getEnvirontmentColor"
+import {
+  environtmentColor,
+  environtmentColorDark,
+  environtmentColorLight
+} from "src/helpers/getEnvirontmentColor"
+import { colors } from "src/configs/designTokens"
 
 const DefaultPalette = (mode, skin) => {
   // ** Vars
   const whiteColor = '#FFF'
+
+  // ** Figma `general/primary-foreground` — text/icons rendered on a filled
+  // primary surface (e.g. contained buttons).
+  const primaryForegroundColor = colors.primaryForeground
   const lightColor = '47, 43, 61'
   const darkColor = '208, 212, 241'
   const darkPaperBgColor = '#2F3349'
@@ -36,10 +45,10 @@ const DefaultPalette = (mode, skin) => {
       white: whiteColor
     },
     primary: {
-      light: '#8479F2',
+      light: environtmentColorLight(),
       main: environtmentColor(),
-      dark: environtmentColor(),
-      contrastText: whiteColor
+      dark: environtmentColorDark(),
+      contrastText: primaryForegroundColor
     },
     secondary: {
       light: '#B2B4B8',

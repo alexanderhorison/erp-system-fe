@@ -47,31 +47,31 @@ export const listMenu = [
     menuId: [4, 5, 12, 3, 6, 13],
     children: [
       {
-        title: 'Produk',
+        title: 'Products',
         path: '/master/products',
         menuId: 5,
         icon: 'tabler:box'
       },
       {
-        title: 'Tipe Produk',
+        title: 'Product Types',
         path: '/master/types',
         menuId: 4,
         icon: 'tabler:packages'
       },
       {
-        title: 'Satuan Produk',
+        title: 'Product Units',
         path: '/master/units',
         menuId: 12,
         icon: 'tabler:ruler'
       },
       {
-        title: 'Kategori Produk',
+        title: 'Product Categories',
         path: '/master/categories',
         menuId: 3,
         icon: 'tabler:tags'
       },
       {
-        title: 'Gudang',
+        title: 'Warehouses',
         path: '/master/warehouses',
         menuId: 6,
         icon: 'tabler:building-warehouse'
@@ -85,30 +85,30 @@ export const listMenu = [
     ]
   },
   {
-    title: 'Manajemen Stok',
+    title: 'Stock Management',
     icon: 'tabler:stack',
     menuId: [8, 9, 16, 17, 18, 26],
     children: [
       {
-        title: 'List Produk Gudang',
+        title: 'Warehouse Product List',
         path: '/product-warehouse/product',
         menuId: 8,
         icon: 'tabler:boxes'
       },
       {
-        title: 'Penyesuaian Stok Produk Gudang',
+        title: 'Warehouse Stock Adjustment',
         path: '/product-warehouse/warehouse',
         menuId: 9,
         icon: 'tabler:settings'
       },
       {
-        title: 'Barang Masuk',
+        title: 'Goods In',
         path: '/adjustment/goods-in',
         menuId: 16,
         icon: 'tabler:truck'
       },
       {
-        title: 'Barang Keluar',
+        title: 'Goods Out',
         path: '/adjustment/goods-out',
         menuId: 17,
         icon: 'tabler:truck-delivery'
@@ -120,7 +120,7 @@ export const listMenu = [
         icon: 'tabler:arrow-autofit-left'
       },
       {
-        title: 'Barang Terhapus',
+        title: 'Deleted Goods',
         path: '/deleted-product-warehouse',
         menuId: 26,
         icon: 'tabler:trash'
@@ -146,24 +146,24 @@ export const listMenu = [
     menuId: 44
   },
   {
-    title: 'Surat Jalan',
+    title: 'Delivery Order',
     icon: 'tabler:file-invoice',
     menuId: [10, 11, 19],
     children: [
       {
-        title: 'Surat Jalan',
+        title: 'Delivery Order',
         path: '/delivery-order',
         menuId: 10,
         icon: 'tabler:file'
       },
       {
-        title: 'Penerimaan Surat Jalan',
+        title: 'Delivery Order Receipt',
         path: '/receive-order',
         menuId: 11,
         icon: 'tabler:file-check'
       },
       {
-        title: 'Produk Outstanding',
+        title: 'Outstanding Products',
         path: '/receipt-order-outstanding',
         menuId: 19,
         icon: 'tabler:alert-circle'
@@ -265,19 +265,19 @@ export const listMenu = [
     menudId: [31],
     children: [
       {
-        title: 'Mobil',
+        title: 'Vehicles',
         // icon: 'tabler:car',
         path: '/master/car',
         menuId: 31
       },
       {
-        title: 'Karyawan',
+        title: 'Employees',
         // icon: 'tabler:users',
         path: '/master/employee',
         menuId: 32
       },
       {
-        title: 'Cost Tak Terduga',
+        title: 'Unexpected Cost',
         // icon: 'tabler:cash',
         path: '/master/unexpected-cost-category',
         menuId: 29
@@ -291,16 +291,16 @@ export const listMenu = [
     menuId: 33
   },
   {
-    sectionTitle: 'Aset',
+    sectionTitle: 'Assets',
     menuId: [34, 35, 36]
   },
   {
-    title: 'Aset Lancar Bulanan',
+    title: 'Monthly Current Assets',
     icon: 'tabler:calendar-month',
     menuId: [34],
     children: [
       {
-        title: 'Aset Lancar Bulanan',
+        title: 'Monthly Current Assets',
         path: '/asset/current',
         menuId: 34,
         icon: 'tabler:circle'
@@ -308,18 +308,18 @@ export const listMenu = [
     ]
   },
   {
-    title: 'Aset Tidak Lancar',
+    title: 'Non-Current Assets',
     icon: 'tabler:calendar-month',
     menuId: [35, 36],
     children: [
       {
-        title: 'Master Aset Tidak Lancar',
+        title: 'Master Non-Current Assets',
         path: '/asset/master-non-current',
         menuId: 35,
         icon: 'tabler:circle'
       },
       {
-        title: 'Aset Tidak Lancar Bulanan',
+        title: 'Monthly Non-Current Assets',
         path: '/asset/non-current',
         menuId: 36,
         icon: 'tabler:circle'
@@ -327,22 +327,22 @@ export const listMenu = [
     ]
   },
   {
-    sectionTitle: 'Liabilitas Bulanan',
+    sectionTitle: 'Monthly Liabilities',
     menuId: [37, 38]
   },
   {
-    title: 'Liabilitas Bulanan',
+    title: 'Monthly Liabilities',
     icon: 'tabler:calendar-month',
     menuId: [37, 38],
     children: [
       {
-        title: 'Jangka Pendek',
+        title: 'Short Term',
         path: '/liabilities/short-term',
         menuId: 37,
         icon: 'tabler:circle'
       },
       {
-        title: 'Jangka Panjang',
+        title: 'Long Term',
         path: '/liabilities/long-term',
         menuId: 38,
         icon: 'tabler:circle'
@@ -350,16 +350,16 @@ export const listMenu = [
     ]
   },
   {
-    sectionTitle: 'Ekuitas Bulanan',
+    sectionTitle: 'Monthly Equity',
     menuId: [39]
   },
   {
-    title: 'Ekuitas Bulanan',
+    title: 'Monthly Equity',
     icon: 'tabler:calendar-month',
     menuId: [39],
     children: [
       {
-        title: 'Ekuitas',
+        title: 'Equity',
         path: '/equity',
         menuId: 39,
         icon: 'tabler:circle'
@@ -377,7 +377,7 @@ export const listMenu = [
     menuId: 30
   },
   {
-    sectionTitle: 'Pengguna & Otoritas',
+    sectionTitle: 'Users & Permissions',
     menuId: [1, 2, 28, 45]
   },
   {
@@ -387,13 +387,13 @@ export const listMenu = [
     menuId: 28
   },
   {
-    title: 'Pengguna',
+    title: 'Users',
     icon: 'tabler:users',
     path: '/settings/user',
     menuId: 1
   },
   {
-    title: 'Otoritas',
+    title: 'Permissions',
     icon: 'tabler:lock',
     path: '/settings/roles',
     menuId: 2
