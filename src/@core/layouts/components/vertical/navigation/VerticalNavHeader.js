@@ -13,6 +13,9 @@ import Icon from 'src/@core/components/icon'
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
 
+// ** Design Tokens
+import { sidebar } from 'src/configs/designTokens'
+
 // ** Styled Components
 const MenuHeaderWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -23,9 +26,15 @@ const MenuHeaderWrapper = styled(Box)(({ theme }) => ({
   minHeight: theme.mixins.toolbar.minHeight
 }))
 
+// ** Company name in the sidebar header (Figma: 12px semibold, muted).
 const HeaderTitle = styled(Typography)({
-  fontWeight: 700,
-  lineHeight: '24px',
+  fontSize: '0.75rem',
+  fontWeight: 600,
+  lineHeight: '16px',
+  color: sidebar.muted,
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
   transition: 'opacity .25s ease-in-out, margin .25s ease-in-out'
 })
 

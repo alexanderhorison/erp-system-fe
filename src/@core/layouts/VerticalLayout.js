@@ -35,11 +35,13 @@ const MainContentWrapper = styled(Box)({
 const ContentWrapper = styled('main')(({ theme }) => ({
   flexGrow: 1,
   width: '100%',
-  padding: theme.spacing(6),
+  // ** Matches the app bar's horizontal padding so page content lines up with
+  // the top bar rather than sitting on a wider inset.
+  padding: theme.spacing(4),
   transition: 'padding .25s ease-in-out',
   [theme.breakpoints.down('sm')]: {
-    paddingLeft: theme.spacing(4),
-    paddingRight: theme.spacing(4)
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3)
   }
 }))
 

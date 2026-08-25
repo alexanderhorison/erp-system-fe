@@ -1,22 +1,28 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
+import { Box, Button, IconButton, Typography } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 
 import { deleteMasterDataUnit, fetchMasterDataUnit, fetchMasterDataUnitDetail } from 'src/store/apps/master/unit'
 
 import ModalAddMasterUnit from './ModalAddMasterUnit'
-import TableHeaderMasterUnit from './TableHeaderMasterUnit'
 import HandleSearh from 'src/helpers/handleSearch'
+
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
 
 const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
+  const { loadingDelete } = useSelector(state => state.unit)
 
   const handleDelete = () => {
     dispatch(deleteMasterDataUnit({ id, name }))
+    setOpenConfirmDelete(false)
   }
 
   const handleEdit = () => {
@@ -27,16 +33,24 @@ const RowOptions = ({ id, name }) => {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
+        <IconButton onClick={handleEdit} size='small'>
+          <Icon icon='tabler:edit' fontSize='1.125rem' />
         </IconButton>
-        <IconButton onClick={handleDelete}>
-          <Icon icon='tabler:trash' />
+        <IconButton onClick={() => setOpenConfirmDelete(true)} size='small' sx={{ color: 'error.main' }}>
+          <Icon icon='tabler:trash' fontSize='1.125rem' />
         </IconButton>
       </Box>
       {openModalEdit && (
         <ModalAddMasterUnit open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
       )}
+      <ConfirmDialog
+        open={openConfirmDelete}
+        onClose={() => setOpenConfirmDelete(false)}
+        onConfirm={handleDelete}
+        title='Delete Unit'
+        itemName={name}
+        loading={loadingDelete}
+      />
     </>
   )
 }
@@ -47,13 +61,13 @@ export default function TableMasterUnit({}) {
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
   const { data } = useSelector(state => state.unit)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({ data, keys: ["name"], searchValue, setData: setFilteredData })
+    HandleSearh({ data, keys: ['name'], searchValue, setData: setFilteredData })
   }
 
   useEffect(() => {
@@ -65,70 +79,56 @@ export default function TableMasterUnit({}) {
   }, [data])
 
   return (
-    <Card>
+    <>
       {openModalAdd && <ModalAddMasterUnit open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
-      <DataGrid
-        autoHeight
+      <DataTable
+        itemLabel='units'
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Search unit name'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            actions={
+              <Button
+                variant='contained'
+                onClick={() => setOpenModalAdd(true)}
+                startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+              >
+                Add Unit
+              </Button>
+            }
+          />
+        }
         columns={[
           {
-            flex: 0.1,
+            flex: 0.3,
             minWidth: 200,
             field: 'name',
-            headerName: 'Nama Unit',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.name}
-                </Typography>
-              )
-            }
+            headerName: 'Unit Name',
+            renderCell: params => <Typography variant='body2'>{params.row.name}</Typography>
           },
           {
-            flex: 0.2,
-            minWidth: 120,
+            flex: 0.5,
+            minWidth: 200,
             field: 'description',
-            headerName: 'Deskripsi',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.description}
-                </Typography>
-              )
-            }
+            headerName: 'Description',
+            renderCell: params => <Typography variant='body2'>{params.row.description || '-'}</Typography>
           },
           {
-            flex: 0.01,
+            flex: 0.15,
             minWidth: 120,
             sortable: false,
             field: 'actions',
-            headerName: 'Actions',
+            headerName: 'Action',
             renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
+        pageSizeOptions={[10, 25, 50, 100]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderMasterUnit }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari nama satuan',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd
-          }
-        }}
       />
-    </Card>
+    </>
   )
 }

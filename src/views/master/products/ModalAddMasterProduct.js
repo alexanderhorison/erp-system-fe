@@ -19,7 +19,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { addMasterDataPorduct, editMasterDataPorduct } from 'src/store/apps/master/product'
 import { fetchMasterDataCompany } from 'src/store/apps/master/company'
-import BaseModal from 'src/views/common/BaseModal'
+import AppModal from 'src/views/common/AppModal'
 
 export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
@@ -30,10 +30,10 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    name: yup.string().required('Nama tidak boleh kosong'),
-    categoryId: yup.string().required('Kategori harus dipilih'),
-    companyId: yup.string().required('Perusahaan harus dipilih'),
-    typeId: yup.string().required('Tipe harus dipilih')
+    name: yup.string().required('Product name is required'),
+    categoryId: yup.string().required('Category is required'),
+    companyId: yup.string().required('Company is required'),
+    typeId: yup.string().required('Type is required')
   })
 
   // REACT FORM
@@ -73,11 +73,11 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
   }, [dispatch])
 
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={() => setOpen(false)}
       onSubmit={handleSubmit(onSubmit)}
-      title={typeModal === 'ADD' ? 'Tambahkan Produk Baru' : typeModal === 'VIEW' ? 'Detail Produk' : 'Ubah Produk'}
+      title={typeModal === 'ADD' ? 'Add New Product' : typeModal === 'VIEW' ? 'Product Detail' : 'Edit Product'}
       size='sm'
       showActions={typeModal !== 'VIEW'}
       loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
@@ -94,7 +94,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                   <CustomTextField
                     fullWidth
                     value={value}
-                    label='Nama Produk'
+                    label='Product Name'
                     placeholder=''
                     onChange={onChange}
                     disabled={typeModal === 'VIEW'}
@@ -114,7 +114,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                   <CustomTextField
                     select
                     fullWidth
-                    label='Kategori'
+                    label='Category'
                     value={value || ''}
                     onChange={onChange}
                     disabled={typeModal === 'VIEW'}
@@ -142,7 +142,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                   <CustomTextField
                     select
                     fullWidth
-                    label='Tipe'
+                    label='Type'
                     value={value || ''}
                     onChange={onChange}
                     disabled={typeModal === 'VIEW'}
@@ -170,7 +170,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                   <CustomTextField
                     select
                     fullWidth
-                    label='Perusahaan'
+                    label='Company'
                     value={value || ''}
                     onChange={onChange}
                     disabled={typeModal === 'VIEW'}
@@ -202,7 +202,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                     multiline
                     onChange={onChange}
                     disabled={typeModal === 'VIEW'}
-                    label='Deskripsi'
+                    label='Description'
                     error={Boolean(errors.description)}
                     aria-describedby='validation-basic-description'
                     {...(errors.description && { helperText: 'This field is required' })}
@@ -213,6 +213,6 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
           </Grid>
         </Grid>
       </Grid>
-    </BaseModal>
+    </AppModal>
   )
 }

@@ -4,16 +4,17 @@ import Grid from '@mui/material/Grid'
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
 
-// ** Styles Import
-import 'react-credit-cards/es/styles-compiled.css'
-
-// ** Icon Imports
+// ** Third Party Imports
+import * as yup from 'yup'
 import { useDispatch, useSelector } from 'react-redux'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
+
+// ** Store
 import { addMasterDataUnit, editMasterDataUnit } from 'src/store/apps/master/unit'
-import BaseModal from 'src/views/common/BaseModal'
+
+// ** Shared Components
+import AppModal from 'src/views/common/AppModal'
 
 export default function ModalAddMasterUnit({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
@@ -21,8 +22,9 @@ export default function ModalAddMasterUnit({ open, setOpen, typeModal, id }) {
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    name: yup.string().required('Nama tipe harus diisi')
+    name: yup.string().required('Unit name is required')
   })
+
   // REACT FORM
   const {
     control,
@@ -45,62 +47,58 @@ export default function ModalAddMasterUnit({ open, setOpen, typeModal, id }) {
   }
 
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={() => setOpen(false)}
       onSubmit={handleSubmit(onSubmit)}
-      title={typeModal === 'ADD' ? 'Tambahkan Satuan Baru' : typeModal === 'VIEW' ? 'Detail Satuan' : 'Ubah Satuan'}
-      size="sm"
+      title={typeModal === 'ADD' ? 'Add New Unit' : typeModal === 'VIEW' ? 'Unit Detail' : 'Edit Unit'}
+      size='sm'
       showActions={typeModal !== 'VIEW'}
       loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
-      <Grid container spacing={6}>
+      <Grid container spacing={4}>
         <Grid item xs={12}>
-          <Grid container spacing={6}>
-            <Grid item xs={12} sm={12}>
-              <Controller
-                name='name'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    fullWidth
-                    value={value}
-                    label='Nama Satuan'
-                    placeholder=''
-                    onChange={onChange}
-                    disabled={typeModal === 'VIEW'}
-                    error={Boolean(errors.name)}
-                    aria-describedby='validation-schema-name'
-                    {...(errors.name && { helperText: errors.name.message })}
-                  />
-                )}
+          <Controller
+            name='name'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                value={value}
+                label='Unit Name'
+                placeholder=''
+                onChange={onChange}
+                disabled={typeModal === 'VIEW'}
+                error={Boolean(errors.name)}
+                aria-describedby='validation-schema-name'
+                {...(errors.name && { helperText: errors.name.message })}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <Controller
-                name='description'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    rows={4}
-                    value={value}
-                    fullWidth
-                    multiline
-                    onChange={onChange}
-                    disabled={typeModal === 'VIEW'}
-                    label='Deskripsi'
-                    error={Boolean(errors.description)}
-                    aria-describedby='validation-basic-description'
-                    {...(errors.description && { helperText: 'This field is required' })}
-                  />
-                )}
+            )}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Controller
+            name='description'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                rows={4}
+                value={value}
+                fullWidth
+                multiline
+                onChange={onChange}
+                disabled={typeModal === 'VIEW'}
+                label='Description'
+                error={Boolean(errors.description)}
+                aria-describedby='validation-basic-description'
+                {...(errors.description && { helperText: 'This field is required' })}
               />
-            </Grid>
-          </Grid>
+            )}
+          />
         </Grid>
       </Grid>
-    </BaseModal>
+    </AppModal>
   )
 }

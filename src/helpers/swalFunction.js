@@ -37,6 +37,28 @@ export async function swalConfirmationDelete({ label, name = 'Data', axiosReques
   }
 }
 
+// DELETE WITHOUT PROMPT
+// Confirmation is handled by the shared `ConfirmDialog` component, so this only
+// performs the request and reports the outcome.
+export async function swalDeleteConfirmed({ label, name = 'Data', axiosRequest, dispatchRequest }) {
+  try {
+    const response = await axiosRequest()
+    if (dispatchRequest) {
+      dispatchRequest()
+    }
+    swal.fire({
+      title: response?.data?.message || `"${name}" deleted successfully`,
+      icon: 'success',
+      showConfirmButton: false,
+      timer: 2000
+    })
+    return response
+  } catch (error) {
+    swalError({ error, label })
+    throw error
+  }
+}
+
 // ONLY FOR ADD
 export async function swalConfirmationAdd({
   label,

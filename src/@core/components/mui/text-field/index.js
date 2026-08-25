@@ -17,7 +17,9 @@ const TextFieldStyled = styled(TextField)(({ theme }) => ({
     color: `${theme.palette.text.primary} !important`
   },
   '& .MuiInputBase-root': {
-    borderRadius: 8,
+    // ** Pill-shaped fields (Figma: rounded-full). Multiline inputs keep a
+    // softened corner instead, since a full radius distorts a tall textarea.
+    borderRadius: 9999,
     width: "100%",
     backgroundColor: 'transparent !important',
     border: `1px solid rgba(${theme.palette.customColors.main}, 0.2)`,
@@ -31,7 +33,10 @@ const TextFieldStyled = styled(TextField)(({ theme }) => ({
       display: 'none'
     },
     '&.MuiInputBase-sizeSmall': {
-      borderRadius: 6
+      borderRadius: 9999
+    },
+    '&.MuiInputBase-multiline': {
+      borderRadius: 18
     },
     '&.Mui-error': {
       borderColor: theme.palette.error.main

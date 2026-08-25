@@ -1,13 +1,16 @@
-import {  Grid, Typography } from '@mui/material'
+import Grid from '@mui/material/Grid'
+
+import PageHeader from 'src/views/common/PageHeader'
 import TableMasterUnit from 'src/views/master/units/TableMasterUnit'
 
 export default function homeMasterUnit() {
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          Master Data Satuan
-        </Typography>
+        <PageHeader
+          title='Master Data Unit'
+          breadcrumbs={[{ label: 'Inventory' }, { label: 'Data Inventory' }, { label: 'Product Units' }]}
+        />
         <TableMasterUnit />
       </Grid>
     </Grid>

@@ -1,13 +1,16 @@
-import {  Grid, Typography } from '@mui/material'
+import Grid from '@mui/material/Grid'
+
+import PageHeader from 'src/views/common/PageHeader'
 import TableMasterType from 'src/views/master/types/TableMasterType'
 
 export default function homeMasterType() {
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          Master Data Tipe
-        </Typography>
+        <PageHeader
+          title='Master Data Type'
+          breadcrumbs={[{ label: 'Inventory' }, { label: 'Data Inventory' }, { label: 'Product Types' }]}
+        />
         <TableMasterType />
       </Grid>
     </Grid>

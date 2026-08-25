@@ -63,6 +63,24 @@ const spacingScale = {
   '6xl': 80
 }
 
+// ** Layout dimensions (Figma: Sidebar / Top Bar frames)
+const layout = {
+  sidebarWidth: 240,
+  sidebarContentWidth: 208,
+  topBarHeight: 64,
+  navItemHeight: 32
+}
+
+// ** Sidebar-specific colors (Figma: sidebar/*)
+const sidebar = {
+  background: '#FFFFFF',
+  border: '#E5E5E5',
+  foreground: '#404040',
+  muted: '#737373',
+  activeBg: '#F5F5F4',
+  activeAccent: '#57534E'
+}
+
 // ** Radii (Figma: rounded-*). `full` gives the pill shape used by inputs/buttons.
 const radii = {
   none: 0,
@@ -76,12 +94,15 @@ const radii = {
 // ** Shadows (Figma: shadow-xs / shadow-sm)
 const shadows = {
   xs: '0px 1px 2px 0px rgba(0, 0, 0, 0.05)',
-  sm: '0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 2px -1px rgba(0, 0, 0, 0.1)'
+  sm: '0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 2px -1px rgba(0, 0, 0, 0.1)',
+  lg: '0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1)'
 }
 
 module.exports = {
   stone,
   colors,
+  layout,
+  sidebar,
   typographyTokens,
   spacingScale,
   radii,

@@ -27,33 +27,34 @@ import { handleURLQueries } from 'src/@core/layouts/utils'
 // ** Redux
 import { useSelector } from 'react-redux'
 
+// ** Design Tokens
+import { layout, radii, sidebar } from 'src/configs/designTokens'
+
 // ** Styled Components
+// ** Nav items render as a subtle stone pill when active (Figma: Sidebar Menu item),
+// rather than the template's filled gradient.
 const MenuNavLink = styled(ListItemButton)(({ theme }) => ({
   width: '100%',
-  marginLeft: theme.spacing(3.5),
-  marginRight: theme.spacing(3.5),
-  borderRadius: theme.shape.borderRadius,
+  marginLeft: theme.spacing(2),
+  marginRight: theme.spacing(2),
+  minHeight: layout.navItemHeight,
+  borderRadius: radii['3xl'],
+  color: sidebar.foreground,
   transition: 'padding-left .25s ease-in-out, padding-right .25s ease-in-out',
   '&:hover': {
-    backgroundColor: theme.palette.action.hover
+    backgroundColor: sidebar.activeBg
   },
   '&.active': {
     '&, &:hover': {
-      boxShadow: `0px 2px 6px ${hexToRGBA(theme.palette.primary.main, 0.48)}`,
-      background: `linear-gradient(72.47deg, ${
-        theme.direction === 'ltr' ? theme.palette.primary.main : hexToRGBA(theme.palette.primary.main, 0.7)
-      } 22.16%, ${
-        theme.direction === 'ltr' ? hexToRGBA(theme.palette.primary.main, 0.7) : theme.palette.primary.main
-      } 76.47%)`,
-      '&.Mui-focusVisible': {
-        background: `linear-gradient(72.47deg, ${theme.palette.primary.dark} 22.16%, ${hexToRGBA(
-          theme.palette.primary.dark,
-          0.7
-        )} 76.47%)`
-      }
+      backgroundColor: sidebar.activeBg,
+      borderLeft: `2px solid ${sidebar.activeAccent}`
     },
-    '& .MuiTypography-root, & svg': {
-      color: `${theme.palette.common.white} !important`
+    '& .MuiTypography-root': {
+      color: `${sidebar.foreground} !important`,
+      fontWeight: 500
+    },
+    '& svg': {
+      color: `${sidebar.activeAccent} !important`
     }
   }
 }))

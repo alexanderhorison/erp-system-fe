@@ -88,7 +88,8 @@ const Drawer = props => {
       PaperProps={{
         sx: {
           backgroundColor: 'background.paper',
-          ...(!hidden && skin !== 'bordered' && { boxShadow: 2 }),
+          // ** Flat sidebar separated by a border rather than a shadow (Figma).
+          boxShadow: 'none',
           width: navCollapsed && !navHover ? collapsedNavWidth : navWidth,
           borderRight: theme =>
             navigationBorderWidth === 0 ? 0 : `${navigationBorderWidth}px solid ${theme.palette.divider}`,

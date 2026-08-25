@@ -1,9 +1,10 @@
-import { Box, Card, CardHeader, Divider, IconButton, Typography } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
-import { useCallback, useEffect, useState } from 'react'
-import TableHeaderMasterProduct from './TableHeaderMasterProduct'
+import { Box, Button, IconButton, Typography } from '@mui/material'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useRouter } from 'next/router'
+
 import Icon from 'src/@core/components/icon'
+
 import {
   deleteMasterDataProduct,
   fetchMasterDataProduct,
@@ -14,21 +15,29 @@ import {
   importProductPriceTemplate,
   clearImportLoading
 } from 'src/store/apps/master/product-price'
-import ModalAddMasterProduct from './ModalAddMasterProduct'
-import HandleSearh from 'src/helpers/handleSearch'
-import { useRouter } from 'next/router'
 import { fetchMasterDataType } from 'src/store/apps/master/type'
 import { fetchDataMasterCategory } from 'src/store/apps/master/category'
-import FilterProduct from 'src/pages/components/filter/FilterProduct'
 import { fetchMasterDataCompany } from 'src/store/apps/master/company'
+
+import ModalAddMasterProduct from './ModalAddMasterProduct'
+import HandleSearh from 'src/helpers/handleSearch'
+
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import FilterPanel from 'src/views/common/FilterPanel'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
 
 const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
   const router = useRouter()
   const [openModalEdit, setOpenModalEdit] = useState(false)
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
+  const { loadingDelete } = useSelector(state => state.masterProduct)
 
   const handleDelete = () => {
     dispatch(deleteMasterDataProduct({ id, name }))
+    setOpenConfirmDelete(false)
   }
 
   const handleEdit = () => {
@@ -45,17 +54,25 @@ const RowOptions = ({ id, name }) => {
       {openModalEdit && (
         <ModalAddMasterProduct open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
       )}
-      <Box sx={{ display: 'flex', alignItems: 'center', ml: -3 }}>
-        <IconButton onClick={handlePageTransformation}>
-          <Icon icon='tabler:eye' />
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <IconButton onClick={handlePageTransformation} size='small'>
+          <Icon icon='tabler:eye' fontSize='1.125rem' />
         </IconButton>
-        <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
+        <IconButton onClick={handleEdit} size='small'>
+          <Icon icon='tabler:edit' fontSize='1.125rem' />
         </IconButton>
-        <IconButton onClick={handleDelete}>
-          <Icon icon='tabler:trash' />
+        <IconButton onClick={() => setOpenConfirmDelete(true)} size='small' sx={{ color: 'error.main' }}>
+          <Icon icon='tabler:trash' fontSize='1.125rem' />
         </IconButton>
       </Box>
+      <ConfirmDialog
+        open={openConfirmDelete}
+        onClose={() => setOpenConfirmDelete(false)}
+        onConfirm={handleDelete}
+        title='Delete Product'
+        itemName={name}
+        loading={loadingDelete}
+      />
     </>
   )
 }
@@ -70,10 +87,11 @@ export default function TableMasterProduct({}) {
   const dispatch = useDispatch()
   const router = useRouter()
   const [openModalAdd, setOpenModalAdd] = useState(false)
+  const [filterAnchor, setFilterAnchor] = useState(null)
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
   const { data } = useSelector(state => state.masterProduct)
   const { data: categoryData } = useSelector(state => state.category)
@@ -125,40 +143,28 @@ export default function TableMasterProduct({}) {
     setFilteredData(data)
   }, [data])
 
-  const clearAllFilter = useCallback(
-    val => {
-      setSearchText('')
-      setFilteredData([])
-      dispatch(fetchMasterDataProduct())
-      setFilterInput(defaultFilter)
-      updatedUrl({
-        categoryId: '',
-        typeId: '',
-        companyId: ''
-      })
-    },
-    [dispatch, updatedUrl]
-  )
+  const clearAllFilter = useCallback(() => {
+    setSearchText('')
+    setFilteredData([])
+    dispatch(fetchMasterDataProduct())
+    setFilterInput(defaultFilter)
+    updatedUrl({ categoryId: '', typeId: '', companyId: '' })
+  }, [dispatch, updatedUrl])
 
-  const submitFilter = useCallback(() => {
-    if (filterInput.categoryId || filterInput.typeId || filterInput.companyId) {
-      updatedUrl({
-        categoryId: filterInput.categoryId,
-        typeId: filterInput.typeId,
-        companyId: filterInput.companyId
-      })
-      dispatch(fetchMasterDataProduct(filterInput))
-    } else {
-      dispatch(fetchMasterDataProduct())
-    }
-  }, [dispatch, filterInput, updatedUrl])
-
-  const handleFilterInput = useCallback(
-    e => {
-      const { value, name } = e.target
-      setFilterInput({ ...filterInput, [name]: value })
+  // ** Applies the values staged in the filter panel.
+  const submitFilter = useCallback(
+    nextFilter => {
+      const applied = nextFilter || filterInput
+      setFilterInput(applied)
+      if (applied.categoryId || applied.typeId || applied.companyId) {
+        updatedUrl(applied)
+        dispatch(fetchMasterDataProduct(applied))
+      } else {
+        updatedUrl({ categoryId: '', typeId: '', companyId: '' })
+        dispatch(fetchMasterDataProduct())
+      }
     },
-    [filterInput]
+    [dispatch, filterInput, updatedUrl]
   )
 
   const handleDownloadTemplate = useCallback(() => {
@@ -181,125 +187,123 @@ export default function TableMasterProduct({}) {
     [dispatch]
   )
 
+  const toOptions = list => (list || []).map(item => ({ value: item.id, label: item.name }))
+
+  const filterFields = useMemo(
+    () => [
+      { name: 'categoryId', label: 'Category', type: 'select', options: toOptions(categoryData) },
+      { name: 'typeId', label: 'Type', type: 'select', options: toOptions(typeData) },
+      { name: 'companyId', label: 'Company', type: 'select', options: toOptions(companyData) }
+    ],
+    [categoryData, typeData, companyData]
+  )
+
+  const activeFilterCount = Object.values(filterInput).filter(Boolean).length
+
   return (
-    <Card>
+    <>
       {openModalAdd && <ModalAddMasterProduct open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
-      <CardHeader title='Pencarian' />
-      <FilterProduct
-        filterInput={filterInput}
-        handleFilterInput={handleFilterInput}
-        clearAllFilter={clearAllFilter}
-        submitFilter={submitFilter}
-        category={categoryData}
-        type={typeData}
-        company={companyData}
+
+      <FilterPanel
+        open={Boolean(filterAnchor)}
+        anchorEl={filterAnchor}
+        onClose={() => setFilterAnchor(null)}
+        fields={filterFields}
+        value={filterInput}
+        onApply={submitFilter}
+        onReset={clearAllFilter}
       />
-      <Divider sx={{ marginBottom: '1rem' }} />
-      <DataGrid
-        autoHeight
+
+      <DataTable
+        itemLabel='products'
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Search product, category, or type'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            onOpenFilters={setFilterAnchor}
+            activeFilterCount={activeFilterCount}
+            actions={
+              <>
+                <Button
+                  variant='contained'
+                  onClick={handleDownloadTemplate}
+                  disabled={loadingDownload}
+                  startIcon={<Icon icon='tabler:download' fontSize='1rem' />}
+                >
+                  Download Template Base Price
+                </Button>
+                <Button
+                  variant='contained'
+                  component='label'
+                  disabled={loadingImport}
+                  startIcon={<Icon icon='tabler:upload' fontSize='1rem' />}
+                >
+                  Import Base Price
+                  <input type='file' accept='.xlsx,.xls' hidden onChange={handleImportTemplate} />
+                </Button>
+                <Button
+                  variant='contained'
+                  onClick={() => setOpenModalAdd(true)}
+                  startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+                >
+                  Add Product
+                </Button>
+              </>
+            }
+          />
+        }
         columns={[
           {
-            flex: 0.2,
-            minWidth: 200,
+            flex: 0.25,
+            minWidth: 220,
             field: 'name',
-            headerName: 'Nama Produk',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.name}
-                </Typography>
-              )
-            }
+            headerName: 'Product Name',
+            renderCell: params => <Typography variant='body2'>{params.row.name}</Typography>
           },
           {
-            flex: 0.1,
+            flex: 0.12,
             minWidth: 120,
             field: 'category',
-            headerName: 'Kategori',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.category}
-                </Typography>
-              )
-            }
+            headerName: 'Category',
+            renderCell: params => <Typography variant='body2'>{params.row.category}</Typography>
           },
           {
-            flex: 0.1,
+            flex: 0.12,
             minWidth: 120,
             field: 'type',
-            headerName: 'Tipe',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.type}
-                </Typography>
-              )
-            }
+            headerName: 'Type',
+            renderCell: params => <Typography variant='body2'>{params.row.type}</Typography>
           },
           {
-            flex: 0.1,
-            minWidth: 120,
+            flex: 0.15,
+            minWidth: 160,
             field: 'company',
-            headerName: 'Perusahaan',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.company}
-                </Typography>
-              )
-            }
+            headerName: 'Company',
+            renderCell: params => <Typography variant='body2'>{params.row.company}</Typography>
           },
           {
-            flex: 0.1,
-            minWidth: 110,
+            flex: 0.16,
+            minWidth: 160,
             field: 'description',
-            headerName: 'Dekripsi Produk',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.description || '-'}
-                </Typography>
-              )
-            }
+            headerName: 'Product Description',
+            renderCell: params => <Typography variant='body2'>{params.row.description || '-'}</Typography>
           },
           {
-            flex: 0.1,
-            minWidth: 120,
+            flex: 0.12,
+            minWidth: 140,
             sortable: false,
             field: 'actions',
-            headerName: 'Actions',
+            headerName: 'Action',
             renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
+        pageSizeOptions={[10, 25, 50, 100]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderMasterProduct }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari produk, kategori atau tipe',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd,
-            onDownloadTemplate: handleDownloadTemplate,
-            onImportTemplate: handleImportTemplate,
-            loadingDownload,
-            loadingImport
-          }
-        }}
       />
-    </Card>
+    </>
   )
 }

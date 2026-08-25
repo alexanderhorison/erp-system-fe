@@ -6,28 +6,25 @@ import MuiToolbar from '@mui/material/Toolbar'
 // ** Util Import
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 
+// ** The bar spans the full content column so it sits flush against the sidebar
+// (Figma: Top Bar). The template's outer padding is dropped, since it made the
+// bar read as a floating card detached from the navigation.
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   transition: 'none',
-  alignItems: 'center',
+  alignItems: 'stretch',
   justifyContent: 'center',
   backgroundColor: 'transparent',
   color: theme.palette.text.primary,
   minHeight: theme.mixins.toolbar.minHeight,
-  [theme.breakpoints.up('sm')]: {
-    paddingLeft: theme.spacing(6),
-    paddingRight: theme.spacing(6)
-  },
-  [theme.breakpoints.down('sm')]: {
-    paddingLeft: theme.spacing(4),
-    paddingRight: theme.spacing(4)
-  }
+  paddingLeft: 0,
+  paddingRight: 0
 }))
 
 const Toolbar = styled(MuiToolbar)(({ theme }) => ({
   width: '100%',
-  marginTop: theme.spacing(4),
-  borderRadius: theme.shape.borderRadius,
-  padding: `${theme.spacing(0, 6)} !important`
+  marginTop: 0,
+  borderRadius: 0,
+  padding: `${theme.spacing(0, 4)} !important`
 }))
 
 const LayoutAppBar = props => {
@@ -35,7 +32,7 @@ const LayoutAppBar = props => {
   const { settings, appBarProps, appBarContent: userAppBarContent } = props
 
   // ** Vars
-  const { skin, appBar, appBarBlur, contentWidth } = settings
+  const { skin, appBar, appBarBlur } = settings
 
   // Hide entire app bar for point-of-sale pages
   if (typeof window !== 'undefined' && window.location.pathname.includes('/point-of-sale')) {
@@ -86,10 +83,10 @@ const LayoutAppBar = props => {
           ...(appBarBlur && { backdropFilter: 'blur(6px)' }),
           minHeight: theme => `${theme.mixins.toolbar.minHeight}px !important`,
           backgroundColor: theme => hexToRGBA(theme.palette.background.paper, appBarBlur ? 0.95 : 1),
-          ...(skin === 'bordered' ? { border: theme => `1px solid ${theme.palette.divider}` } : { boxShadow: 2 }),
-          ...(contentWidth === 'boxed' && {
-            '@media (min-width:1440px)': { maxWidth: theme => `calc(1440px - ${theme.spacing(6 * 2)})` }
-          })
+          // ** Flat top bar with a hairline bottom border (Figma: Top Bar).
+          boxShadow: 'none',
+          borderBottom: theme => `1px solid ${theme.palette.divider}`,
+          width: '100%'
         }}
       >
         {(userAppBarContent && userAppBarContent(props)) || null}

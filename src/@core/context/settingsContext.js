@@ -27,7 +27,10 @@ const staticSettings = {
   layout: initialSettings.layout,
   navHidden: initialSettings.navHidden,
   lastLayout: initialSettings.lastLayout,
-  toastPosition: initialSettings.toastPosition
+  toastPosition: initialSettings.toastPosition,
+  // ** Driven by themeConfig so the layout width is not pinned to a value a
+  // browser stored before the redesign.
+  contentWidth: initialSettings.contentWidth
 }
 
 const restoreSettings = () => {
@@ -55,6 +58,7 @@ const storeSettings = settings => {
   delete initSettings.navHidden
   delete initSettings.lastLayout
   delete initSettings.toastPosition
+  delete initSettings.contentWidth
   window.localStorage.setItem('settings', JSON.stringify(initSettings))
 }
 
