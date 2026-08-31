@@ -1,63 +1,53 @@
-import { Typography } from "@mui/material";
-import { Box } from "@mui/system";
-import { useMemo } from "react";
+// ** MUI Imports
+import Box from '@mui/material/Box'
+import Link from '@mui/material/Link'
+import Typography from '@mui/material/Typography'
 
+// ** Design Tokens
+import { colors } from 'src/configs/designTokens'
 
-export default function BoxCode({
-  value,
-  isClickable = false,
-  url,
-}) {
+/**
+ * BoxCode
+ * -------------------------------------------------------------------------------------
+ * One reference line inside a history entry — "Surat Jalan: TBA-67264659".
+ *
+ * The API sends these pre-formatted as "<label>: <code>", so the string is split
+ * here to style the label and the code differently. Codes that point at another
+ * record are rendered as links.
+ */
+export default function BoxCode({ value, isClickable = false, url }) {
+  if (!value) return null
 
-  const user = JSON.parse(localStorage.getItem("userData"));
-
-  if (!value) {
-    return null
-  }
-
-  const code = value?.split(':')[1] || "-";
-  const message = value?.split(':')[0] || "-";
-
-  const haveAccess = true;
-
-  // CHANGE LATER IF NEED USER ACCESS
-  // const haveAccess = useMemo(() => {
-  //   // return true
-  // }, [])
-
+  const separatorIndex = value.indexOf(':')
+  const label = separatorIndex >= 0 ? value.slice(0, separatorIndex) : value
+  const code = separatorIndex >= 0 ? value.slice(separatorIndex + 1).trim() : '-'
 
   return (
-    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', '& svg': { color: 'success.main' } }}>
-      <Typography
-        variant='body2'
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          fontWeight: 500,
-          color: 'text.primary',
-        }}
-      >
-        {`${message}:` || "-"}
+    <Box sx={{ display: 'flex', gap: 1, alignItems: 'baseline', flexWrap: 'wrap' }}>
+      <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground }}>
+        {label}:
       </Typography>
-      <Typography
-        variant='body2'
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          fontWeight: 500,
-          color: 'text.primary',
-          '& svg': { color: 'success.main' },
-          ':hover': {
-            cursor: haveAccess && isClickable ? 'pointer' : 'default',
-            color: haveAccess && isClickable ? 'blue' : 'text.primary',
-          },
-        }}
-        onClick={haveAccess && isClickable ? () => {
-          window.open(url, '_blank');
-        } : undefined}
-      >
-        {code || "-"}
-      </Typography>
+      {isClickable && url ? (
+        <Link
+          href={url}
+          target='_blank'
+          rel='noopener'
+          sx={{
+            fontSize: '0.8125rem',
+            lineHeight: '20px',
+            fontWeight: 500,
+            color: 'primary.main',
+            textDecoration: 'none',
+            '&:hover': { textDecoration: 'underline' }
+          }}
+        >
+          {code}
+        </Link>
+      ) : (
+        <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', fontWeight: 500, color: colors.foreground }}>
+          {code}
+        </Typography>
+      )}
     </Box>
   )
 }

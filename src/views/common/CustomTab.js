@@ -5,32 +5,49 @@ import Icon from 'src/@core/components/icon'
 import { styled } from '@mui/material/styles'
 import MuiTabList from '@mui/lab/TabList'
 
+// ** Design Tokens
+import { colors, radii, shadows, stone } from 'src/configs/designTokens'
 
+
+// ** Pill tabs (Figma: segmented control). The selected tab is a filled pill and
+// the rest are outlined, matching the button treatment used across the redesign.
 const TabList = styled(MuiTabList)(({ theme }) => ({
+  minHeight: 0,
   borderBottom: '0 !important',
   '&, & .MuiTabs-scroller': {
-    boxSizing: 'content-box',
-    padding: theme.spacing(1.25, 1.25, 2),
-    margin: `${theme.spacing(-1.25, -1.25, -2)} !important`
+    boxSizing: 'content-box'
+  },
+  '& .MuiTabs-flexContainer': {
+    gap: theme.spacing(2)
   },
   '& .MuiTabs-indicator': {
     display: 'none'
   },
-  '& .Mui-selected': {
-    boxShadow: theme.shadows[2],
-    backgroundColor: theme.palette.primary.main,
-    color: `${theme.palette.common.white} !important`
-  },
   '& .MuiTab-root': {
-    minWidth: 65,
-    minHeight: 38,
+    minWidth: 0,
+    minHeight: 34,
+    padding: theme.spacing(1.5, 3.5),
     lineHeight: 1,
-    borderRadius: theme.shape.borderRadius,
+    fontSize: '0.875rem',
+    fontWeight: 500,
+    textTransform: 'none',
+    borderRadius: radii.full,
+    border: `1px solid ${colors.border}`,
+    color: colors.foregroundAlt,
+    backgroundColor: colors.background,
+    transition: theme.transitions.create(['background-color', 'border-color', 'color']),
     '&:hover': {
-      color: theme.palette.primary.main
-    },
-    [theme.breakpoints.up('sm')]: {
-      minWidth: 130
+      borderColor: colors.border3,
+      backgroundColor: stone[50]
+    }
+  },
+  '& .Mui-selected': {
+    boxShadow: shadows.xs,
+    borderColor: `${theme.palette.primary.main} !important`,
+    backgroundColor: theme.palette.primary.main,
+    color: `${theme.palette.common.white} !important`,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main
     }
   }
 }))
@@ -46,7 +63,7 @@ export default function CustomTab({
   }
   return (
     <TabContext value={activeTab}>
-      <Grid container spacing={6}>
+      <Grid container>
         <Grid item xs={12}>
           <TabList
             variant='scrollable'
