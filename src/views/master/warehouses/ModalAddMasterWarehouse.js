@@ -28,8 +28,8 @@ export default function ModalAddMasterWarehouse({ open, setOpen, typeModal, id }
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    name: yup.string().required('Warehouse name is required'),
-    location: yup.string().required('Location is required')
+    name: yup.string().required('Nama gudang harus diisi'),
+    location: yup.string().required('Lokasi harus diisi')
   })
 
   // REACT FORM

@@ -42,14 +42,14 @@ const runRequest = async ({ axiosRequest, dispatchRequest, label, successMessage
 
 // DELETE
 export async function swalConfirmationDelete({ label, name = 'Data', axiosRequest, dispatchRequest }) {
-  return runRequest({ axiosRequest, dispatchRequest, label, successMessage: `${name} deleted successfully` })
+  return runRequest({ axiosRequest, dispatchRequest, label, successMessage: `"${name}" berhasil dihapus` })
 }
 
 // DELETE WITHOUT PROMPT
 // Confirmation is handled by the shared `ConfirmDialog` component, so this only
 // performs the request and reports the outcome.
 export async function swalDeleteConfirmed({ label, name = 'Data', axiosRequest, dispatchRequest }) {
-  return runRequest({ axiosRequest, dispatchRequest, label, successMessage: `${name} deleted successfully` })
+  return runRequest({ axiosRequest, dispatchRequest, label, successMessage: `"${name}" berhasil dihapus` })
 }
 
 // ADD
@@ -68,46 +68,46 @@ export async function swalConfirmationAdd({
     axiosRequest: paymentSelection ? () => axiosRequest(false) : axiosRequest,
     dispatchRequest,
     label,
-    successMessage: `${name} added successfully`
+    successMessage: `${name} berhasil ditambahkan`
   })
 }
 
 // EDIT
 export async function swalConfirmationEdit({ label, name = 'Data', axiosRequest, dispatchRequest }) {
-  return runRequest({ axiosRequest, dispatchRequest, label, successMessage: `${name} updated successfully` })
+  return runRequest({ axiosRequest, dispatchRequest, label, successMessage: `${name} berhasil diubah` })
 }
 
 // RESTORE
 export async function swalConfirmationRestore({ label, name = 'Data', axiosRequest, dispatchRequest }) {
-  return runRequest({ axiosRequest, dispatchRequest, label, successMessage: `${name} restored successfully` })
+  return runRequest({ axiosRequest, dispatchRequest, label, successMessage: `${name} berhasil dikembalikan` })
 }
 
 // DEFAULT SUCCESS
 export function swalSuccess({ name, response }) {
-  return notifySuccess(messageFromResponse(response, `${name} saved successfully`))
+  return notifySuccess(messageFromResponse(response, `"${name}" berhasil dihapus`))
 }
 
 // DEFAULT ERROR
 export function swalError({ error, label }) {
-  return notifyError(messageFromError(error, `Failed to complete action on ${label}`))
+  return notifyError(messageFromError(error, `Gagal melakukan aksi pada ${label}`))
 }
 
 export function swalToastError({ error, label }) {
-  return notifyError(messageFromError(error, `Failed to complete action on ${label}`))
+  return notifyError(messageFromError(error, `Gagal melakukan aksi pada ${label}`))
 }
 
 export function swalToastSuccess({ response, label }) {
-  return notifySuccess(messageFromResponse(response, `${label} completed successfully`))
+  return notifySuccess(messageFromResponse(response, `Berhasil melakukan aksi pada ${label}`))
 }
 
 export function swalNotifSuccess({ message }) {
-  return notifySuccess(message || 'Success')
+  return notifySuccess(message || 'Berhasil')
 }
 
 export function swalNotifError({ message }) {
-  return notifyError(message || 'Failed')
+  return notifyError(message || 'Gagal')
 }
 
 export function swalInfo(message) {
-  return notifyInfo(message || 'Email has been sent')
+  return notifyInfo(message || 'Email Telah Dikirim')
 }

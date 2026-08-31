@@ -60,7 +60,7 @@ const PointOfSaleShiftPage = () => {
       const response = await axios.get('/user-shift/current')
       if (response.data?.success && response.data.data) {
         // User has active shift, redirect to POS
-        toast.success('Resuming active shift')
+        toast.success('Melanjutkan shift aktif')
         router.push('/point-of-sale')
         return
       } else {
@@ -73,7 +73,7 @@ const PointOfSaleShiftPage = () => {
         fetchAvailableShifts()
       } else {
         console.error('Error checking current shift:', error)
-        toast.error('Failed to check active shift')
+        toast.error('Gagal memeriksa shift aktif')
         setLoading(false)  // Ensure loading is set to false to prevent stuck
       }
     }
@@ -87,7 +87,7 @@ const PointOfSaleShiftPage = () => {
       }
     } catch (error) {
       console.error('Error fetching shifts:', error)
-      toast.error(error.response?.data?.message || 'Failed to load shift data')
+      toast.error(error.response?.data?.message || 'Gagal mengambil data shift')
     } finally {
       setLoading(false)
     }
@@ -95,7 +95,7 @@ const PointOfSaleShiftPage = () => {
 
   const handleStartShift = async () => {
     if (!selectedShift) {
-      toast.error('Please select a shift first')
+      toast.error('Silakan pilih shift terlebih dahulu')
       return
     }
 
@@ -106,13 +106,13 @@ const PointOfSaleShiftPage = () => {
       })
 
       if (response.data?.success) {
-        toast.success('Shift started successfully')
+        toast.success('Shift berhasil dimulai')
         // Redirect to POS page
         router.push('/point-of-sale')
       }
     } catch (error) {
       console.error('Error starting shift:', error)
-      toast.error(error.response?.data?.message || 'Failed to start shift')
+      toast.error(error.response?.data?.message || 'Gagal memulai shift')
     } finally {
       setStarting(false)
     }

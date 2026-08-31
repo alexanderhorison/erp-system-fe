@@ -18,15 +18,15 @@ export default function CompanyInfoModal({
   const { loadingUpdateCompanyInfo } = useSelector(state => state.companyConfig);
 
   const schema = yup.object().shape({
-    companyName: yup.string().required('Company name is required'),
+    companyName: yup.string().required('Nama company harus diisi'),
     companyNamePos: yup.string().optional(),
-    ptName: yup.string().required('PT name is required'),
-    address: yup.string().required('Address is required'),
-    city: yup.string().required('City is required'),
-    phoneNumber: yup.string().required('Phone number is required'),
-    ownerName: yup.string().required('Approval SO is required'),
-    ownerTitle: yup.string().required('Approval SO Title is required'),
-    bank: yup.string().required('Bank information is required'),
+    ptName: yup.string().required('Nama PT harus diisi'),
+    address: yup.string().required('Alamat harus diisi'),
+    city: yup.string().required('Kota harus diisi'),
+    phoneNumber: yup.string().required('Nomor telepon harus diisi'),
+    ownerName: yup.string().required('Approval SO harus diisi'),
+    ownerTitle: yup.string().required('Jabatan Approval SO harus diisi'),
+    bank: yup.string().required('Informasi bank harus diisi'),
     ppn: yup.string().optional(),
     logo: yup.mixed().optional().nullable(true),
   });

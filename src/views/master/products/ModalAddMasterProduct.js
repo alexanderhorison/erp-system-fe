@@ -30,10 +30,10 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    name: yup.string().required('Product name is required'),
-    categoryId: yup.string().required('Category is required'),
-    companyId: yup.string().required('Company is required'),
-    typeId: yup.string().required('Type is required')
+    name: yup.string().required('Nama produk harus diisi'),
+    categoryId: yup.string().required('Kategori harus dipilih'),
+    companyId: yup.string().required('Company harus dipilih'),
+    typeId: yup.string().required('Tipe harus dipilih')
   })
 
   // REACT FORM
@@ -205,7 +205,7 @@ export default function ModalAddMasterProduct({ open, setOpen, typeModal, id }) 
                     label='Description'
                     error={Boolean(errors.description)}
                     aria-describedby='validation-basic-description'
-                    {...(errors.description && { helperText: 'This field is required' })}
+                    {...(errors.description && { helperText: 'Kolom ini harus diisi' })}
                   />
                 )}
               />

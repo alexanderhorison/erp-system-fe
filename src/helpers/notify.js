@@ -37,19 +37,19 @@ export const dismissNotification = toastId => toast.dismiss(toastId)
 
 /** `name` created / updated / deleted successfully. */
 export const notifyCreated = (name, response) =>
-  notifySuccess(messageFromResponse(response, `${name} created successfully`))
+  notifySuccess(messageFromResponse(response, `${name} berhasil ditambahkan`))
 
 export const notifyUpdated = (name, response) =>
-  notifySuccess(messageFromResponse(response, `${name} updated successfully`))
+  notifySuccess(messageFromResponse(response, `${name} berhasil diubah`))
 
 export const notifyDeleted = (name, response) =>
-  notifySuccess(messageFromResponse(response, `${name} deleted successfully`))
+  notifySuccess(messageFromResponse(response, `${name} berhasil dihapus`))
 
 export const notifyRestored = (name, response) =>
-  notifySuccess(messageFromResponse(response, `${name} restored successfully`))
+  notifySuccess(messageFromResponse(response, `${name} berhasil dikembalikan`))
 
 /** Reports a failed request, preferring the API's own message. */
 export const notifyRequestError = (error, label) =>
-  notifyError(messageFromError(error, label ? `Failed to complete action on ${label}` : 'Something went wrong'))
+  notifyError(messageFromError(error, label ? `Gagal melakukan aksi pada ${label}` : 'Terjadi kesalahan'))
 
 export { messageFromError, messageFromResponse, toast }

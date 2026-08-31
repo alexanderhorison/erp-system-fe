@@ -26,9 +26,9 @@ import { colors } from 'src/configs/designTokens'
 /**
  * ModalAdjustProduct
  * -------------------------------------------------------------------------------------
- * Single "Sesuaikan Stok" dialog covering what used to be three separate modals
+ * Single "Adjust Stock" dialog covering what used to be three separate modals
  * (PLUS / MINUS / MINIMUM_STOCK). The direction is now chosen with a
- * Tambah/Kurangi radio instead of a dedicated button per action, and the minimum
+ * Add/Reduce radio instead of a dedicated button per action, and the minimum
  * stock is edited alongside it.
  *
  * `adjustmentType` is still sent to `editProductWarehouse`, so the request shape
@@ -108,7 +108,7 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, warehouse
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
-      title='Sesuaikan Stok'
+      title='Adjust Stock'
       size='sm'
       showActions={typeModal !== 'VIEW'}
       loading={loadingEditProduct}
@@ -119,7 +119,7 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, warehouse
       <Grid container spacing={4}>
         <Grid item xs={12} sm={6}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 1 }}>
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.foreground }}>Jumlah</Typography>
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.foreground }}>Quantity</Typography>
             <RadioGroup
               row
               value={adjustmentType}
@@ -155,7 +155,7 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, warehouse
                 {...(errors.quantityAdjustment
                   ? { helperText: errors.quantityAdjustment.message }
                   : {
-                      helperText: adjustmentType === 'MINUS' ? 'Stok akan dikurangi' : 'Stok akan ditambahkan'
+                      helperText: adjustmentType === 'MINUS' ? 'Stock akan dikurangi' : 'Stock akan ditambahkan'
                     })}
               />
             )}
@@ -164,7 +164,7 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, warehouse
 
         <Grid item xs={12} sm={6}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.foreground, mt: 2}}>Stock Minimal</Typography>
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.foreground, mt: 2}}>Minimum Stock</Typography>
           </Box>
           <Controller
             name='minimumStock'

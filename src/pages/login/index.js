@@ -91,8 +91,8 @@ const TaglineIcon = styled(Box)(() => ({
 }))
 
 const schema = yup.object().shape({
-  email: yup.string().required('Email or Username is required'),
-  password: yup.string().min(5).required()
+  email: yup.string().required('Email atau Username harus diisi'),
+  password: yup.string().min(5, 'Password minimal 5 karakter').required('Password harus diisi')
 })
 
 const defaultValues = {
@@ -297,7 +297,7 @@ const LoginPage = () => {
               <Typography
                 sx={{ fontSize: '0.875rem', lineHeight: '20px', color: colors.destructive, mb: 4 }}
               >
-                The email or password you entered is incorrect. Please try again.
+                Email atau password yang Anda masukkan salah. Silakan coba lagi.
               </Typography>
             )}
 

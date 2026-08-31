@@ -44,7 +44,7 @@ const EndShiftModal = ({ open, onClose, onShiftEnded }) => {
       }
     } catch (error) {
       console.error('Error fetching shift summary:', error)
-      toast.error(error.response?.data?.message || 'Failed to load shift summary')
+      toast.error(error.response?.data?.message || 'Gagal mengambil ringkasan shift')
       onClose()
     } finally {
       setLoading(false)
@@ -57,7 +57,7 @@ const EndShiftModal = ({ open, onClose, onShiftEnded }) => {
       const response = await axios.put('/user-shift/end')
 
       if (response.data?.success) {
-        toast.success('Shift ended successfully')
+        toast.success('Shift berhasil diakhiri')
         handleClose()
 
         // Call onShiftEnded callback first
@@ -72,7 +72,7 @@ const EndShiftModal = ({ open, onClose, onShiftEnded }) => {
       }
     } catch (error) {
       console.error('Error ending shift:', error)
-      toast.error(error.response?.data?.message || 'Failed to end shift')
+      toast.error(error.response?.data?.message || 'Gagal mengakhiri shift')
     } finally {
       setEnding(false)
     }
@@ -280,7 +280,7 @@ const EndShiftModal = ({ open, onClose, onShiftEnded }) => {
                     title: 'Konfirmasi Akhiri Shift',
                     text: 'Apakah Anda yakin ingin mengakhiri shift sekarang? Setelah shift diakhiri, Anda akan kembali ke halaman pemilihan shift.',
                     onClickYes: handleEndShift,
-                    successMessage: 'Shift ended successfully'
+                    successMessage: 'Shift berhasil diakhiri'
                   })
                 }}
                 startIcon={<Icon icon='mdi:logout' />}

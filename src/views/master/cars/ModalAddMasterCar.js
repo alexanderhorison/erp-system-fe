@@ -145,7 +145,7 @@ export default function ModalAddMasterCar({ open, setOpen, typeModal, id }) {
                     label='Deskripsi'
                     error={Boolean(errors.description)}
                     aria-describedby='validation-basic-description'
-                    {...(errors.description && { helperText: 'This field is required' })}
+                    {...(errors.description && { helperText: 'Kolom ini harus diisi' })}
                   />
                 )}
               />

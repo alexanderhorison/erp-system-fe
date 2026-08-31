@@ -114,7 +114,7 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
-      title='Transformasi Produk'
+      title='Transform Product'
       size='sm'
       showActions={typeModal !== 'VIEW'}
       loading={loadingTransformProduct}
@@ -147,7 +147,7 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
                           {...(errors?.transformation && {
                             helperText: errors?.transformation.message
                           })}
-                          label='Pilih Rumus'
+                          label='Formula'
                         />
                       )}
                     />
@@ -162,7 +162,7 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
                   render={({ field: { value, onChange } }) => (
                     <CustomTextField
                       fullWidth
-                      label='Jumlah'
+                      label='Quantity'
                       value={value}
                       onChange={e => {
                         onChange(e.target.value)
@@ -179,7 +179,7 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
               <Grid item xs={12} sm={6}>
                 <CustomTextField
                   fullWidth
-                  label='Hasil'
+                  label='Result'
                   value={result}
                   InputProps={{ readOnly: true }}
                   sx={{ display: 'block' }}

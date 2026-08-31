@@ -22,7 +22,7 @@ export default function ModalAddMasterType({ open, setOpen, typeModal, id }) {
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    name: yup.string().required('Type name is required')
+    name: yup.string().required('Nama tipe harus diisi')
   })
 
   // REACT FORM
@@ -93,7 +93,7 @@ export default function ModalAddMasterType({ open, setOpen, typeModal, id }) {
                 label='Description'
                 error={Boolean(errors.description)}
                 aria-describedby='validation-basic-description'
-                {...(errors.description && { helperText: 'This field is required' })}
+                {...(errors.description && { helperText: 'Kolom ini harus diisi' })}
               />
             )}
           />

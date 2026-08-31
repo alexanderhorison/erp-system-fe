@@ -38,6 +38,15 @@ const colors = {
   outline: 'rgba(255, 255, 255, 0.1)'
 }
 
+// ** Status colors (Tailwind red/amber/emerald 400-600), used to signal stock
+// health on chips and badges. `fg` is the text/border tone, `bg` the tint behind
+// it — both chosen to stay legible on a white surface.
+const status = {
+  danger: { fg: '#DC2626', bg: '#FEF2F2', border: '#FECACA' },
+  warning: { fg: '#D97706', bg: '#FFFBEB', border: '#FDE68A' },
+  success: { fg: '#059669', bg: '#ECFDF5', border: '#A7F3D0' }
+}
+
 // ** Typography (Figma: heading */paragraph *). Font family is Geist.
 const fontFamilyBody = 'Geist'
 
@@ -119,6 +128,7 @@ const shadows = {
 
 module.exports = {
   stone,
+  status,
   sidebarPalette,
   sidebarIsLight,
   colors,

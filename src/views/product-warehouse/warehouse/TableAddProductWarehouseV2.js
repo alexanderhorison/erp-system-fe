@@ -120,11 +120,11 @@ export default function TableAddProductWarehouseV3(props) {
     formValues.forEach((obj, index) => {
       const allKeysHaveValues = Object.values(obj).every(value => value !== undefined && value !== null && value !== '');
       if (!allKeysHaveValues) {
-        newErrors.push({ index, type: 'Incomplete' });
+        newErrors.push({ index, type: 'Belum Lengkap' });
       }
       const pair = `${obj.unitId}-${obj.masterProductId}`;
       if (uniquePairs.has(pair)) {
-        newErrors.push({ index, message: 'This product and unit is already added' });
+        newErrors.push({ index, message: 'Produk dan unit sudah ada' });
       } else {
         uniquePairs.add(pair);
       }
@@ -187,7 +187,7 @@ export default function TableAddProductWarehouseV3(props) {
                               {...(getErrorMessage(i, 'masterProductId')
                                 ? { helperText: getErrorMessage(i, 'masterProductId') }
                                 : showError(i, 'masterProductId') && !formValues[i]?.masterProductId
-                                ? { helperText: 'Product is required' }
+                                ? { helperText: 'Produk harus dipilih' }
                                 : {})}
                             />
                           )}
@@ -209,7 +209,7 @@ export default function TableAddProductWarehouseV3(props) {
                               onBlur={() => markTouched(i, 'warehouseRackId')}
                               error={showError(i, 'warehouseRackId') && !formValues[i]?.warehouseRackId}
                               {...(showError(i, 'warehouseRackId') && !formValues[i]?.warehouseRackId
-                                ? { helperText: 'Rack is required' }
+                                ? { helperText: 'Rak harus dipilih' }
                                 : {})}
                             />
                           )}
@@ -231,7 +231,7 @@ export default function TableAddProductWarehouseV3(props) {
                               onBlur={() => markTouched(i, 'unitId')}
                               error={showError(i, 'unitId') && !formValues[i]?.unitId}
                               {...(showError(i, 'unitId') && !formValues[i]?.unitId
-                                ? { helperText: 'Unit is required' }
+                                ? { helperText: 'Satuan harus dipilih' }
                                 : {})}
                             />
                           )}
@@ -253,9 +253,9 @@ export default function TableAddProductWarehouseV3(props) {
                             showError(i, 'quantity') && (!formValues[i]?.quantity || formValues[i]?.quantity < 0)
                           }
                           {...(showError(i, 'quantity') && formValues[i]?.quantity < 0
-                            ? { helperText: 'Quantity must be greater than 0' }
+                            ? { helperText: 'Kuantiti harus lebih dari 0' }
                             : showError(i, 'quantity') && !formValues[i]?.quantity
-                            ? { helperText: 'Quantity is required' }
+                            ? { helperText: 'Kuantiti harus diisi' }
                             : {})}
                         />
                       </Grid>
@@ -272,9 +272,9 @@ export default function TableAddProductWarehouseV3(props) {
                             (!formValues[i]?.minimumStock || formValues[i]?.minimumStock < 0)
                           }
                           {...(showError(i, 'minimumStock') && formValues[i]?.minimumStock < 0
-                            ? { helperText: 'Minimum stock must be greater than 0' }
+                            ? { helperText: 'Minimum stok harus lebih dari 0' }
                             : showError(i, 'minimumStock') && !formValues[i]?.minimumStock
-                            ? { helperText: 'Minimum stock is required' }
+                            ? { helperText: 'Minimum stok harus diisi' }
                             : {})}
                         />
                       </Grid>
