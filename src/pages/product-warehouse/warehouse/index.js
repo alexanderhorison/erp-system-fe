@@ -1,7 +1,7 @@
 import Grid from '@mui/material/Grid'
 
 import PageHeader from 'src/views/common/PageHeader'
-import TableProductWarehouse from 'src/views/product-warehouse/warehouse/TableProductWarehouse'
+import WarehouseCardList from 'src/views/product-warehouse/warehouse/WarehouseCardList'
 
 export default function HomeProductWarehouse() {
   return (
@@ -11,7 +11,7 @@ export default function HomeProductWarehouse() {
           title='Warehouse List'
           breadcrumbs={[{ label: 'Inventory' }, { label: 'Stock Management' }, { label: 'Warehouses' }]}
         />
-        <TableProductWarehouse />
+        <WarehouseCardList />
       </Grid>
     </Grid>
   )
