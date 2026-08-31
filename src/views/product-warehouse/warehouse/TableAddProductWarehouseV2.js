@@ -24,6 +24,8 @@ import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
 import { useRouter } from 'next/router'
 import { initiateProductWarehouse } from 'src/store/apps/product-warehouse'
 
+import FormActionBar from 'src/views/common/FormActionBar'
+
 // ** Design Tokens
 import { colors, radii, shadows } from 'src/configs/designTokens'
 
@@ -35,7 +37,8 @@ const RepeatingContent = styled(Grid)(({ theme }) => ({
   alignItems: 'flex-start',
   gap: theme.spacing(4),
   padding: theme.spacing(4),
-  borderRadius: `${radii.lg}px`,
+  // ** Fully rounded to match the pill inputs inside it.
+  borderRadius: `${radii['3xl']}px`,
   border: `1px solid ${colors.border}`,
   boxShadow: shadows.xs,
   backgroundColor: colors.background,
@@ -322,23 +325,13 @@ export default function TableAddProductWarehouseV3(props) {
           </Grid>
         </RepeaterWrapper>
       </Card>
-      <Grid container sx={{ mt: 5 }} display='flex' justifyContent='flex-end'>
-        <Grid item display='flex' justifyContent='flex-end' gap={4}>
-          <Button
-            variant='tonal'
-            color='secondary'
-            onClick={() => {
-              router.push(`/product-warehouse/warehouse/${props.warehouse?.id}`)
-            }}
-            startIcon={<Icon icon='tabler:x' />}
-          >
-            Cancel
-          </Button>
-          <Button disabled={formValues.length === 0} variant='contained' onClick={handleSubmit} startIcon={<Icon icon='tabler:send' />}>
-            Submit
-          </Button>
-        </Grid>
-      </Grid>
+      {/* This form submits through a handler rather than a native submit, so the
+          bar is given `onSubmit` instead of relying on `type='submit'`. */}
+      <FormActionBar
+        onCancel={() => router.push(`/product-warehouse/warehouse/${props.warehouse?.id}`)}
+        onSubmit={handleSubmit}
+        disabled={formValues.length === 0}
+      />
     </>
   )
 }

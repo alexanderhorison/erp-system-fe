@@ -1,71 +1,106 @@
-// ** Next Import
-import Link from 'next/link'
+import { useState } from 'react'
+import { useRouter } from 'next/router'
+import { useDispatch, useSelector } from 'react-redux'
 
 // ** MUI Imports
+import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Button from '@mui/material/Button'
 import CardContent from '@mui/material/CardContent'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { useRouter } from 'next/router'
-import { useDispatch } from 'react-redux'
+
+// ** Store & Hooks
 import { UseAuth } from 'src/hooks/useAuth'
 import { updateAdjustmentGoodsOut } from 'src/store/apps/adjustment/goods-out'
+
+// ** Shared Components
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
 import DownloadButton from 'src/views/components/buttons/ButtonDownload'
-import { useState } from 'react'
+
+// ** Design Tokens
+import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
 
 const ToolbarGoodsOut = ({ id, status }) => {
   const auth = UseAuth()
   const dispatch = useDispatch()
   const router = useRouter()
 
-  const onUpdateSuratBarangKeluar = (code, type, e) => {
-    dispatch(updateAdjustmentGoodsOut({ code, type, router }))
-  }
   const [isLoading, setIsLoading] = useState(false)
+  const [confirmAction, setConfirmAction] = useState(null)
+
+  const { loadingUpdateAdjustmentGoodsOut } = useSelector(state => state.adjustmentGoodsOut)
+
+  // ** `swalConfirmationAdd` used to prompt before sending; it no longer does
+  // (see docs/REVAMP_BASELINE.md §4), so approving/rejecting is confirmed here.
+  const onConfirm = () => {
+    dispatch(updateAdjustmentGoodsOut({ code: id, type: confirmAction, router }))
+    setConfirmAction(null)
+  }
+
+  const canApprove = [1, 3].includes(auth?.user?.roleId) && status === 'PENDING'
 
   return (
-    <Card>
-      <CardContent>
-        <DownloadButton url={'adjustment-goods-out'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
-        {/* <Button
-          fullWidth
-          sx={{ mb: 2, '& svg': { mr: 2 } }}
-          target='_blank'
-          variant='contained'
-          component={Link}
-          href={`/adjustment/goods-out/print/${id}`}
-        >
-          <Icon fontSize='1.125rem' icon='tabler:printer' />
-          Cetak / Print
-        </Button> */}
-        {[1, 3].includes(auth?.user?.roleId) && status == 'PENDING' ? (
-          <>
-            <Button
-              fullWidth
-              variant='contained'
-              color='success'
-              onClick={e => onUpdateSuratBarangKeluar(id, 'approve', e)}
-              sx={{ mb: 2, '& svg': { mr: 2 } }}
-            >
-              <Icon fontSize='1.125rem' icon='tabler:check' />
-              Terima Barang Keluar
-            </Button>
-            <Button
-              fullWidth
-              variant='contained'
-              color='error'
-              onClick={e => onUpdateSuratBarangKeluar(id, 'reject', e)}
-              sx={{ mb: 2, '& svg': { mr: 2 } }}
-            >
-              <Icon fontSize='1.125rem' icon='tabler:x' />
-              Tolak Barang Keluar
-            </Button>
-          </>
-        ) : null}
-      </CardContent>
-    </Card>
+    <>
+      <Card
+        elevation={0}
+        sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
+      >
+        <CardContent>
+          <DownloadButton url={'adjustment-goods-out'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
+
+          {canApprove && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 3 }}>
+              <Button
+                fullWidth
+                variant='contained'
+                onClick={() => setConfirmAction('approve')}
+                startIcon={<Icon icon='tabler:check' fontSize='1rem' />}
+                sx={{
+                  backgroundColor: statusTokens.success.fg,
+                  '&:hover': { backgroundColor: statusTokens.success.fg, filter: 'brightness(0.92)' }
+                }}
+              >
+                Terima Barang Keluar
+              </Button>
+              <Button
+                fullWidth
+                variant='outlined'
+                onClick={() => setConfirmAction('reject')}
+                startIcon={<Icon icon='tabler:x' fontSize='1rem' />}
+                sx={{
+                  color: colors.destructive,
+                  borderColor: colors.destructive,
+                  boxShadow: shadows.xs,
+                  '&:hover': { borderColor: colors.destructive, backgroundColor: statusTokens.danger.bg }
+                }}
+              >
+                Tolak Barang Keluar
+              </Button>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
+
+      <ConfirmDialog
+        open={Boolean(confirmAction)}
+        onClose={() => setConfirmAction(null)}
+        onConfirm={onConfirm}
+        title={confirmAction === 'approve' ? 'Terima Barang Keluar' : 'Tolak Barang Keluar'}
+        description={
+          confirmAction === 'approve'
+            ? `Anda akan menerima surat barang keluar ${id}. Stok gudang akan berkurang.`
+            : `Anda akan menolak surat barang keluar ${id}.`
+        }
+        confirmLabel={confirmAction === 'approve' ? 'Terima' : 'Tolak'}
+        cancelLabel='Batal'
+        confirmIcon={confirmAction === 'approve' ? 'tabler:check' : 'tabler:x'}
+        destructive={confirmAction === 'reject'}
+        loading={loadingUpdateAdjustmentGoodsOut}
+        loadingLabel='Memproses...'
+      />
+    </>
   )
 }
 

@@ -30,7 +30,8 @@ export default function ConfirmDialog({
   cancelLabel = 'Cancel',
   confirmIcon = 'tabler:trash',
   destructive = true,
-  loading = false
+  loading = false,
+  loadingLabel = 'Deleting...'
 }) {
   const accent = destructive ? colors.destructive : undefined
 
@@ -111,7 +112,7 @@ export default function ConfirmDialog({
               : undefined
           }
         >
-          {loading ? 'Deleting...' : confirmLabel}
+          {loading ? loadingLabel : confirmLabel}
         </Button>
       </Box>
     </Dialog>

@@ -1,22 +1,21 @@
-import { useRouter } from 'next/router'
 import { useEffect } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 
-import Link from 'next/link'
-
+import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Alert from '@mui/material/Alert'
+import Skeleton from '@mui/material/Skeleton'
 
-// ** Demo Components Imports
 import { fetchDetailAdjustmentGoodsOut } from 'src/store/apps/adjustment/goods-out'
-import { Box } from '@mui/system'
-import { CircularProgress, Typography } from '@mui/material'
-import DetailGoodsOut from 'src/views/adjustment/goods-out/DetailGoodsOut'
-import ToolbarGoodsOut from 'src/views/adjustment/goods-out/ToolbarGoodsOut'
-import ButtonBack from 'src/views/common/ButtonBack'
 import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 
-export default function DetailAdjustmentGoodsOut({ }) {
+import DetailGoodsOut from 'src/views/adjustment/goods-out/DetailGoodsOut'
+import ToolbarGoodsOut from 'src/views/adjustment/goods-out/ToolbarGoodsOut'
+import PageHeader from 'src/views/common/PageHeader'
+
+export default function DetailAdjustmentGoodsOut({}) {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id
@@ -36,7 +35,7 @@ export default function DetailAdjustmentGoodsOut({ }) {
 
   if (errorDetailAdjustmentGoodsOut) {
     return (
-      <Grid container spacing={6}>
+      <Grid container>
         <Grid item xs={12}>
           <Alert severity='error'>
             Surat Barang Keluar: {id} Tidak Ditemukan. Mohon cek list surat barang keluar:{' '}
@@ -45,26 +44,56 @@ export default function DetailAdjustmentGoodsOut({ }) {
         </Grid>
       </Grid>
     )
-  } else if (data) {
+  }
+
+  // ** Skeletons hold the two-column shape while the detail resolves, rather
+  // than collapsing the page to a centred spinner.
+  if (loadingDetailAdjustmentGoodsOut || !data) {
     return (
-      <>
-        <Grid container spacing={6}>
-          <ButtonBack paddingY={0} />
-          <Grid item xl={9} md={8} xs={12}>
-            <DetailGoodsOut data={data} />
-          </Grid>
-          <Grid item xl={3} md={4} xs={12}>
-            <ToolbarGoodsOut id={id} status={data?.status} />
+      <Grid container>
+        <Grid item xs={12}>
+          <Skeleton variant='text' width={240} height={38} />
+          <Skeleton variant='text' width={140} height={22} sx={{ mb: 4 }} />
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={8} xl={9}>
+              <Skeleton variant='rounded' height={520} />
+            </Grid>
+            <Grid item xs={12} md={4} xl={3}>
+              <Skeleton variant='rounded' height={150} />
+              <Skeleton variant='rounded' height={140} sx={{ mt: 4 }} />
+            </Grid>
           </Grid>
         </Grid>
-      </>
-    )
-  } else if (loadingDetailAdjustmentGoodsOut) {
-    return (
-      <Box sx={{ mt: 11, width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-        <CircularProgress sx={{ mb: 4 }} />
-        <Typography>Loading...</Typography>
-      </Box>
+      </Grid>
     )
   }
+
+  return (
+    <Grid container>
+      <Grid item xs={12}>
+        <PageHeader
+          title='Surat Barang Keluar'
+          subtitle={data?.code}
+          onBack={() => router.back()}
+          breadcrumbs={[
+            { label: 'Inventory' },
+            { label: 'Stock Adjustment' },
+            { label: 'Barang Keluar', href: '/adjustment/goods-out' },
+            { label: data?.code || 'Detail' }
+          ]}
+        />
+
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={8} xl={9}>
+            <DetailGoodsOut data={data} />
+          </Grid>
+          <Grid item xs={12} md={4} xl={3}>
+            <Box sx={{ position: { md: 'sticky' }, top: { md: 88 } }}>
+              <ToolbarGoodsOut id={id} status={data?.status} />
+            </Box>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
+  )
 }

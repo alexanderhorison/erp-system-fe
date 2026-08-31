@@ -1,9 +1,13 @@
-import { Grid } from '@mui/material'
-import { useRouter } from 'next/router'
 import { useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
+
+import Grid from '@mui/material/Grid'
+
 import { fetchListDeletedProductWarehouse } from 'src/store/apps/deleted-product-warehouse'
-import ButtonBack from 'src/views/common/ButtonBack'
+
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
 import TableDeletedProductWarehouse from 'src/views/deleted-product-warehouse/TableDeletedProductWarehouse'
 
 export default function HomeDeletedProductWarehouse() {
@@ -15,15 +19,21 @@ export default function HomeDeletedProductWarehouse() {
   )
 
   useEffect(() => {
-    if (!Object.keys(router.components).includes("/product-warehouse/product/[id]")) {
+    // ** Skip the initial fetch when arriving back from a product's detail page,
+    // so the filtered list the user left is not replaced by an unfiltered one.
+    if (!Object.keys(router.components).includes('/product-warehouse/product/[id]')) {
       dispatch(fetchListDeletedProductWarehouse({}))
     }
+    // eslint-disable-next-line
   }, [dispatch])
 
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <ButtonBack name={`Daftar Produk terhapus`} />
+        <PageHeader
+          title='Daftar Produk Terhapus'
+          breadcrumbs={[{ label: 'Inventory' }, { label: 'Stock Management' }, { label: 'Produk Terhapus' }]}
+        />
         <TableDeletedProductWarehouse loading={loading} data={data || []} />
       </Grid>
     </Grid>

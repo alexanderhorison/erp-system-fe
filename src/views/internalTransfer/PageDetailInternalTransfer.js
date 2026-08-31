@@ -1,196 +1,181 @@
-// ** React Imports
-import { useEffect } from 'react'
-
 // ** MUI Imports
-import Grid from '@mui/material/Grid'
+import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
+import Grid from '@mui/material/Grid'
 import Table from '@mui/material/Table'
 import Divider from '@mui/material/Divider'
 import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
 import CardContent from '@mui/material/CardContent'
-import { styled, useTheme } from '@mui/material/styles'
 import TableContainer from '@mui/material/TableContainer'
-import TableCell from '@mui/material/TableCell'
 
-// ** Configs
-import themeConfig from 'src/configs/themeConfig'
-import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
-import { Status } from 'src/@core/components/common'
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
+// ** Third Party
+import { useSelector } from 'react-redux'
+
+// ** Configs & Helpers
 import Logo from 'src/icons/logo'
+import themeConfig from 'src/configs/themeConfig'
+import { Status } from 'src/@core/components/common'
+import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
 
-const MUITableCell = styled(TableCell)(({ theme }) => ({
-  borderBottom: 0,
-  paddingLeft: '0 !important',
-  paddingRight: '0 !important',
-  '&:not(:last-child)': {
-    paddingRight: `${theme.spacing(2)} !important`
-  }
-}))
+// ** Design Tokens
+import { colors, radii, shadows, stone } from 'src/configs/designTokens'
 
+const sectionLabelSx = {
+  fontSize: '0.875rem',
+  fontWeight: 600,
+  lineHeight: '20px',
+  color: colors.foreground
+}
+
+const mutedSx = {
+  fontSize: '0.8125rem',
+  lineHeight: '20px',
+  color: colors.mutedForeground
+}
+
+/** Name over a date and time, used for the two signature blocks. */
+const SignatureBlock = ({ label, name, timestamp }) => (
+  <Box sx={{ textAlign: 'center', flex: 1 }}>
+    <Typography sx={{ ...sectionLabelSx, mb: 8 }}>{label}</Typography>
+    <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.foreground }}>
+      {name || '-'}
+    </Typography>
+    <Typography sx={mutedSx}>{timestamp ? returnFormatDate(timestamp) : '-'}</Typography>
+    <Typography sx={mutedSx}>{timestamp ? returnFormatTime(timestamp) : ''}</Typography>
+  </Box>
+)
+
+/**
+ * PageDetailInternalTransfer
+ * -------------------------------------------------------------------------------------
+ * The internal-transfer document: company letterhead, destination, the product table,
+ * notes, and the two signature blocks.
+ *
+ * The layout mirrors the printed sheet, so the section order is deliberate —
+ * only the surface treatment (borders, spacing, type scale) follows the redesign.
+ */
 const PageDetailInternalTransfer = ({ data }) => {
-  // ** Hook
-  const theme = useTheme()
-  const dispatch = useDispatch()
-
   const { rawCompany: companyInfo } = useSelector(state => state.companyConfig)
 
-  useEffect(() => {
-    dispatch(fetchCompanyInfo())
-  }, [dispatch])
+  if (!data) return null
 
-  if (data) {
-    return (
-      <Card>
-        <CardContent sx={{ p: [`${theme.spacing(4)} !important`, `${theme.spacing(6)} !important`] }}>
-          <Grid container sx={{ mt: 7 }}>
-            <Grid item sm={6} xs={12}>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Logo width={30} />
-                  <Typography variant='h4' sx={{ ml: 2.5, fontWeight: 500, lineHeight: '18px' }}>
-                    {themeConfig.templateName}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.companyName}</Typography>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.address}</Typography>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.city}</Typography>
-                  <Typography sx={{ color: `'text.secondary'` }}>{companyInfo?.phoneNumber}</Typography>
-                </Box>
-              </Box>
-            </Grid>
-            <Grid item sm={6} xs={12}>
-              <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
-                <Table sx={{ maxWidth: '12rem' }}>
-                  <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
-                    <TableRow>
-                      <MUITableCell>
-                        <Typography variant='h6'>Internal Transfer</Typography>
-                        <Typography variant='h6'>{`#${data.code}`}</Typography>
-                      </MUITableCell>
-                    </TableRow>
-                    <TableRow>
-                      <MUITableCell>
-                        <Status
-                          status={data?.status}
-                        />
-                      </MUITableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </Box>
-            </Grid>
-          </Grid>
-        </CardContent>
-        <Divider />
-        <CardContent sx={{ p: [`${theme.spacing(6)} !important`, `${theme.spacing(10)} !important`] }}>
-          <Grid container>
-            <Grid item xs={6} sm={5} sx={{ mb: { lg: 0, xs: 4 } }}>
-              <Typography variant='h6' sx={{ mb: 2 }}>
-                Gudang Asal
+  return (
+    <Card
+      elevation={0}
+      sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
+    >
+      {/* Letterhead */}
+      <CardContent sx={{ p: 5 }}>
+        <Grid container spacing={4}>
+          <Grid item xs={12} sm={7}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+              <Logo width={28} />
+              <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground }}>
+                {themeConfig.templateName}
               </Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseName}</Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseLocation}</Typography>
-            </Grid>
+            </Box>
+            <Typography sx={mutedSx}>{companyInfo?.companyName}</Typography>
+            <Typography sx={mutedSx}>{companyInfo?.address}</Typography>
+            <Typography sx={mutedSx}>{companyInfo?.city}</Typography>
+            <Typography sx={{ ...mutedSx, fontWeight: 500, color: colors.foreground, mt: 1 }}>
+              {companyInfo?.phoneNumber}
+            </Typography>
           </Grid>
-        </CardContent>
-
-        <Divider />
-
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell align='left'>Produk</TableCell>
-                <TableCell align='left'>Unit</TableCell>
-                <TableCell align='left'>Company</TableCell>
-                <TableCell align='left'>Rak Asal</TableCell>
-                <TableCell align='left'>Rak Tujuan</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody
+          <Grid item xs={12} sm={5}>
+            <Box
               sx={{
-                '& .MuiTableCell-root': {
-                  py: `${theme.spacing(2.5)} !important`,
-                  fontSize: theme.typography.body1.fontSize
-                }
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: { xs: 'flex-start', sm: 'flex-end' },
+                gap: 1
               }}
             >
-              {data?.listProduct?.map((data, index) => {
-                return (
-                  <TableRow key={index}>
-                    <TableCell>{data?.productName}</TableCell>
-                    <TableCell>{data?.unitName || ''}</TableCell>
-                    <TableCell>{data?.companyName || ''}</TableCell>
-                    <TableCell>{data?.warehouseRackFrom || ''}</TableCell>
-                    <TableCell>{data?.warehouseRackTo || ''}</TableCell>
-                  </TableRow>
-                )
-              })}
+              <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground }}>
+                Internal Transfer
+              </Typography>
+              <Typography sx={mutedSx}>{`#${data.code}`}</Typography>
+              <Box sx={{ mt: 1 }}>
+                <Status status={data?.status} />
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
+      </CardContent>
+
+      <Divider sx={{ borderColor: colors.border }} />
+
+      {/* Destination */}
+      <CardContent sx={{ p: 5 }}>
+        <Typography sx={{ ...sectionLabelSx, mb: 1 }}>Gudang Asal</Typography>
+        <Typography sx={mutedSx}>
+          {data?.warehouseName}
+          {data?.warehouseLocation ? ` - ${data.warehouseLocation}` : ''}
+        </Typography>
+      </CardContent>
+
+      {/* Products */}
+      <Box sx={{ px: 5, pb: 5 }}>
+        <TableContainer
+          sx={{ borderRadius: `${radii.md}px`, border: `1px solid ${colors.border}`, overflowX: 'auto' }}
+        >
+          <Table size='small'>
+            <TableHead sx={{ backgroundColor: stone[100] }}>
+              <TableRow>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Produk</TableCell>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Unit</TableCell>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Company</TableCell>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Rak Asal</TableCell>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Rak Tujuan</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data?.listProduct?.map((item, index) => (
+                <TableRow key={index} sx={{ '&:last-of-type td': { borderBottom: 0 } }}>
+                  <TableCell sx={{ fontSize: '0.875rem', color: colors.foreground, borderColor: colors.border }}>
+                    {item?.productName}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: colors.foreground, borderColor: colors.border }}>
+                    {item?.unitName || '-'}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: colors.foreground, borderColor: colors.border }}>
+                    {item?.companyName || '-'}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: colors.foreground, borderColor: colors.border }}>
+                    {item?.warehouseRackFrom || '-'}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: colors.foreground, borderColor: colors.border }}>
+                    {item?.warehouseRackTo || '-'}
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
+      </Box>
 
-        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
-          <Grid container>
-            <Grid item xs={12} sm={9} lg={9} sx={{ order: { sm: 1, xs: 2 }, mb: 4 }}>
-              <Box sx={{ mb: 2, display: 'flex-col', alignItems: 'center' }}>
-                <Typography sx={{ color: 'text.secondary' }}>
-                  <Typography component='span' sx={{ mr: 1.5, fontWeight: 500, color: 'inherit' }}>
-                    CATATAN :
-                  </Typography>
-                </Typography>
-                <Typography sx={{ color: 'text.secondary', mt: 3 }}>{data?.notes}</Typography>
-              </Box>
-            </Grid>
-          </Grid>
-        </CardContent>
+      <Divider sx={{ borderColor: colors.border }} />
 
-        <Divider />
+      {/* Notes */}
+      <CardContent sx={{ p: 5 }}>
+        <Typography sx={{ ...sectionLabelSx, mb: 1 }}>Catatan</Typography>
+        <Typography sx={mutedSx}>{data?.notes || '-'}</Typography>
+      </CardContent>
 
-        <CardContent sx={{ px: [6, 10] }}>
-          <Grid container>
-            <Grid item xs={12} sm={12} lg={12} sx={{ mb: 20, mx: 7 }}>
-              <Box
-                sx={{
-                  mb: 2,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  textAlign: 'center'
-                }}
-              >
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Dibuat Oleh</Typography>
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Diterima Oleh</Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={12} lg={12} sx={{}}>
-              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box sx={{ mb: 2, ml: 5, display: 'flex-column', alignItems: 'center', textAlign: 'center' }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.createdBy}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.createdAt)}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.createdAt)}</Typography>
-                </Box>
-                <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.approvedBy}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.approvedAt)}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.approvedAt)}</Typography>
-                </Box>
-              </Box>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-    )
-  } else {
-    return null
-  }
+      <Divider sx={{ borderColor: colors.border }} />
+
+      {/* Signatures */}
+      <CardContent sx={{ p: 5 }}>
+        <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          <SignatureBlock label='Dibuat Oleh' name={data?.createdBy} timestamp={data?.createdAt} />
+          <SignatureBlock label='Diterima Oleh' name={data?.approvedBy} timestamp={data?.approvedAt} />
+        </Box>
+      </CardContent>
+    </Card>
+  )
 }
 
 export default PageDetailInternalTransfer

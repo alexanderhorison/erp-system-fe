@@ -140,8 +140,8 @@ export default function DataTable({ toolbar = null, itemLabel = 'items', sx, slo
         apiRef={apiRef}
         autoHeight
         disableRowSelectionOnClick
-        columnHeaderHeight={36}
-        rowHeight={36}
+        columnHeaderHeight={48}
+        rowHeight={52}
         sx={{
           border: 0,
           width: '100%',
@@ -154,6 +154,10 @@ export default function DataTable({ toolbar = null, itemLabel = 'items', sx, slo
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: stone[100],
             borderBottom: `1px solid ${colors.border}`
+          },
+          '& .MuiDataGrid-columnHeader': {
+            paddingLeft: 16,
+            paddingRight: 16
           },
           '& .MuiDataGrid-iconButtonContainer': {
             visibility: 'visible',
@@ -173,7 +177,9 @@ export default function DataTable({ toolbar = null, itemLabel = 'items', sx, slo
           '& .MuiDataGrid-cell': {
             fontSize: '0.875rem',
             borderColor: colors.border,
-            color: colors.foreground
+            color: colors.foreground,
+            paddingLeft: 16,
+            paddingRight: 16
           },
           // ** When the columns do not fill the viewport DataGrid appends a
           // filler `.MuiDataGrid-cell` with no content. It inherits the border

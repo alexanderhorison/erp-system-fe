@@ -22,7 +22,7 @@ export default function AddProductWarehouse() {
   }, [id, dispatch])
 
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
         <PageHeader
           title='Add Product'

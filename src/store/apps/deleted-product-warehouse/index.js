@@ -59,6 +59,7 @@ export const appMasterProductSlice = createSlice({
     dataListDeletedProduct: [],
     loadingListDeletedProduct: false,
     errorListDeletedProduct: false,
+    loadingRestoreProduct: false,
   },
   reducers: {},
   extraReducers: builder => {
@@ -73,6 +74,15 @@ export const appMasterProductSlice = createSlice({
       .addCase(fetchListDeletedProductWarehouse.rejected, (state, action) => {
         state.loadingListDeletedProduct = false
         state.errorListDeletedProduct = true
+      })
+      .addCase(restoreDeletedProduct.pending, (state, action) => {
+        state.loadingRestoreProduct = true
+      })
+      .addCase(restoreDeletedProduct.fulfilled, (state, action) => {
+        state.loadingRestoreProduct = false
+      })
+      .addCase(restoreDeletedProduct.rejected, (state, action) => {
+        state.loadingRestoreProduct = false
       })
   }
 })

@@ -1,19 +1,71 @@
-import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, CircularProgress, Divider, Grid, IconButton } from '@mui/material'
 import { useEffect, useRef } from 'react'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useDispatch, useSelector } from 'react-redux'
-import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
-import CustomTextField from 'src/@core/components/mui/text-field'
-
-import Icon from 'src/@core/components/icon'
-import * as yup from 'yup'
 import { useRouter } from 'next/router'
-import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
+import { useDispatch, useSelector } from 'react-redux'
+
+// ** MUI Imports
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import Grid from '@mui/material/Grid'
+import Button from '@mui/material/Button'
+import Collapse from '@mui/material/Collapse'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import CardContent from '@mui/material/CardContent'
+import { styled } from '@mui/material/styles'
+
+// ** Third Party Imports
+import * as yup from 'yup'
+import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+
+// ** Custom Component Imports
+import Icon from 'src/@core/components/icon'
+import CustomTextField from 'src/@core/components/mui/text-field'
+import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
+
+// ** Store
 import OptionsGroup from 'src/helpers/groupedInput'
+import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
 import { createAdjustmentGoodsIn } from 'src/store/apps/adjustment/goods-in'
 import { fetchMasterDataProduct } from 'src/store/apps/master/product'
 import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
+
+// ** Design Tokens
+import FormActionBar from 'src/views/common/FormActionBar'
+
+// ** Design Tokens
+import { colors, radii, shadows } from 'src/configs/designTokens'
+
+// ** Each product line is its own outlined row, matching the warehouse
+// add-product form so both "add items" screens read the same.
+const RepeatingContent = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: theme.spacing(4),
+  padding: theme.spacing(4),
+  // ** Fully rounded to match the pill inputs inside it. A literal 9999 would
+  // bow the sides of a tall row into a stadium, so the radius is capped at the
+  // largest value that still reads as round on a single-line row.
+  borderRadius: `${radii['3xl']}px`,
+  border: `1px solid ${colors.border}`,
+  boxShadow: shadows.xs,
+  backgroundColor: colors.background
+}))
+
+const RepeaterWrapper = styled(CardContent)(({ theme }) => ({
+  '& .repeater-wrapper + .repeater-wrapper': {
+    marginTop: theme.spacing(4)
+  },
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(4)
+  }
+}))
+
+const surfaceCardSx = {
+  borderRadius: `${radii.lg}px`,
+  border: `1px solid ${colors.border}`,
+  boxShadow: shadows.xs
+}
 
 export default function AddAdjustmentGoodsIn() {
   const dispatch = useDispatch()
@@ -36,10 +88,12 @@ export default function AddAdjustmentGoodsIn() {
           .required('Kuantiti harus diisi')
           .test('is-valid-number', 'Kuantiti harus berupa angka', function (value) {
             const num = Number(value)
+
             return !isNaN(num)
           })
           .test('is-greater-than-zero', 'Kuantiti harus lebih dari 0', function (value) {
             const num = Number(value)
+
             return num > 0
           })
       })
@@ -51,7 +105,6 @@ export default function AddAdjustmentGoodsIn() {
     control,
     handleSubmit,
     formState: { errors },
-    setValue,
     setError
   } = useForm({
     mode: 'onChange',
@@ -76,8 +129,9 @@ export default function AddAdjustmentGoodsIn() {
       }
       lastIndexMap.set(key, i)
     }
+
     // Check duplicate index
-    lastIndex !== -1 ? (lastIndex) : (duplicate = false)
+    lastIndex !== -1 ? lastIndex : (duplicate = false)
     setError(`data[${lastIndex}].masterProductId`, {
       type: 'duplicate',
       message: `Produk dan Satuan sama dengan item lain`
@@ -114,214 +168,193 @@ export default function AddAdjustmentGoodsIn() {
   }, [dispatch, append, fields])
 
   return (
-    <>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Grid container display='flex' gap={4} justifyContent='space-between'>
-                  <Grid item xs={12} md={4}>
-                    <Controller
-                      name={`warehouseDestination`}
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomAutocomplete
-                          options={masterDataWarehouse}
-                          id='autocomplete-custom'
-                          getOptionLabel={option => option.name || ''}
-                          onChange={(event, newValue) => {
-                            onChange(+newValue?.id)
-                          }}
-                          renderInput={params => (
-                            <CustomTextField
-                              value={value}
-                              {...params}
-                              error={Boolean(errors?.warehouseDestination)}
-                              {...(errors?.warehouseDestination && {
-                                helperText: errors?.warehouseDestination.message
-                              })}
-                              label='Gudang Tujuan'
-                            />
-                          )}
-                        />
-                      )}
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Card elevation={0} sx={surfaceCardSx}>
+        <RepeaterWrapper>
+          {/* Destination */}
+          <Box sx={{ mb: 4 }}>
+            <Controller
+              name='warehouseDestination'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <CustomAutocomplete
+                  fullWidth
+                  options={masterDataWarehouse}
+                  id='autocomplete-warehouse'
+                  getOptionLabel={option => option.name || ''}
+                  onChange={(event, newValue) => {
+                    onChange(+newValue?.id)
+                  }}
+                  renderInput={params => (
+                    <CustomTextField
+                      value={value}
+                      {...params}
+                      label='Gudang Tujuan'
+                      error={Boolean(errors?.warehouseDestination)}
+                      {...(errors?.warehouseDestination && {
+                        helperText: errors?.warehouseDestination.message
+                      })}
                     />
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12}>
-            <Card>
-              {fields.map((item, index) => (
-                <>
-                  <CardContent key={index}>
-                    <Grid container spacing={6}>
-                      <Grid item xs={12} md={7}>
-                        <Controller
-                          name={`data[${index}].masterProductId`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomAutocomplete
-                              key={index}
-                              options={OptionsGroup(masterDataProduct, 'category')}
-                              id='autocomplete-grouped'
-                              groupBy={option => option.category}
-                              getOptionLabel={option => option.name || ''}
-                              onChange={(event, newValue) => {
-                                onChange(+newValue?.id)
-                              }}
-                              renderInput={params => (
-                                <CustomTextField
-                                  value={item.masterProductId}
-                                  {...params}
-                                  error={Boolean(errors?.data?.[index]?.masterProductId)}
-                                  {...(errors?.data?.[index]?.masterProductId && {
-                                    helperText: errors?.data?.[index]?.masterProductId.message
-                                  })}
-                                  label='Pilih produk'
-                                  inputRef={el => (inputRefs.current[index] = el)}
-                                />
-                              )}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={5} md={2}>
-                        <Controller
-                          name={`data[${index}].unitId`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomAutocomplete
-                              options={masterDataUnit}
-                              id='autocomplete-custom'
-                              getOptionLabel={option => option.name || ''}
-                              onChange={(event, newValue) => {
-                                onChange(+newValue?.id)
-                              }}
-                              renderInput={params => (
-                                <CustomTextField
-                                  value={isNaN(value) ? '' : value}
-                                  {...params}
-                                  label='Pilih satuan'
-                                  error={Boolean(errors?.data?.[index]?.unitId)}
-                                  {...(errors?.data?.[index]?.unitId && {
-                                    helperText: errors?.data?.[index]?.unitId.message
-                                  })}
-                                />
-                              )}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={5} md={2}>
-                        <Controller
-                          name={`data[${index}].quantity`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Kuantiti'
-                              value={value}
-                              onChange={e => {
-                                onChange(e.target.value)
-                              }}
-                              type='number'
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors?.data?.[index]?.quantity)}
-                              {...(errors?.data?.[index]?.quantity && {
-                                helperText: errors?.data?.[index]?.quantity.message
-                              })}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={1} md={1} sx={{ marginTop: 'auto' }}>
-                        {index !== 0 && fields.length - 1 === index && (
-                          <IconButton onClick={() => deleteItem(index)} sx={{ color: 'text.primary' }}>
-                            <Icon icon='tabler:trash' />
-                          </IconButton>
+                  )}
+                />
+              )}
+            />
+          </Box>
+
+          {/* Product lines */}
+          {fields.map((item, index) => {
+            const Tag = index === 0 ? Box : Collapse
+
+            return (
+              <Tag key={item.id} className='repeater-wrapper' {...(index !== 0 ? { in: true } : {})}>
+                <RepeatingContent>
+                  <Grid container spacing={4} sx={{ flex: 1, minWidth: 0 }}>
+                    <Grid item xs={12} md={6}>
+                      <Controller
+                        name={`data[${index}].masterProductId`}
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { onChange } }) => (
+                          <CustomAutocomplete
+                            fullWidth
+                            options={OptionsGroup(masterDataProduct, 'category')}
+                            id='autocomplete-grouped'
+                            groupBy={option => option.category}
+                            getOptionLabel={option => option.name || ''}
+                            onChange={(event, newValue) => {
+                              onChange(+newValue?.id)
+                            }}
+                            renderInput={params => (
+                              <CustomTextField
+                                value={item.masterProductId}
+                                {...params}
+                                label='Pilih produk'
+                                inputRef={el => (inputRefs.current[index] = el)}
+                                error={Boolean(errors?.data?.[index]?.masterProductId)}
+                                {...(errors?.data?.[index]?.masterProductId && {
+                                  helperText: errors?.data?.[index]?.masterProductId.message
+                                })}
+                              />
+                            )}
+                          />
                         )}
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                  <Divider />
-                </>
-              ))}
-              <CardContent>
-                <Grid item>
-                  <Button onClick={addMore} startIcon={<Icon icon='tabler:plus' />}>
-                    Tambahkan produk
-                  </Button>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Grid item xs={12}>
-                  <Controller
-                    name={`notes`}
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange } }) => (
-                      <CustomTextField
-                        multiline
-                        rows={3}
-                        fullWidth
-                        label='Catatan'
-                        placeholder={'Catatan...'}
-                        value={value}
-                        onChange={e => {
-                          onChange(e.target.value)
-                        }}
-                        type='number'
-                        sx={{ display: 'block' }}
                       />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Controller
+                        name={`data[${index}].unitId`}
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                          <CustomAutocomplete
+                            fullWidth
+                            options={masterDataUnit}
+                            id='autocomplete-unit'
+                            getOptionLabel={option => option.name || ''}
+                            onChange={(event, newValue) => {
+                              onChange(+newValue?.id)
+                            }}
+                            renderInput={params => (
+                              <CustomTextField
+                                value={isNaN(value) ? '' : value}
+                                {...params}
+                                label='Pilih satuan'
+                                error={Boolean(errors?.data?.[index]?.unitId)}
+                                {...(errors?.data?.[index]?.unitId && {
+                                  helperText: errors?.data?.[index]?.unitId.message
+                                })}
+                              />
+                            )}
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <Controller
+                        name={`data[${index}].quantity`}
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                          <CustomTextField
+                            fullWidth
+                            label='Kuantiti'
+                            value={value}
+                            onChange={e => onChange(e.target.value)}
+                            type='number'
+                            sx={{ display: 'block' }}
+                            error={Boolean(errors?.data?.[index]?.quantity)}
+                            {...(errors?.data?.[index]?.quantity && {
+                              helperText: errors?.data?.[index]?.quantity.message
+                            })}
+                          />
+                        )}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  {/* The first line is never removable, so the slot stays
+                          reserved to keep every row's fields aligned. */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', pt: 5, width: 34, flexShrink: 0 }}>
+                    {index !== 0 && (
+                      <Tooltip title='Remove'>
+                        <IconButton
+                          onClick={() => deleteItem(index)}
+                          size='small'
+                          aria-label='remove product'
+                          sx={{ color: colors.destructive, '&:hover': { backgroundColor: 'transparent' } }}
+                        >
+                          <Icon icon='tabler:trash' fontSize='1.125rem' />
+                        </IconButton>
+                      </Tooltip>
                     )}
-                  />
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid
-            container
-            sx={{ paddingLeft: '25px', marginTop: '20px' }}
-            display='flex'
-            justifyContent='flex-end'
-            gap={6}
-          >
-            {
-              loadingCreateAdjustmentGoodsIn ? (
-                <Button variant='contained' disabled>
-                  <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
-                  Submitting...
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    variant='tonal'
-                    color='secondary'
-                    onClick={() => router.back()}
-                    startIcon={<Icon icon='tabler:x' />}
-                  >
-                    Cancel
-                  </Button>
-                  <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-                    Submit
-                  </Button>
-                </>
-              )
-            }
-          </Grid>
-        </Grid>
-      </form>
-    </>
+                  </Box>
+                </RepeatingContent>
+              </Tag>
+            )
+          })}
+
+          <Box sx={{ mt: 4 }}>
+            <Button
+              variant='outlined'
+              color='secondary'
+              onClick={addMore}
+              startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+              sx={{
+                borderRadius: `${radii.full}px`,
+                color: colors.foreground,
+                borderColor: colors.border3,
+                boxShadow: shadows.xs,
+                '&:hover': { borderColor: colors.border3 }
+              }}
+            >
+              Tambahkan produk
+            </Button>
+          </Box>
+
+          {/* Notes */}
+          <Box sx={{ mt: 5 }}>
+            <Controller
+              name='notes'
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <CustomTextField
+                  multiline
+                  rows={3}
+                  fullWidth
+                  label='Catatan'
+                  placeholder='Catatan...'
+                  value={value || ''}
+                  onChange={e => onChange(e.target.value)}
+                  sx={{ display: 'block' }}
+                />
+              )}
+            />
+          </Box>
+        </RepeaterWrapper>
+      </Card>
+
+      <FormActionBar onCancel={() => router.back()} loading={loadingCreateAdjustmentGoodsIn} />
+    </form>
   )
 }

@@ -71,7 +71,7 @@ const RowOptions = ({ id, name, warehouseId, query, onViewDetail }) => {
             name, so the row keeps every action in one place. */}
         <Tooltip title='Stock History'>
           <IconButton onClick={onViewDetail} size='small'>
-            <Icon icon='tabler:history' fontSize='1.125rem' />
+            <Icon icon='lucide:file-clock' fontSize='1.125rem' />
           </IconButton>
         </Tooltip>
         <Tooltip title='Delete'>

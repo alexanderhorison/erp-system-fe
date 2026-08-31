@@ -1,12 +1,25 @@
-import { Grid, Typography } from '@mui/material'
+import Grid from '@mui/material/Grid'
+import { useRouter } from 'next/router'
+
 import AddAdjustmentGoodsOut from 'src/views/adjustment/goods-out/AddAdjustmentGoodsOut'
-import ButtonBack from 'src/views/common/ButtonBack'
+import PageHeader from 'src/views/common/PageHeader'
 
 export default function AdjustmentGoodOutAdd() {
+  const router = useRouter()
+
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <ButtonBack paddingY={3} name='Pembuatan surat barang keluar' />
+        <PageHeader
+          title='Pembuatan Surat Barang Keluar'
+          onBack={() => router.back()}
+          breadcrumbs={[
+            { label: 'Inventory' },
+            { label: 'Stock Adjustment' },
+            { label: 'Barang Keluar', href: '/adjustment/goods-out' },
+            { label: 'Pembuatan' }
+          ]}
+        />
         <AddAdjustmentGoodsOut />
       </Grid>
     </Grid>

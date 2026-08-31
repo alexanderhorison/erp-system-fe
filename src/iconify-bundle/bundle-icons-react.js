@@ -49,7 +49,7 @@ const sources = {
     // Lucide icons referenced by the redesign that Tabler has no equivalent for.
     {
       filename: require.resolve('@iconify/json/json/lucide.json'),
-      icons: ['package-open', 'arrow-left-right']
+      icons: ['package-open', 'arrow-left-right', 'file-clock', 'database-backup']
     }
 
     // Custom JSON file
