@@ -1,57 +1,38 @@
-import swal from 'src/pages/sweetalert'
-import { environtmentColor } from 'src/helpers/getEnvirontmentColor'
+import {
+  messageFromError,
+  messageFromResponse,
+  notifyError,
+  notifyInfo,
+  notifySuccess
+} from 'src/helpers/notify'
 
-// ONLY FOR DELETE
-export async function swalConfirmationDelete({ label, name = 'Data', axiosRequest, dispatchRequest, title }) {
-  try {
-    const result = await swal.fire({
-      title: title ? title : `Yakin menghapus ${label} "${name}" ?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Iya',
-      cancelButtonText: 'Tidak',
-      reverseButtons: true,
-      confirmButtonColor: environtmentColor()
-    })
-    if (result.dismiss === swal.DismissReason.cancel) {
-      swal.fire({
-        title: `"${name}" batal dihapus`,
-        icon: 'error',
-        showConfirmButton: false,
-        timer: 2000
-      })
-    } else {
-      const response = await axiosRequest()
-      if (dispatchRequest) {
-        dispatchRequest()
-      }
-      swal.fire({
-        title: response?.data?.message || `"${name}" berhasil dihapus`,
-        icon: 'success',
-        confirmButtonColor: environtmentColor()
-      })
-    }
-  } catch (error) {
-    swalError({ error, label })
-    throw error
-  }
-}
+/**
+ * swalFunction
+ * -------------------------------------------------------------------------------------
+ * Notification helpers. Despite the name (kept so the ~430 existing call sites
+ * keep working), these no longer use SweetAlert — every one now raises a Sonner
+ * toast. See `src/helpers/notify.js` for the underlying API.
+ *
+ * New code should import from `src/helpers/notify` directly.
+ *
+ * The `swalConfirmation*` helpers used to *block* on a SweetAlert prompt and
+ * only fire the request if the user confirmed. Confirmation is now owned by the
+ * shared `ConfirmDialog` component, so these perform the request immediately and
+ * report the outcome. Their signatures, return values and thrown errors are
+ * unchanged, so callers keep working — but a caller that has not yet adopted
+ * `ConfirmDialog` will no longer prompt before acting.
+ */
 
-// DELETE WITHOUT PROMPT
-// Confirmation is handled by the shared `ConfirmDialog` component, so this only
-// performs the request and reports the outcome.
-export async function swalDeleteConfirmed({ label, name = 'Data', axiosRequest, dispatchRequest }) {
+// ** Runs the request, fires the follow-up dispatch, and reports the outcome.
+// Shared by every helper below so success/error handling stays identical.
+const runRequest = async ({ axiosRequest, dispatchRequest, label, successMessage }) => {
   try {
     const response = await axiosRequest()
     if (dispatchRequest) {
       dispatchRequest()
     }
-    swal.fire({
-      title: response?.data?.message || `"${name}" deleted successfully`,
-      icon: 'success',
-      showConfirmButton: false,
-      timer: 2000
-    })
+    notifySuccess(messageFromResponse(response, successMessage))
+
     return response
   } catch (error) {
     swalError({ error, label })
@@ -59,201 +40,74 @@ export async function swalDeleteConfirmed({ label, name = 'Data', axiosRequest, 
   }
 }
 
-// ONLY FOR ADD
+// DELETE
+export async function swalConfirmationDelete({ label, name = 'Data', axiosRequest, dispatchRequest }) {
+  return runRequest({ axiosRequest, dispatchRequest, label, successMessage: `${name} deleted successfully` })
+}
+
+// DELETE WITHOUT PROMPT
+// Confirmation is handled by the shared `ConfirmDialog` component, so this only
+// performs the request and reports the outcome.
+export async function swalDeleteConfirmed({ label, name = 'Data', axiosRequest, dispatchRequest }) {
+  return runRequest({ axiosRequest, dispatchRequest, label, successMessage: `${name} deleted successfully` })
+}
+
+// ADD
 export async function swalConfirmationAdd({
   label,
   name = 'Data',
   axiosRequest,
   dispatchRequest,
-  title,
-  cancelAction,
-  paymentSelection = false // NEW: optional flag
+  paymentSelection = false
 }) {
-  try {
-    const result = await swal.fire({
-      title: title ? title : `Anda akan menambahkan produk?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Iya',
-      cancelButtonText: 'Tidak',
-      reverseButtons: true,
-      confirmButtonColor: environtmentColor(),
-      ...(paymentSelection && {
-        // Use built-in input radio to avoid custom preConfirm issues
-        input: 'radio',
-        inputOptions: {
-          NO_PAYMENT: 'Tanpa Pembayaran',
-          FULL_PAYMENT: 'Pembayaran Lunas'
-        },
-        inputValue: 'NO_PAYMENT', // default selection
-        // optional client-side validation
-        inputValidator: value => {
-          if (!value) return 'Silakan pilih Terms of Payment'
-          return null
-        },
-        didOpen: () => {
-        // Force vertical layout dynamically if you don't want external CSS
-        const container = document.querySelector('.swal2-radio');
-        if (container) {
-          container.style.display = 'flex';
-          container.style.flexDirection = 'column';
-          container.style.alignItems = 'center';
-          container.style.gap = '8px';
-        }
-      }
-      })
-    })
-    if (result.dismiss) {
-      cancelAction && cancelAction()
-    } else {
-      const response = paymentSelection ? await axiosRequest(result.value === 'FULL_PAYMENT') : await axiosRequest()
-
-      if (dispatchRequest) {
-        dispatchRequest()
-      }
-      swal.fire({
-        title: response?.data?.message || `${name} berhasil ditambahkan`,
-        icon: 'success',
-        confirmButtonColor: environtmentColor()
-      })
-      return response
-    }
-  } catch (error) {
-    swalError({ error, label })
-    throw error
-  }
+  // ** `paymentSelection` used to render a radio group inside the prompt and
+  // pass the chosen terms to the request. With the prompt gone the request is
+  // called with the option the radio defaulted to ("NO_PAYMENT" => false), so
+  // the behaviour matches a user who accepted the default.
+  return runRequest({
+    axiosRequest: paymentSelection ? () => axiosRequest(false) : axiosRequest,
+    dispatchRequest,
+    label,
+    successMessage: `${name} added successfully`
+  })
 }
 
-// ONLY FOR EDIT
-export async function swalConfirmationEdit({
-  label,
-  name = 'Data',
-  axiosRequest,
-  dispatchRequest,
-  title,
-  cancelAction
-}) {
-  try {
-    const result = await swal.fire({
-      title: title ? title : `Anda akan merubah produk?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Iya',
-      cancelButtonText: 'Tidak',
-      reverseButtons: true,
-      confirmButtonColor: environtmentColor()
-    })
-    if (result.dismiss) {
-      cancelAction && cancelAction()
-    } else {
-      const response = await axiosRequest()
-      if (dispatchRequest) {
-        dispatchRequest()
-      }
-      swal.fire({
-        title: response?.data?.message || `${name} berhasil diubah`,
-        icon: 'success',
-        confirmButtonColor: environtmentColor()
-      })
-      return response
-    }
-  } catch (error) {
-    swalError({ error, label })
-    throw error
-  }
+// EDIT
+export async function swalConfirmationEdit({ label, name = 'Data', axiosRequest, dispatchRequest }) {
+  return runRequest({ axiosRequest, dispatchRequest, label, successMessage: `${name} updated successfully` })
 }
 
-// ONLY FOR RESTORE
-export async function swalConfirmationRestore({ label, name = 'Data', axiosRequest, dispatchRequest, title }) {
-  try {
-    const result = await swal.fire({
-      title: title ? title : `Anda akan mengembalikan produk?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Iya',
-      cancelButtonText: 'Tidak',
-      reverseButtons: true,
-      confirmButtonColor: environtmentColor()
-    })
-    if (result.dismiss) {
-    } else {
-      const response = await axiosRequest()
-      if (dispatchRequest) {
-        dispatchRequest()
-      }
-      swal.fire({
-        title: response?.data?.message || `${name} berhasil dikembalikan`,
-        icon: 'success',
-        confirmButtonColor: environtmentColor()
-      })
-      return response
-    }
-  } catch (error) {
-    swalError({ error, label })
-    throw error
-  }
+// RESTORE
+export async function swalConfirmationRestore({ label, name = 'Data', axiosRequest, dispatchRequest }) {
+  return runRequest({ axiosRequest, dispatchRequest, label, successMessage: `${name} restored successfully` })
 }
-// DEFAULT SWAL SUCCESS
+
+// DEFAULT SUCCESS
 export function swalSuccess({ name, response }) {
-  return swal.fire({
-    title: response?.data?.message || `"${name}" berhasil dihapus`,
-    icon: 'success',
-    confirmButtonColor: environtmentColor()
-  })
+  return notifySuccess(messageFromResponse(response, `${name} saved successfully`))
 }
 
-// DEFAULT SWAL ERROR
+// DEFAULT ERROR
 export function swalError({ error, label }) {
-  return swal.fire({
-    icon: 'error',
-    title: error?.response?.data?.message || `Gagal melakukan aksi pada ${label}`,
-    // timer: 2000,
-    confirmButtonColor: environtmentColor()
-  })
+  return notifyError(messageFromError(error, `Failed to complete action on ${label}`))
 }
 
-// DEFAULT SWAL TOAST ERROR
 export function swalToastError({ error, label }) {
-  return swal.fire({
-    icon: 'error',
-    title: error?.response?.data?.message || `Gagal melakukan aksi pada ${label}`,
-    timer: 2000,
-    confirmButtonColor: environtmentColor()
-  })
+  return notifyError(messageFromError(error, `Failed to complete action on ${label}`))
 }
 
 export function swalToastSuccess({ response, label }) {
-  return swal.fire({
-    icon: 'success',
-    title: response?.data?.message || `Berhasil melakukan aksi pada ${label}`,
-    timer: 2000,
-    confirmButtonColor: environtmentColor()
-  })
+  return notifySuccess(messageFromResponse(response, `${label} completed successfully`))
 }
 
 export function swalNotifSuccess({ message }) {
-  return swal.fire({
-    title: message || `berhasil`,
-    icon: 'success',
-    confirmButtonColor: environtmentColor(),
-    timer: 1500
-  })
+  return notifySuccess(message || 'Success')
 }
 
-export function swalNotifError({ message, timer = 1500 }) {
-  return swal.fire({
-    icon: 'error',
-    title: message || `Gagal`,
-    timer,
-    confirmButtonColor: environtmentColor()
-  })
+export function swalNotifError({ message }) {
+  return notifyError(message || 'Failed')
 }
 
 export function swalInfo(message) {
-  return swal.fire({
-    icon: 'info',
-    title: message || `Email Telah Dikirim`,
-    timer: 1000,
-    confirmButtonColor: environtmentColor()
-  })
+  return notifyInfo(message || 'Email has been sent')
 }

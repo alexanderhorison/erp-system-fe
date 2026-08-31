@@ -1,10 +1,12 @@
-import { Grid, Typography } from '@mui/material'
+import { Grid } from '@mui/material'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchMasterDataWarehouseDetail } from 'src/store/apps/master/warehouse'
-import TableAddProductWarehouse from 'src/views/product-warehouse/warehouse/TableAddProductWarehouse'
 import TableAddProductWarehouseV2 from 'src/views/product-warehouse/warehouse/TableAddProductWarehouseV2'
+
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
 
 export default function AddProductWarehouse() {
   const dispatch = useDispatch()
@@ -22,10 +24,13 @@ export default function AddProductWarehouse() {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          Tambahkan barang pada gudang "{masterDataWarehouseDetail?.name}"
-        </Typography>
-        {/* <TableAddProductWarehouse warehouse={masterDataWarehouseDetail} /> */}
+        <PageHeader
+          title='Add Product'
+          subtitle={
+            masterDataWarehouseDetail?.name ? `${masterDataWarehouseDetail.name}` : undefined
+          }
+          onBack={() => router.push(`/product-warehouse/warehouse/${id}`)}
+        />
         <TableAddProductWarehouseV2 warehouse={masterDataWarehouseDetail} />
       </Grid>
     </Grid>

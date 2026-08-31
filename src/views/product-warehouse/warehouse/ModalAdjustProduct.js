@@ -1,101 +1,77 @@
 // ** React Imports
-import { useEffect, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import * as yup from 'yup'
 import { Controller, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** MUI Imports
+import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
+import Radio from '@mui/material/Radio'
+import RadioGroup from '@mui/material/RadioGroup'
+import Typography from '@mui/material/Typography'
+import FormControlLabel from '@mui/material/FormControlLabel'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
 
 import { editProductWarehouse } from 'src/store/apps/product-warehouse'
-import CardAdjustProduct from './CardAdjustProduct'
-import BaseModal from 'src/views/common/BaseModal'
+import AppModal from 'src/views/common/AppModal'
+import ProductInfoHeader from 'src/views/common/ProductInfoHeader'
 
-const titleMap = {
-  PLUS: 'Tambah Produk',
-  MINUS: 'Kurangi Produk',
-  MINIMUM_STOCK: 'Atur Stok Minimum'
-  // Tambahkan lebih banyak pemetaan jika diperlukan
-}
+// ** Design Tokens
+import { colors } from 'src/configs/designTokens'
 
+/**
+ * ModalAdjustProduct
+ * -------------------------------------------------------------------------------------
+ * Single "Sesuaikan Stok" dialog covering what used to be three separate modals
+ * (PLUS / MINUS / MINIMUM_STOCK). The direction is now chosen with a
+ * Tambah/Kurangi radio instead of a dedicated button per action, and the minimum
+ * stock is edited alongside it.
+ *
+ * `adjustmentType` is still sent to `editProductWarehouse`, so the request shape
+ * is unchanged — only where the value comes from.
+ */
 export default function ModalAdjustProduct({ open, setOpen, typeModal, warehouseId }) {
   const dispatch = useDispatch()
 
-  const { detailProductWarehouse, loadingDetailProductWarehouse, loadingEditProduct } = useSelector(state => state.productWarehouse)
+  const { detailProductWarehouse, loadingDetailProductWarehouse, loadingEditProduct } = useSelector(
+    state => state.productWarehouse
+  )
 
-  const title = useMemo(() => {
-    return titleMap[typeModal] || 'Title Default'
-  }, [typeModal])
+  // ** Direction defaults to whichever action opened the dialog, so the existing
+  // per-row buttons keep working.
+  const [adjustmentType, setAdjustmentType] = useState(typeModal === 'MINUS' ? 'MINUS' : 'PLUS')
 
-  // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    quantity: yup
+    quantityAdjustment: yup
       .string()
-      .required('Jumlah stok minimal harus diisi')
-      .test(
-        'is-non-negative',
-        'Jumlah stok minimal tidak boleh minus',
-        value => {
-          // Check if the value is a number and is non-negative
-          const num = Number(value);
-          return !isNaN(num) && num >= 0;
+      .required('Jumlah adjustment harus diisi')
+      .test('is-valid-number', 'Jumlah adjustment harus berupa angka', value => !isNaN(Number(value)))
+      .test('is-non-negative', 'Jumlah adjustment tidak boleh minus', value => Number(value) >= 0)
+      .test('quantity-adjustment', 'Jumlah tidak boleh lebih besar dari Kuantiti', function (value) {
+        const num = Number(value)
+        if (adjustmentType === 'MINUS' && num > Number(this.parent.quantity)) {
+          return this.createError({
+            path: 'quantityAdjustment',
+            message: 'Jumlah tidak boleh lebih besar dari Kuantiti jika mengurangi produk'
+          })
         }
-      ),
-    quantityAdjustment:
-      typeModal !== 'MINIMUM_STOCK'
-        ? yup
-          .string()
-          .required('Jumlah adjustment harus diisi')
-          .test(
-            'is-valid-number',
-            'Jumlah adjustment harus berupa angka',
-            function (value) {
-              const num = Number(value);
-              return !isNaN(num);
-            }
-          )
-          .test(
-            'is-non-negative',
-            'Jumlah adjustment tidak boleh minus',
-            function (value) {
-              const num = Number(value);
-              return num >= 0;
-            }
-          )
-          .test(
-            'quantity-adjustment',
-            'Jumlah Adjustment tidak boleh lebih besar dari Kuantiti ketika adjustment_type adalah MINUS',
-            function (value) {
-              const num = Number(value);
-              if (typeModal === 'MINUS' && num > this.parent.quantity) {
-                throw new yup.ValidationError(
-                  'Jumlah tidak boleh lebih besar dari Kuantiti jika mengurangi produk',
-                  null,
-                  'quantityAdjustment'
-                );
-              }
-              return true;
-            }
-          ) : yup.mixed(),
+
+        return true
+      }),
     minimumStock: yup
       .string()
       .required('Jumlah stok minimal harus diisi')
       .test(
         'is-non-negative',
         'Jumlah stok minimal tidak boleh minus',
-        value => {
-          // Check if the value is a number and is non-negative
-          const num = Number(value);
-          return !isNaN(num) && num >= 0;
-        }
+        value => !isNaN(Number(value)) && Number(value) >= 0
       )
   })
 
-  // REACT FORM
   const {
     control,
     handleSubmit,
@@ -106,14 +82,13 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, warehouse
     resolver: yupResolver(schema)
   })
 
-  // ON SUBMIT
   const onSubmit = data => {
     const idProduct = data.id
     const sendData = {
-      ...(typeModal !== 'MINIMUM_STOCK' ? { quantityAdjustment: data.quantityAdjustment } : {}),
-      ...(typeModal !== 'MINIMUM_STOCK' ? { quantity: data.quantity } : {}),
-      ...(typeModal === 'MINIMUM_STOCK' ? { minimumStock: data.minimumStock } : {}),
-      adjustmentType: typeModal
+      quantityAdjustment: data.quantityAdjustment,
+      quantity: data.quantity,
+      minimumStock: data.minimumStock,
+      adjustmentType
     }
     dispatch(editProductWarehouse({ id: idProduct, data: sendData, warehouseId }))
     setOpen(false)
@@ -121,82 +96,94 @@ export default function ModalAdjustProduct({ open, setOpen, typeModal, warehouse
 
   useEffect(() => {
     // disable warn for select if select not have a child item
-    console.warn = () => { }
+    console.warn = () => {}
   }, [dispatch])
 
-  // CLOSE MODAL AND RESET FORM
   const handleClose = () => {
     setOpen(false)
   }
 
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
-      title={title}
+      title='Sesuaikan Stok'
       size='sm'
       showActions={typeModal !== 'VIEW'}
       loading={loadingEditProduct}
       loadingPage={loadingDetailProductWarehouse}
     >
-      <Grid container spacing={6}>
-          <Grid item xs={12} sm={12}>
-            <CardAdjustProduct data={detailProductWarehouse} />
-          </Grid>
-          <Grid item xs={12}>
-            <Grid container spacing={6}>
-              {typeModal !== 'MINIMUM_STOCK' && (
-                <>
-                  <Grid item xs={12}>
-                    <Controller
-                      name='quantityAdjustment'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          label='Jumlah'
-                          value={value}
-                          onChange={e => {
-                            onChange(e.target.value)
-                          }}
-                          type='number'
-                          sx={{ display: 'block' }}
-                          error={Boolean(errors.quantityAdjustment)}
-                          {...(errors.quantityAdjustment && { helperText: errors.quantityAdjustment.message })}
-                        />
-                      )}
-                    />
-                  </Grid>
-                </>
-              )}
-              {typeModal === 'MINIMUM_STOCK' && (
-                <Grid item xs={12}>
-                  <Controller
-                    name='minimumStock'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange } }) => (
-                      <CustomTextField
-                        fullWidth
-                        label='Stok Minimal'
-                        value={value}
-                        onChange={e => {
-                          onChange(e.target.value)
-                        }}
-                        type='number'
-                        sx={{ display: 'block' }}
-                        error={Boolean(errors.minimumStock)}
-                        {...(errors.minimumStock && { helperText: errors.minimumStock.message })}
-                      />
-                    )}
-                  />
-                </Grid>
-              )}
-            </Grid>
-          </Grid>
+      <ProductInfoHeader data={detailProductWarehouse} />
+
+      <Grid container spacing={4}>
+        <Grid item xs={12} sm={6}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 1 }}>
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.foreground }}>Jumlah</Typography>
+            <RadioGroup
+              row
+              value={adjustmentType}
+              onChange={event => setAdjustmentType(event.target.value)}
+              sx={{ gap: 2 }}
+            >
+              <FormControlLabel
+                value='PLUS'
+                control={<Radio size='small' />}
+                label='Tambah'
+                sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
+              />
+              <FormControlLabel
+                value='MINUS'
+                control={<Radio size='small' />}
+                label='Kurangi'
+                sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
+              />
+            </RadioGroup>
+          </Box>
+          <Controller
+            name='quantityAdjustment'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                value={value}
+                onChange={e => onChange(e.target.value)}
+                type='number'
+                sx={{ display: 'block' }}
+                error={Boolean(errors.quantityAdjustment)}
+                {...(errors.quantityAdjustment
+                  ? { helperText: errors.quantityAdjustment.message }
+                  : {
+                      helperText: adjustmentType === 'MINUS' ? 'Stok akan dikurangi' : 'Stok akan ditambahkan'
+                    })}
+              />
+            )}
+          />
         </Grid>
-    </BaseModal>
+
+        <Grid item xs={12} sm={6}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.foreground, mt: 2}}>Stock Minimal</Typography>
+          </Box>
+          <Controller
+            name='minimumStock'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                value={value}
+                onChange={e => onChange(e.target.value)}
+                type='number'
+                sx={{ display: 'block' }}
+                error={Boolean(errors.minimumStock)}
+                {...(errors.minimumStock && { helperText: errors.minimumStock.message })}
+              />
+            )}
+          />
+        </Grid>
+      </Grid>
+    </AppModal>
   )
 }

@@ -1,6 +1,9 @@
 // ** MUI Imports
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+
+// ** Design Tokens
+import { sidebar } from 'src/configs/designTokens'
 import MuiListSubheader from '@mui/material/ListSubheader'
 
 // ** Icon Imports
@@ -38,7 +41,7 @@ const VerticalNavSectionTitle = props => {
             ? { py: 0.5, px: (collapsedNavWidth - navigationBorderWidth - 22) / 8 }
             : { px: 7.5 }),
           '& .MuiTypography-root, & svg': {
-            color: 'text.disabled'
+            color: sidebar.muted
           }
         }}
       >

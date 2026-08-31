@@ -144,7 +144,7 @@ const VerticalNavHeader = props => {
           disableRipple
           disableFocusRipple
           onClick={toggleNavVisibility}
-          sx={{ p: 0, color: 'text.secondary', backgroundColor: 'transparent !important' }}
+          sx={{ p: 0, color: sidebar.muted, backgroundColor: 'transparent !important' }}
         >
           <Icon icon='tabler:x' fontSize='1.25rem' />
         </IconButton>
@@ -155,7 +155,7 @@ const VerticalNavHeader = props => {
           onClick={() => saveSettings({ ...settings, navCollapsed: !navCollapsed })}
           sx={{
             p: 0,
-            color: 'text.primary',
+            color: sidebar.foreground,
             backgroundColor: 'transparent !important',
             '& svg': {
               fontSize: '1.25rem',

@@ -50,11 +50,11 @@ const MenuNavLink = styled(ListItemButton)(({ theme }) => ({
       borderLeft: `2px solid ${sidebar.activeAccent}`
     },
     '& .MuiTypography-root': {
-      color: `${sidebar.foreground} !important`,
+      color: `${sidebar.activeFg} !important`,
       fontWeight: 500
     },
     '& svg': {
-      color: `${sidebar.activeAccent} !important`
+      color: `${sidebar.activeFg} !important`
     }
   }
 }))
@@ -124,7 +124,7 @@ const VerticalNavLink = ({
             ...(item.disabled ? { pointerEvents: 'none' } : { cursor: 'pointer' }),
             px: navCollapsed && !navHover ? (collapsedNavWidth - navigationBorderWidth - 22 - 28) / 8 : 4,
             '& .MuiTypography-root, & svg': {
-              color: 'text.secondary'
+              color: sidebar.foreground
             }
           }}
         >

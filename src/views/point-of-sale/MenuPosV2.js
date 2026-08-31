@@ -79,7 +79,7 @@ export default function MenuPosV2({ showFilter, setShowFilter, selectedMenu, set
         selected={selectedMenu.code === 'POS'}
       />
       <MenuBox
-        icon='tabler:credit-card-pay'
+        icon='tabler:credit-card'
         title='Transaction'
         action={() => {
           setSelectedMenu({

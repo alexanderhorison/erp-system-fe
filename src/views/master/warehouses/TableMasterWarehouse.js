@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
+import { Box, Button, Chip, IconButton, Tooltip, Typography } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 
 import {
@@ -12,17 +11,29 @@ import {
   fetchMasterDataWarehouseDetail
 } from 'src/store/apps/master/warehouse'
 
-import TableHeaderMasterWarehouse from './TableHeaderMasterWarehouse'
 import ModalAddMasterWarehouse from './ModalAddMasterWarehouse'
 import HandleSearh from 'src/helpers/handleSearch'
+
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
+
+// ** Design Tokens
+import { colors, radii } from 'src/configs/designTokens'
 
 const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
   const router = useRouter()
   const [openModalEdit, setOpenModalEdit] = useState(false)
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
+  const { loadingDelete } = useSelector(state => state.warehouse)
 
+  // ** Confirmation is owned by `ConfirmDialog`; the thunk performs the request
+  // without prompting again.
   const handleDelete = () => {
     dispatch(deleteMasterDataWarehouse({ name, id }))
+    setOpenConfirmDelete(false)
   }
 
   const handleEdit = () => {
@@ -36,17 +47,32 @@ const RowOptions = ({ id, name }) => {
 
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center', ml: -3 }}>
-        <IconButton onClick={handlePageWarehouseRack}>
-          <Icon icon='tabler:eye' />
-        </IconButton>
-        <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton>
-        <IconButton onClick={handleDelete}>
-          <Icon icon='tabler:trash' />
-        </IconButton>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+        <Tooltip title='View Racks'>
+          <IconButton onClick={handlePageWarehouseRack} size='small'>
+            <Icon icon='tabler:eye' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Edit'>
+          <IconButton onClick={handleEdit} size='small'>
+            <Icon icon='tabler:edit' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Delete'>
+          <IconButton onClick={() => setOpenConfirmDelete(true)} size='small' sx={{ color: 'error.main' }}>
+            <Icon icon='tabler:trash' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
       </Box>
+
+      <ConfirmDialog
+        open={openConfirmDelete}
+        onClose={() => setOpenConfirmDelete(false)}
+        onConfirm={handleDelete}
+        title='Delete Warehouse'
+        itemName={name}
+        loading={loadingDelete}
+      />
       {openModalEdit && (
         <ModalAddMasterWarehouse open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
       )}
@@ -54,23 +80,48 @@ const RowOptions = ({ id, name }) => {
   )
 }
 
-export default function TableMasterWarehouse({ }) {
+// ** Status reads as an outlined chip rather than raw text, matching the chip
+// styling used elsewhere in the redesign.
+const StatusChip = ({ status }) => {
+  const isActive = status === 'active'
+
+  return (
+    <Chip
+      size='small'
+      label={isActive ? 'Active' : 'Not Active'}
+      sx={{
+        height: 24,
+        borderRadius: `${radii.full}px`,
+        border: `1px solid ${isActive ? colors.border3 : colors.border}`,
+        backgroundColor: 'transparent',
+        '& .MuiChip-label': {
+          px: 2,
+          fontSize: '0.75rem',
+          lineHeight: '16px',
+          color: isActive ? colors.foreground : colors.mutedForeground
+        }
+      }}
+    />
+  )
+}
+
+export default function TableMasterWarehouse({}) {
   const dispatch = useDispatch()
   const [openModalAdd, setOpenModalAdd] = useState(false)
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
 
   const { data } = useSelector(state => state.warehouse)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({ data, keys: ["name"], searchValue, setData: setFilteredData })
+    HandleSearh({ data, keys: ['name'], searchValue, setData: setFilteredData })
   }
 
   useEffect(() => {
-    dispatch(fetchMasterDataWarehouse({ status: "all" }))
+    dispatch(fetchMasterDataWarehouse({ status: 'all' }))
   }, [dispatch])
 
   useEffect(() => {
@@ -78,83 +129,71 @@ export default function TableMasterWarehouse({ }) {
   }, [data])
 
   return (
-    <Card>
+    <>
       {openModalAdd && <ModalAddMasterWarehouse open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
-      <DataGrid
-        autoHeight
+      <DataTable
+        itemLabel='warehouses'
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Search warehouse name'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            actions={
+              <Button
+                variant='contained'
+                onClick={() => setOpenModalAdd(true)}
+                startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+              >
+                Add Warehouse
+              </Button>
+            }
+          />
+        }
         columns={[
           {
-            flex: 0.1,
+            flex: 0.3,
             minWidth: 200,
             field: 'name',
-            headerName: 'Nama Gudang',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.name}
-                </Typography>
-              )
-            }
+            headerName: 'Warehouse Name',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.name}
+              </Typography>
+            )
           },
           {
-            flex: 0.1,
-            minWidth: 120,
+            flex: 0.3,
+            minWidth: 160,
             field: 'location',
-            headerName: 'Lokasi',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.location}
-                </Typography>
-              )
-            }
+            headerName: 'Location',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.location || '-'}
+              </Typography>
+            )
           },
           {
-            flex: 0.1,
+            flex: 0.2,
             minWidth: 120,
             field: 'status',
             headerName: 'Status',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.status}
-                </Typography>
-              )
-            }
+            renderCell: params => <StatusChip status={params.row.status} />
           },
           {
-            flex: 0.04,
-            minWidth: 120,
+            flex: 0.2,
+            minWidth: 140,
             sortable: false,
             field: 'actions',
-            headerName: 'Actions',
+            headerName: 'Action',
             renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderMasterWarehouse }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari nama gudang',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd
-          }
-        }}
       />
-    </Card>
+    </>
   )
 }

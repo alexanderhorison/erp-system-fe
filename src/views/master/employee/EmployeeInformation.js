@@ -142,7 +142,7 @@ export default function EmployeeInformation({ data }) {
 
           <Grid item xs={12} sm={4}>
             <InfoBox>
-              <Icon icon='tabler:receipt-dollar' />
+              <Icon icon='tabler:receipt-2' />
               <Box>
                 <Typography variant='caption' color='text.secondary'>
                   Kasbon

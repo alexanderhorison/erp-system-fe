@@ -32,7 +32,7 @@ const RowOptions = ({ id, name }) => {
 
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
         <IconButton onClick={handleEdit} size='small'>
           <Icon icon='tabler:edit' fontSize='1.125rem' />
         </IconButton>
@@ -61,7 +61,7 @@ export default function TableMasterUnit({}) {
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
 
   const { data } = useSelector(state => state.unit)
 
@@ -124,7 +124,7 @@ export default function TableMasterUnit({}) {
             renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
           }
         ]}
-        pageSizeOptions={[10, 25, 50, 100]}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}

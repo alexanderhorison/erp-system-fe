@@ -106,7 +106,7 @@ const ToolbarReceiptOrderOutstanding = ({ id, toggleSendInvoiceDrawer, toggleAdd
                   onClick={e => handleApprove()}
                   sx={{ mb: 2, '& svg': { mr: 2 } }}
                 >
-                  <Icon fontSize='1.125rem' icon='tabler:circle-dashed-check' />
+                  <Icon fontSize='1.125rem' icon='tabler:discount-check' />
                   Selesaikan Surat
                 </Button>
               )}

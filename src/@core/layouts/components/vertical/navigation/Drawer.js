@@ -2,6 +2,9 @@
 import { styled } from '@mui/material/styles'
 import MuiSwipeableDrawer from '@mui/material/SwipeableDrawer'
 
+// ** Design Tokens
+import { sidebar } from 'src/configs/designTokens'
+
 const SwipeableDrawer = styled(MuiSwipeableDrawer)({
   overflowX: 'hidden',
   transition: 'width .25s ease-in-out',
@@ -87,12 +90,11 @@ const Drawer = props => {
       {...(hidden ? { ...MobileDrawerProps } : { ...DesktopDrawerProps })}
       PaperProps={{
         sx: {
-          backgroundColor: 'background.paper',
+          backgroundColor: sidebar.background,
           // ** Flat sidebar separated by a border rather than a shadow (Figma).
           boxShadow: 'none',
           width: navCollapsed && !navHover ? collapsedNavWidth : navWidth,
-          borderRight: theme =>
-            navigationBorderWidth === 0 ? 0 : `${navigationBorderWidth}px solid ${theme.palette.divider}`,
+          borderRight: `1px solid ${sidebar.border}`,
           ...userNavMenuPaperStyle
         },
         ...navMenuProps?.PaperProps

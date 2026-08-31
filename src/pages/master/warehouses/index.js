@@ -1,13 +1,16 @@
-import { Grid, Typography } from '@mui/material'
+import Grid from '@mui/material/Grid'
+
+import PageHeader from 'src/views/common/PageHeader'
 import TableMasterWarehouse from 'src/views/master/warehouses/TableMasterWarehouse'
 
 export default function homeMasterWarehouse() {
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          Master Data Gudang
-        </Typography>
+        <PageHeader
+          title='Master Data Warehouse'
+          breadcrumbs={[{ label: 'Inventory' }, { label: 'Data Inventory' }, { label: 'Warehouses' }]}
+        />
         <TableMasterWarehouse />
       </Grid>
     </Grid>

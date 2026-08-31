@@ -13,7 +13,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { addMasterDataCategory, editMasterDataCategory } from 'src/store/apps/master/category'
-import BaseModal from 'src/views/common/BaseModal'
+import AppModal from 'src/views/common/AppModal'
 
 export default function ModalAddMasterCategory({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
@@ -21,7 +21,7 @@ export default function ModalAddMasterCategory({ open, setOpen, typeModal, id })
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    name: yup.string().required('Nama kategori harus diisi')
+    name: yup.string().required('Category name is required')
   })
 
   // REACT FORM
@@ -46,20 +46,20 @@ export default function ModalAddMasterCategory({ open, setOpen, typeModal, id })
   }
 
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={() => setOpen(false)}
       onSubmit={handleSubmit(onSubmit)}
       title={
-        typeModal === 'ADD' ? 'Tambahkan Kategori Baru' : typeModal === 'VIEW' ? 'Detail Kategori' : 'Ubah Kategori'
+        typeModal === 'ADD' ? 'Add New Category' : typeModal === 'VIEW' ? 'Category Detail' : 'Edit Category'
       }
       size='sm'
       showActions={typeModal !== 'VIEW'}
       loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
-      <Grid container spacing={6}>
+      <Grid container spacing={4}>
         <Grid item xs={12}>
-          <Grid container spacing={6}>
+          <Grid container spacing={4}>
             <Grid item xs={12} sm={12}>
               <Controller
                 name='name'
@@ -69,7 +69,7 @@ export default function ModalAddMasterCategory({ open, setOpen, typeModal, id })
                   <CustomTextField
                     fullWidth
                     value={value}
-                    label='Nama Kategori'
+                    label='Category Name'
                     placeholder=''
                     onChange={onChange}
                     disabled={typeModal === 'VIEW'}
@@ -93,7 +93,7 @@ export default function ModalAddMasterCategory({ open, setOpen, typeModal, id })
                     multiline
                     onChange={onChange}
                     disabled={typeModal === 'VIEW'}
-                    label='Deskripsi'
+                    label='Description'
                     error={Boolean(errors.description)}
                     aria-describedby='validation-basic-description'
                     {...(errors.description && { helperText: 'This field is required' })}
@@ -104,6 +104,6 @@ export default function ModalAddMasterCategory({ open, setOpen, typeModal, id })
           </Grid>
         </Grid>
       </Grid>
-    </BaseModal>
+    </AppModal>
   )
 }

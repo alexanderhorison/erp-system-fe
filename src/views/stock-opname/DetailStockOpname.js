@@ -131,7 +131,7 @@ export default function DetailStockOpname({ stockOpnameId, detailStockOpname }) 
                 Submitting...
               </Button>
             ) : (
-              <Button variant='tonal' color='success' onClick={() => handleConfirm()} startIcon={<Icon icon='tabler:circle-dashed-check' />}>
+              <Button variant='tonal' color='success' onClick={() => handleConfirm()} startIcon={<Icon icon='tabler:discount-check' />}>
                 Confirm
               </Button>
             )

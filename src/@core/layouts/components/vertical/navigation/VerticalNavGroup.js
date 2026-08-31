@@ -10,6 +10,9 @@ import Chip from '@mui/material/Chip'
 import Collapse from '@mui/material/Collapse'
 import ListItem from '@mui/material/ListItem'
 import { styled } from '@mui/material/styles'
+
+// ** Design Tokens
+import { sidebar } from 'src/configs/designTokens'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import ListItemIcon from '@mui/material/ListItemIcon'
@@ -186,7 +189,7 @@ const VerticalNavGroup = props => {
                 backgroundColor: 'action.hover'
               },
               '& .MuiTypography-root, & :not(.menu-item-meta) > svg': {
-                color: 'text.secondary'
+                color: sidebar.foreground
               },
               '&.Mui-selected': {
                 backgroundColor: 'action.selected',
@@ -194,10 +197,10 @@ const VerticalNavGroup = props => {
                   backgroundColor: 'action.selected'
                 },
                 '& .MuiTypography-root, & :not(.menu-item-meta) > svg': {
-                  color: 'text.primary'
+                  color: sidebar.activeFg
                 },
                 '& .menu-item-meta > svg': {
-                  color: 'text.secondary'
+                  color: sidebar.foreground
                 },
                 '&.Mui-focusVisible': {
                   backgroundColor: 'action.focus',
@@ -249,7 +252,7 @@ const VerticalNavGroup = props => {
                   display: 'flex',
                   alignItems: 'center',
                   '& svg': {
-                    color: 'text.disabled',
+                    color: sidebar.muted,
                     transition: 'transform .25s ease-in-out',
                     ...(groupActive.includes(item.title) && {
                       transform: direction === 'ltr' ? 'rotate(90deg)' : 'rotate(-90deg)'

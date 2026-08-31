@@ -54,7 +54,7 @@ const RowOptions = ({ id, name }) => {
       {openModalEdit && (
         <ModalAddMasterProduct open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
       )}
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
         <IconButton onClick={handlePageTransformation} size='small'>
           <Icon icon='tabler:eye' fontSize='1.125rem' />
         </IconButton>
@@ -91,7 +91,7 @@ export default function TableMasterProduct({}) {
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
 
   const { data } = useSelector(state => state.masterProduct)
   const { data: categoryData } = useSelector(state => state.category)
@@ -299,7 +299,7 @@ export default function TableMasterProduct({}) {
             renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
           }
         ]}
-        pageSizeOptions={[10, 25, 50, 100]}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}

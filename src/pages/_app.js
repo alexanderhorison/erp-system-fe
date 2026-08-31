@@ -22,7 +22,7 @@ import themeConfig from 'src/configs/themeConfig'
 import 'src/@fake-db'
 
 // ** Third Party Import
-import { Toaster } from 'react-hot-toast'
+import { Toaster } from 'sonner'
 
 // ** Component Imports
 import UserLayout from 'src/layouts/UserLayout'
@@ -38,11 +38,11 @@ import Spinner from 'src/@core/components/spinner'
 import { AuthProvider } from 'src/context/AuthContext'
 import { SettingsConsumer, SettingsProvider } from 'src/@core/context/settingsContext'
 
-// ** Styled Components
-import ReactHotToast from 'src/@core/styles/libs/react-hot-toast'
-
 // ** Utils Imports
 import { createEmotionCache } from 'src/@core/utils/create-emotion-cache'
+
+// ** Design Tokens
+import { radii } from 'src/configs/designTokens'
 
 // ** Prismjs Styles
 import 'prismjs'
@@ -137,9 +137,20 @@ const App = props => {
                           {getLayout(<Component {...pageProps} />)}
                         </AclGuard>
                       </Guard>
-                      <ReactHotToast>
-                        <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />
-                      </ReactHotToast>
+                      <Toaster
+                        position={settings.toastPosition}
+                        richColors
+                        closeButton
+                        expand={false}
+                        duration={4000}
+                        toastOptions={{
+                          style: {
+                            fontFamily: 'Geist, sans-serif',
+                            borderRadius: `${radii.lg}px`,
+                            fontSize: '0.875rem'
+                          }
+                        }}
+                      />
                     </ThemeComponent>
                   )
                 }}

@@ -14,7 +14,7 @@ import {
   Alert
 } from '@mui/material'
 import axios from 'src/configs/axios'
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 import Icon from 'src/@core/components/icon'
 
 const ShiftSelectionModal = ({ open, onShiftSelected }) => {
@@ -38,7 +38,7 @@ const ShiftSelectionModal = ({ open, onShiftSelected }) => {
       }
     } catch (error) {
       console.error('Error fetching shifts:', error)
-      toast.error(error.response?.data?.message || 'Gagal mengambil data shift')
+      toast.error(error.response?.data?.message || 'Failed to load shift data')
     } finally {
       setLoading(false)
     }
@@ -46,7 +46,7 @@ const ShiftSelectionModal = ({ open, onShiftSelected }) => {
 
   const handleStartShift = async () => {
     if (!selectedShift) {
-      toast.error('Silakan pilih shift terlebih dahulu')
+      toast.error('Please select a shift first')
       return
     }
 
@@ -57,12 +57,12 @@ const ShiftSelectionModal = ({ open, onShiftSelected }) => {
       })
 
       if (response.data?.success) {
-        toast.success('Shift berhasil dimulai')
+        toast.success('Shift started successfully')
         onShiftSelected(response.data.data)
       }
     } catch (error) {
       console.error('Error starting shift:', error)
-      toast.error(error.response?.data?.message || 'Gagal memulai shift')
+      toast.error(error.response?.data?.message || 'Failed to start shift')
     } finally {
       setStarting(false)
     }

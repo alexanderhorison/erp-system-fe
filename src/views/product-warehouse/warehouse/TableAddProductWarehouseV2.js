@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react'
 // ** MUI Imports
 import Card from '@mui/material/Card'
 import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
 import Collapse from '@mui/material/Collapse'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
@@ -25,10 +24,21 @@ import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
 import { useRouter } from 'next/router'
 import { initiateProductWarehouse } from 'src/store/apps/product-warehouse'
 
+// ** Design Tokens
+import { colors, radii, shadows } from 'src/configs/designTokens'
+
+// ** Each repeated product is its own outlined row (Figma: add-product form),
+// which keeps the fields of one product visually grouped once several are added.
 const RepeatingContent = styled(Grid)(({ theme }) => ({
-  paddingRight: 0,
   display: 'flex',
   position: 'relative',
+  alignItems: 'flex-start',
+  gap: theme.spacing(4),
+  padding: theme.spacing(4),
+  borderRadius: `${radii.lg}px`,
+  border: `1px solid ${colors.border}`,
+  boxShadow: shadows.xs,
+  backgroundColor: colors.background,
   [theme.breakpoints.down('md')]: {
     '& .col-title': {
       top: '0',
@@ -41,11 +51,8 @@ const RepeaterWrapper = styled(CardContent)(({ theme }) => ({
   '& .repeater-wrapper + .repeater-wrapper': {
     marginTop: theme.spacing(4)
   },
-  [theme.breakpoints.down('md')]: {
-    paddingTop: theme.spacing(10)
-  },
   [theme.breakpoints.down('sm')]: {
-    padding: theme.spacing(6)
+    padding: theme.spacing(4)
   }
 }))
 
@@ -58,6 +65,20 @@ export default function TableAddProductWarehouseV3(props) {
   const productAutoCompleteRef = useRef(null);
   const [errors, setErrors] = useState([]);
 
+  // ** A field is only allowed to show its error once the user has interacted
+  // with it (blur or edit), or once a submit has been attempted. Without this
+  // every field of a fresh row renders red on mount, since the row starts empty.
+  const [touched, setTouched] = useState({})
+  const [submitted, setSubmitted] = useState(false)
+
+  const touchKey = (index, field) => `${index}.${field}`
+
+  const markTouched = (index, field) => {
+    setTouched(prev => ({ ...prev, [touchKey(index, field)]: true }))
+  }
+
+  const showError = (index, field) => submitted || touched[touchKey(index, field)]
+
   // REDUX
   const { data: masterDataProduct } = useSelector(state => state.masterProduct)
   const { data: masterDataUnit } = useSelector(state => state.unit)
@@ -68,26 +89,42 @@ export default function TableAddProductWarehouseV3(props) {
     const newValues = [...formValues]
     newValues[index][field] = value
     setFormValues(newValues)
+    markTouched(index, field)
   }
 
   const deleteForm = index => {
     const newValues = formValues.filter((_, i) => i !== index)
     setFormValues(newValues)
     setCount(count - 1)
+
+    // ** Touched flags are keyed by row index, so removing a row has to shift the
+    // keys of every row after it. Otherwise the deleted row's flags would be
+    // inherited by the row that takes its place.
+    setTouched(prev => {
+      const next = {}
+      Object.keys(prev).forEach(key => {
+        const [rowIndex, field] = key.split('.')
+        const row = Number(rowIndex)
+        if (row < index) next[key] = prev[key]
+        else if (row > index) next[touchKey(row - 1, field)] = prev[key]
+      })
+      return next
+    })
   }
 
   const handleSubmit = () => {
+    setSubmitted(true)
     const newErrors = [];
     const uniquePairs = new Set();
 
     formValues.forEach((obj, index) => {
       const allKeysHaveValues = Object.values(obj).every(value => value !== undefined && value !== null && value !== '');
       if (!allKeysHaveValues) {
-        newErrors.push({ index, type: 'Belum Lengkap' });
+        newErrors.push({ index, type: 'Incomplete' });
       }
       const pair = `${obj.unitId}-${obj.masterProductId}`;
       if (uniquePairs.has(pair)) {
-        newErrors.push({ index, message: 'Produk dan unit sudah ada' });
+        newErrors.push({ index, message: 'This product and unit is already added' });
       } else {
         uniquePairs.add(pair);
       }
@@ -120,16 +157,19 @@ export default function TableAddProductWarehouseV3(props) {
 
   return (
     <>
-      <Card>
+      <Card
+        elevation={0}
+        sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
+      >
         <RepeaterWrapper>
           <Repeater count={count}>
             {i => {
               const Tag = i === 0 ? Box : Collapse
               return (
                 <Tag key={i} className='repeater-wrapper' {...(i !== 0 ? { in: true } : {})}>
-                  <RepeatingContent item xs={12} gap={6}>
-                    <Grid container gap={6} mb={6}>
-                      <Grid item lg={4} md={4} xs={12} >
+                  <RepeatingContent item xs={12}>
+                    <Grid container spacing={4} sx={{ flex: 1, minWidth: 0 }}>
+                      <Grid item lg={4} md={4} sm={6} xs={12}>
                         <CustomAutocomplete
                           fullWidth
                           options={masterDataProduct}
@@ -137,11 +177,18 @@ export default function TableAddProductWarehouseV3(props) {
                           renderInput={(params) => (
                             <CustomTextField
                               {...params}
-                              label="Pilih Produk"
+                              label="Product"
                               inputRef={productAutoCompleteRef}
-                              error={!formValues[i]?.masterProductId || !!getErrorMessage(i, 'masterProductId')}
-                              {...(formValues[i]?.masterProductId ? {} : { helperText: 'Produk harus dipilih' }) || getErrorMessage(i, 'masterProductId')}
-                              {...(getErrorMessage(i, 'masterProductId') ? { helperText: getErrorMessage(i, 'masterProductId') } : {})}
+                              onBlur={() => markTouched(i, 'masterProductId')}
+                              error={
+                                (showError(i, 'masterProductId') && !formValues[i]?.masterProductId) ||
+                                !!getErrorMessage(i, 'masterProductId')
+                              }
+                              {...(getErrorMessage(i, 'masterProductId')
+                                ? { helperText: getErrorMessage(i, 'masterProductId') }
+                                : showError(i, 'masterProductId') && !formValues[i]?.masterProductId
+                                ? { helperText: 'Product is required' }
+                                : {})}
                             />
                           )}
                           value={masterDataProduct.find(masterProductId => masterProductId.id === formValues[i]?.masterProductId) || null}
@@ -150,7 +197,7 @@ export default function TableAddProductWarehouseV3(props) {
                           }}
                         />
                       </Grid>
-                      <Grid item lg={2} md={3} xs={12} >
+                      <Grid item lg={2} md={3} sm={6} xs={12}>
                         <CustomAutocomplete
                           fullWidth
                           options={masterWarehouseRack}
@@ -158,9 +205,12 @@ export default function TableAddProductWarehouseV3(props) {
                           renderInput={(params) => (
                             <CustomTextField
                               {...params}
-                              label="Pilih Rak"
-                              error={!formValues[i]?.warehouseRackId}
-                              {...(formValues[i]?.warehouseRackId ? {} : { helperText: 'Rak harus dipilih' })}
+                              label="Rack"
+                              onBlur={() => markTouched(i, 'warehouseRackId')}
+                              error={showError(i, 'warehouseRackId') && !formValues[i]?.warehouseRackId}
+                              {...(showError(i, 'warehouseRackId') && !formValues[i]?.warehouseRackId
+                                ? { helperText: 'Rack is required' }
+                                : {})}
                             />
                           )}
                           value={masterWarehouseRack.find(warehouseRackId => warehouseRackId.id === formValues[i]?.warehouseRackId) || null}
@@ -169,7 +219,7 @@ export default function TableAddProductWarehouseV3(props) {
                           }}
                         />
                       </Grid>
-                      <Grid item lg={2} md={2} xs={12} >
+                      <Grid item lg={2} md={3} sm={6} xs={12}>
                         <CustomAutocomplete
                           fullWidth
                           options={masterDataUnit}
@@ -177,9 +227,12 @@ export default function TableAddProductWarehouseV3(props) {
                           renderInput={(params) => (
                             <CustomTextField
                               {...params}
-                              label="Pilih Satuan"
-                              error={!formValues[i]?.unitId}
-                              {...(formValues[i]?.unitId ? {} : { helperText: 'Satuan harus dipilih' })}
+                              label="Unit"
+                              onBlur={() => markTouched(i, 'unitId')}
+                              error={showError(i, 'unitId') && !formValues[i]?.unitId}
+                              {...(showError(i, 'unitId') && !formValues[i]?.unitId
+                                ? { helperText: 'Unit is required' }
+                                : {})}
                             />
                           )}
                           value={masterDataUnit.find(unitId => unitId.id === formValues[i]?.unitId) || null}
@@ -188,41 +241,55 @@ export default function TableAddProductWarehouseV3(props) {
                           }}
                         />
                       </Grid>
-                      <Grid item lg={1} md={2} xs={12} sx={{ px: 0, my: { lg: 0 }, mt: 0 }}>
+                      <Grid item lg={2} md={3} sm={6} xs={12}>
                         <CustomTextField
                           fullWidth
-                          label='Kuantiti'
+                          label='Quantity'
                           type='number'
                           value={formValues[i]?.quantity || ''}
                           onChange={e => handleChange(i, 'quantity', e.target.value)}
-                          error={!formValues[i]?.quantity || formValues[i]?.quantity < 0}
-                          {...(formValues[i]?.quantity ? {} : { helperText: 'Kuantiti harus diisi' })}
-                          {...(formValues[i]?.quantity < 0 ? { helperText: 'Kuantiti harus lebih dari 0' } : {})}
+                          onBlur={() => markTouched(i, 'quantity')}
+                          error={
+                            showError(i, 'quantity') && (!formValues[i]?.quantity || formValues[i]?.quantity < 0)
+                          }
+                          {...(showError(i, 'quantity') && formValues[i]?.quantity < 0
+                            ? { helperText: 'Quantity must be greater than 0' }
+                            : showError(i, 'quantity') && !formValues[i]?.quantity
+                            ? { helperText: 'Quantity is required' }
+                            : {})}
                         />
                       </Grid>
-                      <Grid item lg={1} md={2} xs={12} sx={{ px: 0, my: { lg: 0 }, mt: 0 }}>
+                      <Grid item lg={2} md={3} sm={6} xs={12}>
                         <CustomTextField
                           fullWidth
-                          label='Minimum Stok'
+                          label='Minimum Stock'
                           type='number'
                           value={formValues[i]?.minimumStock || 1}
+                          onBlur={() => markTouched(i, 'minimumStock')}
                           onChange={e => handleChange(i, 'minimumStock', e.target.value)}
-                          error={!formValues[i]?.minimumStock || formValues[i]?.minimumStock < 0}
-                          {...(formValues[i]?.minimumStock ? {} : { helperText: 'Minimum stok harus diisi' })}
-                          {...(formValues[i]?.minimumStock < 0 ? { helperText: 'Minimum stok harus lebih dari 0' } : {})}
+                          error={
+                            showError(i, 'minimumStock') &&
+                            (!formValues[i]?.minimumStock || formValues[i]?.minimumStock < 0)
+                          }
+                          {...(showError(i, 'minimumStock') && formValues[i]?.minimumStock < 0
+                            ? { helperText: 'Minimum stock must be greater than 0' }
+                            : showError(i, 'minimumStock') && !formValues[i]?.minimumStock
+                            ? { helperText: 'Minimum stock is required' }
+                            : {})}
                         />
                       </Grid>
-                      <div style={{ display: 'flex' }}> {/* Adjust height as needed */}
-                        <IconButton
-                          onClick={() => deleteForm(i)}
-                          sx={{ color: 'text.primary', ":hover": { backgroundColor: 'transparent' } }}
-                        >
-                          <Icon icon='tabler:trash' />
-                        </IconButton>
-                      </div>
                     </Grid>
+                    <Box sx={{ display: 'flex', alignItems: 'center', pt: 5, flexShrink: 0 }}>
+                      <IconButton
+                        onClick={() => deleteForm(i)}
+                        size='small'
+                        aria-label='remove product'
+                        sx={{ color: colors.destructive, '&:hover': { backgroundColor: 'transparent' } }}
+                      >
+                        <Icon icon='tabler:trash' fontSize='1.125rem' />
+                      </IconButton>
+                    </Box>
                   </RepeatingContent>
-                  <Divider />
                 </Tag>
               )
             }}
@@ -230,8 +297,16 @@ export default function TableAddProductWarehouseV3(props) {
           <Grid container sx={{ mt: 4 }}>
             <Grid item xs={12} sx={{ px: 0 }}>
               <Button
-                variant='none'
-                startIcon={<Icon icon='tabler:plus' />}
+                variant='outlined'
+                color='secondary'
+                startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+                sx={{
+                  borderRadius: `${radii.full}px`,
+                  color: colors.foreground,
+                  borderColor: colors.border3,
+                  boxShadow: shadows.xs,
+                  '&:hover': { borderColor: colors.border3 }
+                }}
                 onClick={() => {
                   setCount(count + 1)
                   setFormValues([...formValues, { masterProductId: '', warehouseRackId: '', unitId: '', quantity: '', minimumStock: 1 }])
@@ -241,17 +316,14 @@ export default function TableAddProductWarehouseV3(props) {
                     }
                   }, 50);
                 }}>
-                Tambahkan produk
+                Add Product
               </Button>
             </Grid>
           </Grid>
         </RepeaterWrapper>
-        <Divider />
       </Card>
-      <Grid container sx={{ paddingLeft: '25px', marginTop: '20px' }} display='flex' justifyContent='space-between'>
-        <Grid item>
-        </Grid>
-        <Grid display='flex' justifyContent='space-between' gap={4}>
+      <Grid container sx={{ mt: 5 }} display='flex' justifyContent='flex-end'>
+        <Grid item display='flex' justifyContent='flex-end' gap={4}>
           <Button
             variant='tonal'
             color='secondary'

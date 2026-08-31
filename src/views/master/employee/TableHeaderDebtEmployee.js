@@ -23,7 +23,7 @@ export default function TableHeaderDebtEmployee(props) {
           size='small'
           color='primary'
           variant='contained'
-          startIcon={<Icon icon='tabler:copy-plus' />}
+          startIcon={<Icon icon='tabler:square-plus' />}
           onClick={() => handleClick('PEMINJAMAN')}
         >
           {t('Tambah Kasbon')}
@@ -32,7 +32,7 @@ export default function TableHeaderDebtEmployee(props) {
           size='small'
           color='primary'
           variant='contained'
-          startIcon={<Icon icon='tabler:library-minus' />}
+          startIcon={<Icon icon='tabler:square-minus' />}
           onClick={() => handleClick('PEMBAYARAN')}
         >
           {t('Bayar Kasbon')}

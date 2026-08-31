@@ -1,44 +1,26 @@
 // ** MUI Imports
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import { styled } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
-import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
+import MenuItem from '@mui/material/MenuItem'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
 
-// ** Styles Import
-import 'react-credit-cards/es/styles-compiled.css'
-
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
-import { IconButton, MenuItem } from '@mui/material'
+// ** Third Party Imports
+import * as yup from 'yup'
 import { useDispatch, useSelector } from 'react-redux'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
-import { addMasterDataWarehouse, editMasterDataWarehouse } from 'src/store/apps/master/warehouse'
-import CircularProgress from '@mui/material/CircularProgress'
 
-const CustomCloseButton = styled(IconButton)(({ theme }) => ({
-  top: 0,
-  right: 0,
-  color: 'grey.500',
-  position: 'absolute',
-  boxShadow: theme.shadows[2],
-  transform: 'translate(10px, -10px)',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: `${theme.palette.background.paper} !important`,
-  transition: 'transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out',
-  '&:hover': {
-    transform: 'translate(7px, -5px)'
-  }
-}))
+// ** Store
+import { addMasterDataWarehouse, editMasterDataWarehouse } from 'src/store/apps/master/warehouse'
+
+// ** Shared Components
+import AppModal from 'src/views/common/AppModal'
+
+const masterStatus = [
+  { value: 'active', label: 'Active' },
+  { value: 'not-active', label: 'Not Active' }
+]
 
 export default function ModalAddMasterWarehouse({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
@@ -46,9 +28,10 @@ export default function ModalAddMasterWarehouse({ open, setOpen, typeModal, id }
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
-    name: yup.string().required('Nama gudang harus diisi'),
-    location: yup.string().required('Lokasi harus diisi'),
+    name: yup.string().required('Warehouse name is required'),
+    location: yup.string().required('Location is required')
   })
+
   // REACT FORM
   const {
     control,
@@ -71,154 +54,90 @@ export default function ModalAddMasterWarehouse({ open, setOpen, typeModal, id }
     setOpen(false)
   }
 
-  // CLOSE MODAL AND RESET FORM
-  const handleClose = () => {
-    setOpen(false)
-  }
-
-  const masterStatus = [
-    {
-      value: 'active',
-      label: 'Active'
-    },
-    {
-      value: 'not-active',
-      label: 'Not Active'
-    }
-  ]
-
   return (
-    <Card>
-      <Dialog
-        fullWidth
-        open={open}
-        maxWidth='sm'
-        scroll='body'
-        onClose={handleClose}
-        sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
-      >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent
-            sx={{
-              pb: theme => `${theme.spacing(8)} !important`,
-              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-              pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-            }}
-          >
-            <CustomCloseButton onClick={handleClose}>
-              <Icon icon='tabler:x' fontSize='1.25rem' />
-            </CustomCloseButton>
-            <Box sx={{ mb: 4, textAlign: 'center' }}>
-              <Typography variant='h3' sx={{ mb: 3 }}>
-                {typeModal === 'ADD' ? 'Tambahkan Gudang Baru' : typeModal === 'VIEW' ? 'Detail Gudang' : 'Ubah Gudang'}
-              </Typography>
-            </Box>
-            <Grid container spacing={6}>
-              <Grid item xs={12}>
-                <Grid container spacing={6}>
-                  <Grid item xs={12} sm={12}>
-                    <Controller
-                      name='name'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          value={value}
-                          label='Nama Gudang'
-                          placeholder=''
-                          onChange={onChange}
-                          disabled={typeModal === 'VIEW'}
-                          error={Boolean(errors.name)}
-                          aria-describedby='validation-schema-name'
-                          {...(errors.name && { helperText: errors.name.message })}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={12}>
-                    <Controller
-                      name='location'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          value={value}
-                          label='Lokasi'
-                          placeholder=''
-                          onChange={onChange}
-                          disabled={typeModal === 'VIEW'}
-                          error={Boolean(errors.location)}
-                          aria-describedby='validation-schema-location'
-                          {...(errors.location && { helperText: errors.location.message })}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  {
-                    typeModal === "EDIT" && (
-                      <Grid item xs={12} sm={12}>
-                        <Controller
-                          name='status'
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              select
-                              fullWidth
-                              label='Status'
-                              value={value || 'active'}
-                              onChange={onChange}
-                              disabled={typeModal === 'VIEW'}
-                              error={Boolean(errors.status)}
-                              aria-describedby='validation-schema-status'
-                              {...(errors.status && { helperText: errors.status.message })}
-                            >
-                              {masterStatus.map(item => {
-                                return (
-                                  <MenuItem key={item.value} value={item.value}>
-                                    {item.label}
-                                  </MenuItem>
-                                )
-                              })}
-                            </CustomTextField>
-                          )}
-                        />
-                      </Grid>
-                    )
-                  }
-                </Grid>
-              </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions
-            sx={{
-              // justifyContent: 'center',
-              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-              pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-            }}
-          >
-            {typeModal !== 'VIEW' && (
-              <>
-                <Button variant='tonal' color='secondary' onClick={handleClose} hidden={typeModal === 'VIEW'} disabled={typeModal === 'ADD' ? loadingAdd : loadingEdit}>
-                  Cancel
-                </Button>
-                {(typeModal === 'ADD' ? loadingAdd : loadingEdit) ? (
-                  <Button variant='contained' disabled>
-                    <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
-                    Submitting...
-                  </Button>
-                ) : (
-                  <Button type='submit' variant='contained' hidden={typeModal === 'VIEW'}>
-                    Submit
-                  </Button>
-                )}
-              </>
+    <AppModal
+      open={open}
+      onClose={() => setOpen(false)}
+      onSubmit={handleSubmit(onSubmit)}
+      title={
+        typeModal === 'ADD' ? 'Add New Warehouse' : typeModal === 'VIEW' ? 'Warehouse Detail' : 'Edit Warehouse'
+      }
+      size='sm'
+      showActions={typeModal !== 'VIEW'}
+      loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
+    >
+      <Grid container spacing={4}>
+        <Grid item xs={12}>
+          <Controller
+            name='name'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                value={value}
+                label='Warehouse Name'
+                placeholder=''
+                onChange={onChange}
+                disabled={typeModal === 'VIEW'}
+                error={Boolean(errors.name)}
+                aria-describedby='validation-schema-name'
+                {...(errors.name && { helperText: errors.name.message })}
+              />
             )}
-          </DialogActions>
-        </form>
-      </Dialog>
-    </Card>
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Controller
+            name='location'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                value={value}
+                label='Location'
+                placeholder=''
+                onChange={onChange}
+                disabled={typeModal === 'VIEW'}
+                error={Boolean(errors.location)}
+                aria-describedby='validation-schema-location'
+                {...(errors.location && { helperText: errors.location.message })}
+              />
+            )}
+          />
+        </Grid>
+        {/* Status is only editable on an existing warehouse — the create
+            endpoint derives it, and `onSubmit` strips it on ADD. */}
+        {typeModal === 'EDIT' && (
+          <Grid item xs={12}>
+            <Controller
+              name='status'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <CustomTextField
+                  select
+                  fullWidth
+                  label='Status'
+                  value={value || 'active'}
+                  onChange={onChange}
+                  disabled={typeModal === 'VIEW'}
+                  error={Boolean(errors.status)}
+                  aria-describedby='validation-schema-status'
+                  {...(errors.status && { helperText: errors.status.message })}
+                >
+                  {masterStatus.map(item => (
+                    <MenuItem key={item.value} value={item.value}>
+                      {item.label}
+                    </MenuItem>
+                  ))}
+                </CustomTextField>
+              )}
+            />
+          </Grid>
+        )}
+      </Grid>
+    </AppModal>
   )
 }

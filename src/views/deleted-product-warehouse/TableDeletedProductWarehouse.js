@@ -21,7 +21,7 @@ const RowOptions = ({ id, name, query }) => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <IconButton onClick={() => handleRestore()}>
-        <Icon icon='tabler:restore' />
+        <Icon icon='tabler:rotate-2' />
       </IconButton>
     </Box>
   )

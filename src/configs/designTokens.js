@@ -71,15 +71,34 @@ const layout = {
   navItemHeight: 32
 }
 
-// ** Sidebar-specific colors (Figma: sidebar/*)
-const sidebar = {
-  background: '#FFFFFF',
-  border: '#E5E5E5',
-  foreground: '#404040',
-  muted: '#737373',
-  activeBg: '#F5F5F4',
-  activeAccent: '#57534E'
-}
+// ** Sidebar colors. The surface is dark and derives from the environment
+// colour, so production (stone) and development/SIT (blue) stay distinguishable
+// at a glance — see `src/helpers/getEnvirontmentColor.js`.
+const sidebarPalette = isDevelopment =>
+  isDevelopment
+    ? {
+        // Development/SIT: a light blue surface, so the environment is obvious
+        // without the navigation reading as a dark panel.
+        background: '#E3F2FD',
+        border: '#BBDEFB',
+        foreground: '#0D3C61',
+        muted: '#42688C',
+        activeBg: '#BBDEFB',
+        activeFg: '#0B2E4A',
+        activeAccent: '#1976D2'
+      }
+    : {
+        background: '#44403C',
+        border: '#57534E',
+        foreground: '#D6D3D1',
+        muted: '#A8A29E',
+        activeBg: 'rgba(255, 255, 255, 0.08)',
+        activeFg: '#FAFAFA',
+        activeAccent: '#79716B'
+      }
+
+const sidebarIsLight = process.env.NEXT_PUBLIC_ENVIRONTMENT == 'development'
+const sidebar = sidebarPalette(sidebarIsLight)
 
 // ** Radii (Figma: rounded-*). `full` gives the pill shape used by inputs/buttons.
 const radii = {
@@ -100,6 +119,8 @@ const shadows = {
 
 module.exports = {
   stone,
+  sidebarPalette,
+  sidebarIsLight,
   colors,
   layout,
   sidebar,

@@ -13,6 +13,9 @@ import { createTheme, responsiveFontSizes, styled, ThemeProvider } from '@mui/ma
 // ** Third Party Components
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
+// ** Design Tokens
+import { sidebar, sidebarIsLight } from 'src/configs/designTokens'
+
 // ** Theme Config
 import themeConfig from 'src/configs/themeConfig'
 
@@ -37,12 +40,14 @@ const StyledBoxForShadow = styled(Box)(({ theme }) => ({
   width: 'calc(100% + 15px)',
   height: theme.mixins.toolbar.minHeight,
   transition: 'opacity .15s ease-in-out',
-  background: `linear-gradient(${theme.palette.background.paper} ${
+  // ** Fades against the sidebar surface. Using `background.paper` here left a
+  // white wash over the dark navigation while scrolling.
+  background: `linear-gradient(${sidebar.background} ${
     theme.direction === 'rtl' ? '95%' : '5%'
-  },${hexToRGBA(theme.palette.background.paper, 0.85)} 30%,${hexToRGBA(
-    theme.palette.background.paper,
-    0.5
-  )} 65%,${hexToRGBA(theme.palette.background.paper, 0.3)} 75%,transparent)`,
+  },${hexToRGBA(sidebar.background, 0.85)} 30%,${hexToRGBA(sidebar.background, 0.5)} 65%,${hexToRGBA(
+    sidebar.background,
+    0.3
+  )} 75%,transparent)`,
   '&.scrolled': {
     opacity: 1
   }
@@ -85,8 +90,12 @@ const Navigation = props => {
     setCurrentActiveGroup
   }
 
-  // ** Create new theme for the navigation menu when mode is `semi-dark`
-  let darkTheme = createTheme(themeOptions(settings, 'dark'))
+  // ** The navigation renders on its own surface, so it gets its own theme.
+  // Production uses a dark sidebar; development/SIT uses a light blue one, and
+  // forcing 'dark' there would leave MUI internals (hover, ripple, scrollbar)
+  // styled for a dark background.
+  const navMode = sidebarIsLight ? 'light' : 'dark'
+  let darkTheme = createTheme(themeOptions(settings, navMode))
 
   // ** Set responsive font sizes to true
   if (themeConfig.responsiveFontSizes) {

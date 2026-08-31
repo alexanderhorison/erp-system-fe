@@ -16,6 +16,26 @@ const TextFieldStyled = styled(TextField)(({ theme }) => ({
     fontSize: theme.typography.body2.fontSize,
     color: `${theme.palette.text.primary} !important`
   },
+  // ** This renders MUI's `filled` variant, which paints its own background,
+  // rounds only its TOP corners and draws an underline via ::before/::after.
+  // Layered under the pill border below, that showed up as a second, squared
+  // box offset behind the field. `.MuiFilledInput-root` is targeted explicitly
+  // because the theme's `MuiFilledInput` override (src/@core/theme/overrides/
+  // input.js) matches `.MuiInputBase-root` with equal specificity and would
+  // otherwise win on source order.
+  '& .MuiFilledInput-root': {
+    backgroundColor: 'transparent',
+    borderRadius: 9999,
+    '&:hover:not(.Mui-disabled)': {
+      backgroundColor: 'transparent'
+    },
+    '&.Mui-focused': {
+      backgroundColor: 'transparent'
+    },
+    '&:before, &:after': {
+      display: 'none'
+    }
+  },
   '& .MuiInputBase-root': {
     // ** Pill-shaped fields (Figma: rounded-full). Multiline inputs keep a
     // softened corner instead, since a full radius distorts a tall textarea.
@@ -77,6 +97,22 @@ const TextFieldStyled = styled(TextField)(({ theme }) => ({
   },
   '& .MuiInputBase-input': {
     color: theme.palette.text.secondary,
+    // ** Chrome/Safari paint their own autofill background on the <input>
+    // itself. It is clipped to the input box rather than the pill wrapper, so a
+    // filled field showed a squared blue block inside the rounded border. The
+    // colour cannot be unset, but an inset shadow large enough to cover the box
+    // paints over it, and a long transition keeps it from flashing back.
+    // An inset shadow is the only way to mask it: `background-color` itself is
+    // ignored on an autofilled input. It is painted in the surface colour so the
+    // field matches the card behind it, and the absurd transition delay stops
+    // the browser re-applying its colour on focus/blur.
+    '&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus, &:-webkit-autofill:active': {
+      WebkitBoxShadow: `0 0 0 1000px ${theme.palette.background.paper} inset`,
+      WebkitTextFillColor: theme.palette.text.secondary,
+      caretColor: theme.palette.text.secondary,
+      borderRadius: 'inherit',
+      transition: 'background-color 100000s ease-in-out 0s'
+    },
     '&:not(textarea)': {
       padding: '15.5px 13px'
     },

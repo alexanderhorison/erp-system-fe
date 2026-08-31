@@ -103,10 +103,22 @@ export default function DataTable({ toolbar = null, itemLabel = 'items', sx, slo
   // right. Fixed-width columns are left untouched.
   const normalisedColumns = useMemo(() => {
     if (!columns?.length) return columns
-    const flexTotal = columns.reduce((sum, column) => sum + (column.flex || 0), 0)
-    if (!flexTotal || Math.abs(flexTotal - 1) < 0.001) return columns
 
-    return columns.map(column => (column.flex ? { ...column, flex: column.flex / flexTotal } : column))
+    // ** The action column is centred unless the caller says otherwise.
+    const withDefaults = columns.map(column =>
+      column.field === 'actions'
+        ? {
+            align: 'center',
+            headerAlign: 'center',
+            ...column
+          }
+        : column
+    )
+
+    const flexTotal = withDefaults.reduce((sum, column) => sum + (column.flex || 0), 0)
+    if (!flexTotal || Math.abs(flexTotal - 1) < 0.001) return withDefaults
+
+    return withDefaults.map(column => (column.flex ? { ...column, flex: column.flex / flexTotal } : column))
   }, [columns])
 
   return (

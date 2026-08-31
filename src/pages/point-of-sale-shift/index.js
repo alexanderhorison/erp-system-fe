@@ -15,7 +15,7 @@ import {
 } from '@mui/material'
 import { useRouter } from 'next/router'
 import axios from 'src/configs/axios'
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 import Icon from 'src/@core/components/icon'
 import { UseAuth } from 'src/hooks/useAuth'
 import swal from 'src/pages/sweetalert'
@@ -60,7 +60,7 @@ const PointOfSaleShiftPage = () => {
       const response = await axios.get('/user-shift/current')
       if (response.data?.success && response.data.data) {
         // User has active shift, redirect to POS
-        toast.success('Melanjutkan shift aktif')
+        toast.success('Resuming active shift')
         router.push('/point-of-sale')
         return
       } else {
@@ -73,7 +73,7 @@ const PointOfSaleShiftPage = () => {
         fetchAvailableShifts()
       } else {
         console.error('Error checking current shift:', error)
-        toast.error('Gagal memeriksa shift aktif')
+        toast.error('Failed to check active shift')
         setLoading(false)  // Ensure loading is set to false to prevent stuck
       }
     }
@@ -87,7 +87,7 @@ const PointOfSaleShiftPage = () => {
       }
     } catch (error) {
       console.error('Error fetching shifts:', error)
-      toast.error(error.response?.data?.message || 'Gagal mengambil data shift')
+      toast.error(error.response?.data?.message || 'Failed to load shift data')
     } finally {
       setLoading(false)
     }
@@ -95,7 +95,7 @@ const PointOfSaleShiftPage = () => {
 
   const handleStartShift = async () => {
     if (!selectedShift) {
-      toast.error('Silakan pilih shift terlebih dahulu')
+      toast.error('Please select a shift first')
       return
     }
 
@@ -106,13 +106,13 @@ const PointOfSaleShiftPage = () => {
       })
 
       if (response.data?.success) {
-        toast.success('Shift berhasil dimulai')
+        toast.success('Shift started successfully')
         // Redirect to POS page
         router.push('/point-of-sale')
       }
     } catch (error) {
       console.error('Error starting shift:', error)
-      toast.error(error.response?.data?.message || 'Gagal memulai shift')
+      toast.error(error.response?.data?.message || 'Failed to start shift')
     } finally {
       setStarting(false)
     }

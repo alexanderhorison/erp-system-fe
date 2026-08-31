@@ -6,18 +6,16 @@ import { useDispatch, useSelector } from 'react-redux'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** MUI Imports
-import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Icon Imports
 import { transformProduct } from 'src/store/apps/product-warehouse'
-import CardAdjustProduct from './CardAdjustProduct'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
-import BaseModal from 'src/views/common/BaseModal'
+import AppModal from 'src/views/common/AppModal'
+import ProductInfoHeader from 'src/views/common/ProductInfoHeader'
 
 export default function ModalTransformationProduct({ open, setOpen, typeModal, warehouseId }) {
   const dispatch = useDispatch()
@@ -112,7 +110,7 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
   }, [selectedUnit, qty, detailProductWarehouse, setError])
 
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
@@ -122,12 +120,11 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
       loading={loadingTransformProduct}
       loadingPage={loadingListTransformation}
     >
-      <Grid container spacing={6}>
-          <Grid item xs={12} sm={12}>
-            <CardAdjustProduct data={detailProductWarehouse} width={"md"} />
-          </Grid>
+      <ProductInfoHeader data={detailProductWarehouse} />
+
+      <Grid container spacing={4}>
           <Grid item xs={12}>
-            <Grid container spacing={6}>
+            <Grid container spacing={4}>
               <Grid item xs={12}>
                 <Controller
                   name={`transformation`}
@@ -150,14 +147,14 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
                           {...(errors?.transformation && {
                             helperText: errors?.transformation.message
                           })}
-                          label='Pilih rumus'
+                          label='Pilih Rumus'
                         />
                       )}
                     />
                   )}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6}>
                 <Controller
                   name='qtyTransformation'
                   control={control}
@@ -179,15 +176,18 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
                   )}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <Box display="flex" justifyContent="space-between" width="100%">
-                  <Typography variant=''>{"Hasil"}</Typography>
-                  <Typography variant=''>{result}</Typography>
-                </Box>
+              <Grid item xs={12} sm={6}>
+                <CustomTextField
+                  fullWidth
+                  label='Hasil'
+                  value={result}
+                  InputProps={{ readOnly: true }}
+                  sx={{ display: 'block' }}
+                />
               </Grid>
             </Grid>
           </Grid>
         </Grid>
-    </BaseModal>
+    </AppModal>
   )
 }

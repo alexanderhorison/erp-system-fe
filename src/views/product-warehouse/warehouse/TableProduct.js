@@ -2,23 +2,36 @@ import { useDispatch } from 'react-redux'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
-import { Box, Card, Divider, Grid, IconButton, Tooltip, Typography } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
+import { useMemo } from 'react'
+import { useSelector } from 'react-redux'
+
+import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 
-import TableHeaderProduct from './TableHeaderProduct'
 import { fetchDeleteProductWarehouse, fetchListProductByWarehouse, fetchListProductTransformation, fetchProductWarehouseDetail } from 'src/store/apps/product-warehouse'
+import { fetchMasterDataWarehouseRack } from 'src/store/apps/master/warehouse-rack'
+import { fetchDataMasterCategory } from 'src/store/apps/master/category'
+import { fetchMasterDataType } from 'src/store/apps/master/type'
+import { fetchMasterDataCompany } from 'src/store/apps/master/company'
+import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
 import ModalAdjustProduct from './ModalAdjustProduct'
 import HandleSearh from 'src/helpers/handleSearch'
 import ModalTransformationProduct from './ModalTransformationProduct'
-import FilterGlobal from 'src/pages/components/filter/FilterGlobal'
 
-const RowOptions = ({ id, name, warehouseId, query }) => {
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import FilterPanel from 'src/views/common/FilterPanel'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
 
+const RowOptions = ({ id, name, warehouseId, query, onViewDetail }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
   const [openModalTransformation, setOpenModalTransformation] = useState(false)
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
   const [typeModal, setTypeModal] = useState('')
+
+  const { loadingDeleteProduct } = useSelector(state => state.productWarehouse)
 
   const handleTransform = () => {
     dispatch(fetchProductWarehouseDetail(id))
@@ -32,29 +45,50 @@ const RowOptions = ({ id, name, warehouseId, query }) => {
     setOpenModalEdit(true)
   }
 
+  // ** Confirmation is owned by `ConfirmDialog`; the thunk performs the request
+  // without prompting again.
   const handleDelete = () => {
     dispatch(fetchDeleteProductWarehouse({ id, name, warehouseId, query }))
+    setOpenConfirmDelete(false)
   }
 
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleTransform}>
-          <Icon icon='tabler:transfer' />
-        </IconButton>
-        <IconButton onClick={() => handleEdit('PLUS')}>
-          <Icon icon='tabler:plus' />
-        </IconButton>
-        <IconButton onClick={() => handleEdit('MINUS')}>
-          <Icon icon='tabler:minus' />
-        </IconButton>
-        <IconButton onClick={() => handleEdit('MINIMUM_STOCK')}>
-          <Icon icon='tabler:edit' />
-        </IconButton>
-        <IconButton onClick={() => handleDelete()}>
-          <Icon icon='tabler:trash' />
-        </IconButton>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+        <Tooltip title='Transform Product'>
+          <IconButton onClick={handleTransform} size='small'>
+            <Icon icon='lucide:arrow-left-right' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        {/* Add/subtract/minimum stock now share one dialog; the direction is
+            chosen with a radio inside it. */}
+        <Tooltip title='Adjust Stock'>
+          <IconButton onClick={() => handleEdit('PLUS')} size='small'>
+            <Icon icon='lucide:package-open' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        {/* Replaces the "Details" text link that used to sit under the product
+            name, so the row keeps every action in one place. */}
+        <Tooltip title='Stock History'>
+          <IconButton onClick={onViewDetail} size='small'>
+            <Icon icon='tabler:history' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Delete'>
+          <IconButton onClick={() => setOpenConfirmDelete(true)} size='small' sx={{ color: 'error.main' }}>
+            <Icon icon='tabler:trash' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
       </Box>
+
+      <ConfirmDialog
+        open={openConfirmDelete}
+        onClose={() => setOpenConfirmDelete(false)}
+        onConfirm={handleDelete}
+        title='Delete Product'
+        itemName={name}
+        loading={loadingDeleteProduct}
+      />
       {openModalEdit && (
         <ModalAdjustProduct
           open={openModalEdit}
@@ -77,14 +111,21 @@ const RowOptions = ({ id, name, warehouseId, query }) => {
   )
 }
 
-export default function TableProduct({ data, warehouseId }) {
+export default function TableProduct({ data, warehouseId, onExport, isExporting }) {
   const dispatch = useDispatch()
   const router = useRouter()
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
   const [dataFilter, setDataFilter] = useState({})
+  const [filterAnchor, setFilterAnchor] = useState(null)
+
+  const { data: category } = useSelector(state => state.category)
+  const { data: type } = useSelector(state => state.type)
+  const { data: company } = useSelector(state => state.company)
+  const { data: unit } = useSelector(state => state.unit)
+  const { data: rack } = useSelector(state => state.masterWarehouseRack)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
@@ -103,6 +144,31 @@ export default function TableProduct({ data, warehouseId }) {
     setFilteredData(data)
   }, [dispatch, data])
 
+  // ** Option lists were previously fetched by `FilterGlobal`; the filter popover
+  // is presentational, so the page owns them now.
+  useEffect(() => {
+    dispatch(fetchDataMasterCategory())
+    dispatch(fetchMasterDataType())
+    dispatch(fetchMasterDataCompany())
+    dispatch(fetchMasterDataUnit())
+    if (warehouseId) dispatch(fetchMasterDataWarehouseRack(warehouseId))
+  }, [dispatch, warehouseId])
+
+  const toOptions = list => (list || []).map(item => ({ value: item.id, label: item.name }))
+
+  const filterFields = useMemo(
+    () => [
+      { name: 'companyId', label: 'Company', type: 'select', options: toOptions(company) },
+      { name: 'typeId', label: 'Type', type: 'select', options: toOptions(type) },
+      { name: 'unitId', label: 'Unit', type: 'select', options: toOptions(unit) },
+      { name: 'categoryId', label: 'Category', type: 'select', options: toOptions(category) },
+      { name: 'warehouseRackId', label: 'Rack', type: 'select', options: toOptions(rack) }
+    ],
+    [company, type, unit, category, rack]
+  )
+
+  const activeFilterCount = Object.values(dataFilter).filter(Boolean).length
+
   const submitFilter = (query) => {
     dispatch(fetchListProductByWarehouse({ warehouseId, query }))
   }
@@ -112,20 +178,53 @@ export default function TableProduct({ data, warehouseId }) {
   }
 
   return (
-    <Card>
-      <FilterGlobal
-        listFilter={["company", "type", "unit", "category", "rack"]}
-        submitFilter={(e) => {
-          setDataFilter(e)
-          submitFilter(e)
+    <>
+      <FilterPanel
+        open={Boolean(filterAnchor)}
+        anchorEl={filterAnchor}
+        onClose={() => setFilterAnchor(null)}
+        fields={filterFields}
+        value={dataFilter}
+        onApply={next => {
+          setDataFilter(next)
+          submitFilter(next)
         }}
-        handleClear={() => dispatch(fetchListProductByWarehouse({ warehouseId }))}
-        warehouseId={warehouseId}
+        onReset={() => {
+          setDataFilter({})
+          dispatch(fetchListProductByWarehouse({ warehouseId }))
+        }}
       />
-      <Divider />
-      <DataGrid
-        autoHeight
+
+      <DataTable
+        itemLabel='products'
         getRowId={getRowId}
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Search product or unit'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            onOpenFilters={setFilterAnchor}
+            activeFilterCount={activeFilterCount}
+            actions={
+              <>
+                {onExport && (
+                  <Button
+                    variant='contained'
+                    onClick={onExport}
+                    disabled={isExporting}
+                    startIcon={<Icon icon='tabler:download' fontSize='1rem' />}
+                  >
+                    {isExporting ? 'Exporting...' : 'Export Current Stock'}
+                  </Button>
+                )}
+                <Button variant='contained' onClick={handleAdd} startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}>
+                  Add Product
+                </Button>
+              </>
+            }
+          />
+        }
         columns={[
           {
             flex: 0.05,
@@ -146,19 +245,12 @@ export default function TableProduct({ data, warehouseId }) {
             flex: 0.1,
             minWidth: 300,
             field: 'productName',
-            headerName: 'Nama Produk',
+            headerName: 'Product Name',
             renderCell: params => {
               return (
-                <Grid container flex={0.1} >
-                  <Typography variant="body2" sx={{
-                    color: 'text.primary',
-                  }}>
-                    {params.row.productName}
-                  </Typography>
-                  <Typography fontSize={12} sx={{ cursor: 'pointer', ":hover": { color: 'info.main' } }} onClick={() => clickDetail(params?.row?.productWarehouseId)}>
-                    Details
-                  </Typography>
-                </Grid>
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  {params.row.productName}
+                </Typography>
               )
             }
           },
@@ -166,7 +258,7 @@ export default function TableProduct({ data, warehouseId }) {
             flex: 0.1,
             minWidth: 150,
             field: 'companyName',
-            headerName: 'Perusahaan',
+            headerName: 'Company',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -179,7 +271,7 @@ export default function TableProduct({ data, warehouseId }) {
             flex: 0.1,
             minWidth: 100,
             field: 'rackName',
-            headerName: 'Rak',
+            headerName: 'Rack',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -192,7 +284,7 @@ export default function TableProduct({ data, warehouseId }) {
             flex: 0.1,
             minWidth: 100,
             field: 'unitName',
-            headerName: 'Satuan',
+            headerName: 'Unit',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -205,7 +297,7 @@ export default function TableProduct({ data, warehouseId }) {
             flex: 0.1,
             minWidth: 100,
             field: 'quantity',
-            headerName: 'Kuantiti',
+            headerName: 'Quantity',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -218,7 +310,7 @@ export default function TableProduct({ data, warehouseId }) {
             flex: 0.1,
             minWidth: 100,
             field: 'minimumStock',
-            headerName: 'Stok Minimum',
+            headerName: 'Minimum Stock',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -232,49 +324,25 @@ export default function TableProduct({ data, warehouseId }) {
             minWidth: 210,
             sortable: false,
             field: 'actions',
-            headerAlign: 'center',
-            headerName: 'Actions',
+            headerName: 'Action',
             renderCell: ({ row }) => (
-              <RowOptions id={row.productWarehouseId} name={row.productName} warehouseId={warehouseId} query={dataFilter} />
+              <RowOptions
+                id={row.productWarehouseId}
+                name={row.productName}
+                warehouseId={warehouseId}
+                query={dataFilter}
+                onViewDetail={() => clickDetail(row.productWarehouseId)}
+              />
             )
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderProduct }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
         getRowClassName={getRowClassName}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          },
-          "& .MuiDataGrid-columnHeaderTitle": {
-            whiteSpace: "normal",
-            lineHeight: "normal"
-          },
-          "& .MuiDataGrid-columnHeader": {
-            height: "unset !important"
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            maxHeight: "168px !important"
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari nama produk atau satuan',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            handleAdd: handleAdd
-          }
-        }}
       />
-    </Card>
+    </>
   )
 }
 

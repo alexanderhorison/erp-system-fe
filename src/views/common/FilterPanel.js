@@ -127,8 +127,13 @@ export default function FilterPanel({
         paper: {
           sx: {
             mt: 2,
-            width: { xs: 'calc(100vw - 32px)', sm: 420 },
+            // ** Two columns of fields rather than one tall stack. Capped so a
+            // module with many filters scrolls instead of covering the page.
+            width: { xs: 'calc(100vw - 32px)', sm: 520 },
             maxWidth: 'calc(100vw - 32px)',
+            maxHeight: 'calc(100vh - 160px)',
+            display: 'flex',
+            flexDirection: 'column',
             borderRadius: `${radii.lg}px`,
             border: `1px solid ${colors.border}`,
             boxShadow: shadows.lg,
@@ -138,7 +143,9 @@ export default function FilterPanel({
       }}
     >
       {/* Header */}
-      <Box sx={{ p: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+      <Box
+        sx={{ px: 4, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexShrink: 0 }}
+      >
         <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: '20px', color: colors.foreground }}>
           {title}
         </Typography>
@@ -150,10 +157,10 @@ export default function FilterPanel({
       <Divider sx={{ borderColor: colors.border }} />
 
       {/* Fields */}
-      <Box sx={{ px: 4, py: 4 }}>
-        <Grid container spacing={4}>
+      <Box sx={{ px: 4, py: 3, overflowY: 'auto', flex: '1 1 auto' }}>
+        <Grid container spacing={3}>
           {fields.map(field => (
-            <Grid item xs={12} key={field.name}>
+            <Grid item xs={12} sm={field.fullWidth ? 12 : 6} key={field.name}>
               {renderField(field)}
             </Grid>
           ))}
@@ -163,13 +170,13 @@ export default function FilterPanel({
       <Divider sx={{ borderColor: colors.border }} />
 
       {/* Footer */}
-      <Box sx={{ p: 4, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2 }}>
+      <Box sx={{ px: 4, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2, flexShrink: 0 }}>
         <Button
           size='small'
           variant='outlined'
           color='secondary'
           onClick={handleReset}
-          startIcon={<Icon icon='tabler:restore' fontSize='1rem' />}
+          startIcon={<Icon icon='tabler:rotate-2' fontSize='1rem' />}
           sx={{
             color: colors.foreground,
             borderColor: colors.border3,

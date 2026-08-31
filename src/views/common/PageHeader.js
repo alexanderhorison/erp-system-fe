@@ -4,6 +4,7 @@ import Link from 'next/link'
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
 import MuiBreadcrumbs from '@mui/material/Breadcrumbs'
 
 // ** Icon Imports
@@ -19,8 +20,11 @@ import { colors } from 'src/configs/designTokens'
  *
  * `breadcrumbs` takes `[{ label, href }]`; the entry without an `href` (or the
  * last one) renders as the current page.
+ *
+ * `onBack` renders a back arrow beside the title, and `subtitle` a muted line
+ * beneath it (used by detail pages such as a warehouse's product list).
  */
-export default function PageHeader({ title, breadcrumbs = [], action = null }) {
+export default function PageHeader({ title, subtitle, breadcrumbs = [], action = null, onBack = null }) {
   return (
     <Box sx={{ mb: 4 }}>
       {breadcrumbs.length > 0 && (
@@ -66,9 +70,23 @@ export default function PageHeader({ title, breadcrumbs = [], action = null }) {
       )}
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4, flexWrap: 'wrap' }}>
-        <Typography variant='h3' sx={{ color: colors.foreground }}>
-          {title}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {onBack && (
+            <IconButton onClick={onBack} size='small' sx={{ ml: -1 }} aria-label='back'>
+              <Icon icon='tabler:arrow-left' fontSize='1.25rem' />
+            </IconButton>
+          )}
+          <Box>
+            <Typography variant='h3' sx={{ color: colors.foreground }}>
+              {title}
+            </Typography>
+            {subtitle && (
+              <Typography sx={{ fontSize: '0.875rem', lineHeight: '20px', color: colors.mutedForeground }}>
+                {subtitle}
+              </Typography>
+            )}
+          </Box>
+        </Box>
         {action}
       </Box>
     </Box>

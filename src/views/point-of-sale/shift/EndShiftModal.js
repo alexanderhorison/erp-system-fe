@@ -16,7 +16,7 @@ import {
 } from '@mui/material'
 import { useRouter } from 'next/router'
 import axios from 'src/configs/axios'
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 import Icon from 'src/@core/components/icon'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import dayjs from 'dayjs'
@@ -44,7 +44,7 @@ const EndShiftModal = ({ open, onClose, onShiftEnded }) => {
       }
     } catch (error) {
       console.error('Error fetching shift summary:', error)
-      toast.error(error.response?.data?.message || 'Gagal mengambil ringkasan shift')
+      toast.error(error.response?.data?.message || 'Failed to load shift summary')
       onClose()
     } finally {
       setLoading(false)
@@ -57,7 +57,7 @@ const EndShiftModal = ({ open, onClose, onShiftEnded }) => {
       const response = await axios.put('/user-shift/end')
 
       if (response.data?.success) {
-        toast.success('Shift berhasil diakhiri')
+        toast.success('Shift ended successfully')
         handleClose()
 
         // Call onShiftEnded callback first
@@ -72,7 +72,7 @@ const EndShiftModal = ({ open, onClose, onShiftEnded }) => {
       }
     } catch (error) {
       console.error('Error ending shift:', error)
-      toast.error(error.response?.data?.message || 'Gagal mengakhiri shift')
+      toast.error(error.response?.data?.message || 'Failed to end shift')
     } finally {
       setEnding(false)
     }
@@ -280,7 +280,7 @@ const EndShiftModal = ({ open, onClose, onShiftEnded }) => {
                     title: 'Konfirmasi Akhiri Shift',
                     text: 'Apakah Anda yakin ingin mengakhiri shift sekarang? Setelah shift diakhiri, Anda akan kembali ke halaman pemilihan shift.',
                     onClickYes: handleEndShift,
-                    successMessage: 'Shift berhasil diakhiri'
+                    successMessage: 'Shift ended successfully'
                   })
                 }}
                 startIcon={<Icon icon='mdi:logout' />}

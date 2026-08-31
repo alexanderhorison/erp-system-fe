@@ -2,8 +2,8 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
 import {
   swalConfirmationAdd,
-  swalConfirmationDelete,
   swalConfirmationEdit,
+  swalDeleteConfirmed,
   swalToastError
 } from 'src/helpers/swalFunction'
 import { fetchInvoiceListProductByWarehouseId } from '../delivery-order'
@@ -274,7 +274,7 @@ export const fetchDeleteProductWarehouse = createAsyncThunk(
   'appMasterProduct/deleteWarehouseProduct',
   async ({ id, name, warehouseId, query }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationDelete({
+      await swalDeleteConfirmed({
         label,
         name,
         axiosRequest: () => {
