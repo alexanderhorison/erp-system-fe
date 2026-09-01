@@ -1,12 +1,23 @@
-import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useDispatch, useSelector } from 'react-redux'
+
+// ** MUI Imports
+import Alert from '@mui/material/Alert'
+import Grid from '@mui/material/Grid'
+import CircularProgress from '@mui/material/CircularProgress'
+
+// ** Store Imports
 import { fetchDetailProcessRequestOrder } from 'src/store/apps/product-request-order'
+
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
 import ViewDetailProductRequest from 'src/views/product-request/ViewDetailProductRequest'
-import ButtonBack from 'src/views/common/ButtonBack'
-import { Alert, CircularProgress, Grid } from '@mui/material'
 import ToolbarProductRequest from 'src/views/product-request/ToolbarProductRequest'
+
+// ** Design Tokens
+import { radii } from 'src/configs/designTokens'
 
 export default function DetailProductRequest({}) {
   const dispatch = useDispatch()
@@ -33,30 +44,41 @@ export default function DetailProductRequest({}) {
 
   if (errorDetailProcessRequestOrder) {
     return (
-      <Grid container spacing={6}>
+      <Grid container>
         <Grid item xs={12}>
-          <Alert severity='error'>
+          <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
             Produk Request: {id} Tidak Ditemukan. Mohon cek list Produk Request:{' '}
             <Link href='/product-request'>Product Request</Link>
           </Alert>
         </Grid>
       </Grid>
     )
-  } else if (detailProcessRequestOrder) {
-    return (
-      <>
-        <Grid container spacing={6}>
-          <ButtonBack paddingY={0} />
-          <Grid item xl={9} md={8} xs={12}>
+  }
+
+  if (!detailProcessRequestOrder) return null
+
+  return (
+    <Grid container>
+      <Grid item xs={12}>
+        <PageHeader
+          title='Surat Product Request'
+          subtitle={detailProcessRequestOrder?.code}
+          onBack={() => router.back()}
+          breadcrumbs={[
+            { label: 'Home' },
+            { label: 'Product Request', href: '/product-request' },
+            { label: detailProcessRequestOrder?.code || 'Detail' }
+          ]}
+        />
+        <Grid container spacing={4}>
+          <Grid item xs={12} lg={8.5}>
             <ViewDetailProductRequest data={detailProcessRequestOrder} />
           </Grid>
-          <Grid item xl={3} md={4} xs={12}>
+          <Grid item xs={12} lg={3.5}>
             <ToolbarProductRequest id={id} data={detailProcessRequestOrder} />
           </Grid>
         </Grid>
-      </>
-    )
-  } else {
-    return null
-  }
+      </Grid>
+    </Grid>
+  )
 }

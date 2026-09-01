@@ -119,8 +119,15 @@ const DetailGoodsIn = ({ data }) => {
 
       {/* Products */}
       <Box sx={{ px: 5, pb: 5 }}>
+        {/* The `MuiCard` theme override forces `.MuiTableContainer-root` inside a
+            Card to `border-radius: 0` with a two-class selector, which outranks
+            a plain `sx` rule on this element — hence the `&&` to match it. */}
         <TableContainer
-          sx={{ borderRadius: `${radii.md}px`, border: `1px solid ${colors.border}`, overflowX: 'auto' }}
+          sx={{
+            '&&': { borderRadius: `${radii.md}px` },
+            border: `1px solid ${colors.border}`,
+            overflowX: 'auto'
+          }}
         >
           <Table size='small'>
             <TableHead sx={{ backgroundColor: stone[100] }}>

@@ -1,12 +1,24 @@
-import { Button, Grid } from '@mui/material'
-import { useRouter } from 'next/router'
 import { useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
-import { exportStockOpname, fetchDetailStockOpname } from 'src/store/apps/stock-opname'
-import DetailStockOpname from 'src/views/stock-opname/DetailStockOpname'
+
+// ** MUI Imports
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
+import Button from '@mui/material/Button'
+
 import Icon from 'src/@core/components/icon'
-import ButtonBack from 'src/views/common/ButtonBack'
+
+// ** Store Imports
+import { exportStockOpname, fetchDetailStockOpname } from 'src/store/apps/stock-opname'
+
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
 import ExportButton from 'src/views/common/ExportButton'
+import DetailStockOpname from 'src/views/stock-opname/DetailStockOpname'
+
+// ** Design Tokens
+import { colors, shadows } from 'src/configs/designTokens'
 
 export default function HomeDetailStockOpname() {
   const { id } = useRouter().query
@@ -23,37 +35,43 @@ export default function HomeDetailStockOpname() {
     dispatch(exportStockOpname({ code: id }))
   }
 
+  const status = detailStockOpname?.status
+
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <Grid container alignContent={'center'} justifyContent={'space-between'}>
-          <Grid item>
-            <ButtonBack name='Detail Stok Opname' />
-          </Grid>
-          <Grid item>
-            <Grid container>
-              {detailStockOpname?.status === 'DRAFT' &&
-                <Grid item sx={{ alignContent: 'center' }}>
-                  <Button
-                    sx={{ mr: 1 }}
-                    variant='tonal'
-                    color='primary' onClick={() => router.push(`/stock-opname/${id}/edit`)}
-                    startIcon={<Icon icon='tabler:edit' />}
-                  >
-                    Edit
-                  </Button>
-                </Grid>
-              }
-              {
-                detailStockOpname?.status === 'APPROVED' || detailStockOpname?.status === 'CLOSED' ? (
-                  <Grid item display={'flex'} alignItems={'center'}>
-                    <ExportButton handleExport={handleExport} title='Export Stock Opname' loading={loadingExport} />
-                  </Grid>
-                ) : null
-              }
-            </Grid>
-          </Grid>
-        </Grid>
+        <PageHeader
+          title='Detail Stock Opname'
+          onBack={() => router.back()}
+          breadcrumbs={[
+            { label: 'Inventory' },
+            { label: 'Stock Opname', href: '/stock-opname' },
+            { label: detailStockOpname?.code || 'Detail' }
+          ]}
+          action={
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+              {status === 'DRAFT' && (
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  onClick={() => router.push(`/stock-opname/${id}/edit`)}
+                  startIcon={<Icon icon='tabler:edit' fontSize='1rem' />}
+                  sx={{
+                    color: colors.foreground,
+                    borderColor: colors.border3,
+                    boxShadow: shadows.xs,
+                    '&:hover': { borderColor: colors.border3 }
+                  }}
+                >
+                  Ubah
+                </Button>
+              )}
+              {(status === 'APPROVED' || status === 'CLOSED') && (
+                <ExportButton handleExport={handleExport} title='Export Stock Opname' loading={loadingExport} />
+              )}
+            </Box>
+          }
+        />
         <DetailStockOpname stockOpnameId={id} detailStockOpname={detailStockOpname} />
       </Grid>
     </Grid>

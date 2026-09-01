@@ -35,7 +35,11 @@ const colors = {
   border3: '#D4D4D4',
   accent2: '#E5E5E5',
   destructive: '#DC2626',
-  outline: 'rgba(255, 255, 255, 0.1)'
+  outline: 'rgba(255, 255, 255, 0.1)',
+  // ** Hyperlinks. Blue-600/700 rather than the environment blue, so a link
+  // reads as a link in both the stone (production) and blue (dev/SIT) themes.
+  link: '#2563EB',
+  linkHover: '#1D4ED8'
 }
 
 // ** Status colors (Tailwind red/amber/emerald 400-600), used to signal stock

@@ -1,20 +1,41 @@
-import { Alert, Button, Card, CardContent, CircularProgress, Grid, Skeleton, useTheme } from '@mui/material'
 import { forwardRef, useEffect, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
-import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
-import CustomTextField from 'src/@core/components/mui/text-field'
+import { Controller, useForm } from 'react-hook-form'
+
+// ** MUI Imports
+import Alert from '@mui/material/Alert'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import Grid from '@mui/material/Grid'
+import CardContent from '@mui/material/CardContent'
+import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material/styles'
+
+// ** Date Picker
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import Icon from 'src/@core/components/icon'
-import { useRouter } from 'next/router'
 
+// ** Custom Component Imports
+import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
+import CustomTextField from 'src/@core/components/mui/text-field'
+
+// ** Store Imports
 import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
+import { checkStockOpnameWarehouse, createStockOpname } from 'src/store/apps/stock-opname'
+
+// ** Shared Components
+import FormActionBar from 'src/views/common/FormActionBar'
 import TableAddStockOpname from './TableAddStockOpname'
-import {
-  checkStockOpnameWarehouse,
-  createStockOpname,
-} from 'src/store/apps/stock-opname'
+
+// ** Design Tokens
+import { colors, radii, shadows } from 'src/configs/designTokens'
+
+const surfaceCardSx = {
+  borderRadius: `${radii.lg}px`,
+  border: `1px solid ${colors.border}`,
+  boxShadow: shadows.xs
+}
 
 const PickersComponent = forwardRef(({ ...props }, ref) => {
   // ** Props
@@ -133,12 +154,16 @@ export default function AddStockOpname({ warehouse }) {
 
   return (
     <form onSubmit={e => onSubmit(e)}>
-      <Grid container spacing={6}>
-        <Grid item xs={12}>
-          <Card>
+      {/* No `spacing` on this container: `FormActionBar`'s negative margins are
+          measured against the content column, and grid gutters would offset it. */}
+      <Grid container>
+        {/* Left column: the opname itself. Right column: the note that
+            annotates it, kept alongside rather than below the long table. */}
+        <Grid item xs={12} lg={8.5} sx={{ pr: { lg: 4 } }}>
+          <Card elevation={0} sx={surfaceCardSx}>
             <CardContent>
-              <Grid container display='flex' gap={4} justifyContent={'space-between'}>
-                <Grid item xs={12} md={5.9}>
+              <Grid container spacing={4}>
+                <Grid item xs={12} md={6}>
                   <Controller
                     name={`warehouseOrigin`}
                     control={control}
@@ -169,7 +194,7 @@ export default function AddStockOpname({ warehouse }) {
                     )}
                   />
                 </Grid>
-                <Grid item xs={12} md={5.9}>
+                <Grid item xs={12} md={6}>
                   <DatePicker
                     selected={date}
                     id='basic'
@@ -181,84 +206,66 @@ export default function AddStockOpname({ warehouse }) {
               </Grid>
             </CardContent>
           </Card>
-        </Grid>
-        {checkStockOpname.isHaveStockOpname ? (
-          <Grid item xs={12}>
+
+          {checkStockOpname.isHaveStockOpname ? (
             <Alert
-              sx={{ ':hover': { cursor: 'pointer', color: 'blue' } }}
               severity='error'
+              sx={{ mt: 4, borderRadius: `${radii.lg}px`, ':hover': { cursor: 'pointer' } }}
               onClick={() => router.push(`/stock-opname/${checkStockOpname.stockOpnameCode}`)}
             >
               {checkStockOpname.message}
             </Alert>
-          </Grid>
-        ) : (
-          <>
-            <Grid item xs={12}>
+          ) : (
+            <Box sx={{ mt: 4 }}>
               <TableAddStockOpname
                 loading={loadingCheckStockOpname || loading}
                 data={fields}
                 handleChange={handleChange}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <Card>
-                <CardContent>
-                  <Grid item xs={12}>
-                    <Controller
-                      name={`notes`}
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          multiline
-                          rows={3}
-                          fullWidth
-                          label='Catatan'
-                          placeholder={'Catatan...'}
-                          value={value}
-                          onChange={e => {
-                            onChange(e.target.value)
-                          }}
-                          type='text'
-                          sx={{ display: 'block' }}
-                        />
-                      )}
-                    />
-                  </Grid>
-                </CardContent>
-              </Card>
-            </Grid>
-          </>
-        )}
-        <Grid
-          container
-          sx={{ paddingLeft: '25px', marginTop: '20px' }}
-          display='flex'
-          justifyContent='flex-end'
-          gap={6}
-        >
-          {checkStockOpname.isHaveStockOpname && (
-            <Button variant='tonal' onClick={() => router.back()} startIcon={<Icon icon='tabler:arrow-left' />}>
-              Kembali
-            </Button>
+            </Box>
           )}
-          <Button variant='tonal' color='secondary' onClick={() => router.back()} startIcon={<Icon icon='tabler:x' />} disabled={loadingCreate}>
-            Batal
-          </Button>
-          {loadingCreate ? (
-            <Button variant='contained' disabled>
-              <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
-              Submitting...
-            </Button>
-          ) : (
-            <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-              Simpan Draft
-            </Button>
-          )}
-          {/* <Button variant='contained' onClick={handlePending} startIcon={<Icon icon='tabler:square-rounded-check' />}>
-            Selesaikan Stok Opname
-          </Button> */}
+        </Grid>
+
+        <Grid item xs={12} lg={3.5} sx={{ mt: { xs: 4, lg: 0 } }}>
+          <Card elevation={0} sx={surfaceCardSx}>
+            <CardContent>
+              <Typography
+                sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: '20px', color: colors.foreground, mb: 3 }}
+              >
+                Catatan
+              </Typography>
+              <Controller
+                name={`notes`}
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { value, onChange } }) => (
+                  <CustomTextField
+                    multiline
+                    rows={4}
+                    fullWidth
+                    placeholder={'Catatan...'}
+                    value={value}
+                    onChange={e => {
+                      onChange(e.target.value)
+                    }}
+                    type='text'
+                    sx={{ display: 'block' }}
+                  />
+                )}
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12}>
+          <FormActionBar
+            onCancel={() => router.back()}
+            loading={loadingCreate}
+            submitLabel='Simpan Draft'
+            cancelLabel='Batal'
+            submitIcon='tabler:device-floppy'
+            loadingLabel='Menyimpan...'
+          />
         </Grid>
       </Grid>
     </form>
