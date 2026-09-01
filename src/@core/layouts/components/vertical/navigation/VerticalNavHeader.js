@@ -30,6 +30,17 @@ const MenuHeaderWrapper = styled(Box)(({ theme }) => ({
 }))
 
 // ** Company name in the sidebar header (Figma: 12px semibold, muted).
+// ** `themeConfig.templateName` is stored uppercase because the printed
+// documents and letterheads use it that way. The sidebar wants it title-cased,
+// so it is converted here rather than changing the shared config.
+const toPascalCase = value =>
+  (value || '')
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+
 const HeaderTitle = styled(Typography)({
   fontSize: '0.75rem',
   fontWeight: 600,
@@ -92,7 +103,7 @@ const VerticalNavHeader = props => {
             variant='caption'
             sx={{ ...menuCollapsedStyles, ...(navCollapsed && !navHover ? {} : { ml: 2.5 }) }}
           >
-            {themeConfig.templateName}
+            {toPascalCase(themeConfig.templateName)}
           </HeaderTitle>
         </LinkStyled>
       )}

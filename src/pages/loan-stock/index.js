@@ -1,16 +1,18 @@
-import { Grid, Typography } from '@mui/material'
-import { Box } from '@mui/system'
+// ** MUI Imports
+import Grid from '@mui/material/Grid'
+
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
 import TableAllLoanStock from 'src/views/loan-stock/TableAllLoanStock'
 
 export default function LoanStock() {
-
   return (
-    <Grid container spacing={3}>
-      {/* Table Loan Stock */}
+    <Grid container>
       <Grid item xs={12}>
-        <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', paddingY: 3 }}>
-          <Typography fontSize={20}>Daftar Loan Stock</Typography>
-        </Box>
+        <PageHeader
+          title='Daftar Pinjaman Stok'
+          breadcrumbs={[{ label: 'Inventory' }, { label: 'Loan Stock' }]}
+        />
         <TableAllLoanStock />
       </Grid>
     </Grid>
