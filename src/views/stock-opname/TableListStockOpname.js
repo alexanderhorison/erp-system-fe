@@ -203,7 +203,7 @@ export default function TableListStockOpname() {
             flex: 0.2,
             minWidth: 180,
             field: 'code',
-            headerName: 'Kode',
+            headerName: 'KODE',
             renderCell: params => (
               <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
                 {params.row.code}
@@ -214,7 +214,7 @@ export default function TableListStockOpname() {
             flex: 0.15,
             minWidth: 130,
             field: 'createdAt',
-            headerName: 'Tanggal',
+            headerName: 'TANGGAL',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.opnameDate || '-'}
@@ -225,7 +225,7 @@ export default function TableListStockOpname() {
             flex: 0.25,
             minWidth: 160,
             field: 'warehouseName',
-            headerName: 'Gudang',
+            headerName: 'GUDANG',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.warehouseName}
@@ -236,7 +236,7 @@ export default function TableListStockOpname() {
             flex: 0.15,
             minWidth: 120,
             field: 'status',
-            headerName: 'Status',
+            headerName: 'STATUS',
             renderCell: params => <Status status={params.row.status} />
           },
           {
@@ -244,7 +244,7 @@ export default function TableListStockOpname() {
             minWidth: 130,
             sortable: false,
             field: 'actions',
-            headerName: 'Aksi',
+            headerName: 'ACTION',
             // ** The row itself navigates to the detail page, so the action
             // buttons must not bubble their clicks up to it.
             renderCell: ({ row }) => (

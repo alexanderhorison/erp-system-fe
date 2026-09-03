@@ -105,14 +105,14 @@ export default function TableMasterType({}) {
             flex: 0.3,
             minWidth: 200,
             field: 'name',
-            headerName: 'Type Name',
+            headerName: 'TYPE NAME',
             renderCell: params => <Typography variant='body2'>{params.row.name}</Typography>
           },
           {
             flex: 0.5,
             minWidth: 200,
             field: 'description',
-            headerName: 'Description',
+            headerName: 'DESCRIPTION',
             renderCell: params => <Typography variant='body2'>{params.row.description || '-'}</Typography>
           },
           {
@@ -120,7 +120,7 @@ export default function TableMasterType({}) {
             minWidth: 120,
             sortable: false,
             field: 'actions',
-            headerName: 'Action',
+            headerName: 'ACTION',
             renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
           }
         ]}

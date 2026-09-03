@@ -95,7 +95,7 @@ export default function TableAllLoanStock() {
             flex: 0.25,
             minWidth: 200,
             field: 'productName',
-            headerName: 'Nama Produk',
+            headerName: 'NAMA PRODUK',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.productName}
@@ -106,7 +106,7 @@ export default function TableAllLoanStock() {
             flex: 0.1,
             minWidth: 110,
             field: 'quantity',
-            headerName: 'Jumlah',
+            headerName: 'JUMLAH',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.quantity}
@@ -117,7 +117,7 @@ export default function TableAllLoanStock() {
             flex: 0.15,
             minWidth: 120,
             field: 'unitName',
-            headerName: 'Satuan',
+            headerName: 'SATUAN',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.unitName}
@@ -128,7 +128,7 @@ export default function TableAllLoanStock() {
             flex: 0.2,
             minWidth: 180,
             field: 'warehouseName',
-            headerName: 'Gudang',
+            headerName: 'GUDANG',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.warehouseName}
@@ -140,7 +140,7 @@ export default function TableAllLoanStock() {
             minWidth: 100,
             sortable: false,
             field: 'actions',
-            headerName: 'Aksi',
+            headerName: 'ACTION',
             renderCell: ({ row }) => <RowOptions handlePayLoan={() => handlePayLoan(row)} />
           }
         ]}

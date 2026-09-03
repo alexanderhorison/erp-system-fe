@@ -1,100 +1,78 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useRouter } from 'next/router'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
+import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material'
 import Icon from 'src/@core/components/icon'
-import CustomChip from 'src/@core/components/mui/chip'
 
 import HandleSearh from 'src/helpers/handleSearch'
-
-import {
-  deleteMasterDataEmployee,
-  fetchMasterDataEmployee,
-  fetchMasterDataEmployeeDetail
-} from 'src/store/apps/master/employee'
-import ModalAddMasterEmployee from './ModalAddMasterEmployee'
-import TableHeaderMasterEmployee from './TableHeaderMasterEmployee'
-import { useRouter } from 'next/router'
 import { priceFormat } from 'src/helpers/priceFormatter'
+import { deleteMasterDataEmployee, fetchMasterDataEmployee } from 'src/store/apps/master/employee'
+
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
+import EmployeeStatusChip from './EmployeeStatusChip'
 
 const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
-  const [openModalEdit, setOpenModalEdit] = useState(false)
-  const [openModalView, setOpenModalView] = useState(false)
+  const router = useRouter()
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
+  const { loadingDelete } = useSelector(state => state.masterEmployee)
 
-  const handleDelete = e => {
-    e.stopPropagation()
+  // ** Confirmation is owned by `ConfirmDialog`; the thunk performs the request
+  // without prompting again (see docs/REVAMP_BASELINE.md §4).
+  const handleDelete = () => {
     dispatch(deleteMasterDataEmployee({ id, name }))
-  }
-
-  const handleEdit = e => {
-    e.stopPropagation()
-    dispatch(fetchMasterDataEmployeeDetail(id))
-    setOpenModalEdit(true)
-  }
-
-  const handleView = e => {
-    dispatch(fetchMasterDataEmployeeDetail(id))
+    setOpenConfirmDelete(false)
   }
 
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleView}>
-          <Icon icon='tabler:eye' />
-        </IconButton>
-        <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton>
-        <IconButton onClick={handleDelete}>
-          <Icon icon='tabler:trash' />
-        </IconButton>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+        <Tooltip title='Lihat'>
+          <IconButton onClick={() => router.push(`/master/employee/${id}`)} size='small'>
+            <Icon icon='tabler:eye' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Ubah'>
+          <IconButton onClick={() => router.push(`/master/employee/${id}/edit`)} size='small'>
+            <Icon icon='tabler:edit' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Hapus'>
+          <IconButton onClick={() => setOpenConfirmDelete(true)} size='small' sx={{ color: 'error.main' }}>
+            <Icon icon='tabler:trash' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
       </Box>
-      {openModalEdit && (
-        <ModalAddMasterEmployee open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
-      )}
-      {openModalView && (
-        <ModalAddMasterEmployee open={openModalView} setOpen={setOpenModalView} typeModal={'VIEW'} id={id} />
-      )}
+
+      <ConfirmDialog
+        open={openConfirmDelete}
+        onClose={() => setOpenConfirmDelete(false)}
+        onConfirm={handleDelete}
+        title='Hapus Karyawan'
+        itemName={name}
+        loading={loadingDelete}
+      />
     </>
-  )
-}
-
-const renderChipStatus = params => {
-  const isActive = params.row.is_active
-  const status = params.row.status || ''
-
-  return (
-    <CustomChip
-      rounded
-      size='small'
-      skin='light'
-      color={isActive ? 'success' : 'error'}
-      label={isActive ? status || 'Aktif' : 'Tidak Aktif'}
-      sx={{ fontWeight: 500 }}
-    />
   )
 }
 
 export default function TableMasterEmployee() {
   const dispatch = useDispatch()
   const router = useRouter()
+
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [openModalAdd, setOpenModalAdd] = useState(false)
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
 
   const { data, loading } = useSelector(state => state.masterEmployee)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({
-      data,
-      keys: ['nama', 'role'],
-      searchValue,
-      setData: setFilteredData
-    })
+    HandleSearh({ data, keys: ['nama', 'role'], searchValue, setData: setFilteredData })
   }
 
   useEffect(() => {
@@ -105,134 +83,123 @@ export default function TableMasterEmployee() {
     setFilteredData(data)
   }, [data])
 
-  const handleRowClick = params => {
-    router.push(`/master/employee/${params.id}`)
-  }
-
   return (
-    <Card>
-      <DataGrid
-        autoHeight
-        loading={loading}
-        columns={[
-          {
-            flex: 0.05,
-            minWidth: 50,
-            field: 'id',
-            headerName: 'Id',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.id}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.15,
-            minWidth: 150,
-            field: 'nama',
-            headerName: 'Nama Karyawan',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.nama}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.10,
-            minWidth: 100,
-            field: 'role',
-            headerName: 'Jabatan',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params?.row?.role || '-'}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.12,
-            minWidth: 120,
-            field: 'salary',
-            headerName: 'Gaji',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.salary ? priceFormat(params.row.salary) : '-'}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.12,
-            minWidth: 120,
-            field: 'bonus',
-            headerName: 'Bonus',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.bonus ? priceFormat(params.row.bonus) : '-'}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.1,
-            minWidth: 120,
-            field: 'debt',
-            headerName: 'Kasbon',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.debt ? priceFormat(params.row.debt) : '-'}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.08,
-            minWidth: 120,
-            field: 'status',
-            headerName: 'Status',
-            renderCell: renderChipStatus
-          },
-          {
-            flex: 0.11,
-            field: 'actions',
-            headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} name={row.nama} />
+    <DataTable
+      itemLabel='karyawan'
+      loading={loading}
+      getRowId={row => row.id}
+      onRowClick={params => router.push(`/master/employee/${params.row.id}`)}
+      toolbar={
+        <TableToolbar
+          value={searchText}
+          placeholder='Cari nama karyawan'
+          onChange={event => handleSearch(event.target.value)}
+          clearSearch={() => handleSearch('')}
+          actions={
+            <Button
+              variant='contained'
+              onClick={() => router.push('/master/employee/add')}
+              startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+            >
+              Tambah Karyawan
+            </Button>
           }
-        ]}
-        pageSizeOptions={[5, 10, 25, 50]}
-        paginationModel={paginationModel}
-        onRowClick={handleRowClick}
-        slots={{ toolbar: TableHeaderMasterEmployee }}
-        onPaginationModelChange={setPaginationModel}
-        rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari nama karyawan',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd
-          }
-        }}
-      />
-      {openModalAdd && <ModalAddMasterEmployee open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
-    </Card>
+        />
+      }
+      columns={[
+        {
+          flex: 0.05,
+          minWidth: 60,
+          field: 'id',
+          headerName: 'ID',
+          renderCell: params => (
+            <Typography variant='body2' sx={{ color: 'text.primary' }}>
+              {params.row.id}
+            </Typography>
+          )
+        },
+        {
+          flex: 0.18,
+          minWidth: 160,
+          field: 'nama',
+          headerName: 'NAMA KARYAWAN',
+          renderCell: params => (
+            <Typography variant='body2' sx={{ color: 'text.primary' }}>
+              {params.row.nama}
+            </Typography>
+          )
+        },
+        {
+          flex: 0.13,
+          minWidth: 120,
+          field: 'role',
+          headerName: 'JABATAN',
+          renderCell: params => (
+            <Typography variant='body2' sx={{ color: 'text.primary' }}>
+              {params.row.role || '-'}
+            </Typography>
+          )
+        },
+        {
+          flex: 0.13,
+          minWidth: 120,
+          field: 'salary',
+          headerName: 'GAJI',
+          renderCell: params => (
+            <Typography variant='body2' sx={{ color: 'text.primary' }}>
+              {params.row.salary ? priceFormat(params.row.salary) : '-'}
+            </Typography>
+          )
+        },
+        {
+          flex: 0.13,
+          minWidth: 120,
+          field: 'bonus',
+          headerName: 'BONUS',
+          renderCell: params => (
+            <Typography variant='body2' sx={{ color: 'text.primary' }}>
+              {params.row.bonus ? priceFormat(params.row.bonus) : '-'}
+            </Typography>
+          )
+        },
+        {
+          flex: 0.13,
+          minWidth: 120,
+          field: 'debt',
+          headerName: 'KASBON',
+          renderCell: params => (
+            <Typography variant='body2' sx={{ color: 'text.primary' }}>
+              {params.row.debt ? priceFormat(params.row.debt) : '-'}
+            </Typography>
+          )
+        },
+        {
+          flex: 0.11,
+          minWidth: 110,
+          field: 'status',
+          headerName: 'STATUS',
+          renderCell: params => (
+            <EmployeeStatusChip status={params.row.status} isActive={params.row.is_active} />
+          )
+        },
+        {
+          flex: 0.14,
+          minWidth: 120,
+          sortable: false,
+          field: 'actions',
+          headerName: 'ACTION',
+          renderCell: ({ row }) => (
+            <Box onClick={event => event.stopPropagation()} sx={{ width: '100%' }}>
+              <RowOptions id={row.id} name={row.nama} />
+            </Box>
+          )
+        }
+      ]}
+      pageSizeOptions={[25, 50, 100]}
+      paginationModel={paginationModel}
+      onPaginationModelChange={setPaginationModel}
+      rows={filteredData}
+      sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
+    />
   )
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
 
-import { Box, Button, Chip, IconButton, Tooltip, Typography } from '@mui/material'
+import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 
 import {
@@ -18,9 +18,7 @@ import HandleSearh from 'src/helpers/handleSearch'
 import DataTable from 'src/views/common/DataTable'
 import TableToolbar from 'src/views/common/TableToolbar'
 import ConfirmDialog from 'src/views/common/ConfirmDialog'
-
-// ** Design Tokens
-import { colors, radii } from 'src/configs/designTokens'
+import StatusChip from 'src/views/common/StatusChip'
 
 const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
@@ -80,31 +78,6 @@ const RowOptions = ({ id, name }) => {
   )
 }
 
-// ** Status reads as an outlined chip rather than raw text, matching the chip
-// styling used elsewhere in the redesign.
-const StatusChip = ({ status }) => {
-  const isActive = status === 'active'
-
-  return (
-    <Chip
-      size='small'
-      label={isActive ? 'Active' : 'Not Active'}
-      sx={{
-        height: 24,
-        borderRadius: `${radii.full}px`,
-        border: `1px solid ${isActive ? colors.border3 : colors.border}`,
-        backgroundColor: 'transparent',
-        '& .MuiChip-label': {
-          px: 2,
-          fontSize: '0.75rem',
-          lineHeight: '16px',
-          color: isActive ? colors.foreground : colors.mutedForeground
-        }
-      }}
-    />
-  )
-}
-
 export default function TableMasterWarehouse({}) {
   const dispatch = useDispatch()
   const [openModalAdd, setOpenModalAdd] = useState(false)
@@ -155,7 +128,7 @@ export default function TableMasterWarehouse({}) {
             flex: 0.3,
             minWidth: 200,
             field: 'name',
-            headerName: 'Warehouse Name',
+            headerName: 'WAREHOUSE NAME',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.name}
@@ -166,7 +139,7 @@ export default function TableMasterWarehouse({}) {
             flex: 0.3,
             minWidth: 160,
             field: 'location',
-            headerName: 'Location',
+            headerName: 'LOCATION',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.location || '-'}
@@ -177,15 +150,15 @@ export default function TableMasterWarehouse({}) {
             flex: 0.2,
             minWidth: 120,
             field: 'status',
-            headerName: 'Status',
-            renderCell: params => <StatusChip status={params.row.status} />
+            headerName: 'STATUS',
+            renderCell: params => <StatusChip isActive={params.row.status === 'active'} />
           },
           {
             flex: 0.2,
             minWidth: 140,
             sortable: false,
             field: 'actions',
-            headerName: 'Action',
+            headerName: 'ACTION',
             renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
           }
         ]}

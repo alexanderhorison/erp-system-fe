@@ -116,7 +116,7 @@ export default function TableMasterCategory({}) {
             flex: 0.35,
             minWidth: 200,
             field: 'name',
-            headerName: 'Category Name',
+            headerName: 'CATEGORY NAME',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.name}
@@ -127,7 +127,7 @@ export default function TableMasterCategory({}) {
             flex: 0.45,
             minWidth: 200,
             field: 'description',
-            headerName: 'Description',
+            headerName: 'DESCRIPTION',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.description || '-'}
@@ -139,7 +139,7 @@ export default function TableMasterCategory({}) {
             minWidth: 120,
             sortable: false,
             field: 'actions',
-            headerName: 'Action',
+            headerName: 'ACTION',
             renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
           }
         ]}

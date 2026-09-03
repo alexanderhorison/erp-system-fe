@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalDeleteConfirmed, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'karyawan'
 
@@ -42,7 +42,7 @@ export const fetchMasterDataEmployeeDetail = createAsyncThunk(
 // ADD EMPLOYEE
 export const addMasterDataEmployee = createAsyncThunk(
   'appMasterEmployee/addEmployee',
-  async ({ data, setOpen }, { dispatch, rejectWithValue }) => {
+  async ({ data, router }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'POST',
@@ -50,8 +50,8 @@ export const addMasterDataEmployee = createAsyncThunk(
         data
       })
       swalSuccess({ label, name: 'Karyawan', response })
-      setOpen(false)
       dispatch(fetchMasterDataEmployee())
+      router.push('/master/employee')
       return
     } catch (error) {
       swalError({ error, label })
@@ -63,7 +63,7 @@ export const addMasterDataEmployee = createAsyncThunk(
 // EDIT EMPLOYEE
 export const editMasterDataEmployee = createAsyncThunk(
   'appMasterEmployee/editEmployee',
-  async ({ id, data, setOpen }, { dispatch, rejectWithValue }) => {
+  async ({ id, data, router }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios({
         method: 'PUT',
@@ -71,9 +71,8 @@ export const editMasterDataEmployee = createAsyncThunk(
         data
       })
       swalSuccess({ label, name: 'Karyawan', response })
-      setOpen(false)
       dispatch(fetchMasterDataEmployee())
-      dispatch(fetchMasterDataEmployeeDetail(id))
+      router.push('/master/employee')
       return
     } catch (error) {
       swalError({ label, error })
@@ -87,7 +86,7 @@ export const deleteMasterDataEmployee = createAsyncThunk(
   'appEmployee/deleteEmployee',
   async ({ id, name }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationDelete({
+      await swalDeleteConfirmed({
         label,
         name,
         axiosRequest: () => {
@@ -151,7 +150,7 @@ export const deleteEmployeeDebt = createAsyncThunk(
   'appMasterEmployee/deleteEmployeeDebt',
   async ({ id, employeeId, date }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationDelete({
+      await swalDeleteConfirmed({
         label: 'Kasbon',
         name: 'Kasbon',
         title: `Anda akan menghapus kasbon tanggal ${date}?`,

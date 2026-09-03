@@ -191,7 +191,7 @@ export default function TableAllGoodsOut({}) {
             flex: 0.16,
             minWidth: 140,
             field: 'code',
-            headerName: 'Kode',
+            headerName: 'KODE',
             renderCell: params => (
               <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
                 {params.row.code}
@@ -202,21 +202,21 @@ export default function TableAllGoodsOut({}) {
             flex: 0.14,
             minWidth: 130,
             field: 'createdAt',
-            headerName: 'Tanggal Dibuat',
+            headerName: 'TANGGAL DIBUAT',
             renderCell: params => <DateCell date={params.row.dateCreated} timestamp={params.row.createdAt} />
           },
           {
             flex: 0.14,
             minWidth: 130,
             field: 'approvedAt',
-            headerName: 'Tanggal Diterima',
+            headerName: 'TANGGAL DITERIMA',
             renderCell: params => <DateCell date={params.row.dateApproved} timestamp={params.row.approvedAt} />
           },
           {
             flex: 0.18,
             minWidth: 150,
             field: 'createdBy',
-            headerName: 'Dibuat Oleh',
+            headerName: 'DIBUAT OLEH',
             // ** `createdBy` is an object, so the grid cannot sort or filter it
             // by value; the cell renders the name with the role beneath.
             sortable: false,
@@ -238,7 +238,7 @@ export default function TableAllGoodsOut({}) {
             flex: 0.18,
             minWidth: 150,
             field: 'warehouseOriginName',
-            headerName: 'Gudang Sumber',
+            headerName: 'GUDANG SUMBER',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.warehouseOriginName}
@@ -249,7 +249,7 @@ export default function TableAllGoodsOut({}) {
             flex: 0.12,
             minWidth: 120,
             field: 'status',
-            headerName: 'Status',
+            headerName: 'STATUS',
             renderCell: ({ row }) => <Status status={row.status} />
           },
           {
@@ -257,7 +257,7 @@ export default function TableAllGoodsOut({}) {
             minWidth: 90,
             sortable: false,
             field: 'actions',
-            headerName: 'Aksi',
+            headerName: 'ACTION',
             renderCell: ({ row }) => <RowOptions handleView={() => handleRowClick(row)} />
           }
         ]}

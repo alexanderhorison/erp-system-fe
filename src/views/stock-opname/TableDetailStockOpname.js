@@ -29,7 +29,7 @@ export default function TableDetailStockOpname({ data, status, setSelectedRows }
           flex: 0.24,
           minWidth: 220,
           field: 'productName',
-          headerName: 'Produk',
+          headerName: 'PRODUK',
           renderCell: params => (
             <Typography variant='body2' sx={{ color: 'text.primary' }}>
               {params.row.productName} {params.row.isAdjustment ? '(Adjustment)' : ''}
@@ -40,7 +40,7 @@ export default function TableDetailStockOpname({ data, status, setSelectedRows }
           flex: 0.1,
           minWidth: 100,
           field: 'unitName',
-          headerName: 'Unit',
+          headerName: 'UNIT',
           renderCell: params => (
             <Typography variant='body2' sx={{ color: 'text.primary' }}>
               {params.row.unitName}
@@ -51,7 +51,7 @@ export default function TableDetailStockOpname({ data, status, setSelectedRows }
           flex: 0.13,
           minWidth: 130,
           field: 'companyName',
-          headerName: 'Perusahaan',
+          headerName: 'PERUSAHAAN',
           renderCell: params => (
             <Typography variant='body2' sx={{ color: 'text.primary' }}>
               {params.row.companyName}
@@ -62,7 +62,7 @@ export default function TableDetailStockOpname({ data, status, setSelectedRows }
           flex: 0.1,
           minWidth: 100,
           field: 'rack',
-          headerName: 'Rak',
+          headerName: 'RAK',
           renderCell: params => (
             <Typography variant='body2' sx={{ color: 'text.primary' }}>
               {params.row.rackName || '-'}
@@ -73,7 +73,7 @@ export default function TableDetailStockOpname({ data, status, setSelectedRows }
           flex: 0.09,
           minWidth: 90,
           field: 'systemStock',
-          headerName: 'Stock',
+          headerName: 'STOCK',
           renderCell: params => (
             <Typography variant='body2' sx={{ color: 'text.primary' }}>
               {params.row.systemStock}
@@ -85,7 +85,7 @@ export default function TableDetailStockOpname({ data, status, setSelectedRows }
           minWidth: 120,
           sortable: false,
           field: 'actualStock',
-          headerName: 'Actual Stock',
+          headerName: 'ACTUAL STOCK',
           renderCell: params => (
             <Typography variant='body2' sx={{ color: 'text.primary' }}>
               {isNumberCustom(params.row.actualStock)}
@@ -97,7 +97,7 @@ export default function TableDetailStockOpname({ data, status, setSelectedRows }
           minWidth: 90,
           sortable: false,
           field: 'diff',
-          headerName: 'Selisih',
+          headerName: 'SELISIH',
           renderCell: params => {
             const selisih = params.row.diff
             return (

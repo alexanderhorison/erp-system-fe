@@ -45,7 +45,16 @@ const SortUnsortedIcon = props => <Icon icon='tabler:arrows-sort' fontSize='0.87
  * settled to force a fresh measurement (a synthetic window resize event does not
  * reach the grid's own triggers).
  */
-export default function DataTable({ toolbar = null, itemLabel = 'items', sx, slots, columns, ...dataGridProps }) {
+export default function DataTable({
+  toolbar = null,
+  itemLabel = 'items',
+  rowCount,
+  showActions = true,
+  sx,
+  slots,
+  columns,
+  ...dataGridProps
+}) {
   const { paginationModel, onPaginationModelChange, rows = [] } = dataGridProps
   const { settings } = useSettings()
   const { navCollapsed } = settings
@@ -104,8 +113,12 @@ export default function DataTable({ toolbar = null, itemLabel = 'items', sx, slo
   const normalisedColumns = useMemo(() => {
     if (!columns?.length) return columns
 
+    // ** Dropped entirely when the caller has nothing to act on — pass
+    // `showActions={false}` instead of leaving an empty column in `columns`.
+    const visibleColumns = showActions ? columns : columns.filter(column => column.field !== 'actions')
+
     // ** The action column is centred unless the caller says otherwise.
-    const withDefaults = columns.map(column =>
+    const withDefaults = visibleColumns.map(column =>
       column.field === 'actions'
         ? {
             align: 'center',
@@ -119,7 +132,7 @@ export default function DataTable({ toolbar = null, itemLabel = 'items', sx, slo
     if (!flexTotal || Math.abs(flexTotal - 1) < 0.001) return withDefaults
 
     return withDefaults.map(column => (column.flex ? { ...column, flex: column.flex / flexTotal } : column))
-  }, [columns])
+  }, [columns, showActions])
 
   return (
     <Card
@@ -211,7 +224,7 @@ export default function DataTable({ toolbar = null, itemLabel = 'items', sx, slo
         <TablePagination
           page={paginationModel.page}
           pageSize={paginationModel.pageSize}
-          rowCount={rows.length}
+          rowCount={rowCount ?? rows.length}
           itemLabel={itemLabel}
           onPageChange={nextPage => onPaginationModelChange?.({ ...paginationModel, page: nextPage })}
         />

@@ -3,7 +3,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
 import Icon from 'src/@core/components/icon'
-import { returnFormatDate } from 'src/helpers/formatDate'
+import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 
 import { colors, stone } from 'src/configs/designTokens'
 
@@ -18,8 +18,7 @@ const fieldValueSx = {
   color: colors.foreground
 }
 
-/** Icon in a circular tint, with a label over a value beside it. */
-const InfoField = ({ icon, label, value }) => (
+const AmountField = ({ icon, label, value }) => (
   <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
     <Box
       sx={{
@@ -38,29 +37,22 @@ const InfoField = ({ icon, label, value }) => (
     </Box>
     <Box sx={{ minWidth: 0 }}>
       <Typography sx={fieldLabelSx}>{label}</Typography>
-      <Typography sx={fieldValueSx}>{value || '-'}</Typography>
+      <Typography sx={fieldValueSx}>{value ? priceFormatWIthCurrency(value) : '-'}</Typography>
     </Box>
   </Box>
 )
 
-export default function EmployeeInformation({ data }) {
+export default function EmployeeEmploymentInfo({ data }) {
   return (
     <Grid container spacing={4}>
-      <Grid item xs={12} sm={6} md={3}>
-        <InfoField icon='tabler:phone' label='Telepon' value={data?.phone} />
+      <Grid item xs={12} sm={4}>
+        <AmountField icon='tabler:cash' label='Gaji' value={data?.salary} />
       </Grid>
-      <Grid item xs={12} sm={6} md={3}>
-        <InfoField icon='tabler:calendar' label='Tanggal Lahir' value={data?.dob ? returnFormatDate(data.dob) : '-'} />
+      <Grid item xs={12} sm={4}>
+        <AmountField icon='tabler:gift' label='Bonus' value={data?.bonus} />
       </Grid>
-      <Grid item xs={12} sm={6} md={3}>
-        <InfoField
-          icon={data?.sex === 'Perempuan' ? 'tabler:gender-female' : 'tabler:gender-male'}
-          label='Jenis Kelamin'
-          value={data?.sex}
-        />
-      </Grid>
-      <Grid item xs={12} sm={6} md={3}>
-        <InfoField icon='tabler:map-pin' label='Alamat' value={data?.address} />
+      <Grid item xs={12} sm={4}>
+        <AmountField icon='tabler:receipt-2' label='Kasbon' value={data?.debt} />
       </Grid>
     </Grid>
   )

@@ -230,7 +230,7 @@ export default function TableProduct({ data, warehouseId, onExport, isExporting 
             flex: 0.05,
             minWidth: 70,
             field: 'productWarehouseId',
-            headerName: 'Id',
+            headerName: 'ID',
             renderCell: params => {
               return (
                 <>
@@ -245,7 +245,7 @@ export default function TableProduct({ data, warehouseId, onExport, isExporting 
             flex: 0.1,
             minWidth: 300,
             field: 'productName',
-            headerName: 'Product Name',
+            headerName: 'PRODUCT NAME',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -258,7 +258,7 @@ export default function TableProduct({ data, warehouseId, onExport, isExporting 
             flex: 0.1,
             minWidth: 150,
             field: 'companyName',
-            headerName: 'Company',
+            headerName: 'COMPANY',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -271,7 +271,7 @@ export default function TableProduct({ data, warehouseId, onExport, isExporting 
             flex: 0.1,
             minWidth: 100,
             field: 'rackName',
-            headerName: 'Rack',
+            headerName: 'RACK',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -284,7 +284,7 @@ export default function TableProduct({ data, warehouseId, onExport, isExporting 
             flex: 0.1,
             minWidth: 100,
             field: 'unitName',
-            headerName: 'Unit',
+            headerName: 'UNIT',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -297,7 +297,7 @@ export default function TableProduct({ data, warehouseId, onExport, isExporting 
             flex: 0.1,
             minWidth: 100,
             field: 'quantity',
-            headerName: 'Quantity',
+            headerName: 'QUANTITY',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -310,7 +310,7 @@ export default function TableProduct({ data, warehouseId, onExport, isExporting 
             flex: 0.1,
             minWidth: 100,
             field: 'minimumStock',
-            headerName: 'Minimum Stock',
+            headerName: 'MINIMUM STOCK',
             renderCell: params => {
               return (
                 <Typography variant='body2' sx={{ color: 'text.primary' }}>
@@ -324,7 +324,7 @@ export default function TableProduct({ data, warehouseId, onExport, isExporting 
             minWidth: 210,
             sortable: false,
             field: 'actions',
-            headerName: 'Action',
+            headerName: 'ACTION',
             renderCell: ({ row }) => (
               <RowOptions
                 id={row.productWarehouseId}

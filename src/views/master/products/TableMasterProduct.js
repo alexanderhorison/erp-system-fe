@@ -259,35 +259,35 @@ export default function TableMasterProduct({}) {
             flex: 0.25,
             minWidth: 220,
             field: 'name',
-            headerName: 'Product Name',
+            headerName: 'PRODUCT NAME',
             renderCell: params => <Typography variant='body2'>{params.row.name}</Typography>
           },
           {
             flex: 0.12,
             minWidth: 120,
             field: 'category',
-            headerName: 'Category',
+            headerName: 'CATEGORY',
             renderCell: params => <Typography variant='body2'>{params.row.category}</Typography>
           },
           {
             flex: 0.12,
             minWidth: 120,
             field: 'type',
-            headerName: 'Type',
+            headerName: 'TYPE',
             renderCell: params => <Typography variant='body2'>{params.row.type}</Typography>
           },
           {
             flex: 0.15,
             minWidth: 160,
             field: 'company',
-            headerName: 'Company',
+            headerName: 'COMPANY',
             renderCell: params => <Typography variant='body2'>{params.row.company}</Typography>
           },
           {
             flex: 0.16,
             minWidth: 160,
             field: 'description',
-            headerName: 'Product Description',
+            headerName: 'PRODUCT DESCRIPTION',
             renderCell: params => <Typography variant='body2'>{params.row.description || '-'}</Typography>
           },
           {
@@ -295,7 +295,7 @@ export default function TableMasterProduct({}) {
             minWidth: 140,
             sortable: false,
             field: 'actions',
-            headerName: 'Action',
+            headerName: 'ACTION',
             renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
           }
         ]}

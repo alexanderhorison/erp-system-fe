@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
+import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 
 import {
@@ -12,16 +11,26 @@ import {
 } from 'src/store/apps/master/unexpected-cost-category'
 
 import ModalAddMasterUnexpectedCostCategory from './ModalAddMasterUnexpectedCostCategory'
-import TableHeaderMasterUnexpectedCostCategory from './TableHeaderMasterUnexpectedCostCategory'
 import HandleSearh from 'src/helpers/handleSearch'
-import CustomChip from 'src/@core/components/mui/chip'
+
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
+import StatusChip from 'src/views/common/StatusChip'
+
 
 const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
+  const { loadingDelete } = useSelector(state => state.masterUnexpectedCostCategory)
 
+  // ** Confirmation is owned by `ConfirmDialog`; the thunk performs the request
+  // without prompting again (see docs/REVAMP_BASELINE.md §4).
   const handleDelete = () => {
     dispatch(deleteMasterDataUnexpectedCostCategory({ id, name }))
+    setOpenConfirmDelete(false)
   }
 
   const handleEdit = () => {
@@ -31,14 +40,27 @@ const RowOptions = ({ id, name }) => {
 
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton>
-        <IconButton onClick={handleDelete}>
-          <Icon icon='tabler:trash' />
-        </IconButton>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+        <Tooltip title='Ubah'>
+          <IconButton onClick={handleEdit} size='small'>
+            <Icon icon='tabler:edit' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Hapus'>
+          <IconButton onClick={() => setOpenConfirmDelete(true)} size='small' sx={{ color: 'error.main' }}>
+            <Icon icon='tabler:trash' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
       </Box>
+
+      <ConfirmDialog
+        open={openConfirmDelete}
+        onClose={() => setOpenConfirmDelete(false)}
+        onConfirm={handleDelete}
+        title='Hapus Kategori'
+        itemName={name}
+        loading={loadingDelete}
+      />
       {openModalEdit && (
         <ModalAddMasterUnexpectedCostCategory
           open={openModalEdit}
@@ -57,7 +79,7 @@ export default function TableMasterUnexpectedCostCategory({}) {
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
 
   const { data } = useSelector(state => state.masterUnexpectedCostCategory)
 
@@ -75,95 +97,73 @@ export default function TableMasterUnexpectedCostCategory({}) {
   }, [data])
 
   return (
-    <Card>
+    <>
       {openModalAdd && (
         <ModalAddMasterUnexpectedCostCategory open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />
       )}
-      <DataGrid
-        autoHeight
+      <DataTable
+        itemLabel='kategori'
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Cari nama kategori atau deskripsi'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            actions={
+              <Button
+                variant='contained'
+                onClick={() => setOpenModalAdd(true)}
+                startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+              >
+                Tambah Kategori
+              </Button>
+            }
+          />
+        }
         columns={[
           {
-            flex: 0.1,
+            flex: 0.3,
             minWidth: 200,
             field: 'name',
-            headerName: 'Nama Kategori',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.name}
-                </Typography>
-              )
-            }
+            headerName: 'NAMA KATEGORI',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.name}
+              </Typography>
+            )
           },
           {
-            flex: 0.2,
-            minWidth: 120,
+            flex: 0.4,
+            minWidth: 220,
             field: 'description',
-            headerName: 'Deskripsi',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.description}
-                </Typography>
-              )
-            }
+            headerName: 'DESKRIPSI',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.description || '-'}
+              </Typography>
+            )
           },
           {
-            flex: 0.1,
+            flex: 0.15,
             minWidth: 110,
             field: 'is_active',
-            headerName: 'Status',
-            renderCell: params => {
-              return (
-                <CustomChip
-                  rounded
-                  size='small'
-                  skin='light'
-                  label={params.row.is_active ? 'Active' : 'Inactive'}
-                  color={params.row.is_active ? 'success' : 'secondary'}
-                  sx={{
-                    height: 24,
-                    fontSize: '0.75rem',
-                    textTransform: 'capitalize',
-                    '& .MuiChip-label': { fontWeight: 500 }
-                  }}
-                />
-              )
-            }
+            headerName: 'STATUS',
+            renderCell: params => <StatusChip isActive={params.row.is_active} />
           },
           {
-            flex: 0.01,
+            flex: 0.15,
             minWidth: 120,
             sortable: false,
             field: 'actions',
-            headerName: 'Actions',
+            headerName: 'ACTION',
             renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} />
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderMasterUnexpectedCostCategory }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari nama kategori atau deskripsi',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd
-          }
-        }}
       />
-    </Card>
+    </>
   )
 }

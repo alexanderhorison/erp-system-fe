@@ -25,7 +25,7 @@ export default function TableAddStockOpname({ data, handleChange, type = 'add', 
           flex: 0.24,
           minWidth: 220,
           field: 'productName',
-          headerName: 'Produk',
+          headerName: 'PRODUK',
           renderCell: params => (
             <Typography variant='body2' sx={{ color: 'text.primary' }}>
               {params.row.productName}
@@ -36,7 +36,7 @@ export default function TableAddStockOpname({ data, handleChange, type = 'add', 
           flex: 0.1,
           minWidth: 100,
           field: 'unitName',
-          headerName: 'Unit',
+          headerName: 'UNIT',
           renderCell: params => (
             <Typography variant='body2' sx={{ color: 'text.primary' }}>
               {params.row.unitName}
@@ -47,7 +47,7 @@ export default function TableAddStockOpname({ data, handleChange, type = 'add', 
           flex: 0.13,
           minWidth: 130,
           field: 'companyName',
-          headerName: 'Perusahaan',
+          headerName: 'PERUSAHAAN',
           renderCell: params => (
             <Typography variant='body2' sx={{ color: 'text.primary' }}>
               {params.row.companyName}
@@ -58,7 +58,7 @@ export default function TableAddStockOpname({ data, handleChange, type = 'add', 
           flex: 0.1,
           minWidth: 100,
           field: 'rackName',
-          headerName: 'Rak',
+          headerName: 'RAK',
           renderCell: params => (
             <Typography variant='body2' sx={{ color: 'text.primary' }}>
               {params.row.rackName || '-'}
@@ -69,7 +69,7 @@ export default function TableAddStockOpname({ data, handleChange, type = 'add', 
           flex: 0.09,
           minWidth: 90,
           field: 'quantity',
-          headerName: 'Stock',
+          headerName: 'STOCK',
           renderCell: params => (
             <Typography variant='body2' sx={{ color: 'text.primary' }}>
               {type === 'add' ? params.row.quantity : params.row.systemStock}
@@ -81,7 +81,7 @@ export default function TableAddStockOpname({ data, handleChange, type = 'add', 
           minWidth: 140,
           sortable: false,
           field: 'actualStock',
-          headerName: 'Actual Stock',
+          headerName: 'ACTUAL STOCK',
           renderCell: params => (
             <CustomTextField
               fullWidth
@@ -101,7 +101,7 @@ export default function TableAddStockOpname({ data, handleChange, type = 'add', 
           minWidth: 90,
           sortable: false,
           field: 'actions',
-          headerName: 'Selisih',
+          headerName: 'SELISIH',
           renderCell: params => {
             const stock = type === 'add' ? params.row.quantity : params.row.systemStock
             const actualStock = params.row.actualStock

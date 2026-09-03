@@ -1,56 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-
-import { Box, IconButton, Typography } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
-import Icon from 'src/@core/components/icon'
-
-import {
-  deleteEmployeeDebt,
-  fetchEmployeeDebt,
-} from 'src/store/apps/master/employee'
-import ModalAddMasterEmployee from './ModalAddMasterEmployee'
 import { useRouter } from 'next/router'
+
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+
+import Icon from 'src/@core/components/icon'
+import { fetchEmployeeDebt } from 'src/store/apps/master/employee'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
-import TableHeaderDebtEmployee from './TableHeaderDebtEmployee'
 import ModalFormDebt from './ModalFormDebt'
 
-const RowOptions = ({ id, employeeId, date, category }) => {
-  const dispatch = useDispatch()
-  const [openModalEdit, setOpenModalEdit] = useState(false)
-  const [openModalView, setOpenModalView] = useState(false)
-
-  const handleDelete = e => {
-    e.stopPropagation()
-    dispatch(deleteEmployeeDebt({ id, employeeId, date }))
-  }
-
-  return (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        {/* <IconButton onClick={handleView}>
-          <Icon icon='tabler:eye' />
-        </IconButton> */}
-        {/* <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton> */}
-        {
-          category !== 'DAILY COST' && (
-            <IconButton onClick={handleDelete}>
-              <Icon icon='tabler:trash' />
-            </IconButton>
-          )
-        }
-      </Box>
-      {openModalEdit && (
-        <ModalAddMasterEmployee open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
-      )}
-      {openModalView && (
-        <ModalAddMasterEmployee open={openModalView} setOpen={setOpenModalView} typeModal={'VIEW'} id={id} />
-      )}
-    </>
-  )
-}
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
 
 export default function TableDebtEmployee() {
   const dispatch = useDispatch()
@@ -63,8 +25,8 @@ export default function TableDebtEmployee() {
 
   const { employeeDebt, loadingEmployeeDebt } = useSelector(state => state.masterEmployee)
 
-  const handleClick = type => {
-    setType(type)
+  const handleClick = nextType => {
+    setType(nextType)
     setOpenModal(true)
   }
 
@@ -78,111 +40,114 @@ export default function TableDebtEmployee() {
         }
       })
     )
-  }, [id, paginationModel])
+  }, [id, paginationModel, dispatch])
 
   return (
     <>
-      <DataGrid
-        autoHeight
+      <DataTable
+        itemLabel='kasbon'
         loading={loadingEmployeeDebt}
+        getRowId={row => row.id}
+        showActions={false}
+        toolbar={
+          <TableToolbar
+            actions={
+              <>
+                <Button
+                  size='small'
+                  variant='contained'
+                  startIcon={<Icon icon='tabler:coins' fontSize='1rem' />}
+                  onClick={() => handleClick('PEMINJAMAN')}
+                >
+                  Tambah Kasbon
+                </Button>
+                <Button
+                  size='small'
+                  variant='contained'
+                  startIcon={<Icon icon='tabler:cash-banknote' fontSize='1rem' />}
+                  onClick={() => handleClick('PEMBAYARAN')}
+                >
+                  Bayar Kasbon
+                </Button>
+              </>
+            }
+          />
+        }
         columns={[
           {
-            flex: 0.08,
-            minWidth: 50,
+            flex: 0.16,
+            minWidth: 120,
             field: 'category',
-            headerName: 'Kategori',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.category || '-'}
-                </Typography>
-              )
-            }
+            headerName: 'KATEGORI',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.category || '-'}
+              </Typography>
+            )
           },
           {
-            flex: 0.08,
+            flex: 0.16,
             minWidth: 120,
             field: 'date',
-            headerName: 'Tanggal',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.date ? new Date(params.row.date).toLocaleDateString('id-ID') : '-'}
-                </Typography>
-              )
-            }
+            headerName: 'TANGGAL',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.date ? new Date(params.row.date).toLocaleDateString('id-ID') : '-'}
+              </Typography>
+            )
           },
           {
-            flex: 0.1,
-            minWidth: 120,
+            flex: 0.18,
+            minWidth: 130,
             field: 'amount',
-            headerName: 'Jumlah',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.amount ? priceFormatWIthCurrency(params.row.amount) : '-'}
-                </Typography>
-              )
-            }
+            headerName: 'JUMLAH',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.amount ? priceFormatWIthCurrency(params.row.amount) : '-'}
+              </Typography>
+            )
           },
           {
-            flex: 0.1,
+            flex: 0.18,
             minWidth: 120,
             field: 'type',
-            headerName: 'Tipe',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.type}
-                </Typography>
-              )
-            }
+            headerName: 'TIPE',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.type}
+              </Typography>
+            )
           },
           {
-            flex: 0.1,
-            minWidth: 120,
+            flex: 0.32,
+            minWidth: 140,
             field: 'notes',
-            headerName: 'Notes',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.notes}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.06,
-            field: 'actions',
-            headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} employeeId={id} date={row.date} category={row.category} />
+            headerName: 'NOTES',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.notes || '-'}
+              </Typography>
+            )
           }
         ]}
         pageSizeOptions={[5, 10]}
         paginationModel={paginationModel}
-        paginationMode='server'
-        rowCount={employeeDebt?.pagination?.total || 0}
-        // onRowClick={handleRowClick}
-        slots={{ toolbar: TableHeaderDebtEmployee }}
         onPaginationModelChange={setPaginationModel}
+        paginationMode='server'
+        // ** Server-paginated: only the current page's rows are loaded, so the
+        // footer's total must come from the API, not `rows.length`.
+        rowCount={employeeDebt?.pagination?.total || 0}
         rows={employeeDebt?.data || []}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'small',
-            variant: 'outlined'
-          },
-          toolbar: {
-            handleClick: handleClick
-          }
-        }}
       />
+
       {openModal && (
-        <ModalFormDebt open={openModal} setOpen={setOpenModal} type={type} handleClose={() => setOpenModal(false)} employeeId={id} />
+        <ModalFormDebt
+          open={openModal}
+          setOpen={setOpenModal}
+          type={type}
+          handleClose={() => setOpenModal(false)}
+          employeeId={id}
+        />
       )}
     </>
   )

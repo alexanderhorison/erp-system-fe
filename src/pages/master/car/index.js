@@ -1,13 +1,16 @@
-import { Grid, Typography } from '@mui/material'
+import Grid from '@mui/material/Grid'
+
+import PageHeader from 'src/views/common/PageHeader'
 import TableMasterCar from 'src/views/master/cars/TableMasterCar'
 
 export default function homeMasterCar() {
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          Master Data Mobil
-        </Typography>
+        <PageHeader
+          title='Master Data Mobil'
+          breadcrumbs={[{ label: 'Daily Cost' }, { label: 'Master Data' }, { label: 'Vehicles' }]}
+        />
         <TableMasterCar />
       </Grid>
     </Grid>

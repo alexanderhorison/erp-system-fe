@@ -221,7 +221,7 @@ export default function TableRequestProduct() {
             flex: 0.16,
             minWidth: 150,
             field: 'code',
-            headerName: 'Kode',
+            headerName: 'KODE',
             renderCell: params => (
               <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
                 {params.row.code}
@@ -232,14 +232,14 @@ export default function TableRequestProduct() {
             flex: 0.17,
             minWidth: 150,
             field: 'createdAt',
-            headerName: 'Tanggal Dibuat',
+            headerName: 'TANGGAL DIBUAT',
             renderCell: params => <DateCell date={params.row.dateCreated} timestamp={params.row.createdAt} />
           },
           {
             flex: 0.18,
             minWidth: 150,
             field: 'createdBy',
-            headerName: 'Dibuat Oleh',
+            headerName: 'DIBUAT OLEH',
             // ** `createdBy` is an object, so the grid cannot sort or filter it
             // by value; the cell renders name over role.
             sortable: false,
@@ -249,7 +249,7 @@ export default function TableRequestProduct() {
             flex: 0.18,
             minWidth: 150,
             field: 'approvedBy',
-            headerName: 'Diproses Oleh',
+            headerName: 'DIPROSES OLEH',
             sortable: false,
             renderCell: params => <PersonCell person={params.row.approvedBy} />
           },
@@ -257,7 +257,7 @@ export default function TableRequestProduct() {
             flex: 0.13,
             minWidth: 120,
             field: 'status',
-            headerName: 'Status',
+            headerName: 'STATUS',
             renderCell: params => <Status status={params.row.status} />
           },
           {
@@ -265,7 +265,7 @@ export default function TableRequestProduct() {
             minWidth: 120,
             sortable: false,
             field: 'actions',
-            headerName: 'Aksi',
+            headerName: 'ACTION',
             // ** The row itself navigates to the detail page, so the action
             // buttons must not bubble their clicks up to it.
             renderCell: ({ row }) => (

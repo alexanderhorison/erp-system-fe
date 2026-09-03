@@ -148,7 +148,7 @@ export default function TableDeletedProductWarehouse({ data }) {
             flex: 0.08,
             minWidth: 80,
             field: 'productWarehouseId',
-            headerName: 'Id',
+            headerName: 'ID',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.productWarehouseId}
@@ -159,7 +159,7 @@ export default function TableDeletedProductWarehouse({ data }) {
             flex: 0.34,
             minWidth: 240,
             field: 'productName',
-            headerName: 'Nama Produk',
+            headerName: 'NAMA PRODUK',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.productName}
@@ -170,7 +170,7 @@ export default function TableDeletedProductWarehouse({ data }) {
             flex: 0.14,
             minWidth: 110,
             field: 'unitName',
-            headerName: 'Satuan',
+            headerName: 'SATUAN',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.unitName}
@@ -181,7 +181,7 @@ export default function TableDeletedProductWarehouse({ data }) {
             flex: 0.18,
             minWidth: 140,
             field: 'warehouseName',
-            headerName: 'Gudang',
+            headerName: 'GUDANG',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.warehouseName}
@@ -192,7 +192,7 @@ export default function TableDeletedProductWarehouse({ data }) {
             flex: 0.12,
             minWidth: 100,
             field: 'quantity',
-            headerName: 'Kuantiti',
+            headerName: 'KUANTITI',
             renderCell: params => (
               <Typography variant='body2' sx={{ color: 'text.primary' }}>
                 {params.row.quantity}
@@ -204,7 +204,7 @@ export default function TableDeletedProductWarehouse({ data }) {
             minWidth: 110,
             sortable: false,
             field: 'actions',
-            headerName: 'Aksi',
+            headerName: 'ACTION',
             renderCell: ({ row }) => (
               <RowOptions
                 id={row.productWarehouseId}
