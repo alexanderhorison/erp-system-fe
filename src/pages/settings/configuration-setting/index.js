@@ -1,64 +1,40 @@
-import { Card, Grid, Typography, Box, CircularProgress } from "@mui/material";
-import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
-import {
-  fetchCompanyInfo,
-} from "src/store/apps/config/configCompany";
-import CompanyInfoCard from "src/views/settings/configuration-setting/CompanyInfoCard";
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
+// ** MUI Imports
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
+import PageHeader from 'src/views/common/PageHeader'
+import CompanyInfoCard from 'src/views/settings/configuration-setting/CompanyInfoCard'
+
+// ** Design Tokens
+import { colors } from 'src/configs/designTokens'
 
 export default function ConfigurationSetting() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
-  const { loadingCompanyInfo: loading, errorCompanyInfo: error, companyInfo } = useSelector(state => state.companyConfig);
+  const { loadingCompanyInfo: loading, errorCompanyInfo: error, companyInfo } = useSelector(
+    state => state.companyConfig
+  )
 
-  // Fetch company info on mount
   useEffect(() => {
-    dispatch(fetchCompanyInfo());
-  }, [dispatch]);
-
-  const refetch = () => {
-    dispatch(fetchCompanyInfo());
-  };
-
-  if (loading) {
-    return (
-      <Grid container spacing={6}>
-        <Grid item xs={12}>
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-            <CircularProgress />
-          </Box>
-        </Grid>
-      </Grid>
-    )
-  }
-
-  if (error) {
-    return (
-      <Grid container spacing={6}>
-        <Grid item xs={12}>
-          <Card sx={{ p: 4 }}>
-            <Typography color="error" align="center">
-              Error loading configuration settings: {error}
-            </Typography>
-          </Card>
-        </Grid>
-      </Grid>
-    )
-  }
+    dispatch(fetchCompanyInfo())
+  }, [dispatch])
 
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          Configuration Settings
-        </Typography>
-      </Grid>
+        <PageHeader title='Configuration Setting' breadcrumbs={[{ label: 'Users & Permissions' }, { label: 'Configuration Setting' }]} />
 
-      <Grid item xs={12}>
-        <CompanyInfoCard
-          companyInfo={companyInfo}
-          onUpdate={refetch}
-        />
+        {error ? (
+          <Typography sx={{ fontSize: '0.875rem', color: colors.destructive }}>
+            Error loading configuration settings: {error}
+          </Typography>
+        ) : (
+          <CompanyInfoCard companyInfo={companyInfo} loading={loading} />
+        )}
       </Grid>
     </Grid>
   )

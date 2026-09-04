@@ -43,7 +43,7 @@ const sources = {
         'tag-outline', 'calendar-clock', 'storefront-outline', 'account-tie-outline', 'account-outline',
         'account', 'account-off', 'package-variant', 'clock-time-four-outline', 'logout',
         'clipboard-text-outline', 'alarm', 'clock-check-outline', 'check-circle',
-        'delete', 'image', 'office-building'
+        'delete', 'image', 'office-building', 'cloud-upload', 'upload'
       ]
     },
 

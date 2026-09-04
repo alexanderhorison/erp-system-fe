@@ -25,7 +25,7 @@ export const fetchCompanyInfo = createAsyncThunk(
 // UPDATE COMPANY INFO
 export const updateCompanyInfo = createAsyncThunk(
   'appCompanyConfig/updateCompanyInfo',
-  async ({ id, payload, setOpen }, { rejectWithValue, dispatch, getState }) => {
+  async ({ id, payload, router }, { rejectWithValue, dispatch }) => {
     try {
       // Update existing config
       const response = await axios({
@@ -34,11 +34,10 @@ export const updateCompanyInfo = createAsyncThunk(
         data: payload
       });
       swalSuccess({ label, name: 'Company Information', response })
-      setOpen(false)
+      router.push('/settings/configuration-setting')
       dispatch(fetchCompanyInfo())
       return
     } catch (error) {
-      console.error('Update company info error:', error);
       swalToastError({ label, error })
       return rejectWithValue([])
     }

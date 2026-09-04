@@ -1,189 +1,126 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Typography,
-  IconButton,
-  Grid,
-  Box,
-  Avatar
-} from "@mui/material";
-import { useState } from "react";
-import Icon from "src/@core/components/icon";
-import CompanyInfoModal from "src/views/settings/configuration-setting/CompanyInfoModal";
+import { useRouter } from 'next/router'
 
-export default function CompanyInfoCard({ companyInfo, onUpdate }) {
-  const [openModal, setOpenModal] = useState(false);
+// ** MUI Imports
+import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Divider from '@mui/material/Divider'
+import Grid from '@mui/material/Grid'
+import Skeleton from '@mui/material/Skeleton'
+import Typography from '@mui/material/Typography'
 
-  const handleEdit = () => {
-    if (companyInfo) {
-      setOpenModal(true);
-    }
-  };
+import Icon from 'src/@core/components/icon'
 
-  const companyData = companyInfo?.value_json ? companyInfo.value_json : companyInfo;
+// ** Shared Components
+import SectionHeading from 'src/views/common/SectionHeading'
+
+// ** Design Tokens
+import { colors, radii, shadows, stone } from 'src/configs/designTokens'
+
+const fieldLabelSx = {
+  fontSize: '0.75rem',
+  color: colors.mutedForeground
+}
+
+const fieldValueSx = {
+  fontSize: '0.875rem',
+  fontWeight: 500,
+  color: colors.foreground
+}
+
+const InfoField = ({ label, value }) => (
+  <Box>
+    <Typography sx={fieldLabelSx}>{label}</Typography>
+    <Typography sx={fieldValueSx}>{value || '-'}</Typography>
+  </Box>
+)
+
+export default function CompanyInfoCard({ companyInfo, loading }) {
+  const router = useRouter()
+
+  const companyData = companyInfo?.value_json ? companyInfo.value_json : companyInfo
+
+  if (loading) {
+    return <Skeleton variant='rectangular' sx={{ borderRadius: `${radii.lg}px`, height: 260 }} />
+  }
 
   return (
-    <>
-      <Card>
-        <CardHeader
-          title={
-            <Typography variant="h6">
-              Company Information
-            </Typography>
-          }
-          action={
-            <IconButton
-              onClick={handleEdit}
-              sx={{ color: 'primary.main' }}
-            >
-              <Icon icon='mdi:pencil' />
-            </IconButton>
-          }
-        />
-        <CardContent>
-          <Grid container spacing={4}>
-            {companyData?.logoUrl && (
-              <Grid item xs={12}>
-                <Box display="flex" justifyContent="center" mb={3}>
-                  <Avatar
-                    src={companyData?.logoUrl}
-                    sx={{
-                      width: 80,
-                      height: 80,
-                      border: '2px solid',
-                      borderColor: 'divider'
-                    }}
-                    variant="rounded"
-                  >
-                    <Icon icon="mdi:office-building" fontSize={40} />
-                  </Avatar>
-                </Box>
-              </Grid>
-            )}
+    <Grid container spacing={4}>
+      <Grid item xs={12}>
+        <SectionHeading number={1} title='Company Information' />
+      </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <Box mb={3}>
-                <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  Company Name
-                </Typography>
-                <Typography variant="body1">
+      <Grid item xs={12}>
+        <Box
+          sx={{
+            p: 4,
+            borderRadius: `${radii.lg}px`,
+            border: `1px solid ${colors.border}`,
+            boxShadow: shadows.xs,
+            backgroundColor: colors.background
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 3, mb: 4 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+              <Avatar
+                src={companyData?.logoUrl}
+                variant='rounded'
+                sx={{ width: 48, height: 48, fontSize: '1.125rem', fontWeight: 600, backgroundColor: stone[200] }}
+              >
+                {companyData?.companyName?.slice(0, 2)?.toUpperCase() || (
+                  <Icon icon='mdi:office-building' fontSize='1.25rem' />
+                )}
+              </Avatar>
+              <Box>
+                <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground, mb: 1 }}>
                   {companyData?.companyName || '-'}
                 </Typography>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Box mb={3}>
-                <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  Company Name POS
-                </Typography>
-                <Typography variant="body1">
-                  {companyData?.companyNamePos || '-'}
-                </Typography>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Box mb={3}>
-                <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  PT Name
-                </Typography>
-                <Typography variant="body1">
-                  {companyData?.ptName || '-'}
-                </Typography>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Box mb={3}>
-                <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  Approval SO & PO
-                </Typography>
-                <Typography variant="body1">
-                  {companyData?.ownerName || '-'}
-                </Typography>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Box mb={3}>
-                <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  Approval SO & PO Title
-                </Typography>
-                <Typography variant="body1">
-                  {companyData?.ownerTitle || '-'}
-                </Typography>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Box mb={3}>
-                <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  City
-                </Typography>
-                <Typography variant="body1">
-                  {companyData?.city || '-'}
-                </Typography>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Box mb={3}>
-                <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  Phone Number
-                </Typography>
-                <Typography variant="body1">
+                <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
                   {companyData?.phoneNumber || '-'}
                 </Typography>
               </Box>
-            </Grid>
+            </Box>
 
+            <Button
+              variant='contained'
+              onClick={() => router.push('/settings/configuration-setting/edit')}
+              startIcon={<Icon icon='mdi:pencil' fontSize='1rem' />}
+              sx={{ flexShrink: 0 }}
+            >
+              Edit Profile
+            </Button>
+          </Box>
+
+          <Divider sx={{ borderColor: colors.border, mb: 4 }} />
+
+          <Grid container spacing={4}>
             <Grid item xs={12} sm={6}>
-              <Box mb={3}>
-                <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  PPN
-                </Typography>
-                <Typography variant="body1">
-                  {companyData?.ppn || '-'}
-                </Typography>
-              </Box>
+              <InfoField label='Company Name POS' value={companyData?.companyNamePos} />
             </Grid>
-
             <Grid item xs={12} sm={6}>
-              <Box mb={3}>
-                <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  Bank Information
-                </Typography>
-                <Typography variant="body1">
-                  {companyData?.bank || '-'}
-                </Typography>
-              </Box>
+              <InfoField label='PT Name' value={companyData?.ptName} />
             </Grid>
-
-
             <Grid item xs={12} sm={6}>
-              <Box mb={3}>
-                <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  Address
-                </Typography>
-                <Typography variant="body1">
-                  {companyData?.address || '-'}
-                </Typography>
-              </Box>
+              <InfoField label='Approval SO & PO' value={companyData?.ownerName} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <InfoField label='Approval SO & PO Title' value={companyData?.ownerTitle} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <InfoField label='City' value={companyData?.city} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <InfoField label='PPN' value={companyData?.ppn} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <InfoField label='Bank Information' value={companyData?.bank} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <InfoField label='Address' value={companyData?.address} />
             </Grid>
           </Grid>
-        </CardContent>
-      </Card>
-
-      {openModal && (
-        <CompanyInfoModal
-          open={openModal}
-          setOpen={setOpenModal}
-          companyInfo={companyInfo}
-          onUpdate={onUpdate}
-        />
-      )}
-    </>
-  );
+        </Box>
+      </Grid>
+    </Grid>
+  )
 }
