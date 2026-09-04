@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationDelete, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalDeleteConfirmed, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Daily Cost'
 
@@ -67,7 +67,7 @@ export const deleteDailyCost = createAsyncThunk(
   'dailyCost/deleteDailyCost',
   async ({ date }, { rejectWithValue, dispatch }) => {
     try {
-      await swalConfirmationDelete({
+      await swalDeleteConfirmed({
         label,
         name: 'Daily Cost ' + date,
         axiosRequest: () => {
@@ -128,6 +128,9 @@ export const appDailyCostSlice = createSlice({
     loadingDetailDailyCost: false,
     errorDetailDailyCost: null,
 
+    loadingDelete: false,
+    errorDelete: false,
+
     year: new Date().getFullYear(),
     month: new Date().getMonth()
   },
@@ -158,6 +161,17 @@ export const appDailyCostSlice = createSlice({
         state.detailDailyCost = {}
         state.loadingDetailDailyCost = false
         state.errorDetailDailyCost = action.error.message
+      })
+
+      .addCase(deleteDailyCost.pending, state => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteDailyCost.fulfilled, state => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteDailyCost.rejected, (state, action) => {
+        state.loadingDelete = false
+        state.errorDelete = action.error.message
       })
 
       .addCase(saveFilterMonthYear.fulfilled, (state, action) => {

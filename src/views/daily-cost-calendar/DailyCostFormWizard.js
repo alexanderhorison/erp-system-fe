@@ -1,18 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import {
-  Box,
-  Button,
-  Grid,
-  Card,
-  CardContent,
-  Stepper,
-  Step,
-  StepLabel,
-  Typography,
-  Paper,
-  useMediaQuery,
-  useTheme
-} from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 import { useForm, FormProvider } from 'react-hook-form'
 import { useRouter } from 'next/router'
 import Icon from 'src/@core/components/icon'
@@ -26,9 +16,14 @@ import GeneralCostAndDeposit from './GeneralCostAndDeposit'
 import EmployeeCostAndBonus from './EmployeeCostAndBonus'
 import UnexpectedCost from './UnexpectedCost'
 import SummaryCost from './SummaryCost'
-import ButtonBack from '../common/ButtonBack'
 import { useDispatch, useSelector } from 'react-redux'
 import { addDailyCost, fetchDetailDailyCostByDate, updateDailyCost } from 'src/store/apps/daily-cost'
+
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
+
+// ** Design Tokens
+import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
 
 dayjs.locale('id')
 
@@ -100,8 +95,6 @@ const schema = yup.object({
 export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
   const router = useRouter()
   const dispatch = useDispatch()
-  const theme = useTheme()
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'))
 
   const { detailDailyCost, loadingDetailDailyCost } = useSelector(state => state.dailyCost)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -111,23 +104,23 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
   // Define wizard steps
   const steps = [
     {
-      title: 'General Cost & Deposit',
-      description: 'Manage driver costs and deposits',
+      title: 'Biaya Umum & Deposit',
+      description: 'Kelola biaya sopir dan deposit',
       component: GeneralCostAndDeposit
     },
     {
-      title: 'Employee Cost & Bonus',
-      description: 'Set employee salaries and bonuses',
+      title: 'Biaya Karyawan & Bonus',
+      description: 'Atur gaji dan bonus karyawan',
       component: EmployeeCostAndBonus
     },
     {
-      title: 'Unexpected Cost',
-      description: 'Add unexpected expenses',
+      title: 'Biaya Tak Terduga',
+      description: 'Tambahkan pengeluaran tak terduga',
       component: UnexpectedCost
     },
     {
-      title: 'Summary',
-      description: 'Review all costs and finalize',
+      title: 'Ringkasan',
+      description: 'Tinjau semua biaya dan selesaikan',
       component: SummaryCost
     }
   ]
@@ -338,14 +331,22 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
     setTimeout(() => setIsStepChanging(false), 200)
   }
 
+  // ** In EDIT mode the record already exists, so the sidebar steps are freely
+  // clickable (per product decision). ADD mode keeps Next-gated progression so
+  // a user can't reach Summary with earlier steps left empty.
+  const handleStepClick = index => {
+    if (mode !== 'EDIT' || isStepChanging || isSubmitting || index === activeStep) return
+    setActiveStep(index)
+  }
+
   const isStepValid = () => {
     const values = methods.getValues()
     const errors = methods.formState.errors
 
     switch (activeStep) {
-      case 0: // General Cost & Deposit
+      case 0: // Biaya Umum & Deposit
         return !errors.costGenerals || (Array.isArray(errors.costGenerals) && errors.costGenerals.every(err => !err))
-      case 1: // Employee Cost & Bonus
+      case 1: // Biaya Karyawan & Bonus
         // Check for both array-level and individual field errors
         const hasEmployeeErrors =
           errors.costEmployees &&
@@ -354,33 +355,15 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
               err => err && (err.employeeId || err.salary || err.amountDebtPaid || err.bonus || err.amountDebt)
             ))
         return !hasEmployeeErrors
-      case 2: // Unexpected Cost
+      case 2: // Biaya Tak Terduga
         return (
           !errors.costUnexpecteds ||
           (Array.isArray(errors.costUnexpecteds) && errors.costUnexpecteds.every(err => !err))
         )
-      case 3: // Summary
+      case 3: // Ringkasan
         return true
       default:
         return true
-    }
-  }
-
-  // Get step completion status
-  const getStepStatus = stepIndex => {
-    const values = methods.getValues()
-
-    switch (stepIndex) {
-      case 0:
-        return values.costGenerals && values.costGenerals.length > 0
-      case 1:
-        return values.costEmployees && values.costEmployees.length > 0
-      case 2:
-        return values.costUnexpecteds && values.costUnexpecteds.length > 0
-      case 3:
-        return true
-      default:
-        return false
     }
   }
 
@@ -425,274 +408,257 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
     return () => subscription.unsubscribe()
   }, [methods.watch, methods.trigger])
 
+  // Computed directly from the three subtotals rather than read from the
+  // `grandTotal` field — that field is only kept in sync by whichever step's
+  // effect last ran (GeneralCostAndDeposit only rewrites it when costGenerals
+  // changes, not when Employee/Unexpected totals change later), so it can go
+  // stale while moving through the wizard. Summing the subtotals live avoids
+  // that staleness, matching how SummaryCost.js's Ringkasan step computes it.
+  const totalCostGeneral = Number(methods.watch('totalCostGeneral')) || 0
+  const totalCostEmployee = Number(methods.watch('totalCostEmployee')) || 0
+  const totalCostUnexpected = Number(methods.watch('totalCostUnexpected')) || 0
+  const grandTotal = totalCostGeneral + totalCostEmployee + totalCostUnexpected
+
   return (
     <FormProvider {...methods}>
-      <Box sx={{ mb: 0 }}>
-        <ButtonBack
-          name={(mode === 'ADD' ? 'Add' : mode === 'EDIT' ? 'Edit' : 'View') + ' Daily Cost | ' + formattedDate}
-        />
-      </Box>
+      <PageHeader
+        title={(mode === 'ADD' ? 'Tambah' : 'Ubah') + ' Daily Cost'}
+        subtitle={formattedDate}
+        onBack={() => router.back()}
+        breadcrumbs={[
+          { label: 'Daily Cost' },
+          { label: 'Daily Cost Calendar', href: '/daily-cost-calendar' },
+          { label: mode === 'ADD' ? 'Tambah' : 'Ubah' }
+        ]}
+      />
 
-      <Grid container spacing={4} sx={{ height: '100%' }}>
-        {/* Left Sidebar - Stepper */}
-        <Grid item xs={12} lg={3} md={4}>
-          <Paper
-            sx={{
-              p: 3,
-              height: 'fit-content',
-              position: { lg: 'sticky', xs: 'static' },
-              top: 20,
-              mb: { xs: 3, lg: 0 }
-            }}
-          >
-            <Typography variant='h6' gutterBottom sx={{ color: 'primary.main' }}>
-              Progress
-            </Typography>
-            <Stepper
-              activeStep={activeStep}
-              orientation={isLargeScreen ? 'vertical' : 'horizontal'}
-              connector={null}
+      <Grid container spacing={4}>
+        {/* Left Sidebar - Progress */}
+        <Grid item xs={12} lg={3}>
+          <Box sx={{ position: { lg: 'sticky', xs: 'static' }, top: 20 }}>
+            <Box
               sx={{
-                '& .MuiStep-root': {
-                  px: { xs: 0, lg: 1 },
-                  py: { xs: 1, lg: 2 }
-                }
+                borderRadius: `${radii.lg}px`,
+                border: `1px solid ${colors.border}`,
+                boxShadow: shadows.xs,
+                backgroundColor: colors.background,
+                p: 4,
+                mb: 4
               }}
             >
-              {steps.map((step, index) => (
-                <Step
-                  key={index}
-                  completed={index < activeStep || getStepStatus(index)}
-                  // onClick={() => handleStepClick(index)}
-                  sx={{
-                    // cursor:
-                    //   index < activeStep || (index === activeStep + 1 && isStepValid()) || index === activeStep
-                    //     ? 'pointer'
-                    //     : 'default',
-                    marginBottom: '16px',
-                    // '&:hover': {
-                    //   backgroundColor:
-                    //     index < activeStep || (index === activeStep + 1 && isStepValid()) || index === activeStep
-                    //       ? 'rgba(0,0,0,0.04)'
-                    //       : 'transparent'
-                    // },
-                    borderRadius: '8px',
-                    padding: '8px',
-                    transition: 'background-color 0.2s'
-                  }}
-                >
-                  <StepLabel
-                    StepIconComponent={({ active, completed }) => {
-                      const shouldUsePrimaryColor = index < activeStep || index === activeStep
-                      return (
-                        <Box
-                          sx={{
-                            width: { xs: 32, lg: 36 },
-                            height: { xs: 32, lg: 36 },
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontWeight: 'bold',
-                            fontSize: { xs: '0.9rem', lg: '1rem' },
-                            backgroundColor: shouldUsePrimaryColor ? 'primary.main' : 'transparent',
-                            color: shouldUsePrimaryColor ? 'white' : 'grey.500',
-                            border: shouldUsePrimaryColor ? 'none' : '2px solid',
-                            borderColor: 'grey.400',
-                            transition: 'all 0.3s ease'
-                          }}
-                        >
-                          {index + 1}
-                        </Box>
-                      )
+              <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground, mb: 3 }}>
+                Progress Pengisian
+              </Typography>
+
+              {steps.map((step, index) => {
+                const isActive = index === activeStep
+                const isDone = index < activeStep
+                const isLast = index === steps.length - 1
+                const clickable = mode === 'EDIT' && index !== activeStep
+
+                return (
+                  <Box
+                    key={index}
+                    onClick={() => handleStepClick(index)}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 3,
+                      px: 2,
+                      pt: 2,
+                      borderRadius: `${radii.md}px`,
+                      cursor: clickable ? 'pointer' : 'default',
+                      backgroundColor: isActive ? colors.background : 'transparent',
+                      '&:hover': clickable ? { backgroundColor: colors.background } : undefined
                     }}
                   >
-                    <Box sx={{ display: { xs: 'none', lg: 'block' } }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                      <Box
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          flexShrink: 0,
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          backgroundColor: isDone
+                            ? statusTokens.success.bg
+                            : isActive
+                              ? colors.foreground
+                              : 'transparent',
+                          color: isDone
+                            ? statusTokens.success.fg
+                            : isActive
+                              ? colors.primaryForeground
+                              : colors.mutedForeground,
+                          border: isDone
+                            ? `1px solid ${statusTokens.success.border}`
+                            : isActive
+                              ? 'none'
+                              : `2px solid ${colors.border3}`
+                        }}
+                      >
+                        {isDone ? <Icon icon='tabler:check' fontSize='0.875rem' /> : index + 1}
+                      </Box>
+                      {!isLast && (
+                        <Box
+                          sx={{
+                            width: '2px',
+                            flexGrow: 1,
+                            minHeight: 28,
+                            my: 1,
+                            backgroundColor: isDone ? statusTokens.success.fg : colors.border
+                          }}
+                        />
+                      )}
+                    </Box>
+                    <Box sx={{ minWidth: 0, pb: isLast ? 2 : 4 }}>
                       <Typography
-                        variant='body1'
-                        fontWeight={index === activeStep ? 700 : 600}
-                        color={index === activeStep ? 'primary.main' : 'text.primary'}
+                        sx={{
+                          fontSize: '0.875rem',
+                          fontWeight: 600,
+                          color: colors.foreground
+                        }}
                       >
                         {step.title}
                       </Typography>
-                      <Typography variant='caption' color='text.secondary' sx={{ lineHeight: 1.2 }}>
+                      <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground }}>
                         {step.description}
                       </Typography>
-                      {/* {getStepStatus(index) && index !== activeStep && (
-                        <Typography variant="caption" color="success.main" sx={{ display: 'block', mt: 0.5 }}>
-                          ✓ Completed
-                        </Typography>
-                      )} */}
                     </Box>
-                    {/* Mobile version - just title */}
-                    <Box sx={{ display: { xs: 'block', lg: 'none' } }}>
-                      <Typography
-                        variant='caption'
-                        fontWeight={index === activeStep ? 700 : 600}
-                        color={index === activeStep ? 'primary.main' : 'text.primary'}
-                      >
-                        {step.title.split(' ')[0]} {/* First word only */}
-                      </Typography>
-                    </Box>
-                  </StepLabel>
-                </Step>
-              ))}
-            </Stepper>
-          </Paper>
+                  </Box>
+                )
+              })}
+            </Box>
+
+            <Box
+              sx={{
+                borderRadius: `${radii.lg}px`,
+                border: `1px solid ${colors.border}`,
+                boxShadow: shadows.xs,
+                backgroundColor: colors.background,
+                p: 4
+              }}
+            >
+              <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground, mb: 1 }}>
+                Total Berjalan
+              </Typography>
+              <Typography sx={{ fontSize: '1.5rem', fontWeight: 700, color: 'success.main', mb: 1 }}>
+                Rp {grandTotal.toLocaleString('id-ID')}
+              </Typography>
+              <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground }}>
+                Terhitung otomatis dari semua bagian yang sudah diisi.
+              </Typography>
+            </Box>
+          </Box>
         </Grid>
+
         {/* Right Content - Form */}
-        <Grid item xs={12} lg={9} md={8}>
+        <Grid item xs={12} lg={9}>
           <Grid container spacing={4}>
             {/* Current Step Content */}
             <Grid item xs={12}>
-              <Paper elevation={2} sx={{ p: { xs: 2, md: 4 }, minHeight: { xs: '400px', md: '500px' } }}>
-                {/* Step Header */}
-                <Box sx={{ mb: { xs: 3, md: 4 }, pb: 2 }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 2,
-                      mb: 2,
-                      flexDirection: { xs: 'column', sm: 'row' }
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: { xs: 32, md: 40 },
-                        height: { xs: 32, md: 40 },
-                        borderRadius: '50%',
-                        backgroundColor: 'primary.main',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        fontSize: { xs: '0.9rem', md: '1rem' }
-                      }}
-                    >
-                      {activeStep + 1}
-                    </Box>
-                    <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-                      <Typography variant='h5' color='primary.main' fontWeight={700}>
-                        {steps[activeStep].title}
-                      </Typography>
-                      <Typography variant='body2' color='text.secondary'>
-                        {steps[activeStep].description}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {/* Progress Bar */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Box sx={{ flex: 1, height: 8, backgroundColor: 'grey.200', borderRadius: 4, overflow: 'hidden' }}>
-                      <Box
-                        sx={{
-                          height: '100%',
-                          backgroundColor: 'primary.main',
-                          borderRadius: 4,
-                          width: `${((activeStep + 1) / steps.length) * 100}%`,
-                          transition: 'width 0.3s ease'
-                        }}
-                      />
-                    </Box>
-                    <Typography variant='caption' color='text.secondary' fontWeight={600}>
-                      {Math.round(((activeStep + 1) / steps.length) * 100)}%
-                    </Typography>
-                  </Box>
-                </Box>
-                {/* Step Content */}
-                <Box sx={{ minHeight: '400px' }}>{renderStepContent(activeStep)}</Box>
-              </Paper>
+              {renderStepContent(activeStep)}
             </Grid>
+
             {/* Navigation Buttons */}
             <Grid item xs={12}>
-              <Card elevation={1}>
-                <CardContent
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    py: 3,
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    gap: { xs: 2, sm: 0 }
-                  }}
-                >
-                  <Box sx={{ order: { xs: 2, sm: 1 } }}>
-                    {activeStep > 0 && (
-                      <Button
-                        variant='outlined'
-                        onClick={handleBack}
-                        disabled={isSubmitting || isStepChanging}
-                        startIcon={
-                          isStepChanging ? (
-                            <Icon icon='tabler:loader' className='animate-spin' />
-                          ) : (
-                            <Icon icon='tabler:chevron-left' />
-                          )
-                        }
-                        size='medium'
-                        sx={{ minWidth: { xs: '100px', md: '120px' } }}
-                      >
-                        Previous
-                      </Button>
-                    )}
-                  </Box>
-                  <Box
-                    sx={{ display: 'flex', gap: 2, order: { xs: 1, sm: 2 }, flexDirection: { xs: 'row', sm: 'row' } }}
-                  >
-                    {activeStep === 0 && (
-                      <Button
-                        variant='outlined'
-                        onClick={handleCancel}
-                        disabled={isSubmitting || isStepChanging}
-                        size='medium'
-                        sx={{ minWidth: { xs: '80px', md: '100px' } }}
-                      >
-                        Cancel
-                      </Button>
-                    )}
+              <Box
+                sx={{
+                  p: 4,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: 3,
+                  borderRadius: `${radii.lg}px`,
+                  border: `1px solid ${colors.border}`,
+                  boxShadow: shadows.xs,
+                  backgroundColor: colors.background
+                }}
+              >
+                <Box>
+                  {activeStep > 0 && (
+                    <Button
+                      variant='outlined'
+                      color='secondary'
+                      onClick={handleBack}
+                      disabled={isSubmitting || isStepChanging}
+                      startIcon={
+                        isStepChanging ? (
+                          <Icon icon='tabler:loader' className='animate-spin' />
+                        ) : (
+                          <Icon icon='tabler:chevron-left' fontSize='1rem' />
+                        )
+                      }
+                      sx={{
+                        color: colors.foreground,
+                        borderColor: colors.border3,
+                        boxShadow: shadows.xs,
+                        '&:hover': { borderColor: colors.border3 }
+                      }}
+                    >
+                      Previous
+                    </Button>
+                  )}
+                </Box>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  {activeStep === 0 && (
+                    <Button
+                      variant='outlined'
+                      color='secondary'
+                      onClick={handleCancel}
+                      disabled={isSubmitting || isStepChanging}
+                      startIcon={<Icon icon='tabler:x' fontSize='1rem' />}
+                      sx={{
+                        color: colors.foreground,
+                        borderColor: colors.border3,
+                        boxShadow: shadows.xs,
+                        '&:hover': { borderColor: colors.border3 }
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  )}
 
-                    {activeStep < steps.length - 1 ? (
+                  {activeStep < steps.length - 1 ? (
+                    <Button
+                      variant='contained'
+                      onClick={handleNext}
+                      disabled={!isStepValid() || isSubmitting || isStepChanging}
+                      endIcon={
+                        isStepChanging ? (
+                          <Icon icon='tabler:loader' className='animate-spin' />
+                        ) : (
+                          <Icon icon='tabler:chevron-right' fontSize='1rem' />
+                        )
+                      }
+                    >
+                      {isStepChanging ? 'Loading...' : 'Next'}
+                    </Button>
+                  ) : (
+                    mode !== 'view' && (
                       <Button
                         variant='contained'
-                        onClick={handleNext}
-                        disabled={!isStepValid() || isSubmitting || isStepChanging}
-                        endIcon={
-                          isStepChanging ? (
+                        onClick={handleSubmit}
+                        disabled={isSubmitting || isStepChanging}
+                        startIcon={
+                          isSubmitting ? (
                             <Icon icon='tabler:loader' className='animate-spin' />
                           ) : (
-                            <Icon icon='tabler:chevron-right' />
+                            <Icon icon='tabler:device-floppy' fontSize='1rem' />
                           )
                         }
-                        size='medium'
-                        sx={{ minWidth: { xs: '100px', md: '120px' } }}
                       >
-                        {isStepChanging ? 'Loading...' : 'Next'}
+                        {isSubmitting ? 'Saving...' : 'Save'}
                       </Button>
-                    ) : (
-                      mode !== 'view' && (
-                        <Button
-                          variant='contained'
-                          onClick={handleSubmit}
-                          disabled={isSubmitting || isStepChanging}
-                          startIcon={
-                            isSubmitting ? (
-                              <Icon icon='tabler:loader' className='animate-spin' />
-                            ) : (
-                              <Icon icon='tabler:device-floppy' />
-                            )
-                          }
-                          size='medium'
-                          sx={{ minWidth: { xs: '100px', md: '120px' } }}
-                        >
-                          {isSubmitting ? 'Saving...' : 'Save'}
-                        </Button>
-                      )
-                    )}
-                  </Box>
-                </CardContent>
-              </Card>
+                    )
+                  )}
+                </Box>
+              </Box>
             </Grid>
           </Grid>
         </Grid>

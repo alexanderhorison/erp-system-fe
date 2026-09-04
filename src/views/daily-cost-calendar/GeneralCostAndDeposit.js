@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { useFormContext, Controller } from 'react-hook-form'
-import { Card, CardContent, CardHeader, Divider, Grid, Typography, Box } from '@mui/material'
+import { useFormContext, useWatch, Controller } from 'react-hook-form'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Divider from '@mui/material/Divider'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 import { formatNumber, parseNumber } from 'src/utils/formatNumber'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchMasterDataCar } from 'src/store/apps/master/car'
@@ -12,6 +17,9 @@ import { useRouter } from 'next/router'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { fetchConfigDailyCost } from 'src/store/apps/config/configDailyCost'
 import safeNumberHandler from 'src/helpers/formFormatter'
+
+// ** Design Tokens
+import { colors, radii, shadows, stone } from 'src/configs/designTokens'
 
 export default function GeneralCostAndDeposit() {
   const dispatch = useDispatch()
@@ -45,24 +53,49 @@ export default function GeneralCostAndDeposit() {
     }
   }, [cars])
 
-  const calculateTotal = () => {
+  // Pure computation, safe to call during render — does not call setValue.
+  const computeTotal = () => {
     const costGeneralsValues = watch('costGenerals') || []
     let totals = 0
-    let grandTotal = 0
     costGeneralsValues.forEach(item => {
       totals += Number(item.tollCost) || 0
       totals += Number(item.fuelCost) || 0
       totals += Number(item.transportAllowance) || 0
     })
-    grandTotal = totals + getValues('totalCostEmployee') + getValues('totalCostUnexpected')
     if (salesOrders.length === 0) {
       totals = 0
-      grandTotal = 0
     }
-    setValue('totalCostGeneral', totals)
-    setValue('grandTotal', grandTotal)
     return totals
   }
+
+  // Writes the computed total back into the form. Only call this from event
+  // handlers/effects — never during render. Calling setValue synchronously in
+  // render (the previous shape of this function, invoked directly in the JSX
+  // below) re-triggers a re-render on every render, which is the "Maximum
+  // update depth exceeded" / unresponsive-page loop.
+  //
+  // This only writes totalCostGeneral, not grandTotal — grandTotal used to be
+  // computed here too, but only on costGenerals changes, so it went stale the
+  // moment the user moved on to the Employee/Unexpected steps and filled
+  // those in (their totals never re-triggered this effect). The wizard's
+  // sidebar and the Ringkasan step now both derive the running grand total
+  // live from the three subtotal fields instead of reading a single
+  // `grandTotal` field written by whichever step happened to run last.
+  const calculateTotal = () => {
+    const totals = computeTotal()
+    setValue('totalCostGeneral', totals)
+    return totals
+  }
+
+  // Keeps totalCostGeneral/grandTotal in sync whenever costGenerals actually
+  // changes — including the initial batch write in the mount effect below,
+  // which previously relied on calculateTotal() being (incorrectly) called
+  // during render to happen at all.
+  const watchedCostGenerals = useWatch({ control, name: 'costGenerals' })
+  useEffect(() => {
+    calculateTotal()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchedCostGenerals])
 
   // Helper to calculate remaining deposit
   const calculateRemainingDeposit = index => {
@@ -163,42 +196,75 @@ export default function GeneralCostAndDeposit() {
 
   useEffect(() => {
     if (salesOrders.length > 0 && configDailyCost) {
-      salesOrders.forEach((order, index) => {
-        setValue(`costGenerals.${index}.salesOrderId`, order.id)
+      // Build the whole array and write it with a single setValue call, instead
+      // of 4-5 individual field writes per sales order. Each individual write
+      // re-triggers the wizard's debounced full-form `watch` validation (see
+      // DailyCostFormWizard.js), so N sales orders previously queued up to 5N
+      // overlapping validation passes on mount — the source of the lag when
+      // opening Add on a day with several sales orders. Values written are
+      // identical to before, just applied in one batch.
+      const depositConfig = configDailyCost.find(item => item.key === 'DC_DEPOSIT')?.value || 0
+      const travelMoneyConfig = configDailyCost.find(item => item.key === 'DC_TRANSPORT_ALLOWANCE')?.value || 0
+      const existingCostGenerals = getValues('costGenerals') || []
 
-        // Set default deposit and travel money from config if they don't have values
-        const depositConfig = configDailyCost.find(item => item.key === 'DC_DEPOSIT')?.value || 0
-        const travelMoneyConfig = configDailyCost.find(item => item.key === 'DC_TRANSPORT_ALLOWANCE')?.value || 0
+      const nextCostGenerals = salesOrders.map((order, index) => {
+        const existing = existingCostGenerals[index] || {}
+        const deposit = existing.deposit || depositConfig
+        const transportAllowance = existing.transportAllowance || travelMoneyConfig
+        const emoney = existing.emoney === undefined ? 0 : existing.emoney
+        const fuelCost = Number(existing.fuelCost) || 0
+        const remainingDeposit = (Number(deposit) || 0) - fuelCost - (Number(transportAllowance) || 0)
 
-        if (!watch(`costGenerals.${index}.deposit`)) {
-          setValue(`costGenerals.${index}.deposit`, depositConfig)
+        return {
+          ...existing,
+          salesOrderId: order.id,
+          deposit,
+          transportAllowance,
+          emoney,
+          remainingDeposit
         }
-
-        if (!watch(`costGenerals.${index}.transportAllowance`)) {
-          setValue(`costGenerals.${index}.transportAllowance`, travelMoneyConfig)
-        }
-
-        // Initialize emoney field with 0 to prevent undefined values
-        if (watch(`costGenerals.${index}.emoney`) === undefined) {
-          setValue(`costGenerals.${index}.emoney`, 0)
-        }
-
-        calculateRemainingDeposit(index)
       })
 
+      // Skip the write when nothing actually changed — `configDailyCost` gets a
+      // fresh array reference on every fetch (including the request that starts
+      // a moment after mount), so without this guard a no-op re-run would still
+      // call setValue, which can re-arm effects/watchers that depend on this
+      // field and spiral into "Maximum update depth exceeded".
+      const isUnchanged =
+        existingCostGenerals.length === nextCostGenerals.length &&
+        nextCostGenerals.every((item, index) => {
+          const existing = existingCostGenerals[index]
+          return (
+            existing &&
+            existing.salesOrderId === item.salesOrderId &&
+            existing.deposit === item.deposit &&
+            existing.transportAllowance === item.transportAllowance &&
+            existing.emoney === item.emoney &&
+            existing.remainingDeposit === item.remainingDeposit
+          )
+        })
+
+      if (!isUnchanged) {
+        setValue('costGenerals', nextCostGenerals, { shouldValidate: false })
+      }
     } else {
       // If no sales orders, initialize costGenerals with an empty array
       setValue('costGenerals', [])
       calculateTotal()
     }
-  }, [salesOrders, configDailyCost, setValue, watch, params.date, loadingDataSalesOrder])
+  }, [salesOrders, configDailyCost, setValue, getValues, params.date, loadingDataSalesOrder])
 
   if (salesOrders?.length === 0) {
     return (
-      <Card>
-        <CardHeader title='General Cost & Deposit' />
-        <CardContent>
-          <Typography variant='body2' color='text.secondary' align='center' sx={{ py: 4 }}>
+      <Card elevation={0} sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
+        <CardContent sx={{ p: 5 }}>
+          <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground, mb: 1 }}>
+            Biaya Umum & Deposit
+          </Typography>
+          <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground, mb: 4 }}>
+            Kelola biaya sopir dan deposit
+          </Typography>
+          <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground, textAlign: 'center', py: 6 }}>
             No Data
           </Typography>
         </CardContent>
@@ -207,21 +273,29 @@ export default function GeneralCostAndDeposit() {
   }
 
   return (
-    <Card>
-      <CardHeader title='General Cost & Deposit' />
+    <Card elevation={0} sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
+      <CardContent sx={{ p: 5 }}>
+        <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground, mb: 1 }}>
+          Biaya Umum & Deposit
+        </Typography>
+        <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground, mb: 4 }}>
+          Kelola biaya sopir dan deposit
+        </Typography>
 
-      <CardContent>
         {salesOrders.map((field, index) => (
-          <Box key={field.id} sx={{ mb: 4, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-            <Typography variant='h6' sx={{ mb: 2 }}>
-              Detail :{' '}
+          <Box
+            key={field.id}
+            sx={{ p: 3, mb: 3, borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}` }}
+          >
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.foreground, mb: 3 }}>
+              Detail:{' '}
               <Box
                 component='span'
                 onClick={() => handleNavigateToSalesOrder(field.code)}
                 sx={{
                   cursor: 'pointer',
-                  color: 'primary.main',
-                  '&:hover': { textDecoration: 'underline' }
+                  color: colors.link,
+                  '&:hover': { color: colors.linkHover, textDecoration: 'underline' }
                 }}
               >
                 {field.code} | {field.customer?.name} | {field.customer?.address}
@@ -345,7 +419,7 @@ export default function GeneralCostAndDeposit() {
                 />
               </Grid>
             </Grid>
-            <Divider sx={{ mt: 3, mb: 2 }} />
+            <Divider sx={{ mt: 3, mb: 3, borderColor: colors.border }} />
             {/* SECTION 2 */}
             <Grid container spacing={3} sx={{ mb: 2 }}>
               <Grid item xs={12} sm={4}>
@@ -419,26 +493,26 @@ export default function GeneralCostAndDeposit() {
               sx={{
                 display: 'flex',
                 justifyContent: 'flex-end',
-                mt: 4,
-                mb: 2,
-                p: 2,
-                bgcolor: 'action.hover',
-                borderRadius: 1
+                gap: 6,
+                mt: 3,
+                p: 3,
+                borderRadius: `${radii.md}px`,
+                backgroundColor: stone[50]
               }}
             >
-              <Box sx={{ textAlign: 'right', mr: 6 }}>
-                <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
+              <Box sx={{ textAlign: 'right' }}>
+                <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground, mb: 1 }}>
                   Sisa Deposit:
                 </Typography>
-                <Typography variant='h6'>
+                <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground }}>
                   {priceFormatWIthCurrency(watch(`costGenerals.${index}.remainingDeposit`) || 0)}
                 </Typography>
               </Box>
               <Box sx={{ textAlign: 'right' }}>
-                <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
+                <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground, mb: 1 }}>
                   Sisa E-money:
                 </Typography>
-                <Typography variant='h6'>
+                <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground }}>
                   {priceFormatWIthCurrency(watch(`costGenerals.${index}.remainingEmoney`) || 0)}
                 </Typography>
               </Box>
@@ -446,10 +520,13 @@ export default function GeneralCostAndDeposit() {
           </Box>
         ))}
 
-        <Divider sx={{ mt: 4, mb: 2 }} />
+        <Divider sx={{ mt: 4, mb: 3, borderColor: colors.border }} />
 
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Typography variant='subtitle1'>Total: Rp {calculateTotal().toLocaleString('id-ID')}</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
+          <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>Total</Typography>
+          <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: 'success.main' }}>
+            Rp {computeTotal().toLocaleString('id-ID')}
+          </Typography>
         </Box>
       </CardContent>
     </Card>

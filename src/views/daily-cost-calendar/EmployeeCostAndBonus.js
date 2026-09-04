@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from 'react'
-import { useFieldArray, useFormContext, Controller } from 'react-hook-form'
-import { Button, Card, CardContent, CardHeader, Divider, Grid, IconButton, Typography, Box } from '@mui/material'
+import { useFieldArray, useFormContext, useWatch, Controller } from 'react-hook-form'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Chip from '@mui/material/Chip'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
 import Icon from 'src/@core/components/icon'
-import axios from 'axios'
 import { formatNumber, parseNumber } from 'src/utils/formatNumber'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
 import { fetchMasterDataEmployee } from 'src/store/apps/master/employee'
 import safeNumberHandler from 'src/helpers/formFormatter'
+
+// ** Design Tokens
+import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
 
 export default function EmployeeCostAndBonus({ readOnly = false }) {
   const dispatch = useDispatch()
@@ -26,9 +35,11 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
   useEffect(() => {
     dispatch(fetchMasterDataEmployee({ active: true }))
   }, [])
-  const calculateTotal = () => {
+
+  // Pure computation, safe to call during render — does not call setValue.
+  const computeTotal = () => {
     const costEmployeesValues = watch('costEmployees') || []
-    const total = costEmployeesValues.reduce(
+    return costEmployeesValues.reduce(
       (sum, item) =>
         sum +
         (Number(item.salary) || 0) +
@@ -37,9 +48,24 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
         (Number(item.amountDebtPaid) || 0),
       0
     )
+  }
+
+  // Writes the computed total back into the form. Only call this from event
+  // handlers/effects — never during render (calling setValue synchronously in
+  // render re-triggers a re-render on every render, causing "Maximum update
+  // depth exceeded" — see GeneralCostAndDeposit.js for the same fix).
+  const calculateTotal = () => {
+    const total = computeTotal()
     setValue('totalCostEmployee', total)
     return total
   }
+
+  // Keeps totalCostEmployee in sync whenever costEmployees actually changes.
+  const watchedCostEmployees = useWatch({ control, name: 'costEmployees' })
+  useEffect(() => {
+    calculateTotal()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchedCostEmployees])
   const handleAddEmployee = () => {
     append({
       employeeId: null,
@@ -137,34 +163,47 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
   const costEmployees = watch('costEmployees') || []
 
   return (
-    <Card>
-      <CardHeader
-        title='Employee Cost & Bonus'
-        action={
-          !readOnly && (
-            <Button
-              size='small'
-              variant='contained'
-              startIcon={<Icon icon='tabler:plus' />}
-              onClick={handleAddEmployee}
-            >
-              Tambah
-            </Button>
-          )
-        }
-      />
+    <Card elevation={0} sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
+      <CardContent sx={{ p: 5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 3, mb: 4 }}>
+          <Box>
+            <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground }}>
+              Biaya Karyawan & Bonus
+            </Typography>
+            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+              Atur gaji dan bonus karyawan
+            </Typography>
+          </Box>
+        </Box>
 
-      <CardContent>
         {fields.length === 0 ? (
-          <Typography variant='body2' color='text.secondary' align='center' sx={{ py: 4 }}>
+          <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground, textAlign: 'center', py: 6 }}>
             No Data
           </Typography>
         ) : (
           <>
             {fields.map((field, index) => (
-              <>
-                {index !== 0 && <Divider sx={{ mt: 6, mb: 4 }} />}
-                <Grid container spacing={3} key={field.id} sx={{ mb: 2 }}>
+              <Box
+                key={field.id}
+                sx={{
+                  p: 3,
+                  mb: 3,
+                  borderRadius: `${radii.lg}px`,
+                  border: `1px solid ${colors.border}`,
+                  position: 'relative'
+                }}
+              >
+                {!readOnly && (
+                  <IconButton
+                    color='error'
+                    size='small'
+                    onClick={() => remove(index)}
+                    sx={{ position: 'absolute', top: 8, right: 8 }}
+                  >
+                    <Icon icon='tabler:trash' fontSize='1.125rem' />
+                  </IconButton>
+                )}
+                <Grid container spacing={3}>
                   <Grid item xs={12} sm={4}>
                     <Controller
                       name={`costEmployees.${index}.employeeId`}
@@ -182,16 +221,8 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                           renderInput={params => (
                             <CustomTextField
                               {...params}
-                              label={
-                                <>
-                                  Karyawan
-                                  {watch(`costEmployees.${index}.debt`) !== null && (
-                                    <Typography component='span' variant='caption' sx={{ ml: 1, fontWeight: 'normal' }}>
-                                      | Sisa Hutang: Rp {formatNumber(costEmployees[index]?.Tm_Employee?.debt || 0)}
-                                    </Typography>
-                                  )}
-                                </>
-                              }
+                              label='Karyawan'
+                              required
                               error={!!error}
                               helperText={error?.message}
                             />
@@ -200,6 +231,20 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                         />
                       )}
                     />
+                    {watch(`costEmployees.${index}.debt`) !== null && (
+                      <Chip
+                        size='small'
+                        label={`Hutang: Rp ${formatNumber(costEmployees[index]?.Tm_Employee?.debt || 0)}`}
+                        sx={{
+                          mt: 2,
+                          height: 22,
+                          borderRadius: `${radii.full}px`,
+                          backgroundColor: statusTokens.warning.bg,
+                          border: `1px solid ${statusTokens.warning.border}`,
+                          '& .MuiChip-label': { px: 1.5, fontSize: '0.6875rem', color: statusTokens.warning.fg }
+                        }}
+                      />
+                    )}
                   </Grid>
                   <Grid item xs={12} sm={4}>
                     <Controller
@@ -224,7 +269,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                       )}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={3}>
+                  <Grid item xs={12} sm={4}>
                     <Controller
                       name={`costEmployees.${index}.bonus`}
                       control={control}
@@ -233,13 +278,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                           {...field}
                           value={value === null || isNaN(value) ? '0' : formatNumber(value)}
                           label={
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                height: '15px'
-                              }}
-                            >
+                            <Box sx={{ display: 'flex', alignItems: 'center', height: '15px' }}>
                               <input
                                 type='checkbox'
                                 checked={bonusCheckboxes[index] || false}
@@ -269,7 +308,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={2}>
+                  <Grid item xs={12} sm={6}>
                     <Controller
                       name={`costEmployees.${index}.amountDebt`}
                       control={control}
@@ -293,7 +332,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                       )}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={2}>
+                  <Grid item xs={12} sm={6}>
                     <Controller
                       name={`costEmployees.${index}.amountDebtPaid`}
                       control={control}
@@ -321,7 +360,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                       )}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={7}>
+                  <Grid item xs={12}>
                     <Controller
                       name={`costEmployees.${index}.notes`}
                       control={control}
@@ -337,24 +376,50 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                       )}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={1} sx={{ display: 'flex', mt: 4 }}>
-                    {!readOnly && (
-                      <IconButton color='error' onClick={() => remove(index)}>
-                        <Icon icon='tabler:trash' />
-                      </IconButton>
-                    )}
-                  </Grid>
                 </Grid>
-              </>
+              </Box>
             ))}
-
-            <Divider sx={{ mt: 4, mb: 2 }} />
-
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Typography variant='subtitle1'>Total: Rp {calculateTotal().toLocaleString('id-ID')}</Typography>
-            </Box>
           </>
         )}
+
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: fields.length === 0 ? 0 : 2, gap: 3 }}>
+          {!readOnly ? (
+            <Button
+              variant='outlined'
+              color='secondary'
+              onClick={handleAddEmployee}
+              startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+              sx={{
+                color: colors.foreground,
+                borderColor: colors.border3,
+                boxShadow: shadows.xs,
+                '&:hover': { borderColor: colors.border3 }
+              }}
+            >
+              Tambah
+            </Button>
+          ) : (
+            <Box />
+          )}
+
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              px: 4,
+              py: 2,
+              borderRadius: `${radii.full}px`,
+              border: `1px solid ${statusTokens.success.border}`,
+              backgroundColor: statusTokens.success.bg
+            }}
+          >
+            <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground }}>Total</Typography>
+            <Typography sx={{ fontSize: '0.9375rem', fontWeight: 700, color: statusTokens.success.fg }}>
+              Rp {computeTotal().toLocaleString('id-ID')}
+            </Typography>
+          </Box>
+        </Box>
       </CardContent>
     </Card>
   )

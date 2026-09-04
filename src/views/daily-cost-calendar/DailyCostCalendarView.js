@@ -1,14 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
-  Grid,
   Typography,
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
-  Card,
-  CardContent,
   IconButton,
   Popper,
   Paper,
@@ -29,6 +25,12 @@ import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from "react-redux";
 import { deleteDailyCost, fetchAllDailyCost, saveFilterMonthYear } from "src/store/apps/daily-cost";
 
+// ** Shared Components
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
+
+// ** Design Tokens
+import { colors, radii, shadows, status as statusTokens, stone } from 'src/configs/designTokens'
+
 dayjs.locale("id");
 
 export default function DailyCostCalendarView({ }) {
@@ -36,6 +38,8 @@ export default function DailyCostCalendarView({ }) {
   const now = dayjs();
   const dispatch = useDispatch();
   const { allDailyCost: expenses, month: dailyCostMonth, year: dailyCostYear } = useSelector((state) => state.dailyCost)
+
+  const { loadingDelete } = useSelector((state) => state.dailyCost)
 
   const { control, watch } = useForm({
     defaultValues: {
@@ -47,6 +51,7 @@ export default function DailyCostCalendarView({ }) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [openModalCalendar, setOpenModalCalendar] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
   const open = Boolean(anchorEl);
 
   const selectedMonth = watch("month");
@@ -100,8 +105,15 @@ export default function DailyCostCalendarView({ }) {
     } else if (action === 'EDIT') {
       router.push(`/daily-cost-calendar/edit/${formattedDate}`);
     } else if (action === 'DELETE') {
-      dispatch(deleteDailyCost({ date: selectedDate }))
+      setOpenConfirmDelete(true);
     }
+  };
+
+  // ** Confirmation is owned by `ConfirmDialog`; the thunk performs the request
+  // without prompting again (see docs/REVAMP_BASELINE.md §4).
+  const handleConfirmDelete = () => {
+    dispatch(deleteDailyCost({ date: selectedDate }));
+    setOpenConfirmDelete(false);
   };
 
   useEffect(() => {
@@ -123,96 +135,92 @@ export default function DailyCostCalendarView({ }) {
       const isEmpty = expensesByDate[dateStr]?.status === "EMPTY";
       // Check if this date is today
       const isToday = dateStr === today;
+      const isLastColumn = (i + 1) % 7 === 0;
+      const isLastRow = i >= totalBoxes - 7;
 
       calendar.push(
-        <Grid item xs={12 / 7} key={i}>
-          <Box
-            onClick={(event) => {
-              if (i >= startDay && !isFuture) {
-                handleDateClick(event, dateStr, isFuture);
-              }
-            }}
-            sx={{ cursor: i >= startDay && !isFuture ? "pointer" : "default" }}
-            className="date-card"
-          >
-            <Card sx={{
-              height: 80,
-              backgroundColor: isToday ? "#e3f2fd" : "#f5f5f5",
-              border: isToday ? "1px solid #2196f3" : "none",
-              position: "relative"
-            }}>
-              {isToday &&
-                (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: "2px",
-                      right: "2px",
-                      width: "8px",
-                      height: "8px",
-                      borderRadius: "50%",
-                      backgroundColor: "#2196f3"
-                    }}
-                  />
-                )}
-              {
-                isEmpty && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: "2px",
-                      right: "2px",
-                      width: "8px",
-                      height: "8px",
-                      borderRadius: "50%",
-                      backgroundColor: "#c9a355"
-                    }}
-                  />
-                )
-              }
-              <CardContent sx={{ p: 1 }}>
-                {i >= startDay && (
-                  <>
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        fontWeight: isToday ? 'bold' : 'normal',
-                        color: isToday ? "#2196f3" : "text.primary"
-                      }}
-                    >
-                      {dayjs(dateStr).format("dddd")}
-                    </Typography>
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        fontWeight: isToday ? 'bold' : 'normal',
-                        color: isToday ? "#2196f3" : "text.primary"
-                      }}
-                    >
-                      {dayNumber}
-                    </Typography>
-                  </>
-                )}
-                {i >= startDay && expensesByDate[dateStr] && (
-                  <Typography variant="body2" color="primary" sx={{ mt: 2 }}>
-                    {
-                      expensesByDate[dateStr]?.status === "APPROVED" && (
-                        priceFormatWIthCurrency(expensesByDate[dateStr]?.grandTotal)
-                      )
-                    }
-                    {
-                      expensesByDate[dateStr]?.status === "EMPTY" && (
-                        <Typography variant="body2" color="primary" sx={{ mt: 2 }}>
-                          Jumlah SO: {expensesByDate[dateStr]?.totalSo}
-                        </Typography>
-                      )
-                    }
-                  </Typography>
-                )}
-              </CardContent>
-            </Card>
-          </Box>
-        </Grid>
+        <Box
+          key={i}
+          onClick={(event) => {
+            if (i >= startDay && !isFuture) {
+              handleDateClick(event, dateStr, isFuture);
+            }
+          }}
+          className="date-card"
+          sx={{
+            height: 84,
+            p: 2,
+            position: 'relative',
+            cursor: i >= startDay && !isFuture ? 'pointer' : 'default',
+            borderRight: isLastColumn ? 'none' : `1px solid ${colors.border}`,
+            borderBottom: isLastRow ? 'none' : `1px solid ${colors.border}`
+          }}
+        >
+          {isEmpty && !isToday && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                backgroundColor: statusTokens.warning.fg
+              }}
+            />
+          )}
+          {i >= startDay && !isFuture && (
+            <Icon
+              icon='tabler:dots-vertical'
+              fontSize='1rem'
+              style={{
+                position: 'absolute',
+                top: 6,
+                right: 6,
+                color: colors.mutedForeground
+              }}
+            />
+          )}
+          {i >= startDay && (
+            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+              {isToday ? (
+                <Box
+                  component='span'
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 24,
+                    height: 24,
+                    borderRadius: '50%',
+                    backgroundColor: stone[800],
+                    color: colors.primaryForeground,
+                    fontWeight: 600
+                  }}
+                >
+                  {dayNumber}
+                </Box>
+              ) : (
+                dayNumber
+              )}
+            </Typography>
+          )}
+          {i >= startDay && expensesByDate[dateStr] && (
+            <Typography
+              sx={{
+                mt: 2,
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                color: colors.foreground
+              }}
+            >
+              {expensesByDate[dateStr]?.status === 'APPROVED' &&
+                priceFormatWIthCurrency(expensesByDate[dateStr]?.grandTotal)}
+              {expensesByDate[dateStr]?.status === 'EMPTY' &&
+                `Jumlah SO: ${expensesByDate[dateStr]?.totalSo}`}
+            </Typography>
+          )}
+        </Box>
       );
     }
 
@@ -228,16 +236,26 @@ export default function DailyCostCalendarView({ }) {
 
   return (
     <>
-      <Box>
-        <Box display="flex" gap={2} mb={2} justifyContent={"space-between"}>
+      <Box
+        sx={{
+          p: 4,
+          borderRadius: `${radii.lg}px`,
+          border: `1px solid ${colors.border}`,
+          boxShadow: shadows.xs,
+          backgroundColor: colors.background
+        }}
+      >
+        <Box display="flex" gap={2} mb={4} justifyContent={"space-between"} flexWrap="wrap">
           <Box display="flex" gap={2}>
-            <FormControl>
-              <InputLabel id="month-label">Month</InputLabel>
+            <FormControl size='small'>
               <Controller
                 name="month"
                 control={control}
                 render={({ field }) => (
-                  <Select {...field} labelId="month-label" label="Month">
+                  <Select
+                    {...field}
+                    sx={{ borderRadius: `${radii.full}px`, minWidth: 140 }}
+                  >
                     {Array.from({ length: 12 }).map((_, i) => (
                       <MenuItem key={i} value={i}>
                         {dayjs().month(i).format("MMMM")}
@@ -247,13 +265,15 @@ export default function DailyCostCalendarView({ }) {
                 )}
               />
             </FormControl>
-            <FormControl>
-              <InputLabel id="year-label">Year</InputLabel>
+            <FormControl size='small'>
               <Controller
                 name="year"
                 control={control}
                 render={({ field }) => (
-                  <Select {...field} labelId="year-label" label="Year">
+                  <Select
+                    {...field}
+                    sx={{ borderRadius: `${radii.full}px`, minWidth: 100 }}
+                  >
                     {Array.from({ length: now.year() - 2025 + 6 }, (_, i) => {
                       const year = 2025 + i;
                       return (
@@ -268,14 +288,44 @@ export default function DailyCostCalendarView({ }) {
             </FormControl>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton onClick={() => setOpenModalSetting(true)}>
-              <Icon icon='tabler:settings' />
+            <IconButton
+              onClick={() => setOpenModalSetting(true)}
+              sx={{
+                borderRadius: `${radii.full}px`,
+                border: `1px solid ${colors.border3}`,
+                boxShadow: shadows.xs,
+                color: colors.foreground
+              }}
+            >
+              <Icon icon='tabler:settings' fontSize='1.125rem' />
             </IconButton>
           </Box>
         </Box>
-        <Grid container spacing={1}>
-          {renderDays()}
-        </Grid>
+        <Box
+          sx={{
+            borderRadius: `${radii.md}px`,
+            border: `1px solid ${colors.border}`,
+            overflow: 'hidden'
+          }}
+        >
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: `1px solid ${colors.border}` }}>
+            {['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'].map((day, index) => (
+              <Typography
+                key={day}
+                sx={{
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  color: colors.foreground,
+                  p: 2,
+                  borderRight: index === 6 ? 'none' : `1px solid ${colors.border}`
+                }}
+              >
+                {day}
+              </Typography>
+            ))}
+          </Box>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>{renderDays()}</Box>
+        </Box>
       </Box>
       <Popper
         open={open}
@@ -295,41 +345,49 @@ export default function DailyCostCalendarView({ }) {
       >
         {({ TransitionProps }) => (
           <Grow {...TransitionProps} style={{ transformOrigin: 'left top' }}>
-            <Paper elevation={6} sx={{ mt: 1, width: 200 }}>
+            <Paper
+              sx={{
+                mt: 1,
+                width: 180,
+                borderRadius: `${radii.lg}px`,
+                border: `1px solid ${colors.border}`,
+                boxShadow: shadows.lg
+              }}
+            >
               <ClickAwayListener onClickAway={handleClickAway}>
                 <List sx={{ p: 1 }}>
                   {expensesByDate[selectedDate]?.status !== "APPROVED" && (
                     <ListItem
                       onClick={() => handleAction('ADD')}
                       sx={{
-                        borderRadius: 1,
+                        borderRadius: `${radii.md}px`,
                         cursor: 'pointer',
                         '&:hover': {
-                          backgroundColor: 'action.hover'
+                          backgroundColor: stone[50]
                         }
                       }}
                     >
-                      <ListItemIcon sx={{ minWidth: 40 }}>
-                        <Icon icon="tabler:plus" fontSize={20} />
+                      <ListItemIcon sx={{ minWidth: 36, color: colors.mutedForeground }}>
+                        <Icon icon="tabler:plus" fontSize='1.125rem' />
                       </ListItemIcon>
-                      <ListItemText primary="Add" />
+                      <ListItemText primary="Add" primaryTypographyProps={{ fontSize: '0.875rem', color: colors.foreground }} />
                     </ListItem>
                   )}
                   {expensesByDate[selectedDate]?.status === "APPROVED" && (
                     <ListItem
                       onClick={() => handleAction('VIEW')}
                       sx={{
-                        borderRadius: 1,
+                        borderRadius: `${radii.md}px`,
                         cursor: 'pointer',
                         '&:hover': {
-                          backgroundColor: 'action.hover'
+                          backgroundColor: stone[50]
                         }
                       }}
                     >
-                      <ListItemIcon sx={{ minWidth: 40 }}>
-                        <Icon icon="tabler:eye" fontSize={20} />
+                      <ListItemIcon sx={{ minWidth: 36, color: colors.mutedForeground }}>
+                        <Icon icon="tabler:eye" fontSize='1.125rem' />
                       </ListItemIcon>
-                      <ListItemText primary="View" />
+                      <ListItemText primary="View" primaryTypographyProps={{ fontSize: '0.875rem', color: colors.foreground }} />
                     </ListItem>
                   )}
                   {
@@ -337,17 +395,17 @@ export default function DailyCostCalendarView({ }) {
                       <ListItem
                         onClick={() => handleAction('EDIT')}
                         sx={{
-                          borderRadius: 1,
+                          borderRadius: `${radii.md}px`,
                           cursor: 'pointer',
                           '&:hover': {
-                            backgroundColor: 'action.hover'
+                            backgroundColor: stone[50]
                           }
                         }}
                       >
-                        <ListItemIcon sx={{ minWidth: 40 }}>
-                          <Icon icon="tabler:edit" fontSize={20} />
+                        <ListItemIcon sx={{ minWidth: 36, color: colors.mutedForeground }}>
+                          <Icon icon="tabler:edit" fontSize='1.125rem' />
                         </ListItemIcon>
-                        <ListItemText primary="Edit" />
+                        <ListItemText primary="Edit" primaryTypographyProps={{ fontSize: '0.875rem', color: colors.foreground }} />
                       </ListItem>
                     )
                   }
@@ -356,17 +414,17 @@ export default function DailyCostCalendarView({ }) {
                       <ListItem
                         onClick={() => handleAction('DELETE')}
                         sx={{
-                          borderRadius: 1,
+                          borderRadius: `${radii.md}px`,
                           cursor: 'pointer',
                           '&:hover': {
-                            backgroundColor: 'action.hover'
+                            backgroundColor: statusTokens.danger.bg
                           }
                         }}
                       >
-                        <ListItemIcon sx={{ minWidth: 40 }}>
-                          <Icon icon="tabler:trash" fontSize={20} />
+                        <ListItemIcon sx={{ minWidth: 36, color: colors.destructive }}>
+                          <Icon icon="tabler:trash" fontSize='1.125rem' />
                         </ListItemIcon>
-                        <ListItemText primary="Delete" />
+                        <ListItemText primary="Delete" primaryTypographyProps={{ fontSize: '0.875rem', color: colors.destructive }} />
                       </ListItem>
                     )
                   }
@@ -382,6 +440,14 @@ export default function DailyCostCalendarView({ }) {
           onClose={() => setOpenModalSetting(false)}
         />)
       }
+      <ConfirmDialog
+        open={openConfirmDelete}
+        onClose={() => setOpenConfirmDelete(false)}
+        onConfirm={handleConfirmDelete}
+        title='Hapus Daily Cost'
+        itemName={selectedDate ? dayjs(selectedDate).format('DD MMMM YYYY') : undefined}
+        loading={loadingDelete}
+      />
     </>
   );
 }

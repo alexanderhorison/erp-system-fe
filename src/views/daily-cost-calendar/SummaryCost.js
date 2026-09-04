@@ -1,6 +1,20 @@
 import React, { useEffect } from 'react'
-import { Card, CardContent, CardHeader, Divider, Grid, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Divider from '@mui/material/Divider'
+import Typography from '@mui/material/Typography'
 import { useFormContext, useWatch } from 'react-hook-form'
+
+// ** Design Tokens
+import { colors, radii, shadows } from 'src/configs/designTokens'
+
+const rowSx = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  py: 3
+}
 
 export default function SummaryCost() {
   const { control, setValue } = useFormContext()
@@ -27,58 +41,43 @@ export default function SummaryCost() {
   }
 
   return (
-    <Card>
-      <CardHeader title='Summary Cost' />
-      <CardContent>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={8}>
-            <Typography variant='body1'>General Cost & Deposit</Typography>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography variant='body1' align='right'>
-              {formatCurrency(totalCostGeneral)}
-            </Typography>
-          </Grid>
+    <Card elevation={0} sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
+      <CardContent sx={{ p: 5 }}>
+        <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground, mb: 1 }}>Ringkasan</Typography>
+        <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground, mb: 3 }}>
+          Tinjau semua biaya dan selesaikan
+        </Typography>
 
-          <Grid item xs={12}>
-            <Divider />
-          </Grid>
+        <Box sx={rowSx}>
+          <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>Biaya Umum & Deposit</Typography>
+          <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.foreground }}>
+            {formatCurrency(totalCostGeneral)}
+          </Typography>
+        </Box>
+        <Divider sx={{ borderColor: colors.border }} />
 
-          <Grid item xs={12} md={8}>
-            <Typography variant='body1'>Employee Cost & Bonus</Typography>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography variant='body1' align='right'>
-              {formatCurrency(totalCostEmployee)}
-            </Typography>
-          </Grid>
+        <Box sx={rowSx}>
+          <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>Biaya Karyawan & Bonus</Typography>
+          <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.foreground }}>
+            {formatCurrency(totalCostEmployee)}
+          </Typography>
+        </Box>
+        <Divider sx={{ borderColor: colors.border }} />
 
-          <Grid item xs={12}>
-            <Divider />
-          </Grid>
+        <Box sx={rowSx}>
+          <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>Biaya Tak Terduga</Typography>
+          <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.foreground }}>
+            {formatCurrency(totalCostUnexpected)}
+          </Typography>
+        </Box>
+        <Divider sx={{ borderColor: colors.border, borderBottomWidth: 2 }} />
 
-          <Grid item xs={12} md={8}>
-            <Typography variant='body1'>Unexpected Cost</Typography>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography variant='body1' align='right'>
-              {formatCurrency(totalCostUnexpected)}
-            </Typography>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Divider sx={{ borderWidth: 2 }} />
-          </Grid>
-
-          <Grid item xs={12} md={8}>
-            <Typography variant='h6'>Grand Total</Typography>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography variant='h6' align='right' color='primary'>
-              {formatCurrency(totalCostGeneral + totalCostEmployee + totalCostUnexpected)}
-            </Typography>
-          </Grid>
-        </Grid>
+        <Box sx={{ ...rowSx, pb: 0 }}>
+          <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground }}>Grand Total</Typography>
+          <Typography sx={{ fontSize: '1.25rem', fontWeight: 700, color: 'success.main' }}>
+            {formatCurrency(totalCostGeneral + totalCostEmployee + totalCostUnexpected)}
+          </Typography>
+        </Box>
       </CardContent>
     </Card>
   )

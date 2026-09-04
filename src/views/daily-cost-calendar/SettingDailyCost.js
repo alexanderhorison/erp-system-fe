@@ -1,15 +1,16 @@
-import { Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, Grid, Typography } from '@mui/material'
-import ModalConfirmation from '../common/ModalConfirmation'
+import Grid from '@mui/material/Grid'
 import { useForm, Controller } from 'react-hook-form'
-import { CustomCloseButton } from '../pages/dialog-examples/DialogEditUserInfo'
-import Icon from 'src/@core/components/icon'
-import { useDispatch, useSelector } from 'react-redux'
-import CustomTextField from 'src/@core/components/mui/text-field'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { createConfigDailyCost, fetchConfigDailyCost } from 'src/store/apps/config/configDailyCost'
+import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
+
+import CustomTextField from 'src/@core/components/mui/text-field'
+import { createConfigDailyCost, fetchConfigDailyCost } from 'src/store/apps/config/configDailyCost'
 import { formatNumber, parseNumber } from 'src/utils/formatNumber'
+
+// ** Shared Components
+import AppModal from 'src/views/common/AppModal'
 
 export default function SettingDailyCost({ open, onClose }) {
   const dispatch = useDispatch()
@@ -64,102 +65,68 @@ export default function SettingDailyCost({ open, onClose }) {
   }
 
   return (
-    <Card>
-      <Dialog
-        fullWidth
-        open={open}
-        maxWidth='sm'
-        scroll='body'
-        onClose={onClose}
-        sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
-      >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent
-            sx={{
-              pb: theme => `${theme.spacing(8)} !important`,
-              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-              pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-            }}
-          >
-            <CustomCloseButton onClick={onClose}>
-              <Icon icon='tabler:x' fontSize='1.25rem' />
-            </CustomCloseButton>
-
-            <Typography variant='h5' sx={{ mb: 4, textAlign: 'center' }}>
-              Pengaturan Biaya Harian
-            </Typography>
-            <Grid container spacing={6}>
-              <Grid item xs={12}>
-                <Controller
-                  name='DC_DEPOSIT'
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange } }) => (
-                    <CustomTextField
-                      fullWidth
-                      value={formatNumber(value)}
-                      label='Deposit'
-                      placeholder='Masukkan nilai deposit'
-                      onChange={e => {
-                        const numericValue = parseNumber(e.target.value)
-                        onChange(numericValue)
-                      }}
-                      error={Boolean(errors.DC_DEPOSIT)}
-                      inputProps={{
-                        inputMode: 'numeric'
-                      }}
-                      disabled={loading}
-                      aria-describedby='validation-deposit'
-                      {...(errors.DC_DEPOSIT && { helperText: errors.DC_DEPOSIT.message })}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Controller
-                  name='DC_TRANSPORT_ALLOWANCE'
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange } }) => (
-                    <CustomTextField
-                      fullWidth
-                      value={formatNumber(value)}
-                      label='Uang Jalan'
-                      placeholder='Masukkan nilai transport allowance'
-                      onChange={e => {
-                        const numericValue = parseNumber(e.target.value)
-                        onChange(numericValue)
-                      }}
-                      error={Boolean(errors.DC_TRANSPORT_ALLOWANCE)}
-                      inputProps={{
-                        inputMode: 'numeric'
-                      }}
-                      disabled={loading}
-                      aria-describedby='validation-transport-allowance'
-                      {...(errors.DC_TRANSPORT_ALLOWANCE && { helperText: errors.DC_TRANSPORT_ALLOWANCE.message })}
-                    />
-                  )}
-                />
-              </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions
-            sx={{
-              px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-              pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-            }}
-          >
-            <>
-              <Button variant='tonal' color='secondary' onClick={onClose} disabled={loading}>
-                Cancel
-              </Button>
-              <Button type='submit' variant='contained' disabled={loading}>
-                {loading ? 'Menyimpan...' : 'Simpan'}
-              </Button>
-            </>
-          </DialogActions>
-        </form>
-      </Dialog>
-    </Card>
+    <AppModal
+      open={open}
+      onClose={onClose}
+      onSubmit={handleSubmit(onSubmit)}
+      title='Pengaturan Biaya Harian'
+      size='sm'
+      loading={loading}
+    >
+      <Grid container spacing={4}>
+        <Grid item xs={12}>
+          <Controller
+            name='DC_DEPOSIT'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                value={formatNumber(value)}
+                label='Deposit'
+                placeholder='Masukkan nilai deposit'
+                onChange={e => {
+                  const numericValue = parseNumber(e.target.value)
+                  onChange(numericValue)
+                }}
+                error={Boolean(errors.DC_DEPOSIT)}
+                inputProps={{
+                  inputMode: 'numeric'
+                }}
+                disabled={loading}
+                aria-describedby='validation-deposit'
+                {...(errors.DC_DEPOSIT && { helperText: errors.DC_DEPOSIT.message })}
+              />
+            )}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Controller
+            name='DC_TRANSPORT_ALLOWANCE'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                value={formatNumber(value)}
+                label='Uang Jalan'
+                placeholder='Masukkan nilai transport allowance'
+                onChange={e => {
+                  const numericValue = parseNumber(e.target.value)
+                  onChange(numericValue)
+                }}
+                error={Boolean(errors.DC_TRANSPORT_ALLOWANCE)}
+                inputProps={{
+                  inputMode: 'numeric'
+                }}
+                disabled={loading}
+                aria-describedby='validation-transport-allowance'
+                {...(errors.DC_TRANSPORT_ALLOWANCE && { helperText: errors.DC_TRANSPORT_ALLOWANCE.message })}
+              />
+            )}
+          />
+        </Grid>
+      </Grid>
+    </AppModal>
   )
 }
