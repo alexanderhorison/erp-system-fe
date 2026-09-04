@@ -1,21 +1,23 @@
-import { Grid } from '@mui/material'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+
+// ** MUI Imports
+import Grid from '@mui/material/Grid'
+
 import { fetchDashboardSummaryCustomer } from 'src/store/apps/dashboard'
 import { fetchMasterDataCustomerDetail } from 'src/store/apps/master/customer'
-import ButtonBack from 'src/views/common/ButtonBack'
-import CustomTab from 'src/views/common/CustomTab'
+import PageHeader from 'src/views/common/PageHeader'
+import SectionHeading from 'src/views/common/SectionHeading'
 import DetailCustomer from 'src/views/master/customer/DetailCustomer'
 import SummaryCustomer from 'src/views/master/customer/SummaryCustomer'
-import SummaryPosCustomer from 'src/views/master/customer/TablePosCustomer'
+import TablePosCustomer from 'src/views/master/customer/TablePosCustomer'
 import TableSalesOrderCustomer from 'src/views/master/customer/TableSalesOrderCustomer'
 
 export default function DetailMasterCustomer() {
   const dispatch = useDispatch()
-  const query = useRouter().query
-  const [activeTab, setActiveTab] = useState('summary')
-  const [loadingTab, setLoadingTab] = useState(false)
+  const router = useRouter()
+  const query = router.query
 
   const { loadingDetail, detail: detailCustomer } = useSelector(state => state.masterCustomer)
 
@@ -24,48 +26,44 @@ export default function DetailMasterCustomer() {
       dispatch(fetchMasterDataCustomerDetail(query.id))
       dispatch(fetchDashboardSummaryCustomer({ id: query.id }))
     }
-  }, [query.id])
-
-  const tabList = [
-    {
-      label: 'Summary',
-      value: 'summary',
-      icon: 'tabler:wallet'
-    },
-    {
-      label: detailCustomer.isPosCustomer ? 'Transaction POS' : 'Sales Order',
-      value: 'sales-order',
-      icon: 'tabler:truck-delivery'
-    }
-  ]
+  }, [query.id, dispatch])
 
   return (
-    <Grid container spacing={6}>
-      <ButtonBack name='Detail Data Customer' paddingY={0} />
-      <Grid item xs={4}>
-        <DetailCustomer data={detailCustomer} loading={loadingDetail} />
-      </Grid>
-      <Grid item xs={8}>
-        <CustomTab
-          tabContentList={tabList}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          loading={loadingTab}
-          setLoadingTab={setLoadingTab}
+    <Grid container>
+      <Grid item xs={12}>
+        <PageHeader
+          title='View Detail Customer'
+          onBack={() => router.back()}
+          breadcrumbs={[
+            { label: 'Sales Order' },
+            { label: 'Data Customer' },
+            { label: 'Customer', href: '/master/customer' },
+            { label: detailCustomer?.name || 'Detail' }
+          ]}
         />
-        {activeTab === 'summary' && (
-          <Grid item xs={12} sx={{ mt: 3 }}>
+
+        <Grid container spacing={4}>
+          <Grid item xs={12}>
+            <DetailCustomer data={detailCustomer} loading={loadingDetail} />
+          </Grid>
+
+          <Grid item xs={12}>
+            <SectionHeading number={2} title='Ringkasan Customer' />
             <SummaryCustomer />
           </Grid>
-        )}
-        {activeTab === 'sales-order' && (
-          <Grid item xs={12} sx={{ mt: 3 }}>
-            {
-              // Jika POS customer, tampilkan summary POS
-              detailCustomer.isPosCustomer ? <SummaryPosCustomer /> : <TableSalesOrderCustomer />
-            }
+
+          <Grid item xs={12}>
+            <SectionHeading
+              number={3}
+              title={detailCustomer?.isPosCustomer ? 'Riwayat Transaksi POS' : 'Riwayat Sales Order'}
+            />
+            {detailCustomer?.isPosCustomer ? (
+              <TablePosCustomer customerName={detailCustomer?.name} />
+            ) : (
+              <TableSalesOrderCustomer customerName={detailCustomer?.name} />
+            )}
           </Grid>
-        )}
+        </Grid>
       </Grid>
     </Grid>
   )

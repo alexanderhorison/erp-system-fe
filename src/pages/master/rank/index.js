@@ -1,13 +1,16 @@
-import { Grid, Typography } from "@mui/material";
-import TableMasterRank from "src/views/master/rank/TableMasterRank";
+import Grid from '@mui/material/Grid'
 
-export default function homeMasterCustomer() {
+import PageHeader from 'src/views/common/PageHeader'
+import TableMasterRank from 'src/views/master/rank/TableMasterRank'
+
+export default function homeMasterRank() {
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          Master Data Rank
-        </Typography>
+        <PageHeader
+          title='Master Data Rank'
+          breadcrumbs={[{ label: 'Sales Order' }, { label: 'Data Customer' }, { label: 'Rank' }]}
+        />
         <TableMasterRank />
       </Grid>
     </Grid>

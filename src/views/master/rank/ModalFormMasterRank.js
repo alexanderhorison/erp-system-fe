@@ -1,31 +1,28 @@
 // ** MUI Imports
-import {
-  Grid,
-} from '@mui/material'
+import Grid from '@mui/material/Grid'
 
-// ** Styles Import
-import 'react-credit-cards/es/styles-compiled.css'
-
+// ** Third Party Imports
 import { useDispatch, useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 
-import { useEffect } from 'react'
-import { fetchMasterDataRank } from 'src/store/apps/master/rank'
+// ** Store
 import { addMasterDataRank, editMasterDataRank } from 'src/store/apps/master/rank'
+
+// ** Shared Components
 import FormInputText from 'src/views/common/Form/FormInputText'
-import BaseModal from 'src/views/common/BaseModal'
+import AppModal from 'src/views/common/AppModal'
 
 export default function ModalFormMasterRank({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
   const { defaultValue, detail: detailRank, loadingAdd, loadingEdit } = useSelector(state => state.masterRank)
 
-  // SHCEMA YUP VALIDATION
+  // SCHEMA YUP VALIDATION
   const schema = yup.object().shape({
     name: yup.string().required('Nama rank harus diisi'),
     description: yup.string().optional(),
-    level: yup.number().required('Level rank harus diisi').typeError("Level rank harus angka"),
+    level: yup.number().required('Level rank harus diisi').typeError('Level rank harus angka')
   })
 
   // REACT FORM
@@ -48,62 +45,50 @@ export default function ModalFormMasterRank({ open, setOpen, typeModal, id }) {
     }
   }
 
-  useEffect(() => {
-    dispatch(fetchMasterDataRank())
-  }, [])
-
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={() => setOpen(false)}
       onSubmit={handleSubmit(onSubmit)}
-      title={typeModal === 'ADD'
-        ? 'Tambahkan Rank Baru'
-        : typeModal === 'VIEW'
-          ? 'Detail Rank'
-          : 'Ubah Rank'}
-      size="sm"
+      title={typeModal === 'ADD' ? 'Tambah Rank Baru' : typeModal === 'VIEW' ? 'Detail Rank' : 'Ubah Rank'}
+      size='sm'
       showActions={typeModal !== 'VIEW'}
       loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
-      <Grid container spacing={6}>
+      <Grid container spacing={4}>
         <Grid item xs={12}>
-          <Grid container spacing={6}>
-            <Grid item xs={12} sm={12}>
-              <FormInputText
-                label={'Name Rank'}
-                name={'name'}
-                control={control}
-                errors={errors}
-                disabled={typeModal === 'VIEW'}
-                placeholder='Masukkan Name Rank'
-              />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <FormInputText
-                label={'Deskripsi'}
-                name={'description'}
-                control={control}
-                errors={errors}
-                disabled={typeModal === 'VIEW'}
-                placeholder='Masukkan Deskripsi'
-                multiline
-                rows={4}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <FormInputText
-                label={'Level Rank'}
-                name={'level'}
-                control={control}
-                errors={errors}
-                disabled={typeModal === 'VIEW'}
-                placeholder='Masukkan Level Rank'
-              />
-            </Grid>
-          </Grid>
+          <FormInputText
+            label='Nama Rank'
+            name='name'
+            control={control}
+            errors={errors}
+            disabled={typeModal === 'VIEW'}
+            placeholder='Masukkan Nama Rank'
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <FormInputText
+            label='Level Rank'
+            name='level'
+            control={control}
+            errors={errors}
+            disabled={typeModal === 'VIEW'}
+            placeholder='Masukkan Level Rank'
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <FormInputText
+            label='Deskripsi'
+            name='description'
+            control={control}
+            errors={errors}
+            disabled={typeModal === 'VIEW'}
+            placeholder='Masukkan Deskripsi'
+            multiline
+            rows={4}
+          />
         </Grid>
       </Grid>
-    </BaseModal>
+    </AppModal>
   )
 }

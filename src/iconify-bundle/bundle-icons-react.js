@@ -42,14 +42,15 @@ const sources = {
         'cancel', 'alert-circle-outline', 'account-circle', 'alert', 'check', 'information-outline',
         'tag-outline', 'calendar-clock', 'storefront-outline', 'account-tie-outline', 'account-outline',
         'account', 'account-off', 'package-variant', 'clock-time-four-outline', 'logout',
-        'clipboard-text-outline', 'alarm', 'clock-check-outline', 'check-circle'
+        'clipboard-text-outline', 'alarm', 'clock-check-outline', 'check-circle',
+        'delete', 'image', 'office-building'
       ]
     },
 
     // Lucide icons referenced by the redesign that Tabler has no equivalent for.
     {
       filename: require.resolve('@iconify/json/json/lucide.json'),
-      icons: ['package-open', 'arrow-left-right', 'file-clock', 'database-backup']
+      icons: ['package-open', 'arrow-left-right', 'file-clock', 'database-backup', 'switch-camera', 'gem', 'banknote']
     }
 
     // Custom JSON file

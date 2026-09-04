@@ -48,7 +48,8 @@ const colors = {
 const status = {
   danger: { fg: '#DC2626', bg: '#FEF2F2', border: '#FECACA' },
   warning: { fg: '#D97706', bg: '#FFFBEB', border: '#FDE68A' },
-  success: { fg: '#059669', bg: '#ECFDF5', border: '#A7F3D0' }
+  success: { fg: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
+  info: { fg: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' }
 }
 
 // ** Typography (Figma: heading */paragraph *). Font family is Geist.

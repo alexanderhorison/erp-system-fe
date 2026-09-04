@@ -1,28 +1,35 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useRouter } from 'next/router'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
+import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 
 import HandleSearh from 'src/helpers/handleSearch'
-
 import {
   deleteMasterDataCustomer,
   fetchMasterDataCustomer,
   fetchMasterDataCustomerDetail
 } from 'src/store/apps/master/customer'
 import ModalAddMasterCustomer from './ModalAddMasterCustomer'
-import TableHeaderMasterCustomer from './TableHeaderMasterCustomer'
-import { useRouter } from 'next/router'
 
-const RowOptions = ({ id, name, router }) => {
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
+
+const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
+  const router = useRouter()
   const [openModalEdit, setOpenModalEdit] = useState(false)
-  const [openModalView, setOpenModalView] = useState(false)
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
+  const { loadingDelete } = useSelector(state => state.masterCustomer)
 
+  // ** Confirmation is owned by `ConfirmDialog`; the thunk performs the request
+  // without prompting again (see docs/REVAMP_BASELINE.md §4).
   const handleDelete = () => {
     dispatch(deleteMasterDataCustomer({ id, name }))
+    setOpenConfirmDelete(false)
   }
 
   const handleEdit = () => {
@@ -30,30 +37,68 @@ const RowOptions = ({ id, name, router }) => {
     setOpenModalEdit(true)
   }
 
-  const handleView = () => {
-    router.push(`/master/customer/${id}`)
-  }
-
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleView}>
-          <Icon icon='tabler:eye' />
-        </IconButton>
-        <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton>
-        <IconButton onClick={handleDelete}>
-          <Icon icon='tabler:trash' />
-        </IconButton>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+        <Tooltip title='Lihat'>
+          <IconButton onClick={() => router.push(`/master/customer/${id}`)} size='small'>
+            <Icon icon='tabler:eye' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Ubah'>
+          <IconButton onClick={handleEdit} size='small'>
+            <Icon icon='tabler:edit' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Hapus'>
+          <IconButton onClick={() => setOpenConfirmDelete(true)} size='small' sx={{ color: 'error.main' }}>
+            <Icon icon='tabler:trash' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
       </Box>
+
+      <ConfirmDialog
+        open={openConfirmDelete}
+        onClose={() => setOpenConfirmDelete(false)}
+        onConfirm={handleDelete}
+        title='Hapus Customer'
+        itemName={name}
+        loading={loadingDelete}
+      />
       {openModalEdit && (
         <ModalAddMasterCustomer open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
       )}
-      {openModalView && (
-        <ModalAddMasterCustomer open={openModalView} setOpen={setOpenModalView} typeModal={'VIEW'} id={id} />
-      )}
     </>
+  )
+}
+
+/** Email over phone number when both exist; whichever one is present alone otherwise. */
+const ContactCell = ({ email, phoneNumber }) => {
+  if (!email && !phoneNumber) {
+    return (
+      <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+        -
+      </Typography>
+    )
+  }
+
+  if (email && phoneNumber) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Typography variant='body2' sx={{ color: 'text.primary', fontSize: '0.8125rem' }}>
+          {email}
+        </Typography>
+        <Typography variant='body2' sx={{ color: 'text.secondary', fontSize: '0.8125rem' }}>
+          {phoneNumber}
+        </Typography>
+      </Box>
+    )
+  }
+
+  return (
+    <Typography variant='body2' sx={{ color: 'text.primary' }}>
+      {email || phoneNumber}
+    </Typography>
   )
 }
 
@@ -64,7 +109,7 @@ export default function TableMasterCustomer({}) {
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
 
   const { data } = useSelector(state => state.masterCustomer)
 
@@ -82,167 +127,112 @@ export default function TableMasterCustomer({}) {
   }, [data])
 
   return (
-    <Card>
+    <>
       {openModalAdd && <ModalAddMasterCustomer open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
-      <DataGrid
-        autoHeight
+      <DataTable
+        itemLabel='customer'
+        getRowId={row => row.id}
+        onRowClick={params => router.push(`/master/customer/${params.row.id}`)}
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Cari nama customer'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            actions={
+              <Button
+                variant='contained'
+                onClick={() => setOpenModalAdd(true)}
+                startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+              >
+                Tambah Customer
+              </Button>
+            }
+          />
+        }
         columns={[
           {
-            flex: 0.02,
-            minWidth: 50,
+            flex: 0.08,
+            minWidth: 60,
             field: 'id',
-            headerName: 'Id',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.id}
-                </Typography>
-              )
-            }
+            headerName: 'ID',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.id}
+              </Typography>
+            )
+          },
+          {
+            flex: 0.18,
+            minWidth: 160,
+            field: 'name',
+            headerName: 'NAMA CUSTOMER',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.name}
+              </Typography>
+            )
+          },
+          {
+            flex: 0.22,
+            minWidth: 180,
+            field: 'contact',
+            headerName: 'EMAIL / NOMOR TELEPON',
+            sortable: false,
+            renderCell: params => <ContactCell email={params.row.email} phoneNumber={params.row.phoneNumber} />
+          },
+          {
+            flex: 0.1,
+            minWidth: 90,
+            field: 'isPosCustomer',
+            headerName: 'TIPE',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.isPosCustomer ? 'POS' : '-'}
+              </Typography>
+            )
           },
           {
             flex: 0.12,
-            minWidth: 100,
-            field: 'name',
-            headerName: 'Nama Customer',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.name}
-                </Typography>
-              )
-            }
+            minWidth: 110,
+            field: 'rankName',
+            headerName: 'RANK',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.rankName || '-'}
+              </Typography>
+            )
           },
           {
             flex: 0.15,
             minWidth: 140,
-            field: 'contact',
-            headerName: 'Email / Nomor Telepon',
-            renderCell: params => {
-              const email = params?.row?.email || ''
-              const phoneNumber = params?.row?.phoneNumber || ''
-
-              // Jika keduanya kosong, tampilkan -
-              if (!email && !phoneNumber) {
-                return (
-                  <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                    -
-                  </Typography>
-                )
-              }
-
-              // Jika hanya salah satu yang ada, tampilkan yang ada saja
-              if (email && !phoneNumber) {
-                return (
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {email}
-                  </Typography>
-                )
-              }
-
-              if (!email && phoneNumber) {
-                return (
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {phoneNumber}
-                  </Typography>
-                )
-              }
-
-              // Jika keduanya ada, tampilkan email di atas dan nomor telepon di bawah
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary', fontSize: '0.8rem', opacity: 0.9 }}>
-                    {email}
-                  </Typography>
-                  <Typography variant='body2' sx={{ color: 'text.secondary', fontSize: '0.8rem', opacity: 0.8 }}>
-                    {phoneNumber}
-                  </Typography>
-                </Box>
-              )
-            }
-          },
-          {
-            flex: 0.05,
-            minWidth: 80,
-            field: 'isPosCustomer',
-            headerName: 'Tipe',
-            renderCell: params => {
-              const isPosCustomer = params?.row?.isPosCustomer
-              return (
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                  {isPosCustomer && (
-                    <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                      POS
-                    </Typography>
-                  )}
-                </Box>
-              )
-            }
-          },
-          {
-            flex: 0.07,
-            minWidth: 100,
-            field: 'rankName',
-            headerName: 'Rank',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.rankName}
-                </Typography>
-              )
-            }
+            field: 'notes',
+            headerName: 'CATATAN',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.notes || '-'}
+              </Typography>
+            )
           },
           {
             flex: 0.15,
             minWidth: 120,
-            field: 'notes',
-            headerName: 'Catatan',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.notes}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.1,
+            sortable: false,
             field: 'actions',
-            headerName: 'Actions',
+            headerName: 'ACTION',
             renderCell: ({ row }) => (
-              <div onClick={e => e.stopPropagation()}>
-                <RowOptions id={row.id} name={row.name} router={router} />
-              </div>
+              <Box onClick={event => event.stopPropagation()} sx={{ width: '100%' }}>
+                <RowOptions id={row.id} name={row.name} />
+              </Box>
             )
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
-        onRowClick={params => {
-          router.push(`/master/customer/${params.id}`)
-        }}
-        slots={{ toolbar: TableHeaderMasterCustomer }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari nama customer',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd
-          }
-        }}
+        sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
       />
-    </Card>
+    </>
   )
 }
