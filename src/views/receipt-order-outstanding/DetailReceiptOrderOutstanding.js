@@ -1,225 +1,261 @@
+import { useEffect, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
 // ** MUI Imports
-import Grid from '@mui/material/Grid'
+import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
+import Grid from '@mui/material/Grid'
+import MenuItem from '@mui/material/MenuItem'
 import Table from '@mui/material/Table'
 import Divider from '@mui/material/Divider'
 import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
 import CardContent from '@mui/material/CardContent'
-import { useTheme } from '@mui/material/styles'
 import TableContainer from '@mui/material/TableContainer'
-import TableCell from '@mui/material/TableCell'
 
-// ** Configs
+// ** Configs & Helpers
+import Logo from 'src/icons/logo'
 import themeConfig from 'src/configs/themeConfig'
+import { LinkStyled } from 'src/pages/components/swiper'
+import { Status } from 'src/@core/components/common'
 import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
-import { MenuItem, Select } from '@mui/material'
-import IconTjahayaBerkatAbadi from '../common/iconTjahayaBerkatAbadi'
-import { useMemo } from 'react'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 import CustomTextField from 'src/@core/components/mui/text-field'
-import HeaderReceiptOrderOutstanding from './HeaderReceiptOrderOutstanding'
-import { useSelector } from 'react-redux'
 
+// ** Design Tokens
+import { colors, radii, shadows, stone } from 'src/configs/designTokens'
+
+const sectionLabelSx = {
+  fontSize: '0.875rem',
+  fontWeight: 600,
+  lineHeight: '20px',
+  color: colors.foreground
+}
+
+const mutedSx = {
+  fontSize: '0.8125rem',
+  lineHeight: '20px',
+  color: colors.mutedForeground
+}
+
+/**
+ * Name over a date and time. The label sits above a deliberate gap that stands
+ * in for the handwritten signature on the printed sheet.
+ */
+const SignatureBlock = ({ label, name, timestamp }) => (
+  <Box sx={{ textAlign: 'center', flex: 1, maxWidth: 240 }}>
+    <Typography sx={{ ...sectionLabelSx, fontSize: '1rem', mb: 12 }}>{label}</Typography>
+    <Typography sx={mutedSx}>{name || '-'}</Typography>
+    <Typography sx={mutedSx}>{timestamp ? returnFormatDate(timestamp) : '-'}</Typography>
+    <Typography sx={mutedSx}>{timestamp ? returnFormatTime(timestamp) : ''}</Typography>
+  </Box>
+)
+
+/**
+ * DetailReceiptOrderOutstanding
+ * -------------------------------------------------------------------------------------
+ * The outstanding-products document: company letterhead, origin/destination
+ * warehouses, the outstanding products, notes, and both signature blocks.
+ *
+ * While the surat is PENDING each row's Status and the Catatan field are
+ * editable in place — `setData` bubbles the edit up so `ToolbarReceiptOrderOutstanding`
+ * can send it on Save/Approve. Once APPROVED, both become read-only, mirroring
+ * the original behaviour. The layout mirrors the printed sheet, so the section
+ * order is deliberate — only the surface treatment follows the redesign (see
+ * DetailReceiveOrder.js for the sibling pattern).
+ */
 const DetailReceiptOrderOutstanding = ({ data, setData }) => {
-  // ** Hook
-  const theme = useTheme()
+  const dispatch = useDispatch()
 
-    const { rawCompany: companyInfo } = useSelector(state => state.companyConfig)
+  const { rawCompany: companyInfo } = useSelector(state => state.companyConfig)
+
+  useEffect(() => {
+    dispatch(fetchCompanyInfo())
+  }, [dispatch])
+
+  const isApproved = useMemo(() => data?.status === 'APPROVED', [data?.status])
 
   const handleStatusChange = (index, newStatus) => {
     const updatedProductOutstandings = data.productOutstandings.map((product, i) =>
       i === index ? { ...product, status: newStatus } : product
-    );
-    setData({ ...data, productOutstandings: updatedProductOutstandings });
-  };
+    )
+    setData({ ...data, productOutstandings: updatedProductOutstandings })
+  }
 
-  const isApproved = useMemo(() => {
-    return data?.status === "APPROVED"
-  }, [data?.status]);
+  if (!data) return null
 
-  if (data) {
-    return (
-      <Card>
-        <CardContent sx={{ p: [`${theme.spacing(4)} !important`, `${theme.spacing(6)} !important`] }}>
-          <Grid container sx={{ mt: 7 }}>
-            <Grid item sm={6} xs={12}>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <IconTjahayaBerkatAbadi />
-                  <Typography variant='h4' sx={{ ml: 2.5, fontWeight: 500, lineHeight: '18px' }}>
-                    {themeConfig.templateName}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.companyName}</Typography>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.address}</Typography>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.city}</Typography>
-                  <Typography sx={{ color: `'text.secondary'` }}>{companyInfo?.phoneNumber}</Typography>
-                </Box>
-              </Box>
-            </Grid>
-            <HeaderReceiptOrderOutstanding
-              data={data}
-            />
-          </Grid>
-        </CardContent>
-        <Divider />
-        <CardContent sx={{ p: [`${theme.spacing(6)} !important`, `${theme.spacing(10)} !important`] }}>
-          <Grid container>
-            <Grid item xs={6} sm={5} sx={{ mb: { lg: 0, xs: 4 } }}>
-              <Typography variant='h6' sx={{ mb: 2 }}>
-                Gudang Asal
+  return (
+    <Card
+      elevation={0}
+      sx={{ borderRadius: `${radii['3xl']}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
+    >
+      {/* Letterhead */}
+      <CardContent sx={{ p: 5 }}>
+        <Grid container spacing={4}>
+          <Grid item xs={12} sm={7}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+              <Logo width={28} />
+              <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground }}>
+                {themeConfig.templateName}
               </Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseOrigin?.name}</Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseOrigin?.location}</Typography>
-            </Grid>
-            <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
-              <div>
-                <Typography variant='h6' sx={{ mb: 2 }}>
-                  Gudang Tujuan
-                </Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseDestination?.name}</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseDestination?.location}</Typography>
-              </div>
-            </Grid>
+            </Box>
+            <Typography sx={mutedSx}>{companyInfo?.companyName}</Typography>
+            <Typography sx={mutedSx}>{companyInfo?.address}</Typography>
+            <Typography sx={mutedSx}>{companyInfo?.city}</Typography>
+            <Typography sx={{ ...mutedSx, fontWeight: 500, color: colors.foreground, mt: 1 }}>
+              {companyInfo?.phoneNumber}
+            </Typography>
           </Grid>
-        </CardContent>
-        <Divider />
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell width={"30%"} align='left'>
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography fontWeight={600} variant='body2'>Produk & Rak</Typography>
-                  </Box>
-                </TableCell>
-                <TableCell width={"16%"} align='left'>Kuantiti Asal</TableCell>
-                <TableCell width={"16%"} align='left'>Kuantiti Diterima</TableCell>
-                <TableCell width={"16%"} align='left'>Kuantiti Outstanding</TableCell>
-                <TableCell width={"16%"} align='left'>Status</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody
+          <Grid item xs={12} sm={5}>
+            <Box
               sx={{
-                '& .MuiTableCell-root': {
-                  py: `${theme.spacing(2.5)} !important`,
-                  fontSize: theme.typography.body1.fontSize
-                }
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: { xs: 'flex-start', sm: 'flex-end' },
+                gap: 1
               }}
             >
-              {data?.productOutstandings?.map((data, index) => {
-                return (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                        <Typography variant='body2'>{data?.productName} - {data?.unitName || ''}</Typography>
-                        <Typography variant='body2'>{data?.rackName}</Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell>{data?.quantityFrom}</TableCell>
-                    <TableCell>{data?.quantityReceived}</TableCell>
-                    <TableCell>{data?.quantityOutstanding}</TableCell>
-                    <TableCell>
-                      <Select
+              <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground }}>
+                Surat Outstanding
+              </Typography>
+              <Typography sx={mutedSx}>{`#${data.code}`}</Typography>
+              {data?.deliveryOrderReceiptCode && (
+                <Box sx={{ mt: 1, textAlign: { xs: 'left', sm: 'right' } }}>
+                  <Typography sx={mutedSx}>Penerimaan Surat Jalan</Typography>
+                  <LinkStyled href={`/receive-order/${data.deliveryOrderReceiptCode}`} target='_blank'>
+                    {`#${data.deliveryOrderReceiptCode}`}
+                  </LinkStyled>
+                </Box>
+              )}
+              <Box sx={{ mt: 1 }}>
+                <Status status={data?.status} />
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
+      </CardContent>
+
+      <Box sx={{ px: 5 }}>
+        <Divider sx={{ borderColor: colors.border }} />
+      </Box>
+
+      {/* Warehouses */}
+      <CardContent sx={{ px: 5, py: 4 }}>
+        <Grid container spacing={4}>
+          <Grid item xs={12} sm={6}>
+            <Typography sx={{ ...sectionLabelSx, mb: 2 }}>Gudang Asal</Typography>
+            <Typography sx={mutedSx}>{data?.warehouseOrigin?.name}</Typography>
+            <Typography sx={mutedSx}>{data?.warehouseOrigin?.location}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
+            <Typography sx={{ ...sectionLabelSx, mb: 2 }}>Gudang Tujuan</Typography>
+            <Typography sx={mutedSx}>{data?.warehouseDestination?.name}</Typography>
+            <Typography sx={mutedSx}>{data?.warehouseDestination?.location}</Typography>
+          </Grid>
+        </Grid>
+      </CardContent>
+
+      <Box sx={{ px: 5 }}>
+        <Divider sx={{ borderColor: colors.border }} />
+      </Box>
+
+      {/* Products */}
+      <Box sx={{ px: 5, py: 4 }}>
+        {/* The `MuiCard` theme override forces `.MuiTableContainer-root` inside a
+            Card to `border-radius: 0` with a two-class selector, which outranks
+            a plain `sx` rule on this element — hence the `&&` to match it. */}
+        <TableContainer
+          sx={{
+            '&&': { borderRadius: `${radii.lg}px` },
+            border: `1px solid ${colors.border}`,
+            backgroundColor: colors.background,
+            overflowX: 'auto'
+          }}
+        >
+          <Table size='small'>
+            <TableHead sx={{ backgroundColor: stone[100] }}>
+              <TableRow>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Produk & Rak</TableCell>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Kuantiti Asal</TableCell>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Kuantiti Diterima</TableCell>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Kuantiti Outstanding</TableCell>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Status</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data?.productOutstandings?.map((item, index) => (
+                <TableRow key={index} sx={{ '&:last-of-type td': { borderBottom: 0 } }}>
+                  <TableCell sx={{ borderColor: colors.border }}>
+                    <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
+                      {item?.productName} - {item?.unitName || ''}
+                    </Typography>
+                    <Typography sx={mutedSx}>{item?.rackName}</Typography>
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: colors.foreground, borderColor: colors.border }}>
+                    {item?.quantityFrom}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: colors.foreground, borderColor: colors.border }}>
+                    {item?.quantityReceived}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: colors.foreground, borderColor: colors.border }}>
+                    {item?.quantityOutstanding}
+                  </TableCell>
+                  <TableCell sx={{ borderColor: colors.border, minWidth: 160 }}>
+                    {isApproved ? (
+                      <Status status={item?.status === 'solved' ? 'APPROVED' : 'PENDING'} />
+                    ) : (
+                      <CustomTextField
+                        select
                         size='small'
-                        disabled={isApproved}
-                        value={data?.status}
-                        onChange={(e) => handleStatusChange(index, e.target.value)}
+                        fullWidth
+                        value={item?.status}
+                        onChange={e => handleStatusChange(index, e.target.value)}
                       >
-                        <MenuItem value="outstanding">Outstanding</MenuItem>
-                        <MenuItem value="solved">Solved</MenuItem>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
+                        <MenuItem value='outstanding'>Outstanding</MenuItem>
+                        <MenuItem value='solved'>Solved</MenuItem>
+                      </CustomTextField>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
-        {
-          isApproved ?
-            <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
-              <Grid container>
-                <Grid item xs={12} sm={9} lg={9} sx={{ order: { sm: 1, xs: 2 }, mb: 4 }}>
-                  <Box sx={{ mb: 2, display: 'flex-col', alignItems: 'center' }}>
-                    <Typography sx={{ color: 'text.secondary' }}>
-                      <Typography component='span' sx={{ mr: 1.5, fontWeight: 500, color: 'inherit' }}>
-                        CATATAN :
-                      </Typography>
-                    </Typography>
-                    <Typography sx={{ color: 'text.secondary', mt: 3 }}>{data?.notes}</Typography>
-                  </Box>
-                </Grid>
-              </Grid>
-            </CardContent>
-            :
-            <Grid item xs={12}>
-              <Card sx={{ boxShadow: 'none' }}>
-                <CardContent>
-                  <Grid item xs={12}>
-                    <CustomTextField
-                      label='Catatan'
-                      key={data?.id}
-                      multiline
-                      rows={3}
-                      fullWidth
-                      placeholder={'Catatan...'}
-                      value={data?.notes}
-                      onChange={e => {
-                        setData({ ...data, notes: e.target.value })
-                      }}
-                      type='text'
-                      sx={{ display: 'block' }}
-                    />
-                  </Grid>
-                </CardContent>
-              </Card>
-            </Grid>
-        }
+      </Box>
 
-        <Divider />
+      {/* Notes */}
+      <CardContent sx={{ px: 5, pt: 0, pb: 4 }}>
+        <Typography sx={{ ...sectionLabelSx, fontSize: '1rem', mb: 2 }}>Catatan:</Typography>
+        {isApproved ? (
+          <Typography sx={mutedSx}>{data?.notes || '-'}</Typography>
+        ) : (
+          <CustomTextField
+            fullWidth
+            multiline
+            rows={3}
+            placeholder='Catatan...'
+            value={data?.notes || ''}
+            onChange={e => setData({ ...data, notes: e.target.value })}
+          />
+        )}
+      </CardContent>
 
-        <CardContent sx={{ px: [6, 10] }}>
-          <Grid container>
-            <Grid item xs={12} sm={12} lg={12} sx={{ mb: 20, mx: 4 }}>
-              <Box
-                sx={{
-                  mb: 2,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  textAlign: 'center'
-                }}
-              >
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Dibuat Oleh</Typography>
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Diselesaikan Oleh</Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={12} lg={12} sx={{}}>
-              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box sx={{ mb: 2, ml: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center' }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.creatorBy?.name}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.createdAt)}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.createdAt)}</Typography>
-                </Box>
-                <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.approverBy?.name}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.approvedAt)}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.approvedAt)}</Typography>
-                </Box>
-              </Box>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card >
-    )
-  } else {
-    return null
-  }
+      <Box sx={{ px: 5 }}>
+        <Divider sx={{ borderColor: colors.border }} />
+      </Box>
+
+      {/* Signature */}
+      <CardContent sx={{ p: 5 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 4, flexWrap: 'wrap' }}>
+          <SignatureBlock label='Dibuat Oleh' name={data?.creatorBy?.name} timestamp={data?.createdAt} />
+          <SignatureBlock label='Diselesaikan Oleh' name={data?.approverBy?.name} timestamp={data?.approvedAt} />
+        </Box>
+      </CardContent>
+    </Card>
+  )
 }
 
 export default DetailReceiptOrderOutstanding

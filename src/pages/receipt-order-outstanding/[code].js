@@ -6,24 +6,25 @@ import Link from 'next/link'
 
 import Grid from '@mui/material/Grid'
 import Alert from '@mui/material/Alert'
+import CircularProgress from '@mui/material/CircularProgress'
 
-// ** Demo Components Imports
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
 import { fetchDetailReceiptOrderOutstanding } from 'src/store/apps/receipt-order-outstanding'
 import ToolbarReceiptOrderOutstanding from 'src/views/receipt-order-outstanding/TollbarReceiptOrderOutstanding'
 import DetailReceiptOrderOutstanding from 'src/views/receipt-order-outstanding/DetailReceiptOrderOutstanding'
-import { Box, IconButton, Typography } from '@mui/material'
-
-import Icon from 'src/@core/components/icon'
-import ButtonBack from 'src/views/common/ButtonBack'
 import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 
-export default function ReceiveOrder({ }) {
+// ** Design Tokens
+import { radii } from 'src/configs/designTokens'
+
+export default function ReceiptOrderOutstandingDetail() {
   const dispatch = useDispatch()
   const router = useRouter()
   const code = router.query.code
   const [data, setData] = useState({})
 
-  const { detail, errorDetail, loadingDetail } = useSelector(state => state.deliveryOrderReceiptOutstanding)
+  const { detail, loadingDetail, errorDetail } = useSelector(state => state.deliveryOrderReceiptOutstanding)
 
   useEffect(() => {
     if (code) {
@@ -38,36 +39,51 @@ export default function ReceiveOrder({ }) {
     }
   }, [detail])
 
-  const goBack = () => {
-    router.back()
+  if (loadingDetail) {
+    return (
+      <Grid container justifyContent='center' alignItems='center' sx={{ height: '50vh' }}>
+        <CircularProgress />
+      </Grid>
+    )
   }
 
   if (errorDetail) {
     return (
-      <Grid container spacing={6}>
+      <Grid container>
         <Grid item xs={12}>
-          <Alert severity='error'>
-            Surat Jalan Outstanding: {code} Tidak Ditemukan. Mohon cek list penerimaan surat jalan outstanding:{' '}
-            <Link href='/receipt-order-outstanding'>Penerimaan Surat Jalan Outstanding</Link>
+          <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
+            Surat Outstanding: {code} Tidak Ditemukan. Mohon cek list surat outstanding produk:{' '}
+            <Link href='/receipt-order-outstanding'>Surat Outstanding Produk</Link>
           </Alert>
         </Grid>
       </Grid>
     )
-  } else if (detail) {
-    return (
-      <>
-        <Grid container spacing={6}>
-          <ButtonBack paddingY={0} />
-          <Grid item xl={9} md={8} xs={12}>
+  }
+
+  if (!detail) return null
+
+  return (
+    <Grid container>
+      <Grid item xs={12}>
+        <PageHeader
+          title='Surat Outstanding Produk'
+          subtitle={detail?.code}
+          onBack={() => router.back()}
+          breadcrumbs={[
+            { label: 'Home' },
+            { label: 'Surat Outstanding Produk', href: '/receipt-order-outstanding' },
+            { label: detail?.code || 'Detail' }
+          ]}
+        />
+        <Grid container spacing={4}>
+          <Grid item xs={12} lg={8.5}>
             <DetailReceiptOrderOutstanding data={data} setData={setData} />
           </Grid>
-          <Grid item xl={3} md={4} xs={12} spacing={6}>
+          <Grid item xs={12} lg={3.5}>
             <ToolbarReceiptOrderOutstanding id={code} status={detail?.status} data={data} />
           </Grid>
         </Grid>
-      </>
-    )
-  } else {
-    return null
-  }
+      </Grid>
+    </Grid>
+  )
 }

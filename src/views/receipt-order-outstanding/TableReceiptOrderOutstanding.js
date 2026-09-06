@@ -1,264 +1,274 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
-import { getInitials } from 'src/@core/utils/get-initials'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
-import CustomAvatar from 'src/@core/components/mui/avatar'
+import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 
 import Icon from 'src/@core/components/icon'
-
-import { DataGrid } from '@mui/x-data-grid'
-
-import HandleSearh from 'src/helpers/handleSearch'
-import { returnFormatDate, returnFormatDateDay, returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
+import { returnFormatDateDay, returnFormatTime } from 'src/helpers/formatDate'
 import { fetchAllReceiptOrderOutstanding } from 'src/store/apps/receipt-order-outstanding'
-import TableHeaderReceiptOrderOutstanding from './TableHeaderReceiptOrderOutstanding'
 
-const renderClient = ({ name }) => {
-  const initial = getInitials(name ? name : '-').slice(0, 2)
-  const stateNum = 5
-  const states = ['success', 'error', 'warning', 'info', 'primary', 'secondary']
-  const color = states[stateNum]
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import FilterPanel from 'src/views/common/FilterPanel'
+
+// ** Design Tokens
+import { colors } from 'src/configs/designTokens'
+
+const monthOptions = [
+  { value: 1, label: 'January' },
+  { value: 2, label: 'February' },
+  { value: 3, label: 'March' },
+  { value: 4, label: 'April' },
+  { value: 5, label: 'May' },
+  { value: 6, label: 'June' },
+  { value: 7, label: 'July' },
+  { value: 8, label: 'August' },
+  { value: 9, label: 'September' },
+  { value: 10, label: 'October' },
+  { value: 11, label: 'November' },
+  { value: 12, label: 'December' }
+]
+
+const currentYear = new Date().getFullYear()
+const yearOptions = [currentYear, currentYear - 1, currentYear - 2].map(year => ({ value: year, label: `${year}` }))
+
+/** Date over the time it happened, so the column stays narrow. */
+const DateCell = ({ date, timestamp }) => {
+  if (!date) {
+    return (
+      <Typography variant='body2' sx={{ color: colors.mutedForeground }}>
+        -
+      </Typography>
+    )
+  }
 
   return (
-    <CustomAvatar skin='light' color={color} sx={{ mr: 3, fontSize: '.8rem', width: '1.875rem', height: '1.875rem' }}>
-      {initial}
-    </CustomAvatar>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {date}
+      </Typography>
+      <Typography noWrap sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
+        {returnFormatTime(timestamp)}
+      </Typography>
+    </Box>
   )
 }
 
-const RowOptions = ({ handleView }) => {
+/** Person's name over their role; the column renders an object, not a string. */
+const PersonCell = ({ person }) => {
+  if (!person?.name) {
+    return (
+      <Typography variant='body2' sx={{ color: colors.mutedForeground }}>
+        -
+      </Typography>
+    )
+  }
+
   return (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton >
-          <Icon icon='tabler:eye' />
-        </IconButton>
-      </Box>
-    </>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Typography noWrap variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+        {person.name}
+      </Typography>
+      {person.roleName && (
+        <Typography noWrap sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
+          {person.roleName}
+        </Typography>
+      )}
+    </Box>
   )
 }
 
-export default function TableReceiptOrderOutstanding({ timeFilter }) {
+const RowOptions = ({ handleView }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+    <Tooltip title='Lihat Detail'>
+      <IconButton onClick={handleView} size='small'>
+        <Icon icon='tabler:eye' fontSize='1.125rem' />
+      </IconButton>
+    </Tooltip>
+  </Box>
+)
+
+export default function TableReceiptOrderOutstanding() {
   const dispatch = useDispatch()
   const router = useRouter()
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
+  const [filterAnchor, setFilterAnchor] = useState(null)
+
+  // ** Month/year used to live in a `TimeFilter` beside the page title; it is a
+  // filter like any other now, so it moved into the shared panel.
+  const [dataFilter, setDataFilter] = useState({ month: '', year: currentYear, status: '' })
 
   const { data, loading } = useSelector(state => state.deliveryOrderReceiptOutstanding)
 
-  const handleSearch = searchValue => {
-    setSearchText(searchValue)
-    HandleSearh({
-      data,
-      keys: ['code'],
-      searchValue,
-      setData: setFilteredData,
-      timeFilter: timeFilter
-    })
+  const filterFields = useMemo(
+    () => [
+      { name: 'month', label: 'Bulan', type: 'select', options: monthOptions, placeholder: 'Semua Bulan' },
+      { name: 'year', label: 'Tahun', type: 'select', options: yearOptions, placeholder: 'Semua Tahun' },
+      {
+        name: 'status',
+        label: 'Status',
+        type: 'select',
+        options: [
+          { value: 'PENDING', label: 'Pending' },
+          { value: 'APPROVED', label: 'Approved' }
+        ],
+        placeholder: 'Semua Status'
+      }
+    ],
+    []
+  )
+
+  const activeFilterCount = Object.entries(dataFilter).filter(([, value]) => value !== '' && value != null).length
+
+  // ** Filtering is client-side: the list endpoint returns every record, so the
+  // search text and the filter values are applied together over `data`.
+  const applyFilters = (source, filters, search) => {
+    let result = source || []
+
+    if (filters.year) {
+      result = result.filter(item => new Date(item.createdAt).getFullYear() === parseInt(filters.year))
+    }
+    if (filters.month) {
+      result = result.filter(item => new Date(item.createdAt).getMonth() === parseInt(filters.month) - 1)
+    }
+    if (filters.status) {
+      result = result.filter(item => item.status === filters.status)
+    }
+    if (search) {
+      const term = search.toLowerCase()
+      result = result.filter(
+        item =>
+          item.code?.toLowerCase().includes(term) || item.deliveryOrderReceiptCode?.toLowerCase().includes(term)
+      )
+    }
+
+    return result
   }
 
-  const handleRowClick = params => {
-    const code = params.row.code
-    router.push(`/receipt-order-outstanding/${code}`)
+  const handleSearch = searchValue => {
+    setSearchText(searchValue)
+    setFilteredData(applyFilters(data, dataFilter, searchValue))
   }
+
+  const handleView = row => router.push(`/receipt-order-outstanding/${row.code}`)
 
   useEffect(() => {
     dispatch(fetchAllReceiptOrderOutstanding())
   }, [dispatch])
 
   useEffect(() => {
-    if (timeFilter && timeFilter.year) {
-      const filtered = data.filter(item => {
-        const itemDate = new Date(item.createdAt)
-        const itemYear = itemDate.getFullYear() // Get the year from createdAt
-        const itemMonth = itemDate.getMonth() // Get the month from createdAt (0-based index)
-
-        // Compare it with timeFilter.year and timeFilter.month (if provided)
-        const matchesYear = itemYear === parseInt(timeFilter.year)
-        const matchesMonth = timeFilter.month ? itemMonth === parseInt(timeFilter.month - 1) : true
-
-        return matchesYear && matchesMonth
-      })
-      setFilteredData(filtered)
-    } else {
-      setFilteredData(data) // If no year filter, show all data
-    }
-  }, [data, timeFilter])
+    setFilteredData(applyFilters(data, dataFilter, searchText))
+    // eslint-disable-next-line
+  }, [data, dataFilter, searchText])
 
   return (
-    <Card>
-      <DataGrid
-        autoHeight
+    <>
+      <FilterPanel
+        open={Boolean(filterAnchor)}
+        anchorEl={filterAnchor}
+        onClose={() => setFilterAnchor(null)}
+        fields={filterFields}
+        value={dataFilter}
+        onApply={next => setDataFilter(next)}
+        onReset={() => setDataFilter({ month: '', year: '', status: '' })}
+      />
+
+      <DataTable
+        itemLabel='surat outstanding'
         loading={loading}
+        getRowId={row => row.code}
+        onRowClick={params => handleView(params.row)}
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Cari kode outstanding atau penerimaan'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            onOpenFilters={setFilterAnchor}
+            activeFilterCount={activeFilterCount}
+          />
+        }
         columns={[
           {
-            flex: 0.15,
-            minWidth: 100,
+            flex: 0.16,
+            minWidth: 150,
             field: 'code',
-            headerName: 'Code Outstanding',
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.code}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.15,
-            minWidth: 100,
-            field: 'deliveryOrderReceiptCode',
-            headerName: 'Kode penerimaan surat jalan',
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.deliveryOrderReceiptCode}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.2,
-            minWidth: 120,
-            field: 'createdAt',
-            headerName: 'Tanggal Dibuat',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary', textAlign: 'center' }}>
-                    {returnFormatDateDay(params.row.createdAt)}
-                  </Typography>
-                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.createdAt)}
-                  </Typography>
-                </Box>
-              )
-            }
-          },
-          // {
-          //   flex: 0.15,
-          //   minWidth: 120,
-          //   field: 'receivedAt',
-          //   headerName: 'Tanggal Diterima',
-          //   renderCell: params => {
-          //     return (
-          //       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          //         <Typography variant='body2' sx={{ color: 'text.primary' }}>
-          //           {params.row.receivedAt}
-          //         </Typography>
-          //         <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-          //           {returnFormatTime(params.row.dateReceived)}
-          //         </Typography>
-          //       </Box>
-          //     )
-          //   }
-          // },
-          {
-            flex: 0.15,
-            minWidth: 120,
-            field: 'createdBy',
-            headerName: 'Dibuat Oleh',
-            renderCell: params => {
-              const { row } = params
-              return (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {renderClient({ name: row.createdBy.name })}
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                      {row.createdBy.name}
-                    </Typography>
-                    <Typography noWrap variant='caption'>
-                      {row.createdBy.roleName}
-                    </Typography>
-                  </Box>
-                </Box>
-              )
-            }
+            headerName: 'KODE OUTSTANDING',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+                {params.row.code}
+              </Typography>
+            )
           },
           {
             flex: 0.18,
-            minWidth: 120,
+            minWidth: 160,
+            field: 'deliveryOrderReceiptCode',
+            headerName: 'KODE PENERIMAAN',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.deliveryOrderReceiptCode}
+              </Typography>
+            )
+          },
+          {
+            flex: 0.16,
+            minWidth: 140,
+            field: 'createdAt',
+            headerName: 'TANGGAL DIBUAT',
+            renderCell: params => <DateCell date={returnFormatDateDay(params.row.createdAt)} timestamp={params.row.createdAt} />
+          },
+          {
+            flex: 0.16,
+            minWidth: 150,
+            field: 'createdBy',
+            headerName: 'DIBUAT OLEH',
+            sortable: false,
+            renderCell: params => <PersonCell person={params.row.createdBy} />
+          },
+          {
+            flex: 0.16,
+            minWidth: 150,
             field: 'approvedBy',
-            headerName: 'Diselesaikan Oleh',
-            renderCell: params => {
-              const { row } = params
-              return (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {renderClient({ name: row?.approvedBy?.name })}
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                      {row?.approvedBy?.name || '-'}
-                    </Typography>
-                    <Typography noWrap variant='caption'>
-                      {row?.approvedBy?.roleName || '-'}
-                    </Typography>
-                  </Box>
-                </Box>
-              )
-            }
+            headerName: 'DISELESAIKAN OLEH',
+            sortable: false,
+            renderCell: params => <PersonCell person={params.row.approvedBy} />
           },
           {
-            flex: 0.15,
-            minWidth: 120,
+            flex: 0.1,
+            minWidth: 110,
             field: 'status',
-            headerName: 'Status',
-            renderCell: params => {
-              const { row } = params
-              return <Status status={row.status} />
-            }
+            headerName: 'STATUS',
+            renderCell: params => <Status status={params.row.status} />
           },
           {
-            flex: 0.15,
-            minWidth: 100,
+            flex: 0.08,
+            minWidth: 90,
             sortable: false,
             field: 'actions',
-            headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions handleView={() => handleRowClick(row)} />
+            headerName: 'ACTION',
+            renderCell: ({ row }) => (
+              <Box onClick={event => event.stopPropagation()} sx={{ width: '100%' }}>
+                <RowOptions handleView={() => handleView(row)} />
+              </Box>
+            )
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
-        onCellClick={handleRowClick}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderReceiptOrderOutstanding }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          },
-          '& .MuiDataGrid-cell': {
-            cursor: 'pointer'
-          },
-          '& .MuiDataGrid-columnHeaderTitle': {
-            whiteSpace: 'normal',
-            lineHeight: 'normal'
-          },
-          '& .MuiDataGrid-columnHeader': {
-            height: 'unset !important'
-          },
-          '& .MuiDataGrid-columnHeaders': {
-            maxHeight: '168px !important'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari penerimaan surat jalan',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value)
-            // handleAdd: handleAdd
-          }
-        }}
+        sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
       />
-    </Card>
+    </>
   )
 }

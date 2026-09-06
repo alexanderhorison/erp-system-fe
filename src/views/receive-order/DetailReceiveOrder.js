@@ -202,7 +202,7 @@ const DetailReceiveOrder = ({ data }) => {
 
       {/* Signature */}
       <CardContent sx={{ p: 5 }}>
-        <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 4, flexWrap: 'wrap' }}>
           <SignatureBlock label='Dibuat Oleh' name={data?.creatorBy?.name} timestamp={data?.createdAt} />
           <SignatureBlock label='Diterima Oleh' name={data?.receiverBy?.name} timestamp={data?.receivedAt} />
         </Box>
