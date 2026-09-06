@@ -6,14 +6,14 @@ import Link from 'next/link'
 
 import Grid from '@mui/material/Grid'
 import Alert from '@mui/material/Alert'
-
-// ** Demo Components Imports
-import { CircularProgress, Typography } from '@mui/material'
+import CircularProgress from '@mui/material/CircularProgress'
 import ReceiveDelivery from 'src/views/receive-order/ReceiveDelivery'
-import { Box } from '@mui/system'
 import { fetchDetailDeliveryOrder } from 'src/store/apps/delivery-order'
 
-export default function AddDetailReceiveOrder({}) {
+// ** Design Tokens
+import { radii } from 'src/configs/designTokens'
+
+export default function AddDetailReceiveOrder() {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id
@@ -32,46 +32,38 @@ export default function AddDetailReceiveOrder({}) {
 
   if (loadingDetailDeliveryOrder) {
     return (
-      <Box sx={{ mt: 11, width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-        <CircularProgress sx={{ mb: 4 }} />
-        <Typography>Loading...</Typography>
-      </Box>
+      <Grid container justifyContent='center' alignItems='center' sx={{ height: '50vh' }}>
+        <CircularProgress />
+      </Grid>
     )
-  } else if (errorDetailDeliveryOrder) {
+  }
+
+  if (errorDetailDeliveryOrder) {
     return (
-      <Grid container spacing={6}>
+      <Grid container>
         <Grid item xs={12}>
-          <Alert severity='error'>
+          <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
             Surat Jalan: {id} Tidak Ditemukan. Mohon cek list penerimaan surat jalan:{' '}
-            <Link href='/delivery-order-receive/add'>List Surat Jalan</Link>
+            <Link href='/receive-order/add'>List Surat Jalan</Link>
           </Alert>
         </Grid>
       </Grid>
     )
-  } else if (Object.keys(data).length > 0) {
+  }
+
+  if (!data || Object.keys(data).length === 0 || !data.code) {
     return (
-      <Grid container spacing={6}>
-        <Grid item xs={12}>
-          <Typography paddingY={3} fontSize={20}>
-            Form Penerimaan surat jalan
-          </Typography>
-          <Typography marginBottom={3} fontSize={15}>
-            Kode Surat: {id}
-          </Typography>
-          {data.code ? (
-            <ReceiveDelivery data={data} />
-          ) : (
-            <>
-              <Box sx={{ mt: 11, width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                <CircularProgress sx={{ mb: 4 }} />
-                <Typography>Loading...</Typography>
-              </Box>
-            </>
-          )}
-        </Grid>
+      <Grid container justifyContent='center' alignItems='center' sx={{ height: '50vh' }}>
+        <CircularProgress />
       </Grid>
     )
-  } else {
-    return null
   }
+
+  return (
+    <Grid container>
+      <Grid item xs={12}>
+        <ReceiveDelivery data={data} />
+      </Grid>
+    </Grid>
+  )
 }

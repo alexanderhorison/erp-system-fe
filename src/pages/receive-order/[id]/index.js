@@ -6,20 +6,28 @@ import Link from 'next/link'
 
 import Grid from '@mui/material/Grid'
 import Alert from '@mui/material/Alert'
+import CircularProgress from '@mui/material/CircularProgress'
 
-// ** Demo Components Imports
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
 import ToolbarReceive from 'src/views/receive-order/ToolbarReceive'
 import { fetchDetailReceiveOrder } from 'src/store/apps/receive-order'
 import DetailReceiveOrder from 'src/views/receive-order/DetailReceiveOrder'
-import ButtonBack from 'src/views/common/ButtonBack'
 import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 
-export default function ReceiveOrder({ }) {
+// ** Design Tokens
+import { radii } from 'src/configs/designTokens'
+
+export default function ReceiveOrder() {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id
 
-  const { detailReceiveOrder: data, errorDetailReceiveOrder } = useSelector(state => state.receiveOrder)
+  const {
+    detailReceiveOrder: data,
+    loadingDetailReceiveOrder,
+    errorDetailReceiveOrder
+  } = useSelector(state => state.receiveOrder)
 
   useEffect(() => {
     if (id) {
@@ -28,32 +36,51 @@ export default function ReceiveOrder({ }) {
     }
   }, [id, dispatch])
 
+  if (loadingDetailReceiveOrder) {
+    return (
+      <Grid container justifyContent='center' alignItems='center' sx={{ height: '50vh' }}>
+        <CircularProgress />
+      </Grid>
+    )
+  }
+
   if (errorDetailReceiveOrder) {
     return (
-      <Grid container spacing={6}>
+      <Grid container>
         <Grid item xs={12}>
-          <Alert severity='error'>
+          <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
             Surat Jalan: {id} Tidak Ditemukan. Mohon cek list penerimaan surat jalan:{' '}
-            <Link href='/delivery-order-receive'>Penerimaan Surat Jalan</Link>
+            <Link href='/receive-order'>Penerimaan Surat Jalan</Link>
           </Alert>
         </Grid>
       </Grid>
     )
-  } else if (data) {
-    return (
-      <>
-        <Grid container spacing={6}>
-          <ButtonBack paddingY={0} />
-          <Grid item xl={9} md={8} xs={12}>
+  }
+
+  if (!data) return null
+
+  return (
+    <Grid container>
+      <Grid item xs={12}>
+        <PageHeader
+          title='Penerimaan Surat Jalan'
+          subtitle={data?.codeReceipt}
+          onBack={() => router.back()}
+          breadcrumbs={[
+            { label: 'Home' },
+            { label: 'Penerimaan Surat Jalan', href: '/receive-order' },
+            { label: data?.codeReceipt || 'Detail' }
+          ]}
+        />
+        <Grid container spacing={4}>
+          <Grid item xs={12} lg={8.5}>
             <DetailReceiveOrder data={data} />
           </Grid>
-          <Grid item xl={3} md={4} xs={12}>
-            <ToolbarReceive id={id} status={data?.status} />
+          <Grid item xs={12} lg={3.5}>
+            <ToolbarReceive id={id} />
           </Grid>
         </Grid>
-      </>
-    )
-  } else {
-    return null
-  }
+      </Grid>
+    </Grid>
+  )
 }

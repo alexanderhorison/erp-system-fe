@@ -1,199 +1,202 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
-import { getInitials } from 'src/@core/utils/get-initials'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
-import CustomAvatar from 'src/@core/components/mui/avatar'
+import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 
 import Icon from 'src/@core/components/icon'
-
-import { DataGrid } from '@mui/x-data-grid'
-
-import TableHeaderChooseReceiveOrder from './TableHeaderChooseReceiveOrder'
-import { fetchAllDeliveryOrder } from 'src/store/apps/delivery-order'
-import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
+import { fetchAllDeliveryOrder } from 'src/store/apps/delivery-order'
 
-const renderClient = params => {
-  const { row } = params
-  const name = getInitials(row.createdBy.name ? row.createdBy.name : '-').slice(0, 2)
-  const stateNum = 5
-  const states = ['success', 'error', 'warning', 'info', 'primary', 'secondary']
-  const color = states[stateNum]
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+
+// ** Design Tokens
+import { colors } from 'src/configs/designTokens'
+
+/** Date over the time it happened, so the column stays narrow. */
+const DateCell = ({ date, timestamp }) => {
+  if (!date) {
+    return (
+      <Typography variant='body2' sx={{ color: colors.mutedForeground }}>
+        -
+      </Typography>
+    )
+  }
 
   return (
-    <CustomAvatar skin='light' color={color} sx={{ mr: 3, fontSize: '.8rem', width: '1.875rem', height: '1.875rem' }}>
-      {name}
-    </CustomAvatar>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {date}
+      </Typography>
+      <Typography noWrap sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
+        {returnFormatTime(timestamp)}
+      </Typography>
+    </Box>
   )
 }
 
-const RowOptions = ({ handleView }) => {
+/** Person's name over their role; the column renders an object, not a string. */
+const PersonCell = ({ person }) => {
+  if (!person?.name) {
+    return (
+      <Typography variant='body2' sx={{ color: colors.mutedForeground }}>
+        -
+      </Typography>
+    )
+  }
+
   return (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={() => handleView()}>
-          <Icon icon='tabler:eye' />
-        </IconButton>
-      </Box>
-    </>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Typography noWrap variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+        {person.name}
+      </Typography>
+      {person.roleName && (
+        <Typography noWrap sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
+          {person.roleName}
+        </Typography>
+      )}
+    </Box>
   )
 }
 
-export default function TableAllChooseReceiveOrder({}) {
+const RowOptions = ({ handleView }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+    <Tooltip title='Pilih'>
+      <IconButton onClick={handleView} size='small'>
+        <Icon icon='tabler:arrow-right' fontSize='1.125rem' />
+      </IconButton>
+    </Tooltip>
+  </Box>
+)
+
+export default function TableAllChooseReceiveOrder() {
   const dispatch = useDispatch()
   const router = useRouter()
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
 
   const { dataListDeliveryOrder: data, loadingDataListDeliveryOrder } = useSelector(state => state.deliveryOrder)
 
+  const applyFilters = (source, search) => {
+    let result = source || []
+
+    if (search) {
+      const term = search.toLowerCase()
+      result = result.filter(
+        item =>
+          item.code?.toLowerCase().includes(term) ||
+          item.warehouseOrigin?.toLowerCase().includes(term) ||
+          item.warehouseDestination?.toLowerCase().includes(term)
+      )
+    }
+
+    return result
+  }
+
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({
-      data,
-      keys: ['code', 'warehouseDestination', 'warehouseOrigin'],
-      searchValue,
-      setData: setFilteredData
-    })
+    setFilteredData(applyFilters(data, searchValue))
   }
 
-  const handleRowClick = params => {
-    const code = params.code
-    router.push(`/receive-order/add/${code}`)
-  }
+  const handleView = row => router.push(`/receive-order/add/${row.code}`)
 
   useEffect(() => {
-    dispatch(
-      fetchAllDeliveryOrder({
-        receiveOrder: true
-      })
-    )
+    dispatch(fetchAllDeliveryOrder({ receiveOrder: true }))
   }, [dispatch])
 
   useEffect(() => {
-    setFilteredData(data)
-  }, [data])
+    setFilteredData(applyFilters(data, searchText))
+    // eslint-disable-next-line
+  }, [data, searchText])
 
   return (
-    <Card>
-      <DataGrid
-        autoHeight
-        columns={[
-          {
-            flex: 0.1,
-            minWidth: 100,
-            field: 'code',
-            headerName: 'Code',
-            cellClassName: {
-              cursor: 'pointer'
-            },
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.code}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.15,
-            minWidth: 120,
-            field: 'createdAt',
-            headerName: 'Tanggal Dibuat',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.dateCreated}
-                  </Typography>
-                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.createdAt)}
-                  </Typography>
-                </Box>
-              )
-            }
-          },
-          {
-            flex: 0.16,
-            minWidth: 120,
-            field: 'createdBy',
-            headerName: 'Dibuat Oleh',
-            renderCell: params => {
-              const { row } = params
-              return (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {renderClient(params)}
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                      {row.createdBy.name}
-                    </Typography>
-                    <Typography noWrap variant='caption'>
-                      {row.createdBy.roleName}
-                    </Typography>
-                  </Box>
-                </Box>
-              )
-            }
-          },
-          {
-            flex: 0.16,
-            minWidth: 120,
-            field: 'warehouseOrigin',
-            headerName: 'Gudang Sumber',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.warehouseOrigin}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.16,
-            minWidth: 120,
-            field: 'warehouseDestination',
-            headerName: 'Gudang Tujuan',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.warehouseDestination}
-                </Typography>
-              )
-            }
-          }
-        ]}
-        loading={loadingDataListDeliveryOrder}
-        pageSizeOptions={[5, 10, 25, 50]}
-        paginationModel={paginationModel}
-        onCellClick={params => handleRowClick(params.row)}
-        slots={{ toolbar: TableHeaderChooseReceiveOrder }}
-        onPaginationModelChange={setPaginationModel}
-        rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          },
-          '& .MuiDataGrid-cell': {
-            cursor: 'pointer'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari surat jalan',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value)
-          }
-        }}
-      />
-    </Card>
+    <DataTable
+      itemLabel='surat jalan'
+      loading={loadingDataListDeliveryOrder}
+      getRowId={row => row.code}
+      onRowClick={params => handleView(params.row)}
+      toolbar={
+        <TableToolbar
+          value={searchText}
+          placeholder='Cari kode atau gudang'
+          onChange={event => handleSearch(event.target.value)}
+          clearSearch={() => handleSearch('')}
+        />
+      }
+      columns={[
+        {
+          flex: 0.16,
+          minWidth: 130,
+          field: 'code',
+          headerName: 'KODE',
+          renderCell: params => (
+            <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+              {params.row.code}
+            </Typography>
+          )
+        },
+        {
+          flex: 0.18,
+          minWidth: 140,
+          field: 'createdAt',
+          headerName: 'TANGGAL DIBUAT',
+          renderCell: params => <DateCell date={params.row.dateCreated} timestamp={params.row.createdAt} />
+        },
+        {
+          flex: 0.2,
+          minWidth: 150,
+          field: 'createdBy',
+          headerName: 'DIBUAT OLEH',
+          sortable: false,
+          renderCell: params => <PersonCell person={params.row.createdBy} />
+        },
+        {
+          flex: 0.2,
+          minWidth: 140,
+          field: 'warehouseOrigin',
+          headerName: 'GUDANG SUMBER',
+          renderCell: params => (
+            <Typography variant='body2' sx={{ color: 'text.primary' }}>
+              {params.row.warehouseOrigin}
+            </Typography>
+          )
+        },
+        {
+          flex: 0.16,
+          minWidth: 140,
+          field: 'warehouseDestination',
+          headerName: 'GUDANG TUJUAN',
+          renderCell: params => (
+            <Typography variant='body2' sx={{ color: 'text.primary' }}>
+              {params.row.warehouseDestination}
+            </Typography>
+          )
+        },
+        {
+          flex: 0.1,
+          minWidth: 90,
+          sortable: false,
+          field: 'actions',
+          headerName: 'ACTION',
+          renderCell: ({ row }) => (
+            <Box onClick={event => event.stopPropagation()} sx={{ width: '100%' }}>
+              <RowOptions handleView={() => handleView(row)} />
+            </Box>
+          )
+        }
+      ]}
+      pageSizeOptions={[25, 50, 100]}
+      paginationModel={paginationModel}
+      onPaginationModelChange={setPaginationModel}
+      rows={filteredData}
+      sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
+    />
   )
 }

@@ -1,15 +1,5 @@
-import { Grid, Typography } from '@mui/material'
 import AddInvoice from 'src/views/delivery-order/AddInvoice'
 
 export default function HomeAddInvoice() {
-  return (
-    <Grid container spacing={6}>
-      <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          Pembuatan surat jalan
-        </Typography>
-        <AddInvoice />
-      </Grid>
-    </Grid>
-  )
+  return <AddInvoice />
 }

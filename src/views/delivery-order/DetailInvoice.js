@@ -1,262 +1,211 @@
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
 // ** MUI Imports
-import Grid from '@mui/material/Grid'
+import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
+import Grid from '@mui/material/Grid'
 import Table from '@mui/material/Table'
 import Divider from '@mui/material/Divider'
 import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
 import CardContent from '@mui/material/CardContent'
-import { styled, useTheme } from '@mui/material/styles'
 import TableContainer from '@mui/material/TableContainer'
-import TableCell from '@mui/material/TableCell'
 
-// ** Configs
-import themeConfig from 'src/configs/themeConfig'
-import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
-import { transformColor } from 'src/helpers/transformColor'
-import CustomChip from 'src/@core/components/mui/chip'
-import { LinkStyled } from 'src/pages/components/swiper'
-import { useSelector } from 'react-redux'
+// ** Configs & Helpers
 import Logo from 'src/icons/logo'
+import themeConfig from 'src/configs/themeConfig'
+import { LinkStyled } from 'src/pages/components/swiper'
+import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
+import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 
-const MUITableCell = styled(TableCell)(({ theme }) => ({
-  borderBottom: 0,
-  paddingLeft: '0 !important',
-  paddingRight: '0 !important',
-  '&:not(:last-child)': {
-    paddingRight: `${theme.spacing(2)} !important`
-  }
-}))
+// ** Design Tokens
+import { colors, radii, shadows, stone } from 'src/configs/designTokens'
 
-const CalcWrapper = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  '&:not(:last-of-type)': {
-    marginBottom: theme.spacing(2)
-  }
-}))
+const sectionLabelSx = {
+  fontSize: '0.875rem',
+  fontWeight: 600,
+  lineHeight: '20px',
+  color: colors.foreground
+}
 
+const mutedSx = {
+  fontSize: '0.8125rem',
+  lineHeight: '20px',
+  color: colors.mutedForeground
+}
+
+/**
+ * Name over a date and time. The label sits above a deliberate gap that stands
+ * in for the handwritten signature on the printed sheet.
+ */
+const SignatureBlock = ({ label, name, timestamp }) => (
+  <Box sx={{ textAlign: 'center', flex: 1, maxWidth: 240 }}>
+    <Typography sx={{ ...sectionLabelSx, fontSize: '1rem', mb: 12 }}>{label}</Typography>
+    <Typography sx={mutedSx}>{name || '-'}</Typography>
+    <Typography sx={mutedSx}>{timestamp ? returnFormatDate(timestamp) : '-'}</Typography>
+    <Typography sx={mutedSx}>{timestamp ? returnFormatTime(timestamp) : ''}</Typography>
+  </Box>
+)
+
+/**
+ * DetailInvoice
+ * -------------------------------------------------------------------------------------
+ * The delivery-order (Surat Jalan) document: company letterhead, origin and
+ * destination warehouses, the delivered products, notes, and the creator's
+ * signature block.
+ *
+ * The layout mirrors the printed sheet, so the section order is deliberate —
+ * only the surface treatment (borders, spacing, type scale) follows the
+ * redesign (see ViewDetailProductRequest.js for the sibling pattern).
+ */
 const DetailInvoice = ({ data }) => {
-  // ** Hook
-  const theme = useTheme()
+  const dispatch = useDispatch()
+
   const { rawCompany: companyInfo } = useSelector(state => state.companyConfig)
 
-  if (data) {
-    return (
-      <Card>
-        <CardContent sx={{ p: [`${theme.spacing(4)} !important`, `${theme.spacing(6)} !important`] }}>
-          <Grid container sx={{ mt: 7 }}>
-            <Grid item sm={6} xs={12}>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Logo width={30} />
-                  <Typography variant='h4' sx={{ ml: 2.5, fontWeight: 500, lineHeight: '18px' }}>
-                    {themeConfig.templateName}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex-column', alignItems: 'center', mt: 5 }}>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.companyName}</Typography>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.address}</Typography>
-                  <Typography sx={{ mb: 2, color: 'text.secondary' }}>{companyInfo?.city}</Typography>
-                  <Typography sx={{ color: `'text.secondary'` }}>{companyInfo?.phoneNumber}</Typography>
-                </Box>
-              </Box>
-            </Grid>
-            <Grid item sm={6} xs={12}>
-              <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
-                <Table sx={{ maxWidth: '15rem' }}>
-                  <TableBody sx={{ '& .MuiTableCell-root': { py: `${theme.spacing(1.5)} !important` } }}>
-                    <TableRow>
-                      <MUITableCell>
-                        <Typography variant='h6'>Surat Jalan</Typography>
-                        <Typography variant='h6'>{`#${data.code}`}</Typography>
-                      </MUITableCell>
-                    </TableRow>
-                    <TableRow>
-                      <MUITableCell>
-                        {data?.productRequestCode && (
-                          <>
-                            <Typography variant='h6' sx={{ mt: 1 }}>
-                              Produk Request
-                            </Typography>
-                            <Typography variant='h6'>
-                              <LinkStyled href={`/product-request/${data.productRequestCode}`} target='_blank'>
-                                {`#${data.productRequestCode}`}
-                              </LinkStyled>
-                            </Typography>
-                          </>
-                        )
-                        }
-                      </MUITableCell>
-                    </TableRow>
-                    {/* <TableRow>
-                      <MUITableCell>
-                        <Typography sx={{ color: 'text.secondary' }}>Status</Typography>
-                      </MUITableCell>
-                      <MUITableCell>
-                        <CustomChip
-                          rounded
-                          label={`${data?.status}`}
-                          skin='light'
-                          color={`${transformColor(data?.status)}`}
-                        />
-                      </MUITableCell>
-                    </TableRow> */}
-                  </TableBody>
-                </Table>
-              </Box>
-            </Grid>
-          </Grid>
-        </CardContent>
-        <Divider />
-        <CardContent sx={{ p: [`${theme.spacing(6)} !important`, `${theme.spacing(10)} !important`] }}>
-          <Grid container>
-            <Grid item xs={6} sm={5} sx={{ mb: { lg: 0, xs: 4 } }}>
-              <Typography variant='h6' sx={{ mb: 2 }}>
-                Gudang Asal
+  useEffect(() => {
+    dispatch(fetchCompanyInfo())
+  }, [dispatch])
+
+  if (!data) return null
+
+  return (
+    <Card
+      elevation={0}
+      sx={{ borderRadius: `${radii['3xl']}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
+    >
+      {/* Letterhead */}
+      <CardContent sx={{ p: 5 }}>
+        <Grid container spacing={4}>
+          <Grid item xs={12} sm={7}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+              <Logo width={28} />
+              <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground }}>
+                {themeConfig.templateName}
               </Typography>
-              {/* <Box sx={{ display: 'flex', alignContent: 'flex-start' }}> */}
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseOrigin?.name}</Typography>
-              <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseOrigin?.location}</Typography>
-
-              {/* </Box> */}
-              {/* <Box sx={{ display: 'flex', alignContent: 'flex-start' }}>
-                <Typography sx={{ mb: 1.5, color: 'text.secondary' }}>Alamat Gudang:</Typography>
-                <Typography sx={{ color: 'text.secondary', ml: 2 }}>{data?.warehouseOrigin?.location}</Typography>
-              </Box> */}
-            </Grid>
-            <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: ['flex-start', 'flex-end'] }}>
-              <div>
-                <Typography variant='h6' sx={{ mb: 2 }}>
-                  Gudang Tujuan
-                </Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseDestination?.name}</Typography>
-                <Typography sx={{ color: 'text.secondary' }}>{data?.warehouseDestination?.location}</Typography>
-                {/* <Box sx={{ display: 'flex', alignContent: 'flex-start' }}>
-                  <Typography sx={{ color: 'text.secondary' }}>Nama Gudang:</Typography> */}
-                {/* </Box> */}
-                {/* <Box sx={{ display: 'flex', alignContent: 'flex-start' }}>
-                  <Typography sx={{ mb: 1.5, color: 'text.secondary' }}>Alamat Gudang:</Typography>
-                  <Typography sx={{ color: 'text.secondary', ml: 2 }}>
-                    {data?.warehouseDestination?.location}
-                  </Typography>
-                </Box> */}
-              </div>
-            </Grid>
+            </Box>
+            <Typography sx={mutedSx}>{companyInfo?.companyName}</Typography>
+            <Typography sx={mutedSx}>{companyInfo?.address}</Typography>
+            <Typography sx={mutedSx}>{companyInfo?.city}</Typography>
+            <Typography sx={{ ...mutedSx, fontWeight: 500, color: colors.foreground, mt: 1 }}>
+              {companyInfo?.phoneNumber}
+            </Typography>
           </Grid>
-        </CardContent>
-
-        <Divider />
-
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell align='left'>Produk</TableCell>
-                <TableCell align='left'>Rak</TableCell>
-                <TableCell align='left'>Unit</TableCell>
-                <TableCell align='left'>Total</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody
+          <Grid item xs={12} sm={5}>
+            <Box
               sx={{
-                '& .MuiTableCell-root': {
-                  py: `${theme.spacing(2.5)} !important`,
-                  fontSize: theme.typography.body1.fontSize
-                }
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: { xs: 'flex-start', sm: 'flex-end' },
+                gap: 1
               }}
             >
-              {data?.listProducts?.map((data, index) => {
-                return (
-                  <TableRow key={index}>
-                    <TableCell>{data?.productName}</TableCell>
-                    <TableCell>{data?.rackName}</TableCell>
-                    <TableCell>{data?.unitName || ''}</TableCell>
-                    <TableCell>{data?.quantity || ''}</TableCell>
-                  </TableRow>
-                )
-              })}
+              <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground }}>
+                Surat Jalan
+              </Typography>
+              <Typography sx={mutedSx}>{`#${data.code}`}</Typography>
+              {data?.productRequestCode && (
+                <Box sx={{ mt: 1, textAlign: { xs: 'left', sm: 'right' } }}>
+                  <Typography sx={mutedSx}>Product Request</Typography>
+                  <LinkStyled href={`/product-request/${data.productRequestCode}`} target='_blank'>
+                    {`#${data.productRequestCode}`}
+                  </LinkStyled>
+                </Box>
+              )}
+            </Box>
+          </Grid>
+        </Grid>
+      </CardContent>
+
+      <Box sx={{ px: 5 }}>
+        <Divider sx={{ borderColor: colors.border }} />
+      </Box>
+
+      {/* Warehouses */}
+      <CardContent sx={{ px: 5, py: 4 }}>
+        <Grid container spacing={4}>
+          <Grid item xs={12} sm={6}>
+            <Typography sx={{ ...sectionLabelSx, mb: 2 }}>Gudang Asal</Typography>
+            <Typography sx={mutedSx}>{data?.warehouseOrigin?.name}</Typography>
+            <Typography sx={mutedSx}>{data?.warehouseOrigin?.location}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
+            <Typography sx={{ ...sectionLabelSx, mb: 2 }}>Gudang Tujuan</Typography>
+            <Typography sx={mutedSx}>{data?.warehouseDestination?.name}</Typography>
+            <Typography sx={mutedSx}>{data?.warehouseDestination?.location}</Typography>
+          </Grid>
+        </Grid>
+      </CardContent>
+
+      <Box sx={{ px: 5 }}>
+        <Divider sx={{ borderColor: colors.border }} />
+      </Box>
+
+      {/* Products */}
+      <Box sx={{ px: 5, py: 4 }}>
+        {/* The `MuiCard` theme override forces `.MuiTableContainer-root` inside a
+            Card to `border-radius: 0` with a two-class selector, which outranks
+            a plain `sx` rule on this element — hence the `&&` to match it. */}
+        <TableContainer
+          sx={{
+            '&&': { borderRadius: `${radii.lg}px` },
+            border: `1px solid ${colors.border}`,
+            overflowX: 'auto'
+          }}
+        >
+          <Table size='small'>
+            <TableHead sx={{ backgroundColor: stone[100] }}>
+              <TableRow>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Produk</TableCell>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Rak</TableCell>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Unit</TableCell>
+                <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Total</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data?.listProducts?.map((item, index) => (
+                <TableRow key={index} sx={{ '&:last-of-type td': { borderBottom: 0 } }}>
+                  <TableCell sx={{ fontSize: '0.875rem', color: colors.foreground, borderColor: colors.border }}>
+                    {item?.productName}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: colors.foreground, borderColor: colors.border }}>
+                    {item?.rackName || '-'}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: colors.foreground, borderColor: colors.border }}>
+                    {item?.unitName || '-'}
+                  </TableCell>
+                  <TableCell sx={{ fontSize: '0.875rem', color: colors.foreground, borderColor: colors.border }}>
+                    {item?.quantity ?? '-'}
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
+      </Box>
 
-        <CardContent sx={{ p: [`${theme.spacing(8)} !important`, `${theme.spacing(6)} !important`] }}>
-          <Grid container>
-            <Grid item xs={12} sm={9} lg={9} sx={{ order: { sm: 1, xs: 2 }, mb: 4 }}>
-              <Box sx={{ mb: 2, display: 'flex-col', alignItems: 'center' }}>
-                <Typography sx={{ color: 'text.secondary' }}>
-                  <Typography component='span' sx={{ mr: 1.5, fontWeight: 500, color: 'inherit' }}>
-                    CATATAN :
-                  </Typography>
-                </Typography>
-                <Typography sx={{ color: 'text.secondary', mt: 3 }}>{data?.notes}</Typography>
-              </Box>
-            </Grid>
-            {/* <Grid item xs={12} sm={5} lg={3} sx={{ mb: { sm: 0, xs: 4 }, order: { sm: 2, xs: 1 } }}>
-              <CalcWrapper>
-                <Typography sx={{ color: 'text.secondary' }}>Subtotal:</Typography>
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>$1800</Typography>
-              </CalcWrapper>
-              <CalcWrapper>
-                <Typography sx={{ color: 'text.secondary' }}>Discount:</Typography>
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>$28</Typography>
-              </CalcWrapper>
-              <CalcWrapper sx={{ mb: '0 !important' }}>
-                <Typography sx={{ color: 'text.secondary' }}>Tax:</Typography>
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>21%</Typography>
-              </CalcWrapper>
-              <Divider sx={{ my: `${theme.spacing(2)} !important` }} />
-              <CalcWrapper>
-                <Typography sx={{ color: 'text.secondary' }}>Total:</Typography>
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>$1690</Typography>
-              </CalcWrapper>
-            </Grid> */}
-          </Grid>
-        </CardContent>
+      {/* Notes */}
+      <CardContent sx={{ px: 5, pt: 0, pb: 4 }}>
+        <Typography sx={{ ...sectionLabelSx, fontSize: '1rem', mb: 2 }}>Catatan:</Typography>
+        <Typography sx={mutedSx}>{data?.notes || '-'}</Typography>
+      </CardContent>
 
-        <Divider />
+      <Box sx={{ px: 5 }}>
+        <Divider sx={{ borderColor: colors.border }} />
+      </Box>
 
-        <CardContent sx={{ px: [6, 10] }}>
-          <Grid container>
-            <Grid item xs={12} sm={12} lg={12} sx={{ mb: 20, mx: 7 }}>
-              <Box
-                sx={{
-                  mb: 2,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  textAlign: 'center'
-                }}
-              >
-                <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Dibuat Oleh</Typography>
-                {/* <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>Diterima Oleh</Typography> */}
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={12} lg={12} sx={{}}>
-              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box sx={{ mb: 2, ml: 5, display: 'flex-column', alignItems: 'center', textAlign: 'center' }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.creatorBy?.name}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.createdAt)}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.createdAt)}</Typography>
-                </Box>
-                {/* <Box sx={{ mb: 2, display: 'flex-column', alignItems: 'center', textAlign: 'center', mr: 8 }}>
-                  <Typography sx={{ color: 'text.secondary' }}>{data?.receiverBy?.name}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatDate(data?.receivedAt)}</Typography>
-                  <Typography sx={{ color: 'text.secondary' }}>{returnFormatTime(data?.receivedAt)}</Typography>
-                </Box> */}
-              </Box>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-    )
-  } else {
-    return null
-  }
+      {/* Signature */}
+      <CardContent sx={{ p: 5 }}>
+        <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          <SignatureBlock label='Dibuat Oleh' name={data?.creatorBy?.name} timestamp={data?.createdAt} />
+        </Box>
+      </CardContent>
+    </Card>
+  )
 }
 
 export default DetailInvoice

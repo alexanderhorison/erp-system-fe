@@ -1,253 +1,272 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
-import { getInitials } from 'src/@core/utils/get-initials'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
-import CustomAvatar from 'src/@core/components/mui/avatar'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 
 import Icon from 'src/@core/components/icon'
-
-import { DataGrid } from '@mui/x-data-grid'
-
-import TableHeaderAllInvoice from './TableHeaderAllInvoice'
-import { fetchAllDeliveryOrder } from 'src/store/apps/delivery-order'
-import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
-import { Status } from 'src/@core/components/common'
+import { fetchAllDeliveryOrder } from 'src/store/apps/delivery-order'
 
-const renderClient = params => {
-  const { row } = params
-  const name = getInitials(row.createdBy.name ? row.createdBy.name : '-').slice(0, 2)
-  const stateNum = 5
-  const states = ['success', 'error', 'warning', 'info', 'primary', 'secondary']
-  const color = states[stateNum]
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import FilterPanel from 'src/views/common/FilterPanel'
+
+// ** Design Tokens
+import { colors } from 'src/configs/designTokens'
+
+const monthOptions = [
+  { value: 1, label: 'January' },
+  { value: 2, label: 'February' },
+  { value: 3, label: 'March' },
+  { value: 4, label: 'April' },
+  { value: 5, label: 'May' },
+  { value: 6, label: 'June' },
+  { value: 7, label: 'July' },
+  { value: 8, label: 'August' },
+  { value: 9, label: 'September' },
+  { value: 10, label: 'October' },
+  { value: 11, label: 'November' },
+  { value: 12, label: 'December' }
+]
+
+const currentYear = new Date().getFullYear()
+const yearOptions = [currentYear, currentYear - 1, currentYear - 2].map(year => ({ value: year, label: `${year}` }))
+
+/** Date over the time it happened, so the column stays narrow. */
+const DateCell = ({ date, timestamp }) => {
+  if (!date) {
+    return (
+      <Typography variant='body2' sx={{ color: colors.mutedForeground }}>
+        -
+      </Typography>
+    )
+  }
 
   return (
-    <CustomAvatar skin='light' color={color} sx={{ mr: 3, fontSize: '.8rem', width: '1.875rem', height: '1.875rem' }}>
-      {name}
-    </CustomAvatar>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Typography variant='body2' sx={{ color: 'text.primary' }}>
+        {date}
+      </Typography>
+      <Typography noWrap sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
+        {returnFormatTime(timestamp)}
+      </Typography>
+    </Box>
   )
 }
 
-const RowOptions = ({ handleView }) => {
+/** Person's name over their role; the column renders an object, not a string. */
+const PersonCell = ({ person }) => {
+  if (!person?.name) {
+    return (
+      <Typography variant='body2' sx={{ color: colors.mutedForeground }}>
+        -
+      </Typography>
+    )
+  }
+
   return (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={() => handleView()}>
-          <Icon icon='tabler:eye' />
-        </IconButton>
-      </Box>
-    </>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Typography noWrap variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+        {person.name}
+      </Typography>
+      {person.roleName && (
+        <Typography noWrap sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
+          {person.roleName}
+        </Typography>
+      )}
+    </Box>
   )
 }
 
-export default function TableAllInvoice({ timeFilter }) {
+const RowOptions = ({ handleView }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+    <Tooltip title='Lihat Detail'>
+      <IconButton onClick={handleView} size='small'>
+        <Icon icon='tabler:eye' fontSize='1.125rem' />
+      </IconButton>
+    </Tooltip>
+  </Box>
+)
+
+export default function TableAllInvoice() {
   const dispatch = useDispatch()
   const router = useRouter()
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
+  const [filterAnchor, setFilterAnchor] = useState(null)
+
+  // ** Month/year used to live in a `TimeFilter` beside the page title; it is a
+  // filter like any other now, so it moved into the shared panel.
+  const [dataFilter, setDataFilter] = useState({ month: '', year: currentYear })
 
   const { dataListDeliveryOrder: data, loadingDataListDeliveryOrder } = useSelector(state => state.deliveryOrder)
 
+  const filterFields = useMemo(
+    () => [
+      { name: 'month', label: 'Bulan', type: 'select', options: monthOptions, placeholder: 'Semua Bulan' },
+      { name: 'year', label: 'Tahun', type: 'select', options: yearOptions, placeholder: 'Semua Tahun' }
+    ],
+    []
+  )
+
+  const activeFilterCount = Object.entries(dataFilter).filter(([, value]) => value !== '' && value != null).length
+
+  // ** Filtering is client-side: the list endpoint returns every record, so the
+  // search text and the filter values are applied together over `data`.
+  const applyFilters = (source, filters, search) => {
+    let result = source || []
+
+    if (filters.year) {
+      result = result.filter(item => new Date(item.createdAt).getFullYear() === parseInt(filters.year))
+    }
+    if (filters.month) {
+      result = result.filter(item => new Date(item.createdAt).getMonth() === parseInt(filters.month) - 1)
+    }
+    if (search) {
+      const term = search.toLowerCase()
+      result = result.filter(
+        item =>
+          item.code?.toLowerCase().includes(term) ||
+          item.warehouseOrigin?.toLowerCase().includes(term) ||
+          item.warehouseDestination?.toLowerCase().includes(term)
+      )
+    }
+
+    return result
+  }
+
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({
-      data,
-      keys: ['code', 'warehouseDestination', 'warehouseOrigin'],
-      searchValue,
-      setData: setFilteredData,
-      timeFilter: timeFilter
-    })
+    setFilteredData(applyFilters(data, dataFilter, searchValue))
   }
 
-  const handleRowClick = params => {
-    const code = params.code
-    router.push(`/delivery-order/${code}`)
-  }
+  const handleView = row => router.push(`/delivery-order/${row.code}`)
 
-  const handleAdd = () => {
-    router.push(`/delivery-order/add`)
-  }
+  const handleAdd = () => router.push('/delivery-order/add')
 
   useEffect(() => {
     dispatch(fetchAllDeliveryOrder())
   }, [dispatch])
 
   useEffect(() => {
-    if (timeFilter && timeFilter.year) {
-      const filtered = data.filter(item => {
-        const itemDate = new Date(item.createdAt)
-        const itemYear = itemDate.getFullYear() // Get the year from createdAt
-        const itemMonth = itemDate.getMonth() // Get the month from createdAt (0-based index)
-
-        // Compare it with timeFilter.year and timeFilter.month (if provided)
-        const matchesYear = itemYear === parseInt(timeFilter.year)
-        const matchesMonth = timeFilter.month ? itemMonth === parseInt(timeFilter.month - 1) : true
-
-        return matchesYear && matchesMonth
-      })
-      setFilteredData(filtered)
-    } else {
-      setFilteredData(data) // If no year filter, show all data
-    }
-  }, [data, timeFilter])
+    setFilteredData(applyFilters(data, dataFilter, searchText))
+    // eslint-disable-next-line
+  }, [data, dataFilter, searchText])
 
   return (
-    <Card>
-      <DataGrid
-        autoHeight
+    <>
+      <FilterPanel
+        open={Boolean(filterAnchor)}
+        anchorEl={filterAnchor}
+        onClose={() => setFilterAnchor(null)}
+        fields={filterFields}
+        value={dataFilter}
+        onApply={next => setDataFilter(next)}
+        onReset={() => setDataFilter({ month: '', year: '' })}
+      />
+
+      <DataTable
+        itemLabel='surat jalan'
         loading={loadingDataListDeliveryOrder}
+        getRowId={row => row.code}
+        onRowClick={params => handleView(params.row)}
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Cari kode atau gudang'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            onOpenFilters={setFilterAnchor}
+            activeFilterCount={activeFilterCount}
+            actions={
+              <Button
+                variant='contained'
+                onClick={handleAdd}
+                startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+              >
+                Buat Surat Jalan
+              </Button>
+            }
+          />
+        }
         columns={[
           {
-            flex: 0.1,
-            minWidth: 100,
+            flex: 0.14,
+            minWidth: 130,
             field: 'code',
-            headerName: 'Code',
-            cellClassName: {
-              cursor: 'pointer'
-            },
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.code}
-                </Typography>
-              )
-            }
+            headerName: 'KODE',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+                {params.row.code}
+              </Typography>
+            )
           },
           {
-            flex: 0.15,
-            minWidth: 120,
+            flex: 0.16,
+            minWidth: 140,
             field: 'createdAt',
-            headerName: 'Tanggal Dibuat',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.dateCreated}
-                  </Typography>
-                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.createdAt)}
-                  </Typography>
-                </Box>
-              )
-            }
+            headerName: 'TANGGAL DIBUAT',
+            renderCell: params => <DateCell date={params.row.dateCreated} timestamp={params.row.createdAt} />
           },
-          // {
-          //   flex: 0.15,
-          //   minWidth: 120,
-          //   field: 'receivedAt',
-          //   headerName: 'Tanggal Diterima',
-          //   renderCell: params => {
-          //     return (
-          //       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          //         <Typography variant='body2' sx={{ color: 'text.primary' }}>
-          //           {params.row.receivedAt}
-          //         </Typography>
-          //         <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-          //           {returnFormatTime(params.row.dateReceived)}
-          //         </Typography>
-          //       </Box>
-          //     )
-          //   }
-          // },
           {
-            flex: 0.16,
-            minWidth: 120,
+            flex: 0.18,
+            minWidth: 150,
             field: 'createdBy',
-            headerName: 'Dibuat Oleh',
-            renderCell: params => {
-              const { row } = params
-              return (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {renderClient(params)}
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                      {row.createdBy.name}
-                    </Typography>
-                    <Typography noWrap variant='caption'>
-                      {row.createdBy.roleName}
-                    </Typography>
-                  </Box>
-                </Box>
-              )
-            }
+            headerName: 'DIBUAT OLEH',
+            // ** `createdBy` is an object, so the grid cannot sort or filter it
+            // by value; the cell renders name over role.
+            sortable: false,
+            renderCell: params => <PersonCell person={params.row.createdBy} />
           },
           {
-            flex: 0.16,
-            minWidth: 120,
+            flex: 0.17,
+            minWidth: 140,
             field: 'warehouseOrigin',
-            headerName: 'Gudang Sumber',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.warehouseOrigin}
-                </Typography>
-              )
-            }
+            headerName: 'GUDANG SUMBER',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.warehouseOrigin}
+              </Typography>
+            )
           },
           {
-            flex: 0.16,
-            minWidth: 120,
+            flex: 0.17,
+            minWidth: 140,
             field: 'warehouseDestination',
-            headerName: 'Gudang Tujuan',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.warehouseDestination}
-                </Typography>
-              )
-            }
+            headerName: 'GUDANG TUJUAN',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.warehouseDestination}
+              </Typography>
+            )
           },
-          // {
-          //   flex: 0.07,
-          //   minWidth: 120,
-          //   field: 'status',
-          //   headerName: 'Status',
-          //   renderCell: params => {
-          //     const { row } = params
-          //     return <Status status={row.status} />
-          //   }
-          // },
           {
             flex: 0.1,
             minWidth: 100,
             sortable: false,
             field: 'actions',
-            headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions handleView={() => handleRowClick(row)} />
+            headerName: 'ACTION',
+            renderCell: ({ row }) => (
+              <Box onClick={event => event.stopPropagation()} sx={{ width: '100%' }}>
+                <RowOptions handleView={() => handleView(row)} />
+              </Box>
+            )
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
-        onCellClick={params => handleRowClick(params.row)}
-        slots={{ toolbar: TableHeaderAllInvoice }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          },
-          '& .MuiDataGrid-cell': {
-            cursor: 'pointer'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari surat jalan',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            handleAdd: handleAdd
-          }
-        }}
+        sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
       />
-    </Card>
+    </>
   )
 }

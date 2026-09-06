@@ -1,5 +1,16 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, CardHeader, CircularProgress, Divider, Grid, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Chip from '@mui/material/Chip'
+import Grid from '@mui/material/Grid'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import Typography from '@mui/material/Typography'
 import { useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,7 +20,33 @@ import Icon from 'src/@core/components/icon'
 import * as yup from 'yup'
 import { useRouter } from 'next/router'
 import { createDeliveryOrderReceive } from 'src/store/apps/receive-order'
-import CustomChip from 'src/@core/components/mui/chip'
+
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
+import FormActionBar from 'src/views/common/FormActionBar'
+import SectionHeading from 'src/views/common/SectionHeading'
+
+// ** Design Tokens
+import { colors, radii, shadows, status as statusTokens, stone } from 'src/configs/designTokens'
+
+const surfaceCardSx = {
+  borderRadius: `${radii.lg}px`,
+  border: `1px solid ${colors.border}`,
+  boxShadow: shadows.xs
+}
+
+const tableHeadCellSx = {
+  fontSize: '0.875rem',
+  fontWeight: 600,
+  color: colors.foreground,
+  borderColor: colors.border
+}
+
+const tableCellSx = {
+  fontSize: '0.875rem',
+  color: colors.foreground,
+  borderColor: colors.border
+}
 
 export default function ReceiveDelivery({ data }) {
   const dispatch = useDispatch()
@@ -72,130 +109,145 @@ export default function ReceiveDelivery({ data }) {
       })
     })
     setValue('deliveryOrderId', data?.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, append])
 
   return (
-    <>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Grid container display='flex' gap={4} justifyContent='space-between'>
-                  <Grid item xs={12} md={4}>
-                    <Controller
-                      name={`warehouseOrigin`}
-                      control={control}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          label='Gudang Sumber'
-                          disabled
-                          value={data?.warehouseOrigin?.name}
-                          sx={{ display: 'block' }}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <Controller
-                      name={`warehouseDestination`}
-                      control={control}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          label='Gudang Tujuan'
-                          disabled
-                          value={data?.warehouseDestination?.name}
-                          sx={{ display: 'block' }}
-                        />
-                      )}
-                    />
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <PageHeader
+        title='Form Penerimaan Surat Jalan'
+        subtitle={`Kode Surat: ${data?.code || ''}`}
+        onBack={() => router.back()}
+        breadcrumbs={[{ label: 'Penerimaan Surat Jalan', href: '/receive-order' }, { label: 'Tambah' }]}
+      />
+
+      {/* No `spacing` on this container: `FormActionBar`'s negative margins are
+          measured against the content column, and grid gutters would offset it. */}
+      <Grid container>
+        <Grid item xs={12}>
+          <SectionHeading number={1} title='Informasi Gudang' />
+          <Grid container spacing={4} sx={{ mb: 4 }}>
+            <Grid item xs={12} md={8}>
+              <Card elevation={0} sx={surfaceCardSx}>
+                <CardContent sx={{ p: 5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Box sx={{ flex: 1 }}>
+                      <CustomTextField
+                        fullWidth
+                        label='Gudang Sumber'
+                        disabled
+                        value={data?.warehouseOrigin?.name || ''}
+                      />
+                    </Box>
+                    <Box
+                      sx={{
+                        width: 36,
+                        height: 36,
+                        flexShrink: 0,
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: colors.border,
+                        color: colors.mutedForeground
+                      }}
+                    >
+                      <Icon icon='tabler:arrow-right' fontSize='1.125rem' />
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <CustomTextField
+                        fullWidth
+                        label='Gudang Tujuan'
+                        disabled
+                        value={data?.warehouseDestination?.name || ''}
+                      />
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <Card elevation={0} sx={{ ...surfaceCardSx, height: '100%' }}>
+                <CardContent sx={{ p: 5 }}>
+                  <Controller
+                    name='notes'
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { value, onChange } }) => (
+                      <CustomTextField
+                        multiline
+                        rows={4}
+                        fullWidth
+                        label='Catatan'
+                        placeholder='Catatan...'
+                        value={value || ''}
+                        onChange={e => onChange(e.target.value)}
+                      />
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
           </Grid>
-          <Grid item xs={12}>
-            <Card>
-              {fields.map((item, index) => (
-                <>
-                  <CardContent key={index}>
-                    <Grid container spacing={6}>
-                      <Grid item xs={12} md={4}>
+        </Grid>
+
+        <Grid item xs={12}>
+          <SectionHeading number={2} title='Produk' />
+          <Box sx={{ mb: 4 }}>
+            {/* The `MuiCard` theme override forces `.MuiTableContainer-root` inside a
+                Card to `border-radius: 0` with a two-class selector, which outranks a
+                plain `sx` rule on this element — hence the `&&` to match it. */}
+            <TableContainer
+              sx={{
+                '&&': { borderRadius: `${radii.lg}px` },
+                border: `1px solid ${colors.border}`,
+                backgroundColor: colors.background,
+                overflowX: 'auto'
+              }}
+            >
+              <Table size='small'>
+                <TableHead sx={{ backgroundColor: stone[100] }}>
+                  <TableRow>
+                    <TableCell sx={tableHeadCellSx}>Produk</TableCell>
+                    <TableCell sx={tableHeadCellSx}>Unit</TableCell>
+                    <TableCell sx={tableHeadCellSx}>Rak</TableCell>
+                    <TableCell sx={tableHeadCellSx}>Kuantiti Asal</TableCell>
+                    <TableCell sx={tableHeadCellSx}>Kuantiti Diterima</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {fields.map((item, index) => (
+                    <TableRow key={item.id} sx={{ '&:last-of-type td': { borderBottom: 0 } }}>
+                      <TableCell sx={tableCellSx}>
                         <Controller
                           name={`data[${index}].productName`}
                           control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Produk'
-                              disabled
-                              value={value}
-                              sx={{ display: 'block' }}
-                            />
-                          )}
+                          render={({ field: { value } }) => value}
                         />
-                      </Grid>
-                      <Grid item xs={5} md={2}>
+                      </TableCell>
+                      <TableCell sx={tableCellSx}>
                         <Controller
                           name={`data[${index}].unitName`}
                           control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Unit'
-                              disabled
-                              value={value}
-                              onChange={e => {
-                                onChange(e.target.value)
-                              }}
-                              sx={{ display: 'block' }}
-                            />
-                          )}
+                          render={({ field: { value } }) => value || '-'}
                         />
-                      </Grid>
-                      <Grid item xs={5} md={2}>
+                      </TableCell>
+                      <TableCell sx={tableCellSx}>
                         <Controller
                           name={`data[${index}].rackName`}
                           control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Rak'
-                              disabled
-                              value={value}
-                              onChange={e => {
-                                onChange(e.target.value)
-                              }}
-                              sx={{ display: 'block' }}
-                            />
-                          )}
+                          render={({ field: { value } }) => value || '-'}
                         />
-                      </Grid>
-                      <Grid item xs={5} md={2}>
+                      </TableCell>
+                      <TableCell sx={tableCellSx}>
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Kuantiti Asal'
-                              disabled
-                              value={value}
-                              onChange={e => {
-                                onChange(e.target.value)
-                              }}
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors?.data?.[index]?.quantity)}
-                              {...(errors?.data?.[index]?.quantity && {
-                                helperText: errors?.data?.[index]?.quantity.message
-                              })}
-                            />
-                          )}
+                          render={({ field: { value } }) => value ?? '-'}
                         />
-                      </Grid>
-                      <Grid item xs={5} md={2}>
+                      </TableCell>
+                      <TableCell sx={{ ...tableCellSx, minWidth: 160 }}>
                         <Controller
                           name={`data[${index}].receiveQuantity`}
                           control={control}
@@ -203,13 +255,10 @@ export default function ReceiveDelivery({ data }) {
                           render={({ field: { value, onChange } }) => (
                             <CustomTextField
                               fullWidth
-                              label='Kuantiti Diterima'
+                              size='small'
                               value={value}
-                              onChange={e => {
-                                onChange(e.target.value)
-                              }}
+                              onChange={e => onChange(e.target.value)}
                               type='number'
-                              sx={{ display: 'block' }}
                               error={Boolean(errors?.data?.[index]?.receiveQuantity)}
                               {...(errors?.data?.[index]?.receiveQuantity && {
                                 helperText: errors?.data?.[index]?.receiveQuantity.message
@@ -217,86 +266,63 @@ export default function ReceiveDelivery({ data }) {
                             />
                           )}
                         />
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                  <Divider />
-                </>
-              ))}
-            </Card>
-          </Grid>
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Grid item xs={12}>
-                  <Controller
-                    name={`notes`}
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange } }) => (
-                      <CustomTextField
-                        multiline
-                        rows={3}
-                        fullWidth
-                        label='Catatan'
-                        placeholder={'Catatan...'}
-                        value={value}
-                        onChange={e => {
-                          onChange(e.target.value)
-                        }}
-                        sx={{ display: 'block' }}
-                      />
-                    )}
-                  />
-                </Grid>
-              </CardContent>
-            </Card>
-            <Card sx={{ marginTop: '1rem' }}>
-              <CardHeader
-                title='Informasi Tambahan'
-                action={<CustomChip rounded label={`Important!`} skin='light' color={`warning`} />}
-              />
-              <CardContent>
-                <Typography variant='body2' color='text.secondary'>
-                  Tanpa approval, stock akan langsung masuk ke gudang sesuai kuantiti yang di terima
-                </Typography>
-                <Typography variant='body2' color='text.secondary'>
-                  Jika terdapat selisih antara kuantiti diterima dengan kuantiti asal akan masuk ke dalam surat
-                  outstanding
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid
-            container
-            sx={{ paddingLeft: '25px', marginTop: '20px' }}
-            display='flex'
-            justifyContent='flex-end'
-            gap={6}
-          >
-            {loadingCreateReceiveOrder ? (
-              <Button variant='contained' disabled>
-                <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
-                Submitting...
-              </Button>
-            ) : (
-              <>
-                <Button
-                  variant='tonal'
-                  color='secondary'
-                  onClick={() => router.back()}
-                  startIcon={<Icon icon='tabler:x' />}
-                >
-                  Cancel
-                </Button>
-                <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-                  Submit
-                </Button>
-              </>
-            )}
-          </Grid>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
         </Grid>
-      </form>
-    </>
+
+        <Grid item xs={12}>
+          <Card elevation={0} sx={{ ...surfaceCardSx, mb: 4 }}>
+            <CardContent sx={{ p: 5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 3 }}>
+                <Typography
+                  sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: '20px', color: colors.foreground }}
+                >
+                  Informasi Tambahan
+                </Typography>
+                <Chip
+                  size='small'
+                  label='Important!'
+                  sx={{
+                    height: 20,
+                    borderRadius: `${radii.full}px`,
+                    backgroundColor: statusTokens.warning.bg,
+                    border: `1px solid ${statusTokens.warning.border}`,
+                    '& .MuiChip-label': {
+                      px: 1.5,
+                      fontSize: '0.6875rem',
+                      fontWeight: 600,
+                      lineHeight: '16px',
+                      color: statusTokens.warning.fg
+                    }
+                  }}
+                />
+              </Box>
+              <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground, mb: 2 }}>
+                Tanpa approval, stock akan langsung masuk ke gudang sesuai kuantiti yang di terima.
+              </Typography>
+              <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground }}>
+                Jika terdapat selisih antara kuantiti diterima dengan kuantiti asal akan masuk ke dalam surat
+                outstanding.
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12}>
+          <FormActionBar
+            onCancel={() => router.back()}
+            loading={loadingCreateReceiveOrder}
+            submitLabel='Submit'
+            cancelLabel='Cancel'
+            loadingLabel='Submitting...'
+          />
+        </Grid>
+      </Grid>
+    </form>
   )
 }
