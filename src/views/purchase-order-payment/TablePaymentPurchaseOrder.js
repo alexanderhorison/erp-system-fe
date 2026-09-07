@@ -1,30 +1,32 @@
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 
 import Icon from 'src/@core/components/icon'
-
-import { DataGrid } from '@mui/x-data-grid'
-
 import HandleSearh from 'src/helpers/handleSearch'
-import { returnFormatTime } from 'src/helpers/formatDate'
-import renderClient from 'src/helpers/renderClient'
 import { priceFormat } from 'src/helpers/priceFormatter'
-import TableHeaderPayment from './TableHeaderPaymentPurchaseOrder'
 import ModalAddPayment from './ModalAddPaymentPurchaseOrder'
 
-const RowOptions = ({ handleView }) => {
-  return (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleView}>
-          <Icon icon='tabler:eye' />
-        </IconButton>
-      </Box>
-    </>
-  )
-}
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import DateCell from 'src/views/common/DateCell'
+import PersonCell from 'src/views/common/PersonCell'
+
+const RowOptions = ({ handleView }) => (
+  <Box onClick={event => event.stopPropagation()} sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+    <Tooltip title='Lihat'>
+      <IconButton onClick={handleView} size='small'>
+        <Icon icon='tabler:eye' fontSize='1.125rem' />
+      </IconButton>
+    </Tooltip>
+  </Box>
+)
 
 export default function TablePaymentPurchaseOrder({ purchaseOrderData }) {
   const [openModalAdd, setOpenModalAdd] = useState(false)
@@ -39,25 +41,23 @@ export default function TablePaymentPurchaseOrder({ purchaseOrderData }) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({
-      data,
-      keys: ['typePayment', 'dateCreated'],
-      searchValue,
-      setData: setFilteredData
-    })
+    HandleSearh({ data, keys: ['typePayment', 'dateCreated'], searchValue, setData: setFilteredData })
   }
 
-  const handleRowClick = params => {
-    setDetailPayment(params?.row)
+  const handleRowClick = row => {
+    setDetailPayment(row)
     setOpenModalView(true)
   }
+
+  const canAddPayment =
+    purchaseOrderData?.amountDebt && purchaseOrderData?.amountDebt != 0 && purchaseOrderData?.status === 'APPROVED'
 
   useEffect(() => {
     setFilteredData(data)
   }, [data])
 
   return (
-    <Card>
+    <>
       {openModalAdd && (
         <ModalAddPayment
           open={openModalAdd}
@@ -77,116 +77,83 @@ export default function TablePaymentPurchaseOrder({ purchaseOrderData }) {
           detailPayment={detailPayment}
         />
       )}
-      <DataGrid
-        autoHeight
+
+      <DataTable
+        itemLabel='payment'
+        getRowId={row => row.id}
+        onRowClick={params => handleRowClick(params.row)}
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Cari payment'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            actions={
+              canAddPayment && (
+                <Button
+                  variant='contained'
+                  onClick={() => setOpenModalAdd(true)}
+                  startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+                >
+                  Buat Pembayaran
+                </Button>
+              )
+            }
+          />
+        }
         columns={[
           {
-            flex: 0.1,
-            minWidth: 200,
+            flex: 0.18,
+            minWidth: 150,
             field: 'typePayment',
-            headerName: 'Tipe Pembayaran',
-            cellClassName: {
-              cursor: 'pointer'
-            },
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.typePayment}
-                </Typography>
-              )
-            }
+            headerName: 'TIPE PEMBAYARAN',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.typePayment}
+              </Typography>
+            )
           },
           {
-            flex: 0.15,
-            minWidth: 120,
+            flex: 0.18,
+            minWidth: 150,
             field: 'amount',
-            headerName: 'Jumlah Pembayaran',
-            cellClassName: {
-              cursor: 'pointer'
-            },
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  Rp. {priceFormat(params.row.amount)}
-                </Typography>
-              )
-            }
+            headerName: 'JUMLAH PEMBAYARAN',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+                Rp {priceFormat(params.row.amount)}
+              </Typography>
+            )
           },
           {
-            flex: 0.15,
-            minWidth: 120,
+            flex: 0.18,
+            minWidth: 150,
             field: 'createdAt',
-            headerName: 'Tanggal Dibayar',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.dateCreated}
-                  </Typography>
-                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.createdAt)}
-                  </Typography>
-                </Box>
-              )
-            }
+            headerName: 'TANGGAL DIBAYAR',
+            renderCell: params => <DateCell date={params.row.dateCreated} timestamp={params.row.createdAt} />
           },
           {
-            flex: 0.16,
-            minWidth: 120,
+            flex: 0.18,
+            minWidth: 150,
             field: 'createdBy',
-            headerName: 'Dibuat Oleh',
-            renderCell: params => {
-              const { row } = params
-              return (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {renderClient(params)}
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                      {row.createdBy.name}
-                    </Typography>
-                  </Box>
-                </Box>
-              )
-            }
+            headerName: 'DIBUAT OLEH',
+            sortable: false,
+            renderCell: params => <PersonCell person={params.row.createdBy} />
           },
           {
             flex: 0.1,
-            minWidth: 100,
+            minWidth: 90,
             sortable: false,
             field: 'actions',
-            headerName: 'Actions',
-            renderCell: params => <RowOptions handleView={() => handleRowClick(params)} />
+            headerName: 'ACTION',
+            renderCell: ({ row }) => <RowOptions handleView={() => handleRowClick(row)} />
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
-        onCellClick={handleRowClick}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderPayment }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          },
-          '& .MuiDataGrid-cell': {
-            cursor: 'pointer'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari Payment',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd,
-            data: purchaseOrderData
-          }
-        }}
+        sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
       />
-    </Card>
+    </>
   )
 }

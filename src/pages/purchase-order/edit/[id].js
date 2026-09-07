@@ -1,17 +1,25 @@
-import { Alert, CircularProgress, Grid, Typography } from '@mui/material'
-import { Box } from '@mui/system'
+import Alert from '@mui/material/Alert'
+import CircularProgress from '@mui/material/CircularProgress'
+import Grid from '@mui/material/Grid'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchDetailPurchaseOrder } from 'src/store/apps/purchase-order'
-import ButtonBack from 'src/views/common/ButtonBack'
 import EditPurchaseOrderPage from 'src/views/purchase-order/EditPurchaseOrder'
+import useCollapsedSidebar from 'src/hooks/useCollapsedSidebar'
+
+// ** Design Tokens
+import { radii } from 'src/configs/designTokens'
 
 export default function EditPurchaseOrder() {
   const router = useRouter()
   const dispatch = useDispatch()
   const id = router.query.id
+
+  useCollapsedSidebar()
 
   const {
     detailPurchaseOrder: data,
@@ -34,35 +42,27 @@ export default function EditPurchaseOrder() {
     )
   } else if (errorDetailPurchaseOrder) {
     return (
-      <Box sx={{ p: 5 }}>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Alert severity='error'>
-              Purchase Order: {id} Tidak Ditemukan. Mohon cek list purchase order:{' '}
-              <Link href='/purchase-order'>Purchase Order</Link>
-            </Alert>
-          </Grid>
+      <Grid container>
+        <Grid item xs={12}>
+          <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
+            Purchase Order: {id} Tidak Ditemukan. Mohon cek list purchase order:{' '}
+            <Link href='/purchase-order'>Purchase Order</Link>
+          </Alert>
         </Grid>
-      </Box>
+      </Grid>
     )
   } else if (Object.keys(data).length > 0) {
+    if (!data.code) {
+      return (
+        <Grid container justifyContent='center' alignItems='center' sx={{ height: '50vh' }}>
+          <CircularProgress />
+        </Grid>
+      )
+    }
     return (
-      <Grid container spacing={6}>
+      <Grid container>
         <Grid item xs={12}>
-          <ButtonBack paddingY={3} name='Form Edit Purchase Order' />
-          <Typography marginBottom={3} fontSize={15}>
-            Purchase Order: {id}
-          </Typography>
-          {data.code ? (
-            <EditPurchaseOrderPage data={data} purchaseOrderCode={id} />
-          ) : (
-            <>
-              <Box sx={{ mt: 11, width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                <CircularProgress sx={{ mb: 4 }} />
-                <Typography>Loading...</Typography>
-              </Box>
-            </>
-          )}
+          <EditPurchaseOrderPage data={data} purchaseOrderCode={id} />
         </Grid>
       </Grid>
     )

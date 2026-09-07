@@ -1,11 +1,5 @@
 // ** MUI Imports
-// import Box from '@mui/material/Box'
 import { Box, Grid, Typography } from '@mui/material'
-
-// ** Styles Import
-import 'react-credit-cards/es/styles-compiled.css'
-
-// ** Icon Imports
 
 import { useDispatch, useSelector } from 'react-redux'
 import { Controller, useForm } from 'react-hook-form'
@@ -18,7 +12,12 @@ import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
 import { priceFormat } from 'src/helpers/priceFormatter'
-import BaseModal from '../common/BaseModal'
+
+// ** Shared Components
+import AppModal from '../common/AppModal'
+
+// ** Design Tokens
+import { colors } from 'src/configs/designTokens'
 
 export default function ModalTransformPrice({
   open,
@@ -134,7 +133,7 @@ export default function ModalTransformPrice({
   }, [selectedUnit, data, watch('basePrice'), setSelectedUnit])
 
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
@@ -142,89 +141,86 @@ export default function ModalTransformPrice({
       size='sm'
       showActions={true}
     >
-      <Grid container spacing={6}>
+      <Grid container spacing={4}>
         <Grid item xs={12}>
-          <Grid container spacing={6}>
-            <Grid item xs={12}>
-              <Grid container spacing={6}>
-                <Grid item xs={12}>
-                  <Controller
-                    name={`transformation`}
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange } }) => (
-                      <CustomAutocomplete
-                        options={listTransformation}
-                        id='autocomplete-custom'
-                        value={listTransformation.find(item => item.id === value) || null}
-                        getOptionLabel={option => option.info || ''}
-                        onChange={(event, newValue) => {
-                          onChange(+newValue?.id)
-                          setSelectedUnit(newValue)
-                          dispatch(
-                            fetchOneMasterDataProductPrice({
-                              productId: newValue?.masterProductId,
-                              unitId: newValue?.unitToId
-                            })
-                          ).then(({ payload }) => {
-                            if (payload.data) {
-                              setValue('basePrice', payload?.data?.basePrice)
-                            } else {
-                              setValue('basePrice', '')
-                            }
-                          })
-                        }}
-                        renderInput={params => (
-                          <CustomTextField
-                            value={value}
-                            {...params}
-                            error={Boolean(errors?.transformation)}
-                            {...(errors?.transformation && {
-                              helperText: errors?.transformation.message
-                            })}
-                            label='Pilih rumus'
-                          />
-                        )}
-                      />
-                    )}
+          <Controller
+            name={`transformation`}
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomAutocomplete
+                options={listTransformation}
+                id='autocomplete-custom'
+                value={listTransformation.find(item => item.id === value) || null}
+                getOptionLabel={option => option.info || ''}
+                onChange={(event, newValue) => {
+                  onChange(+newValue?.id)
+                  setSelectedUnit(newValue)
+                  dispatch(
+                    fetchOneMasterDataProductPrice({
+                      productId: newValue?.masterProductId,
+                      unitId: newValue?.unitToId
+                    })
+                  ).then(({ payload }) => {
+                    if (payload.data) {
+                      setValue('basePrice', payload?.data?.basePrice)
+                    } else {
+                      setValue('basePrice', '')
+                    }
+                  })
+                }}
+                renderInput={params => (
+                  <CustomTextField
+                    value={value}
+                    {...params}
+                    fullWidth
+                    error={Boolean(errors?.transformation)}
+                    {...(errors?.transformation && {
+                      helperText: errors?.transformation.message
+                    })}
+                    label='Pilih rumus'
                   />
-                </Grid>
-                <Grid item xs={12}>
-                  <Controller
-                    name='basePrice'
-                    control={control}
-                    render={({ field: { value, onChange } }) => (
-                      <CustomTextField
-                        fullWidth
-                        label='Base Price'
-                        value={value}
-                        onChange={e => {
-                          onChange(e.target.value)
-                        }}
-                        type='number'
-                        sx={{ display: 'block' }}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  {[
-                    { label: 'Quantity Asal', value: `${data?.quantity} ${data?.unitName}` },
-                    { label: 'Quantity Transformasi', value: result.resultQuantity },
-                    { label: 'Total Harga', value: result.formattedTotalHarga },
-                    { label: `Harga Per ${data?.unitName}`, value: result.baseProductPrice }
-                  ].map((item, index) => (
-                    <Box key={index} display='flex' justifyContent='space-between' width='100%'>
-                      <Typography>{item.label}</Typography>
-                      <Typography>{item.value}</Typography>
-                    </Box>
-                  ))}
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
+                )}
+              />
+            )}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Controller
+            name='basePrice'
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                label='Base Price'
+                value={value}
+                onChange={e => {
+                  onChange(e.target.value)
+                }}
+                type='number'
+              />
+            )}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          {[
+            { label: 'Quantity Asal', value: `${data?.quantity} ${data?.unitName}` },
+            { label: 'Quantity Transformasi', value: result.resultQuantity },
+            { label: 'Total Harga', value: result.formattedTotalHarga },
+            { label: `Harga Per ${data?.unitName}`, value: result.baseProductPrice }
+          ].map((item, index) => (
+            <Box
+              key={index}
+              sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', py: 1 }}
+            >
+              <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>{item.label}</Typography>
+              <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>
+                {item.value}
+              </Typography>
+            </Box>
+          ))}
         </Grid>
       </Grid>
-    </BaseModal>
+    </AppModal>
   )
 }

@@ -2,10 +2,6 @@ import 'react-datepicker/dist/react-datepicker.css'
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 
-// ** Styles Import
-import 'react-credit-cards/es/styles-compiled.css'
-
-// ** Icon Imports
 import { useDispatch, useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -14,7 +10,9 @@ import FormInputText from 'src/views/common/Form/FormInputText'
 import FormDatePicker from 'src/views/common/Form/FormDatePicker'
 import FormCheckBox from 'src/views/common/Form/FormCheckBox'
 import { createTermsOfPayment, updateFormTermsOfPayment } from 'src/store/apps/purchase-order/terms-of-payment'
-import BaseModal from 'src/views/common/BaseModal'
+
+// ** Shared Components
+import AppModal from 'src/views/common/AppModal'
 
 export default function ModalAddTermsOfPayment({
   open,
@@ -76,7 +74,7 @@ export default function ModalAddTermsOfPayment({
   }
 
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
@@ -90,51 +88,47 @@ export default function ModalAddTermsOfPayment({
       size='sm'
       showActions={typeModal !== 'VIEW'}
     >
-      <Grid container spacing={6}>
+      <Grid container spacing={4}>
         <Grid item xs={12}>
-          <Grid container spacing={6}>
-            <Grid item xs={12} sm={12}>
-              <FormInputText
-                label={'Judul'}
-                name={'title'}
-                control={control}
-                errors={errors}
-                disabled={typeModal === 'VIEW'}
-                placeholder='Masukkan Judul'
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormDatePicker
-                label='Tanggal Tengat Pembayaran'
-                name={'dueDate'}
-                control={control}
-                errors={errors}
-                disabled={typeModal === 'VIEW'}
-                placeholder='Pilih Tanggal'
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormInputText
-                label={'Reminder (H - Jumlah Input)'}
-                name={'reminderDate'}
-                control={control}
-                errors={errors}
-                disabled={typeModal === 'VIEW'}
-                placeholder='Masukkan '
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormCheckBox
-                label={'Kirim Email'}
-                name={'isSendEmail'}
-                control={control}
-                errors={errors}
-                disabled={typeModal === 'VIEW'}
-              />
-            </Grid>
-          </Grid>
+          <FormInputText
+            label={'Judul'}
+            name={'title'}
+            control={control}
+            errors={errors}
+            disabled={typeModal === 'VIEW'}
+            placeholder='Masukkan Judul'
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <FormDatePicker
+            label='Tanggal Tengat Pembayaran'
+            name={'dueDate'}
+            control={control}
+            errors={errors}
+            disabled={typeModal === 'VIEW'}
+            placeholder='Pilih Tanggal'
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <FormInputText
+            label={'Reminder (H - Jumlah Input)'}
+            name={'reminderDate'}
+            control={control}
+            errors={errors}
+            disabled={typeModal === 'VIEW'}
+            placeholder='Masukkan '
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <FormCheckBox
+            label={'Kirim Email'}
+            name={'isSendEmail'}
+            control={control}
+            errors={errors}
+            disabled={typeModal === 'VIEW'}
+          />
         </Grid>
       </Grid>
-    </BaseModal>
+    </AppModal>
   )
 }

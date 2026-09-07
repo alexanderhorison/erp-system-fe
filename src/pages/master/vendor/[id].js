@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import Grid from '@mui/material/Grid'
 
 import { fetchMasterDataVendorDetail } from 'src/store/apps/master/vendor'
-import { useSettings } from 'src/@core/hooks/useSettings'
+import useCollapsedSidebar from 'src/hooks/useCollapsedSidebar'
 import PageHeader from 'src/views/common/PageHeader'
 import SectionHeading from 'src/views/common/SectionHeading'
 import DetailVendor from 'src/views/master/vendor/DetailVendor'
@@ -20,21 +20,9 @@ export default function DetailMasterVendor() {
 
   const { loadingDetail, detail: detailVendor } = useSelector(state => state.masterVendor)
 
-  const { settings, saveSettings } = useSettings()
-
-  // Collapse the sidebar while this detail page is open — the two-column
-  // layout (vendor info + summary + history table) needs the extra width —
-  // and restore whatever the user had before on the way out.
-  useEffect(() => {
-    const wasNavCollapsed = settings.navCollapsed
-    if (!wasNavCollapsed) {
-      saveSettings({ ...settings, navCollapsed: true })
-    }
-    return () => {
-      saveSettings({ ...settings, navCollapsed: wasNavCollapsed })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // The two-column layout (vendor info + summary + history table) needs the
+  // extra width, so collapse the sidebar while this page is open.
+  useCollapsedSidebar()
 
   useEffect(() => {
     if (query?.id) {

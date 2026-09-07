@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchDetailSalesOrder } from 'src/store/apps/sales-order'
 import EditSalesOrderPage from 'src/views/sales-order/EditSalesOrder'
+import useCollapsedSidebar from 'src/hooks/useCollapsedSidebar'
 
 // ** Design Tokens
 import { radii } from 'src/configs/designTokens'
@@ -14,6 +15,8 @@ export default function EditSalesOrder() {
   const router = useRouter()
   const dispatch = useDispatch()
   const id = router.query.id
+
+  useCollapsedSidebar()
 
   const {
     detailSalesOrder: data,

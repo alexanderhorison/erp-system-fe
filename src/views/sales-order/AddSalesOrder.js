@@ -6,7 +6,6 @@ import CardContent from '@mui/material/CardContent'
 import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
@@ -717,7 +716,7 @@ export default function AddSalesOrder({}) {
                           - {priceFormatWIthCurrency(getValues('grandTotalBarter')) || 'Rp0'}
                         </Typography>
                       </Box>
-                      <Divider sx={{ borderColor: statusTokens.success.border, borderBottomWidth: 2 }} />
+                      <Divider sx={{  borderBottomWidth: 2 }} />
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 2 }}>
                         <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
                           Grand Total
@@ -765,7 +764,7 @@ export default function AddSalesOrder({}) {
                       return (
                         <Box key={item.id} sx={index !== fields.length - 1 ? productRowSx : { mb: 4 }}>
                           <Grid container spacing={4} alignItems='flex-start'>
-                            <Grid item xs={12} md={3}>
+                            <Grid item xs={12} md={4}>
                               <Controller
                                 name={`data[${index}].warehouseId`}
                                 control={control}
@@ -903,7 +902,7 @@ export default function AddSalesOrder({}) {
                             <Grid
                               item
                               xs={12}
-                              md={2}
+                              md={1}
                               sx={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -1127,7 +1126,7 @@ export default function AddSalesOrder({}) {
                       return (
                         <Box key={item.id} sx={index !== barterFields.length - 1 ? productRowSx : { mb: 4 }}>
                           <Grid container spacing={4} alignItems='flex-start'>
-                            <Grid item xs={12} md={3}>
+                            <Grid item xs={12} md={4}>
                               <Controller
                                 name={`barterProduct[${index}].warehouseId`}
                                 control={control}
@@ -1237,7 +1236,7 @@ export default function AddSalesOrder({}) {
                             <Grid
                               item
                               xs={12}
-                              md={2}
+                              md={1}
                               sx={{ display: 'flex', justifyContent: { xs: 'flex-end', md: 'center' } }}
                             >
                               <IconButton onClick={() => removeBarterProduct(index)} color='error' size='small'>
@@ -1310,20 +1309,24 @@ export default function AddSalesOrder({}) {
                                 )}
                               />
                             </Grid>
-                            <Grid item xs={6} md={3} sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Grid item xs={6} md={1.5}>
+                              <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground, mb: 1 }}>
+                                Modal Baru
+                              </Typography>
                               <Controller
                                 name={`barterProduct[${index}].isNewModal`}
                                 control={control}
                                 defaultValue={false}
                                 render={({ field: { value, onChange } }) => (
-                                  <FormControlLabel
-                                    control={<Checkbox checked={value} onChange={e => onChange(e.target.checked)} />}
-                                    label='Modal Baru'
+                                  <Checkbox
+                                    checked={value}
+                                    onChange={e => onChange(e.target.checked)}
+                                    sx={{ p: 0 }}
                                   />
                                 )}
                               />
                             </Grid>
-                            <Grid item xs={6} md={3}>
+                            <Grid item xs={6} md={4.5}>
                               <Controller
                                 name={`barterProduct[${index}].subTotal`}
                                 control={control}

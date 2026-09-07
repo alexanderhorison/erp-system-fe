@@ -1,32 +1,56 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 
 import Icon from 'src/@core/components/icon'
-
-import { DataGrid } from '@mui/x-data-grid'
-
 import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatDateDay } from 'src/helpers/formatDate'
 import ModalAddTermsOfPayment from './ModalAddTermsOfPayment'
-import TableHeaderTermsOfPayment from './TableHeaderTermsOfPayment'
 import { deleteTermsOfPayment } from 'src/store/apps/purchase-order/terms-of-payment'
 
-const RowOptions = ({ handleView, handleEdit, handleDelete }) => {
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
+
+const RowOptions = ({ handleView, handleEdit, handleDelete, title }) => {
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
+
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleView}>
-          <Icon icon='tabler:eye' />
-        </IconButton>
-        <IconButton>
-          <Icon icon='tabler:edit' onClick={handleEdit} />
-        </IconButton>
-        <IconButton>
-          <Icon icon='tabler:trash' onClick={handleDelete} />
-        </IconButton>
+      <Box onClick={event => event.stopPropagation()} sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+        <Tooltip title='Lihat'>
+          <IconButton onClick={handleView} size='small'>
+            <Icon icon='tabler:eye' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Ubah'>
+          <IconButton onClick={handleEdit} size='small'>
+            <Icon icon='tabler:edit' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Hapus'>
+          <IconButton onClick={() => setOpenConfirmDelete(true)} size='small' sx={{ color: 'error.main' }}>
+            <Icon icon='tabler:trash' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
       </Box>
+
+      <ConfirmDialog
+        open={openConfirmDelete}
+        onClose={() => setOpenConfirmDelete(false)}
+        onConfirm={() => {
+          handleDelete()
+          setOpenConfirmDelete(false)
+        }}
+        title='Hapus Terms Of Payment'
+        itemName={title}
+      />
     </>
   )
 }
@@ -47,26 +71,21 @@ export default function TableTermsOfPayment({ purchaseOrderData }) {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({
-      data,
-      keys: ['title'],
-      searchValue,
-      setData: setFilteredData
-    })
+    HandleSearh({ data, keys: ['title'], searchValue, setData: setFilteredData })
   }
 
-  const handleView = params => {
-    setDetailTermsOfPayment(params?.row)
+  const handleView = row => {
+    setDetailTermsOfPayment(row)
     setOpenModalView(true)
   }
 
-  const handleEdit = params => {
-    setDetailTermsOfPayment(params?.row)
+  const handleEdit = row => {
+    setDetailTermsOfPayment(row)
     setOpenModalEdit(true)
   }
 
-  const handleDelete = params => {
-    dispatch(deleteTermsOfPayment({ purchaseOrderCode: purchaseOrderData?.code, id: params?.row?.id }))
+  const handleDelete = row => {
+    dispatch(deleteTermsOfPayment({ purchaseOrderCode: purchaseOrderData?.code, id: row?.id }))
   }
 
   useEffect(() => {
@@ -74,7 +93,7 @@ export default function TableTermsOfPayment({ purchaseOrderData }) {
   }, [data])
 
   return (
-    <Card>
+    <>
       {openModalAdd && (
         <ModalAddTermsOfPayment
           open={openModalAdd}
@@ -104,106 +123,97 @@ export default function TableTermsOfPayment({ purchaseOrderData }) {
           purchaseOrderCode={purchaseOrderData?.code}
         />
       )}
-      <DataGrid
-        autoHeight
+
+      <DataTable
+        itemLabel='terms of payment'
+        getRowId={row => row.id}
+        onRowClick={params => handleView(params.row)}
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Cari judul'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            actions={
+              <Button
+                variant='contained'
+                onClick={() => setOpenModalAdd(true)}
+                startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+              >
+                Buat Termin Pembayaran
+              </Button>
+            }
+          />
+        }
         columns={[
           {
-            flex: 0.15,
-            minWidth: 200,
+            flex: 0.24,
+            minWidth: 180,
             field: 'title',
-            headerName: 'Judul',
-            cellClassName: {
-              cursor: 'pointer'
-            },
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.title}
-                </Typography>
-              )
-            }
+            headerName: 'JUDUL',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.title}
+              </Typography>
+            )
           },
           {
-            flex: 0.1,
-            minWidth: 120,
+            flex: 0.22,
+            minWidth: 170,
             field: 'dueDate',
-            headerName: 'Tengat Waktu',
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {returnFormatDateDay(params.row.dueDate)}
-                </Typography>
-              )
-            }
+            headerName: 'TENGGAT WAKTU',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {returnFormatDateDay(params.row.dueDate)}
+              </Typography>
+            )
           },
           {
-            flex: 0.05,
-            minWidth: 120,
+            flex: 0.14,
+            minWidth: 110,
             field: 'reminderDate',
-            headerName: 'Reminder',
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {`H - ${params.row.reminderDate}`}
-                </Typography>
-              )
-            }
+            headerName: 'REMINDER',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {`H-${params.row.reminderDate}`}
+              </Typography>
+            )
           },
           {
-            flex: 0.05,
-            minWidth: 120,
+            flex: 0.14,
+            minWidth: 110,
             field: 'isSendEmail',
-            headerName: 'Kirim Email',
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.isSendEmail ? 'Ya' : 'Tidak'}
-                </Typography>
-              )
-            }
+            headerName: 'KIRIM EMAIL',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.isSendEmail ? 'Ya' : 'Tidak'}
+              </Typography>
+            )
           },
           {
-            flex: 0.07,
-            minWidth: 100,
+            flex: 0.12,
+            minWidth: 110,
             sortable: false,
             field: 'actions',
-            headerName: 'Actions',
-            renderCell: params => <RowOptions
-              handleView={() => handleView(params)}
-              handleEdit={() => handleEdit(params)}
-              handleDelete={() => handleDelete(params)}
-            />
+            headerName: 'ACTION',
+            renderCell: ({ row }) => (
+              <Box onClick={event => event.stopPropagation()} sx={{ width: '100%' }}>
+                <RowOptions
+                  handleView={() => handleView(row)}
+                  handleEdit={() => handleEdit(row)}
+                  handleDelete={() => handleDelete(row)}
+                  title={row.title}
+                />
+              </Box>
+            )
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
-        // onCellClick={handleView}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderTermsOfPayment }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          },
-          '& .MuiDataGrid-cell': {
-            cursor: 'pointer'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari Judul',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            handleAdd: setOpenModalAdd,
-            data: data
-          }
-        }}
+        sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
       />
-    </Card>
+    </>
   )
 }

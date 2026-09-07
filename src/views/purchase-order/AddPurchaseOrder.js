@@ -1,6 +1,15 @@
 import { useTheme } from '@emotion/react'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, IconButton, Grid, Typography, Divider, FormControlLabel, Checkbox, CircularProgress } from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Checkbox from '@mui/material/Checkbox'
+import Chip from '@mui/material/Chip'
+import Divider from '@mui/material/Divider'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
@@ -14,11 +23,10 @@ import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
 import PickersComponent from '../forms/form-elements/pickers/PickersCustomInput'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { Box } from '@mui/system'
 import * as yup from 'yup'
 import Icon from 'src/@core/components/icon'
 import OptionsGroup from 'src/helpers/groupedInput'
-import { priceFormat } from 'src/helpers/priceFormatter'
+import { priceFormat, priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
 import { fetchOneMasterDataProductPrice } from 'src/store/apps/master/product-price'
 import ModalTransformProductSalesOrder from '../sales-order/ModalTransformProductSalesOrder'
@@ -26,8 +34,71 @@ import { createPurchaseOrder } from 'src/store/apps/purchase-order'
 import ModalAddMasterVendor from '../master/vendor/ModalAddMasterVendor'
 import ModalTransformPrice from './ModalTransformPrice'
 import { fetchOneMasterDataModal } from 'src/store/apps/master/modal'
+import { notifyError } from 'src/helpers/notify'
 
-export default function AddPurchaseOrder({ }) {
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
+import FormActionBar from 'src/views/common/FormActionBar'
+import SectionHeading from 'src/views/common/SectionHeading'
+
+// ** Design Tokens
+import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
+
+const surfaceCardSx = {
+  borderRadius: `${radii.lg}px`,
+  border: `1px solid ${colors.border}`,
+  boxShadow: shadows.xs
+}
+
+const productRowSx = {
+  pb: 4,
+  mb: 4,
+  borderBottom: `1px solid ${colors.border}`
+}
+
+const infoChipSx = {
+  height: 22,
+  borderRadius: `${radii.full}px`,
+  border: `1px solid ${colors.border}`,
+  backgroundColor: 'transparent',
+  '& .MuiChip-label': {
+    px: 1.5,
+    fontSize: '0.6875rem',
+    lineHeight: '16px',
+    color: colors.mutedForeground
+  }
+}
+
+// ** Stock tint for the "Stok: N" chip beside the Produk field — green above the
+// product's minimum threshold, amber at/under it, red when exactly out of stock.
+const stockTone = (quantity, minimumStock) => {
+  const qty = Number(quantity)
+  if (!qty) return statusTokens.danger
+  if (minimumStock !== undefined && minimumStock !== null && qty <= Number(minimumStock)) return statusTokens.warning
+  return statusTokens.success
+}
+
+const toneChipSx = tone => ({
+  height: 22,
+  borderRadius: `${radii.full}px`,
+  border: `1px solid ${tone.border}`,
+  backgroundColor: tone.bg,
+  '& .MuiChip-label': {
+    px: 1.5,
+    fontSize: '0.6875rem',
+    fontWeight: 600,
+    lineHeight: '16px',
+    color: tone.fg
+  }
+})
+
+// ** designTokens.js has no orange ramp. `status.warning` is amber, already used
+// elsewhere, so it cannot double as the barter tint the sales-order baseline
+// uses ("orange/400", distinct from amber). Same literal Tailwind orange-400 /
+// orange-50 pair as AddSalesOrder.js — a deliberate, called-out exception.
+const barterTone = { fg: '#FB923C', bg: '#FFF7ED', border: '#FDBA74' }
+
+export default function AddPurchaseOrder({}) {
   const dispatch = useDispatch()
   const router = useRouter()
   const theme = useTheme()
@@ -51,7 +122,6 @@ export default function AddPurchaseOrder({ }) {
   const { data: masterDataWarehouse } = useSelector(state => state.warehouse)
   const { data: masterVendor } = useSelector(state => state.masterVendor)
   const { data: listMasterProduct } = useSelector(state => state.masterProduct)
-  const { dataListProductWarehouse: listProductBarter } = useSelector(state => state.deliveryOrder)
   const { data: listMasterUnit } = useSelector(state => state.unit)
   const { loadingCreatePurchaseOrder } = useSelector(state => state.purchaseOrder)
 
@@ -71,7 +141,7 @@ export default function AddPurchaseOrder({ }) {
         quantity: yup.number().min(0, 'Kuantiti tidak boleh minus').typeError('Kuantiti harus diisi'),
         subTotal: yup.number().typeError('Sub Total Product harus diisi'),
         disabledTransform: yup.boolean().default(true),
-        isNewModal: yup.boolean().default(false),
+        isNewModal: yup.boolean().default(false)
       })
     ),
     barterProduct: yup.lazy(value => {
@@ -152,6 +222,7 @@ export default function AddPurchaseOrder({ }) {
     name: 'barterProduct'
   })
   const formBarter = watch('barterProduct')
+  const grandTotalWatch = watch('grandTotal')
 
   const addMore = () => {
     append({
@@ -209,10 +280,13 @@ export default function AddPurchaseOrder({ }) {
     }
     // Check duplicate index
     lastIndex !== -1 ? lastIndex : (duplicate = false)
-    setError(`data[${lastIndex}].masterProductId`, {
-      type: 'duplicate',
-      message: `Produk dan Satuan sudah dipilih`
-    })
+    if (duplicate) {
+      setError(`data[${lastIndex}].masterProductId`, {
+        type: 'duplicate',
+        message: `Produk dan Satuan sudah dipilih`
+      })
+      notifyError('Produk dan Satuan sudah dipilih')
+    }
     // Map Barang Barang Barter
     if (listBarter.length > 0) {
       const lastIndexMap = new Map()
@@ -228,10 +302,13 @@ export default function AddPurchaseOrder({ }) {
       }
       // Check duplicate index
       lastIndex !== -1 ? lastIndex : (duplicate = false)
-      setError(`barterProduct[${lastIndex}].warehouseProductId`, {
-        type: 'duplicate',
-        message: `Produk dan Satuan sudah dipilih`
-      })
+      if (duplicate) {
+        setError(`barterProduct[${lastIndex}].warehouseProductId`, {
+          type: 'duplicate',
+          message: `Produk dan Satuan sudah dipilih`
+        })
+        notifyError('Produk dan Satuan sudah dipilih')
+      }
     }
 
     if (!duplicate) {
@@ -260,6 +337,7 @@ export default function AddPurchaseOrder({ }) {
   useEffect(() => {
     calculateTotals()
     checkDisabledTransform()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formField, formBarter])
 
   useEffect(() => {
@@ -278,21 +356,12 @@ export default function AddPurchaseOrder({ }) {
     dispatch(fetchMasterDataVendor())
     dispatch(fetchMasterDataProduct())
     dispatch(fetchMasterDataUnit())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch])
 
   useEffect(() => {
     // For transformation product
   }, [helperTextChanges, dataWarehouseIds])
-
-  const titleProductInfo = index => {
-    const infos = {
-      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${getValues(`barterProduct[${index}].unitName`) || '-'
-        }`,
-      titleQuantity: `QTY: ${getValues(`barterProduct[${index}].qty`) || '-'}`,
-      titleTransformation: getValues(`barterProduct[${index}].quantity`) > 0 ? '| Transformasi Produk' : ''
-    }
-    return infos
-  }
 
   const handleWarehouseSelect = newWarehouseId => {
     setWarehouseId(newWarehouseId) // Update the selected warehouseId
@@ -481,799 +550,872 @@ export default function AddPurchaseOrder({ }) {
     calculateTotals()
   }
 
+  const grandTotalIsNegative = grandTotalWatch < 0
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Grid container spacing={6}>
-          {/* left Card */}
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Box display='flex' alignItems='center' flexDirection='column'>
-                  <Box display='flex' alignItems='center' width='100%' mb={2}>
-                    <Controller
-                      name={`vendorId`}
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomAutocomplete
-                          options={masterVendor}
-                          id='autocomplete-custom'
-                          getOptionLabel={option => option.name || ''}
-                          onChange={(event, newValue) => {
-                            onChange(+newValue?.id || '')
-                            setVendorData(newValue)
-                          }}
-                          sx={{ flexGrow: 1 }}
-                          renderInput={params => (
-                            <CustomTextField
-                              value={value}
-                              {...params}
-                              error={Boolean(errors?.vendorId)}
-                              {...(errors?.vendorId && {
-                                helperText: errors?.vendorId.message
-                              })}
-                              label='Vendor'
-                            />
-                          )}
-                        />
-                      )}
-                    />
-                    <Button
-                      onClick={handleAddVendor}
-                      variant='contained'
-                      sx={{
-                        ml: 2,
-                        mt: errors?.vendorId ? 0.5 : 4.5
-                      }}
-                    >
-                      <Icon fontSize='1.125rem' icon='tabler:plus' />
-                    </Button>
-                  </Box>
-                  <Box sx={{ textAlign: 'left', width: '100%', mt: 2 }}>
-                    <Typography sx={{ color: 'text.secondary' }}>{vendorData?.email}</Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>{vendorData?.address}</Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>{vendorData?.phoneNumber}</Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>{vendorData?.rankName}</Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-          {/* Right Card */}
-          <Grid item xs={12} md={6} sx={{ textAlign: 'left' }}>
-            <Card sx={{ height: '100%' }}>
-              <CardContent>
-                <DatePicker
-                  selected={date}
-                  id='basic'
-                  popperPlacement={popperPlacement}
-                  onChange={date => setDate(date)}
-                  fullWidth
-                  customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-          {/* BODY PURCHASE ORDER */}
+        <PageHeader
+          title='Pembuatan Purchase Order'
+          onBack={() => router.back()}
+          breadcrumbs={[{ label: 'Purchase Order', href: '/purchase-order' }, { label: 'Tambah' }]}
+        />
+
+        {/* No `spacing` on this container: `FormActionBar`'s negative margins are
+            measured against the content column, and grid gutters would offset it. */}
+        <Grid container>
           <Grid item xs={12}>
-            <Card>
-              <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
-                Barang Purchase Order
-              </Typography>
-              {fields.map((item, index) => (
-                <React.Fragment key={item.id}>
-                  <CardContent>
-                    <Grid container spacing={6}>
-                      <Grid item xs={12} md={4}>
-                        <Controller
-                          name={`data[${index}].warehouseId`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomAutocomplete
-                              options={masterDataWarehouse}
-                              id='autocomplete-custom'
-                              getOptionLabel={option => option.name || ''}
-                              onChange={(event, newValue) => {
-                                onChange(+newValue?.id)
-                              }}
-                              renderInput={params => (
-                                <CustomTextField
-                                  value={value}
-                                  {...params}
-                                  sx={{ zIndex: 0 }}
-                                  error={Boolean(errors?.data?.[index]?.warehouseId)}
-                                  {...(errors?.data?.[index]?.warehouseId && {
-                                    helperText: errors?.data?.[index]?.warehouseId.message
-                                  })}
-                                  label='Gudang Tujuan'
+            <Grid container spacing={4}>
+              <Grid item xs={12} md={8}>
+                <SectionHeading number={1} title='Informasi Vendor' />
+                <Card elevation={0} sx={{ ...surfaceCardSx, mb: 4 }}>
+                  <CardContent sx={{ p: 5 }}>
+                    <Grid container spacing={4}>
+                      <Grid item xs={12} sm={6}>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
+                          <Box sx={{ flex: 1 }}>
+                            <Controller
+                              name={`vendorId`}
+                              control={control}
+                              rules={{ required: true }}
+                              render={({ field: { value, onChange } }) => (
+                                <CustomAutocomplete
+                                  options={masterVendor}
+                                  id='autocomplete-custom'
+                                  getOptionLabel={option => option.name || ''}
+                                  onChange={(event, newValue) => {
+                                    onChange(+newValue?.id || '')
+                                    setVendorData(newValue)
+                                  }}
+                                  renderInput={params => (
+                                    <CustomTextField
+                                      value={value}
+                                      {...params}
+                                      fullWidth
+                                      error={Boolean(errors?.vendorId)}
+                                      {...(errors?.vendorId && {
+                                        helperText: errors?.vendorId.message
+                                      })}
+                                      label='Vendor'
+                                    />
+                                  )}
                                 />
                               )}
                             />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={2}>
-                        <Button
-                          variant='contained'
-                          sx={{
-                            marginTop: '1rem',
-                            cursor: 'pointer'
-                          }}
-                          onClick={() => handleTransformHarga(index)}
-                          disabled={getValues(`data[${index}].disabledTransform`)}
-                        >
-                          Transformasi Harga
-                        </Button>
-                      </Grid>
-                      <Grid item xs={12} md={2} sx={{ marginTop: '1rem' }}>
-                        <Controller
-                          name={`data[${index}].isNewModal`}
-                          control={control}
-                          defaultValue={false}
-                          render={({ field: { value, onChange } }) => (
-                            <FormControlLabel
-                              control={
-                                <Checkbox
-                                  checked={value}
-                                  onChange={e => onChange(e.target.checked)}
-                                />
-                              }
-                              label='Modal Baru'
-                            />
-                          )}
-                        />
-                      </Grid>
-                    </Grid>
-                    <Grid container spacing={6} sx={{ marginTop: 1 }}>
-                      <Grid item xs={12} md={3}>
-                        <Controller
-                          name={`data[${index}].masterProductId`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomAutocomplete
-                              key={item.id}
-                              options={OptionsGroup(listMasterProduct, 'category')}
-                              groupBy={option => option.category}
-                              id='autocomplete-grouped'
-                              getOptionLabel={option => option?.name || ''}
-                              value={listMasterProduct.find(product => product?.id == value) || null}
-                              isOptionEqualToValue={(option, value) => option.id === value?.id}
-                              onChange={(event, newValue) => {
-                                onChange(+newValue?.id)
-                                checkDisabledTransform()
-                              }}
-                              renderInput={params => (
-                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                  <Box display='flex' alignItems='center' mb={0}>
-                                    <Box
-                                      component='span'
-                                      sx={{
-                                        fontWeight: '',
-                                        fontSize: '0.85rem',
-                                        mr: 1
-                                      }}
-                                    >
-                                      {`Produk `}
-                                    </Box>
-                                  </Box>
-                                  <CustomTextField
-                                    value={item.masterProductId}
-                                    {...params}
-                                    sx={{ zIndex: 0 }}
-                                    error={Boolean(errors?.data?.[index]?.masterProductId)}
-                                    {...(errors?.data?.[index]?.masterProductId && {
-                                      helperText: errors?.data?.[index]?.masterProductId.message
-                                    })}
-                                  />
-                                </Box>
-                              )}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={2}>
-                        <Controller
-                          name={`data[${index}].unitId`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomAutocomplete
-                              key={item.id}
-                              options={listMasterUnit}
-                              id='autocomplete-grouped'
-                              getOptionLabel={option => option.name || ''}
-                              value={listMasterUnit.find(unit => unit.id === value) || null}
-                              onChange={(event, newValue) => {
-                                onChange(+newValue?.id)
-                                const selectedProduct = getValues(`data[${index}].masterProductId`)
-                                if (selectedProduct && newValue) {
-                                  handleFetchDefaultBasePrice({
-                                    productId: selectedProduct,
-                                    unitId: newValue?.id,
-                                    index,
-                                    fieldName: 'data'
-                                  })
-                                }
-                                checkDisabledTransform()
-                              }}
-                              renderInput={params => (
-                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                  <Box display='flex' alignItems='center' mb={0}>
-                                    <Box
-                                      component='span'
-                                      sx={{
-                                        fontWeight: '',
-                                        fontSize: '0.85rem',
-                                        mr: 1
-                                      }}
-                                    >
-                                      {`Unit `}
-                                    </Box>
-                                  </Box>
-                                  <CustomTextField
-                                    value={item.unitId}
-                                    {...params}
-                                    sx={{ zIndex: 0 }}
-                                    error={Boolean(errors?.data?.[index]?.unitId)}
-                                    {...(errors?.data?.[index]?.unitId && {
-                                      helperText: errors?.data?.[index]?.unitId.message
-                                    })}
-                                  />
-                                </Box>
-                              )}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={3} md={1.5}>
-                        <Controller
-                          name={`data[${index}].quantity`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <div>
-                              <CustomTextField
-                                fullWidth
-                                label='Kuantiti'
-                                value={value}
-                                onChange={e => {
-                                  const newQuantity = +e.target.value
-                                  const currentPrice = formField[index].price || 0
-                                  const newSubTotal = newQuantity * currentPrice
-                                  onChange(newQuantity || '')
-                                  if (parseInt(newSubTotal, 10) > 0) {
-                                    setValue(`data[${index}].subTotal`, newSubTotal)
-                                  }
-                                  if (
-                                    formField[index].quantity &&
-                                    formField[index].price &&
-                                    parseInt(formField[index].quantity, 10) > 0
-                                  ) {
-                                    calculateTotals()
-                                  }
-                                  checkDisabledTransform()
-                                }}
-                                type='number'
-                                sx={{ display: 'block' }}
-                                error={Boolean(errors?.data?.[index]?.quantity)}
-                                {...(errors?.data?.[index]?.quantity && {
-                                  helperText: errors?.data?.[index]?.quantity.message
-                                })}
-                              />
-                            </div>
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={5} md={2}>
-                        <Controller
-                          name={`data[${index}].price`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Price'
-                              value={value ? priceFormat(value) : ''}
-                              onChange={e => {
-                                handlePriceChange({
-                                  event: e,
-                                  index,
-                                  fieldName: 'data',
-                                  setValue,
-                                  formStateField: formField,
-                                  onChange,
-                                  isCalculation: true
-                                })
-                              }}
-                              type='text'
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors?.data?.[index]?.price)}
-                              {...(errors?.data?.[index]?.price && {
-                                helperText: errors?.data?.[index]?.price.message
-                              })}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={5} md={2.5}>
-                        <Controller
-                          name={`data[${index}].subTotal`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Sub Total'
-                              value={priceFormat(value || 0)}
-                              disabled
-                              type='text'
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors?.data?.[index]?.subTotal)}
-                              {...(errors?.data?.[index]?.subTotal && {
-                                helperText: errors?.data?.[index]?.subTotal.message
-                              })}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={1} md={1} sx={{ marginTop: '1.2rem' }}>
-                        {fields.length > 1 && (
-                          <IconButton onClick={() => deleteItem(index)} sx={{ color: 'text.primary' }}>
-                            <Icon icon='tabler:trash' />
+                          </Box>
+                          <IconButton
+                            onClick={handleAddVendor}
+                            size='small'
+                            sx={{
+                              width: 40,
+                              height: 40,
+                              flexShrink: 0,
+                              borderRadius: `${radii.md}px`,
+                              backgroundColor: colors.foreground,
+                              color: colors.primaryForeground,
+                              '&:hover': { backgroundColor: colors.foreground }
+                            }}
+                          >
+                            <Icon fontSize='1.125rem' icon='tabler:plus' />
                           </IconButton>
-                        )}
+                        </Box>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <DatePicker
+                          selected={date}
+                          id='basic'
+                          popperPlacement={popperPlacement}
+                          onChange={date => setDate(date)}
+                          fullWidth
+                          customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <Box>
+                          {vendorData?.email && (
+                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+                              {vendorData.email}
+                            </Typography>
+                          )}
+                          {vendorData?.address && (
+                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+                              {vendorData.address}
+                            </Typography>
+                          )}
+                          {vendorData?.phoneNumber && (
+                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+                              {vendorData.phoneNumber}
+                            </Typography>
+                          )}
+                          {vendorData?.rankName && (
+                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+                              {vendorData.rankName}
+                            </Typography>
+                          )}
+                        </Box>
                       </Grid>
                     </Grid>
                   </CardContent>
-                  <Divider />
-                </React.Fragment>
-              ))}
-              <CardContent>
-                <Grid container spacing={6}>
-                  <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}>
-                    <Button onClick={addMore} startIcon={<Icon icon='tabler:plus' />}>
-                      Tambahkan produk
-                    </Button>
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <Controller
-                      name={`grandTotalVendor`}
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          label='Total Purchase Order'
-                          value={value ? priceFormat(value) : '0'}
-                          type='text'
-                          disabled
-                          sx={{ display: 'block', zIndex: 0 }}
-                          error={Boolean(errors?.grandTotalVendor)}
-                          {...(errors?.grandTotalVendor && {
-                            helperText: errors?.grandTotalVendor.message
-                          })}
-                        />
+                </Card>
+              </Grid>
+
+              <Grid item xs={12} md={4}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, position: 'sticky', top: 16 }}>
+                  <Card elevation={0} sx={surfaceCardSx}>
+                    <CardContent sx={{ p: 5 }}>
+                      <Controller
+                        name='notes'
+                        control={control}
+                        render={({ field: { value, onChange } }) => (
+                          <CustomTextField
+                            multiline
+                            rows={4}
+                            fullWidth
+                            label='Catatan'
+                            placeholder='Catatan...'
+                            value={value || ''}
+                            onChange={e => onChange(e.target.value)}
+                          />
+                        )}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card
+                    elevation={0}
+                    sx={{
+                      borderRadius: `${radii.lg}px`,
+                      border: `1px solid ${statusTokens.success.border}`,
+                      boxShadow: shadows.xs,
+                      backgroundColor: statusTokens.success.bg
+                    }}
+                  >
+                    <CardContent sx={{ p: 5 }}>
+                      <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground, mb: 3 }}>
+                        Ringkasan
+                      </Typography>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.5 }}>
+                        <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>
+                          Total Purchase Order
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>
+                          {priceFormatWIthCurrency(getValues('grandTotalVendor')) || 'Rp0'}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.5 }}>
+                        <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>Total Barter</Typography>
+                        <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>
+                          - {priceFormatWIthCurrency(getValues('grandTotalBarter')) || 'Rp0'}
+                        </Typography>
+                      </Box>
+                      <Divider sx={{ borderBottomWidth: 2 }} />
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 2 }}>
+                        <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
+                          Grand Total
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '1.0625rem',
+                            fontWeight: 700,
+                            color: grandTotalIsNegative ? colors.destructive : colors.foreground
+                          }}
+                        >
+                          {grandTotalWatch < 0 ? '-' : ''}
+                          {priceFormatWIthCurrency(Math.abs(grandTotalWatch || 0)) || 'Rp0'}
+                        </Typography>
+                      </Box>
+                      {grandTotalIsNegative && (
+                        <Typography sx={{ fontSize: '0.75rem', color: colors.destructive, mt: 2 }}>
+                          Karena Total Barter &gt; Total Purchase Order maka vendor perlu membayar senilai Grand Total
+                          kepada Anda
+                        </Typography>
                       )}
-                    />
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-          {/* BODY PURCHASE ORDER BARTER */}
-          <Grid item xs={12}>
-            <Card>
-              <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
-                Barang Barter
-              </Typography>
-              {barterFields.map((item, index) => (
-                <React.Fragment key={item.id}>
-                  <CardContent>
-                    <Grid container spacing={6}>
-                      <Grid item xs={12} md={4}>
-                        <Controller
-                          name={`barterProduct[${index}].warehouseId`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomAutocomplete
-                              options={masterDataWarehouse}
-                              id='autocomplete-custom'
-                              getOptionLabel={option => option.name || ''}
-                              onChange={(event, newValue) => {
-                                onChange(+newValue?.id)
-                                handleWarehouseSelect(+newValue?.id)
-                              }}
-                              value={masterDataWarehouse.find(option => option.id === value) || null}
-                              renderInput={params => (
-                                <CustomTextField
-                                  {...params}
-                                  error={Boolean(errors?.barterProduct?.[index]?.warehouseId)}
-                                  {...(errors?.barterProduct?.[index]?.warehouseId && {
-                                    helperText: errors?.barterProduct?.[index]?.warehouseId.message
-                                  })}
-                                  label='Gudang Sumber'
+                    </CardContent>
+                  </Card>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} md={8}>
+                <SectionHeading number={2} title='Barang Purchase Order' />
+                <Card elevation={0} sx={{ ...surfaceCardSx, mb: 4 }}>
+                  <CardContent sx={{ p: 5 }}>
+                    {fields.map((item, index) => (
+                      <Box key={item.id} sx={index !== fields.length - 1 ? productRowSx : { mb: 4 }}>
+                        <Grid container spacing={4} alignItems='flex-start'>
+                          <Grid item xs={12} md={4}>
+                            <Controller
+                              name={`data[${index}].warehouseId`}
+                              control={control}
+                              rules={{ required: true }}
+                              render={({ field: { value, onChange } }) => (
+                                <CustomAutocomplete
+                                  options={masterDataWarehouse}
+                                  id='autocomplete-custom'
+                                  getOptionLabel={option => option.name || ''}
+                                  onChange={(event, newValue) => {
+                                    onChange(+newValue?.id)
+                                  }}
+                                  renderInput={params => (
+                                    <CustomTextField
+                                      value={value}
+                                      {...params}
+                                      fullWidth
+                                      error={Boolean(errors?.data?.[index]?.warehouseId)}
+                                      {...(errors?.data?.[index]?.warehouseId && {
+                                        helperText: errors?.data?.[index]?.warehouseId.message
+                                      })}
+                                      label='Gudang Tujuan'
+                                    />
+                                  )}
                                 />
                               )}
                             />
-                          )}
-                        />
-                      </Grid>
-                    </Grid>
-                    <Grid container spacing={6} sx={{ marginTop: 1 }}>
-                      <Grid item xs={12} md={4}>
-                        <Controller
-                          name={`barterProduct[${index}].warehouseProductId`}
-                          control={control}
-                          render={({ field: { value, onChange } }) => {
-                            const currentWarehouseId = getValues(`barterProduct[${index}].warehouseId`)
-                            let listProductWarehouse = []
-
-                            if (currentWarehouseId && dataWarehouseIds[currentWarehouseId]) {
-                              listProductWarehouse = dataWarehouseIds[currentWarehouseId]
-                            }
-
-                            return (
-                              <div>
+                          </Grid>
+                          <Grid item xs={12} md={7}>
+                            <Controller
+                              name={`data[${index}].masterProductId`}
+                              control={control}
+                              rules={{ required: true }}
+                              render={({ field: { value, onChange } }) => (
                                 <CustomAutocomplete
                                   key={item.id}
-                                  options={OptionsGroup(listProductWarehouse, 'categoryName')}
-                                  groupBy={option => option.categoryName}
+                                  options={OptionsGroup(listMasterProduct, 'category')}
+                                  groupBy={option => option.category}
                                   id='autocomplete-grouped'
-                                  getOptionLabel={option => option.productName || ''}
-                                  value={
-                                    listProductWarehouse.find(product => product.productWarehouseId === value) || null
-                                  }
+                                  getOptionLabel={option => option?.name || ''}
+                                  value={listMasterProduct.find(product => product?.id == value) || null}
+                                  isOptionEqualToValue={(option, value) => option.id === value?.id}
                                   onChange={(event, newValue) => {
-                                    onChange(+newValue?.productWarehouseId)
-                                    const selectedProduct = listProductWarehouse.find(
-                                      product => product.productWarehouseId === +newValue?.productWarehouseId
-                                    )
-                                    if (selectedProduct) {
-                                      setValue(`barterProduct[${index}].qty`, selectedProduct.quantity)
-                                      setValue(
-                                        `barterProduct[${index}].masterProductId`,
-                                        selectedProduct.masterProductId
-                                      )
-                                      setValue(`barterProduct[${index}].rackName`, selectedProduct.rackName)
-                                      setValue(`barterProduct[${index}].unitName`, selectedProduct.unitName)
-                                      setHelperTextChanges(!helperTextChanges)
-                                      // Fetch price base on selected product
-                                      handleFetchDefaultBasePrice({
-                                        productId: selectedProduct.masterProductId,
-                                        unitId: selectedProduct?.masterUnitId,
-                                        index,
-                                        fieldName: 'barterProduct'
-                                      })
-                                      handleResetValueAndForm({
-                                        fieldName: 'barterProduct',
-                                        index
-                                      })
-                                      handleFetchDefaultBaseModal({
-                                        productId: selectedProduct.masterProductId,
-                                        unitId: selectedProduct.masterUnitId,
-                                        index,
-                                        fieldName: 'barterProduct'
-                                      })
-                                    } else {
-                                      setValue(`barterProduct[${index}].qty`, '')
-                                      setValue(`barterProduct[${index}].masterProductId`, '')
-                                      setValue(`barterProduct[${index}].rackName`, '')
-                                    }
+                                    onChange(+newValue?.id)
+                                    checkDisabledTransform()
                                   }}
                                   renderInput={params => (
-                                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                      <Box display='flex' alignItems='center' mb={0}>
-                                        <Box
-                                          component='span'
-                                          sx={{
-                                            fontWeight: '',
-                                            fontSize: '0.85rem',
-                                            mr: 1
-                                          }}
-                                        >
-                                          {`Produk `}
-                                        </Box>
-                                        <Box
-                                          component='span'
-                                          sx={{
-                                            fontSize: '0.85rem',
-                                            marginTop: '',
-                                            cursor: 'pointer',
-                                            ':hover': { color: 'blue' }
-                                          }}
-                                          onClick={() => onSelectTransform(index)}
-                                        >
-                                          {titleProductInfo(index).titleTransformation}
-                                        </Box>
-                                      </Box>
+                                    <CustomTextField
+                                      value={item.masterProductId}
+                                      {...params}
+                                      fullWidth
+                                      error={Boolean(errors?.data?.[index]?.masterProductId)}
+                                      {...(errors?.data?.[index]?.masterProductId && {
+                                        helperText: errors?.data?.[index]?.masterProductId.message
+                                      })}
+                                      label='Produk'
+                                    />
+                                  )}
+                                />
+                              )}
+                            />
+                            <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1.5, mt: 2 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
+                                <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>
+                                  Transformasi
+                                </Typography>
+                                <IconButton
+                                  onClick={() => handleTransformHarga(index)}
+                                  disabled={getValues(`data[${index}].disabledTransform`)}
+                                  size='small'
+                                  aria-label='Transformasi Harga'
+                                  sx={{
+                                    border: `1px solid ${colors.border3}`,
+                                    backgroundColor: colors.background,
+                                    color: colors.foreground,
+                                    '&:hover': { backgroundColor: colors.background }
+                                  }}
+                                >
+                                  <Icon icon='lucide:arrow-left-right' fontSize='1.125rem' />
+                                </IconButton>
+                              </Box>
+                            </Box>
+                          </Grid>
+                          <Grid
+                            item
+                            xs={12}
+                            md={1}
+                            sx={{ display: 'flex', justifyContent: { xs: 'flex-end', md: 'center' } }}
+                          >
+                            {fields.length > 1 && (
+                              <IconButton
+                                onClick={() => deleteItem(index)}
+                                size='small'
+                                sx={{ color: colors.destructive }}
+                              >
+                                <Icon icon='tabler:trash' fontSize='1.125rem' />
+                              </IconButton>
+                            )}
+                          </Grid>
+                        </Grid>
+
+                        <Grid container spacing={4} alignItems='center' sx={{ mt: 0 }}>
+                          <Grid item xs={6} md={2.5}>
+                            <Controller
+                              name={`data[${index}].unitId`}
+                              control={control}
+                              rules={{ required: true }}
+                              render={({ field: { value, onChange } }) => (
+                                <CustomAutocomplete
+                                  key={item.id}
+                                  options={listMasterUnit}
+                                  id='autocomplete-grouped'
+                                  getOptionLabel={option => option.name || ''}
+                                  value={listMasterUnit.find(unit => unit.id === value) || null}
+                                  onChange={(event, newValue) => {
+                                    onChange(+newValue?.id)
+                                    const selectedProduct = getValues(`data[${index}].masterProductId`)
+                                    if (selectedProduct && newValue) {
+                                      handleFetchDefaultBasePrice({
+                                        productId: selectedProduct,
+                                        unitId: newValue?.id,
+                                        index,
+                                        fieldName: 'data'
+                                      })
+                                    }
+                                    checkDisabledTransform()
+                                  }}
+                                  renderInput={params => (
+                                    <CustomTextField
+                                      value={item.unitId}
+                                      {...params}
+                                      fullWidth
+                                      error={Boolean(errors?.data?.[index]?.unitId)}
+                                      {...(errors?.data?.[index]?.unitId && {
+                                        helperText: errors?.data?.[index]?.unitId.message
+                                      })}
+                                      label='Unit'
+                                    />
+                                  )}
+                                />
+                              )}
+                            />
+                          </Grid>
+                          <Grid item xs={6} md={2}>
+                            <Controller
+                              name={`data[${index}].quantity`}
+                              control={control}
+                              rules={{ required: true }}
+                              render={({ field: { value, onChange } }) => (
+                                <CustomTextField
+                                  fullWidth
+                                  label='Kuantiti'
+                                  value={value}
+                                  onChange={e => {
+                                    const newQuantity = +e.target.value
+                                    const currentPrice = formField[index].price || 0
+                                    const newSubTotal = newQuantity * currentPrice
+                                    onChange(newQuantity || '')
+                                    if (parseInt(newSubTotal, 10) > 0) {
+                                      setValue(`data[${index}].subTotal`, newSubTotal)
+                                    }
+                                    if (
+                                      formField[index].quantity &&
+                                      formField[index].price &&
+                                      parseInt(formField[index].quantity, 10) > 0
+                                    ) {
+                                      calculateTotals()
+                                    }
+                                    checkDisabledTransform()
+                                  }}
+                                  type='number'
+                                  error={Boolean(errors?.data?.[index]?.quantity)}
+                                  {...(errors?.data?.[index]?.quantity && {
+                                    helperText: errors?.data?.[index]?.quantity.message
+                                  })}
+                                />
+                              )}
+                            />
+                          </Grid>
+                          <Grid item xs={6} md={3.3}>
+                            <Controller
+                              name={`data[${index}].price`}
+                              control={control}
+                              rules={{ required: true }}
+                              render={({ field: { value, onChange } }) => (
+                                <CustomTextField
+                                  fullWidth
+                                  label='Harga'
+                                  value={value ? priceFormat(value) : ''}
+                                  onChange={e => {
+                                    handlePriceChange({
+                                      event: e,
+                                      index,
+                                      fieldName: 'data',
+                                      setValue,
+                                      formStateField: formField,
+                                      onChange,
+                                      isCalculation: true
+                                    })
+                                  }}
+                                  type='text'
+                                  error={Boolean(errors?.data?.[index]?.price)}
+                                  {...(errors?.data?.[index]?.price && {
+                                    helperText: errors?.data?.[index]?.price.message
+                                  })}
+                                />
+                              )}
+                            />
+                          </Grid>
+                          <Grid item xs={6} md={1.2}>
+                            <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground, mb: 1 }}>
+                              Modal Baru
+                            </Typography>
+                            <Controller
+                              name={`data[${index}].isNewModal`}
+                              control={control}
+                              defaultValue={false}
+                              render={({ field: { value, onChange } }) => (
+                                <Checkbox checked={value} onChange={e => onChange(e.target.checked)} sx={{ p: 0 }} />
+                              )}
+                            />
+                          </Grid>
+                          <Grid item xs={12} md={3}>
+                            <Controller
+                              name={`data[${index}].subTotal`}
+                              control={control}
+                              rules={{ required: true }}
+                              render={({ field: { value } }) => (
+                                <CustomTextField
+                                  fullWidth
+                                  label='Sub Total'
+                                  value={priceFormat(value || 0)}
+                                  disabled
+                                  type='text'
+                                  error={Boolean(errors?.data?.[index]?.subTotal)}
+                                  {...(errors?.data?.[index]?.subTotal && {
+                                    helperText: errors?.data?.[index]?.subTotal.message
+                                  })}
+                                  sx={{
+                                    '& .MuiFilledInput-root.Mui-disabled': {
+                                      backgroundColor: `${statusTokens.info.bg} !important`,
+                                      border: `1px solid ${statusTokens.info.border}`
+                                    },
+                                    '& .MuiInputBase-input.Mui-disabled': {
+                                      WebkitTextFillColor: statusTokens.info.fg,
+                                      fontWeight: 600
+                                    }
+                                  }}
+                                />
+                              )}
+                            />
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    ))}
+
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: 4
+                      }}
+                    >
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        onClick={addMore}
+                        startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+                        sx={{
+                          color: colors.foreground,
+                          borderColor: colors.border3,
+                          boxShadow: shadows.xs,
+                          '&:hover': { borderColor: colors.border3 }
+                        }}
+                      >
+                        Tambah Produk
+                      </Button>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'flex-end',
+                          borderRadius: `${radii.full}px`,
+                          border: `1px solid ${statusTokens.info.border}`,
+                          backgroundColor: statusTokens.info.bg,
+                          px: 3,
+                          py: 1.5,
+                        }}
+                      >
+                        <Typography sx={{ fontSize: '0.75rem', fontWeight: 500, color: statusTokens.info.fg }}>
+                          Total Purchase Order
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.9375rem', fontWeight: 700, color: statusTokens.info.fg }}>
+                          {priceFormatWIthCurrency(getValues('grandTotalVendor')) || 0}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              <Grid item xs={12} md={8}>
+                <SectionHeading number={3} title='Barang Barter' />
+                <Card elevation={0} sx={{ ...surfaceCardSx, mb: 4 }}>
+                  <CardContent sx={{ p: 5 }}>
+                    {barterFields.map((item, index) => {
+                      const currentWarehouseId = getValues(`barterProduct[${index}].warehouseId`)
+                      let listProductWarehouse = []
+                      if (currentWarehouseId && dataWarehouseIds[currentWarehouseId]) {
+                        listProductWarehouse = dataWarehouseIds[currentWarehouseId]
+                      }
+                      const selectedProductWarehouseId = getValues(`barterProduct[${index}].warehouseProductId`)
+                      const selectedProduct = listProductWarehouse.find(
+                        product => product.productWarehouseId === selectedProductWarehouseId
+                      )
+                      const tone = selectedProduct
+                        ? stockTone(selectedProduct.quantity, selectedProduct.minimumStock)
+                        : null
+
+                      return (
+                        <Box key={item.id} sx={index !== barterFields.length - 1 ? productRowSx : { mb: 4 }}>
+                          <Grid container spacing={4} alignItems='flex-start'>
+                            <Grid item xs={12} md={4}>
+                              <Controller
+                                name={`barterProduct[${index}].warehouseId`}
+                                control={control}
+                                rules={{ required: true }}
+                                render={({ field: { value, onChange } }) => (
+                                  <CustomAutocomplete
+                                    options={masterDataWarehouse}
+                                    id='autocomplete-custom'
+                                    getOptionLabel={option => option.name || ''}
+                                    onChange={(event, newValue) => {
+                                      onChange(+newValue?.id)
+                                      handleWarehouseSelect(+newValue?.id)
+                                    }}
+                                    value={masterDataWarehouse.find(option => option.id === value) || null}
+                                    renderInput={params => (
+                                      <CustomTextField
+                                        {...params}
+                                        fullWidth
+                                        error={Boolean(errors?.barterProduct?.[index]?.warehouseId)}
+                                        {...(errors?.barterProduct?.[index]?.warehouseId && {
+                                          helperText: errors?.barterProduct?.[index]?.warehouseId.message
+                                        })}
+                                        label='Gudang Sumber*'
+                                      />
+                                    )}
+                                  />
+                                )}
+                              />
+                            </Grid>
+                            <Grid item xs={12} md={7}>
+                              <Controller
+                                name={`barterProduct[${index}].warehouseProductId`}
+                                control={control}
+                                render={({ field: { value, onChange } }) => (
+                                  <CustomAutocomplete
+                                    key={item.id}
+                                    options={OptionsGroup(listProductWarehouse, 'categoryName')}
+                                    groupBy={option => option.categoryName}
+                                    id='autocomplete-grouped'
+                                    getOptionLabel={option => option.productName || ''}
+                                    value={
+                                      listProductWarehouse.find(product => product.productWarehouseId === value) || null
+                                    }
+                                    onChange={(event, newValue) => {
+                                      onChange(+newValue?.productWarehouseId)
+                                      const selectedProduct = listProductWarehouse.find(
+                                        product => product.productWarehouseId === +newValue?.productWarehouseId
+                                      )
+                                      if (selectedProduct) {
+                                        setValue(`barterProduct[${index}].qty`, selectedProduct.quantity)
+                                        setValue(
+                                          `barterProduct[${index}].masterProductId`,
+                                          selectedProduct.masterProductId
+                                        )
+                                        setValue(`barterProduct[${index}].rackName`, selectedProduct.rackName)
+                                        setValue(`barterProduct[${index}].unitName`, selectedProduct.unitName)
+                                        setHelperTextChanges(!helperTextChanges)
+                                        handleFetchDefaultBasePrice({
+                                          productId: selectedProduct.masterProductId,
+                                          unitId: selectedProduct?.masterUnitId,
+                                          index,
+                                          fieldName: 'barterProduct'
+                                        })
+                                        handleResetValueAndForm({
+                                          fieldName: 'barterProduct',
+                                          index
+                                        })
+                                        handleFetchDefaultBaseModal({
+                                          productId: selectedProduct.masterProductId,
+                                          unitId: selectedProduct.masterUnitId,
+                                          index,
+                                          fieldName: 'barterProduct'
+                                        })
+                                      } else {
+                                        setValue(`barterProduct[${index}].qty`, '')
+                                        setValue(`barterProduct[${index}].masterProductId`, '')
+                                        setValue(`barterProduct[${index}].rackName`, '')
+                                      }
+                                    }}
+                                    renderInput={params => (
                                       <CustomTextField
                                         value={item.warehouseProductId}
                                         {...params}
-                                        sx={{ zIndex: 0 }}
+                                        fullWidth
                                         error={Boolean(errors?.barterProduct?.[index]?.warehouseProductId)}
                                         {...(errors?.barterProduct?.[index]?.warehouseProductId && {
                                           helperText: errors?.barterProduct?.[index]?.warehouseProductId.message
                                         })}
+                                        label='Produk*'
                                       />
-                                    </Box>
-                                  )}
-                                />
-                                <Typography variant='body2' color='textSecondary' sx={{ marginTop: '4px' }}>
-                                  {titleProductInfo(index).titleProduct}
-                                </Typography>
-                              </div>
-                            )
-                          }}
-                        />
-                      </Grid>
-                      <Grid key={getValues(`barterProduct[${index}].warehouseProductId`)} item xs={5} md={1}>
-                        <Controller
-                          name={`barterProduct[${index}].quantity`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <div>
-                              <CustomTextField
-                                fullWidth
-                                label='Kuantiti'
-                                value={value}
-                                onChange={e => {
-                                  const newQuantity = +e.target.value
-                                  const currentPrice = formBarter[index]?.price || 0
-                                  const newSubTotal = newQuantity * currentPrice
-
-                                  onChange(newQuantity || '')
-                                  // to trigger transform
-                                  trigger(`barterProduct[${index}].quantity`)
-                                  if (parseInt(newSubTotal, 10) > 0) {
-                                    setHelperTextChanges(!helperTextChanges)
-                                    setValue(`barterProduct[${index}].subTotal`, newSubTotal)
-                                  }
-                                  if (
-                                    formBarter[index]?.quantity &&
-                                    formBarter[index]?.price &&
-                                    parseInt(formBarter[index]?.quantity, 10) > 0
-                                  ) {
-                                    calculateTotals()
-                                  }
-                                }}
-                                type='number'
-                                sx={{ display: 'block' }}
-                                error={Boolean(errors?.barterProduct?.[index]?.quantity)}
-                                {...(errors?.barterProduct?.[index]?.quantity && {
-                                  helperText: errors?.barterProduct?.[index]?.quantity.message
-                                })}
+                                    )}
+                                  />
+                                )}
                               />
-                              <Typography variant='body2' color='textSecondary'>
-                                {titleProductInfo(index).titleQuantity}
-                              </Typography>
-                            </div>
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={5} md={2}>
-                        <Controller
-                          name={`barterProduct[${index}].price`}
-                          control={control}
-                          // rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Price'
-                              value={value ? priceFormat(value) : ''}
-                              onChange={e => {
-                                handlePriceChange({
-                                  event: e,
-                                  index,
-                                  fieldName: 'barterProduct',
-                                  setValue,
-                                  formStateField: formBarter,
-                                  onChange,
-                                  isCalculation: true
-                                })
-                              }}
-                              type='text'
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors?.barterProduct?.[index]?.price)}
-                              {...(errors?.barterProduct?.[index]?.price && {
-                                helperText: errors?.barterProduct?.[index]?.price.message
-                              })}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={5} md={2}>
-                        <Controller
-                          name={`barterProduct[${index}].modal`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Modal'
-                              value={priceFormat(value || 0)}
-                              type='text'
-                              onChange={e => {
-                                handlePriceChange({
-                                  event: e,
-                                  index,
-                                  fieldName: 'barterProduct',
-                                  setValue,
-                                  formStateField: formBarter,
-                                  onChange
-                                })
-                              }}
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors?.barterProduct?.[index]?.modal)}
-                              {...(errors?.barterProduct?.[index]?.modal && {
-                                helperText: errors?.barterProduct?.[index]?.modal.message
-                              })}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={5} md={2}>
-                        <Controller
-                          name={`barterProduct[${index}].subTotal`}
-                          control={control}
-                          // rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              fullWidth
-                              label='Sub Total'
-                              value={priceFormat(value || 0)}
-                              disabled
-                              type='text'
-                              sx={{ display: 'block' }}
-                              error={Boolean(errors?.barterProduct?.[index]?.subTotal)}
-                              {...(errors?.barterProduct?.[index]?.subTotal && {
-                                helperText: errors?.barterProduct?.[index]?.subTotal.message
-                              })}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={1} md={1} sx={{ marginTop: '1.2rem' }}>
-                        <IconButton onClick={() => removeBarterProduct(index)} sx={{ color: 'text.primary' }}>
-                          <Icon icon='tabler:trash' />
-                        </IconButton>
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                  <Divider />
-                </React.Fragment>
-              ))}
-              <CardContent>
-                <Grid container spacing={6}>
-                  <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}>
-                    <Button
-                      onClick={() =>
-                        appendBarterProduct({
-                          warehouseProductId: '',
-                          price: '',
-                          quantity: '',
-                          subTotal: '',
-                          warehouseId: '',
-                          modal: ''
-                        })
-                      }
-                      startIcon={<Icon icon='tabler:plus' />}
+                              <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1.5, mt: 2 }}>
+                                <Chip
+                                  size='small'
+                                  label={`Rak: ${getValues(`barterProduct[${index}].rackName`) || '-'}`}
+                                  sx={infoChipSx}
+                                />
+                                <Chip
+                                  size='small'
+                                  label={`Unit: ${getValues(`barterProduct[${index}].unitName`) || '-'}`}
+                                  sx={infoChipSx}
+                                />
+                                {selectedProduct && (
+                                  <Chip
+                                    size='small'
+                                    label={`Stok: ${selectedProduct.quantity}`}
+                                    sx={toneChipSx(tone)}
+                                  />
+                                )}
+                                {getValues(`barterProduct[${index}].quantity`) > 0 && (
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
+                                    <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>
+                                      Transformasi
+                                    </Typography>
+                                    <IconButton
+                                      onClick={() => onSelectTransform(index)}
+                                      size='small'
+                                      aria-label='Transformasi Produk'
+                                      sx={{
+                                        border: `1px solid ${colors.border3}`,
+                                        backgroundColor: colors.background,
+                                        color: colors.foreground,
+                                        '&:hover': { backgroundColor: colors.background }
+                                      }}
+                                    >
+                                      <Icon icon='lucide:arrow-left-right' fontSize='1.125rem' />
+                                    </IconButton>
+                                  </Box>
+                                )}
+                              </Box>
+                            </Grid>
+                            <Grid
+                              item
+                              xs={12}
+                              md={1}
+                              sx={{ display: 'flex', justifyContent: { xs: 'flex-end', md: 'center' } }}
+                            >
+                              <IconButton
+                                onClick={() => removeBarterProduct(index)}
+                                size='small'
+                                sx={{ color: colors.destructive }}
+                              >
+                                <Icon icon='tabler:trash' fontSize='1.125rem' />
+                              </IconButton>
+                            </Grid>
+                          </Grid>
+
+                          <Grid container spacing={4} sx={{ mt: 0 }}>
+                            <Grid item xs={6} md={3}>
+                              <Controller
+                                name={`barterProduct[${index}].quantity`}
+                                control={control}
+                                rules={{ required: true }}
+                                render={({ field: { value, onChange } }) => (
+                                  <CustomTextField
+                                    fullWidth
+                                    label='Kuantiti'
+                                    value={value}
+                                    onChange={e => {
+                                      const newQuantity = +e.target.value
+                                      const currentPrice = formBarter[index]?.price || 0
+                                      const newSubTotal = newQuantity * currentPrice
+
+                                      onChange(newQuantity || '')
+                                      trigger(`barterProduct[${index}].quantity`)
+                                      if (parseInt(newSubTotal, 10) > 0) {
+                                        setHelperTextChanges(!helperTextChanges)
+                                        setValue(`barterProduct[${index}].subTotal`, newSubTotal)
+                                      }
+                                      if (
+                                        formBarter[index]?.quantity &&
+                                        formBarter[index]?.price &&
+                                        parseInt(formBarter[index]?.quantity, 10) > 0
+                                      ) {
+                                        calculateTotals()
+                                      }
+                                    }}
+                                    type='number'
+                                    error={Boolean(errors?.barterProduct?.[index]?.quantity)}
+                                    {...(errors?.barterProduct?.[index]?.quantity && {
+                                      helperText: errors?.barterProduct?.[index]?.quantity.message
+                                    })}
+                                  />
+                                )}
+                              />
+                            </Grid>
+                            <Grid item xs={6} md={3}>
+                              <Controller
+                                name={`barterProduct[${index}].price`}
+                                control={control}
+                                render={({ field: { value, onChange } }) => (
+                                  <CustomTextField
+                                    fullWidth
+                                    label='Harga'
+                                    value={value ? priceFormat(value) : ''}
+                                    onChange={e => {
+                                      handlePriceChange({
+                                        event: e,
+                                        index,
+                                        fieldName: 'barterProduct',
+                                        setValue,
+                                        formStateField: formBarter,
+                                        onChange,
+                                        isCalculation: true
+                                      })
+                                    }}
+                                    type='text'
+                                    error={Boolean(errors?.barterProduct?.[index]?.price)}
+                                    {...(errors?.barterProduct?.[index]?.price && {
+                                      helperText: errors?.barterProduct?.[index]?.price.message
+                                    })}
+                                  />
+                                )}
+                              />
+                            </Grid>
+                            <Grid item xs={6} md={3}>
+                              <Controller
+                                name={`barterProduct[${index}].modal`}
+                                control={control}
+                                rules={{ required: true }}
+                                render={({ field: { value, onChange } }) => (
+                                  <CustomTextField
+                                    fullWidth
+                                    label='Modal'
+                                    value={priceFormat(value || 0)}
+                                    type='text'
+                                    onChange={e => {
+                                      handlePriceChange({
+                                        event: e,
+                                        index,
+                                        fieldName: 'barterProduct',
+                                        setValue,
+                                        formStateField: formBarter,
+                                        onChange
+                                      })
+                                    }}
+                                    error={Boolean(errors?.barterProduct?.[index]?.modal)}
+                                    {...(errors?.barterProduct?.[index]?.modal && {
+                                      helperText: errors?.barterProduct?.[index]?.modal.message
+                                    })}
+                                  />
+                                )}
+                              />
+                            </Grid>
+                            <Grid item xs={6} md={3}>
+                              <Controller
+                                name={`barterProduct[${index}].subTotal`}
+                                control={control}
+                                render={({ field: { value } }) => (
+                                  <CustomTextField
+                                    fullWidth
+                                    label='Sub Total'
+                                    value={priceFormat(value || 0)}
+                                    disabled
+                                    type='text'
+                                    error={Boolean(errors?.barterProduct?.[index]?.subTotal)}
+                                    {...(errors?.barterProduct?.[index]?.subTotal && {
+                                      helperText: errors?.barterProduct?.[index]?.subTotal.message
+                                    })}
+                                    sx={{
+                                      '& .MuiFilledInput-root.Mui-disabled': {
+                                        backgroundColor: `${barterTone.bg} !important`,
+                                        border: `1px solid ${barterTone.border}`
+                                      },
+                                      '& .MuiInputBase-input.Mui-disabled': {
+                                        WebkitTextFillColor: barterTone.fg,
+                                        fontWeight: 600
+                                      }
+                                    }}
+                                  />
+                                )}
+                              />
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      )
+                    })}
+
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: 4
+                      }}
                     >
-                      Tambahkan produk
-                    </Button>
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <Controller
-                      name={`grandTotalBarter`}
-                      control={control}
-                      // rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          label='Total Barter'
-                          value={value ? priceFormat(value) : '0'}
-                          type='text'
-                          disabled
-                          sx={{ display: 'block' }}
-                          error={Boolean(errors?.grandTotalBarter)}
-                          {...(errors?.grandTotalBarter && {
-                            helperText: errors?.grandTotalBarter.message
-                          })}
-                        />
-                      )}
-                    />
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-          {/* GRAND TOTAL */}
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Grid container spacing={6}>
-                  <Grid item xs={12} md={9} sx={{ marginTop: '1rem' }}></Grid>
-                  <Grid item xs={12} md={2}>
-                    <Controller
-                      name={`grandTotal`}
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          label='Grand Total'
-                          value={value ? priceFormat(value) : '0'}
-                          type='text'
-                          disabled
-                          sx={{ display: 'block' }}
-                          error={Boolean(errors?.grandTotal)}
-                          {...(errors?.grandTotal && {
-                            helperText: errors?.grandTotal.message
-                          })}
-                        />
-                      )}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid item xs={12}>
-                  <Controller
-                    name={`notes`}
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange } }) => (
-                      <CustomTextField
-                        multiline
-                        rows={3}
-                        fullWidth
-                        label='Catatan'
-                        placeholder={'Catatan...'}
-                        value={value}
-                        onChange={e => {
-                          onChange(e.target.value)
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        onClick={() =>
+                          appendBarterProduct({
+                            warehouseProductId: '',
+                            price: '',
+                            quantity: '',
+                            subTotal: '',
+                            warehouseId: '',
+                            modal: ''
+                          })
+                        }
+                        startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+                        sx={{
+                          color: colors.foreground,
+                          borderColor: colors.border3,
+                          boxShadow: shadows.xs,
+                          '&:hover': { borderColor: colors.border3 }
                         }}
-                        type='text'
-                        sx={{ display: 'block' }}
-                      />
-                    )}
-                  />
-                </Grid>
-              </CardContent>
-            </Card>
+                      >
+                        Tambah Produk
+                      </Button>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'flex-end',
+                          borderRadius: `${radii.full}px`,
+                          border: `1px solid ${barterTone.border}`,
+                          backgroundColor: barterTone.bg,
+                          px: 3,
+                          py: 1.5
+                        }}
+                      >
+                        <Typography sx={{ fontSize: '0.75rem', fontWeight: 500, color: barterTone.fg }}>
+                          Total Barter
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.9375rem', fontWeight: 700, color: barterTone.fg }}>
+                          {priceFormatWIthCurrency(getValues('grandTotalBarter')) || 0}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
           </Grid>
-          {/* BUTTON SUBMIT */}
-          <Grid
-            container
-            sx={{ paddingLeft: '25px', marginTop: '20px' }}
-            display='flex'
-            justifyContent='flex-end'
-            gap={6}
-          >
-            {
-              loadingCreatePurchaseOrder ? (
-                <Button variant='contained' disabled>
-                  <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
-                  Submitting...
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    variant='tonal'
-                    color='secondary'
-                    onClick={() => router.back()}
-                    startIcon={<Icon icon='tabler:x' />}
-                  >
-                    Cancel
-                  </Button>
-                  <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-                    Submit
-                  </Button>
-                </>
-              )
-            }
+
+          <Grid item xs={12}>
+            <FormActionBar
+              onCancel={() => router.back()}
+              loading={loadingCreatePurchaseOrder}
+              submitLabel='Submit'
+              cancelLabel='Cancel'
+              loadingLabel='Submitting...'
+            />
           </Grid>
         </Grid>
       </form>
