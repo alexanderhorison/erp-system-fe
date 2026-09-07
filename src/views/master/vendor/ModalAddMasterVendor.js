@@ -1,42 +1,45 @@
+import { useEffect } from 'react'
+
 // ** MUI Imports
-import {
-  Grid,
-} from '@mui/material'
+import Grid from '@mui/material/Grid'
 
-// ** Styles Import
-import 'react-credit-cards/es/styles-compiled.css'
+// ** Custom Component Import
+import CustomTextField from 'src/@core/components/mui/text-field'
 
-// ** Icon Imports
-
+// ** Third Party Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 
-import { useEffect } from 'react'
-import { fetchMasterDataRank } from 'src/store/apps/master/rank'
-import FormSelectSimple from 'src/views/common/Form/FormSelectSimple'
+// ** Store
 import { addMasterDataVendor, editMasterDataVendor } from 'src/store/apps/master/vendor'
-import FormInputText from 'src/views/common/Form/FormInputText'
-import BaseModal from 'src/views/common/BaseModal'
+import { fetchMasterDataRank } from 'src/store/apps/master/rank'
 
+// ** Shared Components
+import AppModal from 'src/views/common/AppModal'
+import FormSelectSimple from 'src/views/common/Form/FormSelectSimple'
 
 export default function ModalAddMasterVendor({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
   const { defaultValue, detail: detailVendor, loadingAdd, loadingEdit } = useSelector(state => state.masterVendor)
   const { data: dataRank } = useSelector(state => state.masterRank)
 
-  // SHCEMA YUP VALIDATION
+  // SCHEMA YUP VALIDATION
   const schema = yup.object().shape({
-    name: yup.string().required('Nama company harus diisi'),
+    name: yup.string().required('Nama vendor harus diisi'),
     phoneNumber: yup.string().required('Nomor telepon harus diisi'),
     address: yup.string().optional(),
     email: yup.string().email('Masukkan email yang valid').optional(),
     description: yup.string().optional(),
     gender: yup.string().required('Jenis kelamin harus diisi'),
     notes: yup.string().optional(),
-    rankId: yup.number().required('Rank harus dipilih'),
+    rankId: yup.number().required('Rank harus dipilih')
   })
+
+  useEffect(() => {
+    dispatch(fetchMasterDataRank())
+  }, [dispatch])
 
   // REACT FORM
   const {
@@ -58,164 +61,148 @@ export default function ModalAddMasterVendor({ open, setOpen, typeModal, id }) {
     }
   }
 
-  useEffect(() => {
-    dispatch(fetchMasterDataRank())
-  }, [])
-
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={() => setOpen(false)}
       onSubmit={handleSubmit(onSubmit)}
-      title={typeModal === 'ADD'
-        ? 'Tambahkan Vendor Baru'
-        : typeModal === 'VIEW'
-          ? 'Detail Vendor'
-          : 'Ubah Vendor'}
-      size="sm"
+      title={typeModal === 'ADD' ? 'Tambah Vendor Baru' : typeModal === 'VIEW' ? 'Detail Vendor' : 'Ubah Vendor'}
+      size='sm'
       showActions={typeModal !== 'VIEW'}
       loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
     >
-      <Grid container spacing={6}>
+      <Grid container spacing={4}>
         <Grid item xs={12}>
-          <Grid container spacing={6}>
-            <Grid item xs={12} sm={12}>
-              <FormInputText
-                label={'Name Vendor'}
-                name={'name'}
-                control={control}
-                errors={errors}
+          <Controller
+            name='name'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                value={value || ''}
+                label='Nama Vendor'
+                placeholder=''
+                onChange={onChange}
                 disabled={typeModal === 'VIEW'}
-                placeholder='Masukkan Name Vendor'
+                error={Boolean(errors.name)}
+                aria-describedby='validation-schema-name'
+                {...(errors.name && { helperText: errors.name.message })}
               />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <FormInputText
-                label={'Alamat Vendor'}
-                name={'address'}
-                control={control}
-                errors={errors}
+            )}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Controller
+            name='phoneNumber'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                value={value || ''}
+                label='Nomor Telepon'
+                placeholder=''
+                onChange={onChange}
                 disabled={typeModal === 'VIEW'}
-                placeholder='Masukkan Alamat Vendor'
-                multiline={true}
-                rows={3}
+                error={Boolean(errors.phoneNumber)}
+                aria-describedby='validation-schema-phone'
+                {...(errors.phoneNumber && { helperText: errors.phoneNumber.message })}
               />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <FormInputText
-                label={'Nomor Telepon'}
-                name={'phoneNumber'}
-                control={control}
-                errors={errors}
+            )}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Controller
+            name='email'
+            control={control}
+            rules={{ required: false }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                type='email'
+                value={value || ''}
+                label='Email'
+                placeholder=''
+                onChange={onChange}
                 disabled={typeModal === 'VIEW'}
-                placeholder='Masukkan Nomor Telepon'
+                error={Boolean(errors.email)}
+                aria-describedby='validation-schema-email'
+                {...(errors.email && { helperText: errors.email.message })}
               />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <FormInputText
-                label={'Email'}
-                name={'email'}
-                control={control}
-                errors={errors}
-                disabled={typeModal === 'VIEW'}
-                placeholder='Masukkan Email'
-              />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <FormSelectSimple
-                label={'Pilih Jenis Kelamin'}
-                control={control}
-                errors={errors}
-                disabled={typeModal === 'VIEW'}
-                data={[
-                  { value: "Laki-laki", name: 'Laki-laki' },
-                  { value: "Perempuan", name: 'Perempuan' },
-                  { value: "Lainnya", name: 'Lainnya' }
-                ]}
-                name={'gender'}
-                optionsValue={'value'}
-                optionsLabel={'name'}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <FormSelectSimple
-                label={'Pilih Rank'}
-                control={control}
-                errors={errors}
-                disabled={typeModal === 'VIEW'}
-                data={dataRank}
-                name={'rankId'}
-                optionsValue={'id'}
-                optionsLabel={'name'}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <FormInputText
-                label={'Catatan'}
-                name={'notes'}
-                control={control}
-                errors={errors}
-                disabled={typeModal === 'VIEW'}
-                placeholder='Masukkan Catatan'
-                multiline={true}
+            )}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Controller
+            name='address'
+            control={control}
+            rules={{ required: false }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
                 rows={4}
+                value={value || ''}
+                fullWidth
+                multiline
+                onChange={onChange}
+                disabled={typeModal === 'VIEW'}
+                label='Alamat'
+                error={Boolean(errors.address)}
+                aria-describedby='validation-schema-address'
+                {...(errors.address && { helperText: errors.address.message })}
               />
-            </Grid>
-          </Grid>
+            )}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <FormSelectSimple
+            label='Pilih Jenis Kelamin'
+            control={control}
+            errors={errors}
+            disabled={typeModal === 'VIEW'}
+            data={[
+              { value: 'Laki-laki', name: 'Laki-laki' },
+              { value: 'Perempuan', name: 'Perempuan' },
+              { value: 'Lainnya', name: 'Lainnya' }
+            ]}
+            name='gender'
+            optionsValue='value'
+            optionsLabel='name'
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <FormSelectSimple
+            label='Pilih Rank'
+            control={control}
+            errors={errors}
+            disabled={typeModal === 'VIEW'}
+            data={dataRank}
+            name='rankId'
+            optionsValue='id'
+            optionsLabel='name'
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Controller
+            name='notes'
+            control={control}
+            rules={{ required: false }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                rows={4}
+                value={value || ''}
+                fullWidth
+                multiline
+                onChange={onChange}
+                disabled={typeModal === 'VIEW'}
+                label='Catatan'
+                error={Boolean(errors.notes)}
+                aria-describedby='validation-schema-notes'
+              />
+            )}
+          />
         </Grid>
       </Grid>
-    </BaseModal>
-    // <Card>
-    //   <Dialog
-    //     fullWidth
-    //     open={open}
-    //     maxWidth='sm'
-    //     scroll='body'
-    //     onClose={handleClose}
-    //     sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
-    //   >
-    //     <form onSubmit={handleSubmit(onSubmit)}>
-    //       <DialogContent
-    //         sx={{
-    //           pb: theme => `${theme.spacing(8)} !important`,
-    //           px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-    //           pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-    //         }}
-    //       >
-    //         <CustomCloseButton onClick={handleClose}>
-    //           <Icon icon='tabler:x' fontSize='1.25rem' />
-    //         </CustomCloseButton>
-    //         <Box sx={{ mb: 4, textAlign: 'center' }}>
-    //           <Typography variant='h3' sx={{ mb: 3 }}>
-    //             {typeModal === 'ADD'
-    //               ? 'Tambahkan Vendor Baru'
-    //               : typeModal === 'VIEW'
-    //                 ? 'Detail Vendor'
-    //                 : 'Ubah Vendor'}
-    //           </Typography>
-    //         </Box>
-
-    //       </DialogContent>
-    //       <DialogActions
-    //         sx={{
-    //           justifyContent: 'end',
-    //           px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-    //           pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-    //         }}
-    //       >
-    //         {typeModal !== 'VIEW' && (
-    //           <>
-    //             <Button variant='tonal' color='secondary' onClick={handleClose} hidden={typeModal === 'VIEW'}>
-    //               Cancel
-    //             </Button>
-    //             <Button type='submit' variant='contained' hidden={typeModal === 'VIEW'}>
-    //               Submit
-    //             </Button>
-    //           </>
-    //         )}
-    //       </DialogActions>
-    //     </form>
-    //   </Dialog>
-    // </Card>
+    </AppModal>
   )
 }

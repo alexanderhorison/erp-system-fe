@@ -1,65 +1,76 @@
-import { Grid, Typography } from '@mui/material'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+
+// ** MUI Imports
+import Grid from '@mui/material/Grid'
+
 import { fetchMasterDataVendorDetail } from 'src/store/apps/master/vendor'
-import ButtonBack from 'src/views/common/ButtonBack'
-import CustomTab from 'src/views/common/CustomTab'
+import { useSettings } from 'src/@core/hooks/useSettings'
+import PageHeader from 'src/views/common/PageHeader'
+import SectionHeading from 'src/views/common/SectionHeading'
 import DetailVendor from 'src/views/master/vendor/DetailVendor'
 import SummaryVendor from 'src/views/master/vendor/SummaryVendor'
 import TablePurchaseOrderVendor from 'src/views/master/vendor/TablePurchaseOrderVendor'
 
 export default function DetailMasterVendor() {
   const dispatch = useDispatch()
-  const query = useRouter().query
-  const [activeTab, setActiveTab] = useState('summary')
-  const [loadingTab, setLoadingTab] = useState(false)
+  const router = useRouter()
+  const query = router.query
 
   const { loadingDetail, detail: detailVendor } = useSelector(state => state.masterVendor)
 
+  const { settings, saveSettings } = useSettings()
+
+  // Collapse the sidebar while this detail page is open — the two-column
+  // layout (vendor info + summary + history table) needs the extra width —
+  // and restore whatever the user had before on the way out.
+  useEffect(() => {
+    const wasNavCollapsed = settings.navCollapsed
+    if (!wasNavCollapsed) {
+      saveSettings({ ...settings, navCollapsed: true })
+    }
+    return () => {
+      saveSettings({ ...settings, navCollapsed: wasNavCollapsed })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   useEffect(() => {
     if (query?.id) {
-      dispatch(fetchMasterDataVendorDetail(query?.id))
+      dispatch(fetchMasterDataVendorDetail(query.id))
     }
-  }, [query.id])
-
-  const tabList = [
-    {
-      label: 'Summary',
-      value: 'summary',
-      icon: 'tabler:wallet'
-    },
-    {
-      label: 'Purchase Order',
-      value: 'purchase-order',
-      icon: 'tabler:truck-delivery'
-    }
-  ]
+  }, [query.id, dispatch])
 
   return (
-    <Grid container spacing={6}>
-      <ButtonBack name='Detail Data Vendor' paddingY={0} />
-      <Grid item xs={4}>
-        <DetailVendor data={detailVendor} loading={loadingDetail} />
-      </Grid>
-      <Grid item xs={8}>
-        <CustomTab
-          tabContentList={tabList}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          loading={loadingTab}
-          setLoadingTab={setLoadingTab}
+    <Grid container>
+      <Grid item xs={12}>
+        <PageHeader
+          title='View Detail Vendor'
+          onBack={() => router.back()}
+          breadcrumbs={[
+            { label: 'Purchase Order' },
+            { label: 'Data Vendor' },
+            { label: 'Vendor', href: '/master/vendor' },
+            { label: detailVendor?.name || 'Detail' }
+          ]}
         />
-        {activeTab === 'summary' && (
-          <Grid item xs={12} sx={{ mt: 3 }}>
+
+        <Grid container spacing={4}>
+          <Grid item xs={12}>
+            <DetailVendor data={detailVendor} loading={loadingDetail} />
+          </Grid>
+
+          <Grid item xs={12}>
+            <SectionHeading number={2} title='Ringkasan Vendor' />
             <SummaryVendor />
           </Grid>
-        )}
-        {activeTab === 'purchase-order' && (
-          <Grid item xs={12} sx={{ mt: 3 }}>
-            <TablePurchaseOrderVendor />
+
+          <Grid item xs={12}>
+            <SectionHeading number={3} title='Riwayat Purchase Order' />
+            <TablePurchaseOrderVendor vendorName={detailVendor?.name} />
           </Grid>
-        )}
+        </Grid>
       </Grid>
     </Grid>
   )

@@ -1,13 +1,16 @@
-import { Grid, Typography } from "@mui/material";
-import TableMasterVendor from "src/views/master/vendor/TableMasterVendor";
+import Grid from '@mui/material/Grid'
+
+import PageHeader from 'src/views/common/PageHeader'
+import TableMasterVendor from 'src/views/master/vendor/TableMasterVendor'
 
 export default function HomeMasterDataVendor() {
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          Master Data Vendor
-        </Typography>
+        <PageHeader
+          title='Master Data Vendor'
+          breadcrumbs={[{ label: 'Purchase Order' }, { label: 'Data Vendor' }, { label: 'Vendor' }]}
+        />
         <TableMasterVendor />
       </Grid>
     </Grid>

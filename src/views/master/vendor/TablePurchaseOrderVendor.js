@@ -2,42 +2,42 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 
 import Icon from 'src/@core/components/icon'
-
-import { DataGrid } from '@mui/x-data-grid'
-
-import HandleSearh from 'src/helpers/handleSearch'
-import { returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
-import renderClient from 'src/helpers/renderClient'
+import HandleSearh from 'src/helpers/handleSearch'
 import { fetchAllPurchaseOrderVendor } from 'src/store/apps/purchase-order'
-import TableHeaderPurchaseOrderVendor from './TableHeaderPurchaseOrderVendor'
 
-const RowOptions = ({ handleView, handleEdit }) => {
-  return (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleView}>
-          <Icon icon='tabler:eye' />
-        </IconButton>
-        {/* <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton> */}
-      </Box>
-    </>
-  )
-}
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import DateCell from 'src/views/common/DateCell'
+import PersonCell from 'src/views/common/PersonCell'
 
-export default function TablePurchaseOrderVendor() {
+// ** Design Tokens
+import { status as statusTokens } from 'src/configs/designTokens'
+
+const RowOptions = ({ handleView }) => (
+  <Box onClick={event => event.stopPropagation()} sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+    <Tooltip title='Lihat'>
+      <IconButton onClick={handleView} size='small'>
+        <Icon icon='tabler:eye' fontSize='1.125rem' />
+      </IconButton>
+    </Tooltip>
+  </Box>
+)
+
+export default function TablePurchaseOrderVendor({ vendorName }) {
   const dispatch = useDispatch()
   const router = useRouter()
   const id = router.query.id
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
 
   const { dataPurchaseOrderVendor: data, loadingDataPurchaseOrderVendor: loading } = useSelector(
     state => state.purchaseOrder
@@ -45,190 +45,101 @@ export default function TablePurchaseOrderVendor() {
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({
-      data,
-      keys: ['code'],
-      searchValue,
-      setData: setFilteredData
-    })
+    HandleSearh({ data, keys: ['code'], searchValue, setData: setFilteredData })
   }
 
-  const handleRowClick = params => {
-    const id = params?.code || params?.row?.code
-    router.push(`/purchase-order/${id}`)
-  }
-
-  const handleRowEdit = params => {
-    const id = params?.code || params?.row?.code
-    router.push(`/purchase-order/edit/${id}`)
-  }
+  const handleRowClick = row => router.push(`/purchase-order/${row.code}`)
 
   useEffect(() => {
-    dispatch(
-      fetchAllPurchaseOrderVendor({
-        id
-      })
-    )
-  }, [id])
+    dispatch(fetchAllPurchaseOrderVendor({ id }))
+  }, [id, dispatch])
 
   useEffect(() => {
-    setFilteredData(data) // If no year filter, show all data
+    setFilteredData(data)
   }, [data])
 
   return (
-    <Card>
-      <DataGrid
+    <>
+      <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary', mb: 3 }}>
+        Seluruh transaksi purchase order milik {vendorName || 'vendor ini'}
+      </Typography>
+
+      <DataTable
+        itemLabel='purchase order'
         loading={loading}
-        autoHeight
+        getRowId={row => row.code}
+        onRowClick={params => handleRowClick(params.row)}
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Cari purchase order'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+          />
+        }
         columns={[
           {
-            flex: 0.1,
-            minWidth: 100,
+            flex: 0.14,
+            minWidth: 150,
             field: 'code',
-            headerName: 'Kode',
-            cellClassName: {
-              cursor: 'pointer'
-            },
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.code}
-                </Typography>
-              )
-            }
+            headerName: 'KODE',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+                {params.row.code}
+              </Typography>
+            )
           },
           {
-            flex: 0.15,
-            minWidth: 120,
+            flex: 0.18,
+            minWidth: 130,
             field: 'createdAt',
-            headerName: 'Tanggal Dibuat',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.dateCreated}
-                  </Typography>
-                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.createdAt)}
-                  </Typography>
-                </Box>
-              )
-            }
+            headerName: 'TANGGAL DIBUAT',
+            renderCell: params => <DateCell date={params.row.dateCreated} timestamp={params.row.createdAt} />
           },
           {
-            flex: 0.15,
-            minWidth: 120,
+            flex: 0.18,
+            minWidth: 130,
             field: 'approvedAt',
-            headerName: 'Tanggal Diterima',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.dateApproved}
-                  </Typography>
-                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.approvedAt)}
-                  </Typography>
-                </Box>
-              )
-            }
+            headerName: 'TANGGAL DITERIMA',
+            renderCell: params => <DateCell date={params.row.dateApproved} timestamp={params.row.approvedAt} />
           },
           {
-            flex: 0.16,
-            minWidth: 120,
+            flex: 0.18,
+            minWidth: 130,
             field: 'createdBy',
-            headerName: 'Dibuat Oleh',
-            renderCell: params => {
-              const { row } = params
-              return (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {renderClient(params)}
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                      {row.createdBy.name}
-                    </Typography>
-                    <Typography noWrap variant='caption'>
-                      {row.createdBy.roleName}
-                    </Typography>
-                  </Box>
-                </Box>
-              )
-            }
+            headerName: 'DIBUAT OLEH',
+            sortable: false,
+            renderCell: params => <PersonCell person={params.row.createdBy} />
           },
-          // {
-          //   flex: 0.16,
-          //   minWidth: 120,
-          //   field: 'warehouseName',
-          //   headerName: 'Gudang',
-          //   renderCell: params => {
-          //     return (
-          //       <Typography variant='body2' sx={{ color: 'text.primary' }}>
-          //         {params.row.warehouseName}
-          //       </Typography>
-          //     )
-          //   }
-          // },
           {
-            flex: 0.1,
-            minWidth: 120,
+            flex: 0.13,
+            minWidth: 110,
             field: 'status',
-            headerName: 'Status',
-            renderCell: params => {
-              const { row } = params
-              return <Status status={row.status} />
-            }
+            headerName: 'STATUS',
+            renderCell: params => <Status status={params.row.status} />
           },
           {
-            flex: 0.01,
-            minWidth: 100,
+            flex: 0.11,
+            minWidth: 90,
             sortable: false,
             field: 'actions',
-            headerName: 'Actions',
-            renderCell: ({ row }) => (
-              <RowOptions handleView={() => handleRowClick(row)} handleEdit={() => handleRowEdit(row)} />
-            )
+            headerName: 'ACTION',
+            renderCell: ({ row }) => <RowOptions handleView={() => handleRowClick(row)} />
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
-        onCellClick={handleRowClick}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderPurchaseOrderVendor }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        getRowClassName={params => {
-          const amountDebt = params.row.amountDebt
-          if (amountDebt !== null && amountDebt !== 0 && amountDebt !== '0') {
-            return 'row-with-debt'
-          }
-          return ''
-        }}
+        getRowClassName={params => (params.row.amountDebt ? 'row-with-debt' : '')}
         sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          },
-          '& .MuiDataGrid-cell': {
-            cursor: 'pointer'
-          },
+          '& .MuiDataGrid-row': { cursor: 'pointer' },
           '& .row-with-debt': {
-            backgroundColor: 'rgba(244, 67, 54, 0.08)',
-            '&:hover': {
-              backgroundColor: 'rgba(244, 67, 54, 0.12)'
-            }
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari code purchase order',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value)
+            backgroundColor: statusTokens.danger.bg,
+            '&:hover': { backgroundColor: statusTokens.danger.bg }
           }
         }}
       />
-    </Card>
+    </>
   )
 }

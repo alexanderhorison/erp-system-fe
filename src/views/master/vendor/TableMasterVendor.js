@@ -1,24 +1,35 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useRouter } from 'next/router'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
+import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 
 import HandleSearh from 'src/helpers/handleSearch'
-
-import { deleteMasterDataVendor, fetchMasterDataVendor, fetchMasterDataVendorDetail } from 'src/store/apps/master/vendor'
+import {
+  deleteMasterDataVendor,
+  fetchMasterDataVendor,
+  fetchMasterDataVendorDetail
+} from 'src/store/apps/master/vendor'
 import ModalAddMasterVendor from './ModalAddMasterVendor'
-import TableHeaderMasterVendor from './TableHeaderMasterVendor'
-import { useRouter } from 'next/router'
 
-const RowOptions = ({ id, name, router }) => {
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
+
+const RowOptions = ({ id, name }) => {
   const dispatch = useDispatch()
+  const router = useRouter()
   const [openModalEdit, setOpenModalEdit] = useState(false)
-  const [openModalView, setOpenModalView] = useState(false)
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
+  const { loadingDelete } = useSelector(state => state.masterVendor)
 
+  // ** Confirmation is owned by `ConfirmDialog`; the thunk performs the request
+  // without prompting again (see docs/REVAMP_BASELINE.md §4).
   const handleDelete = () => {
     dispatch(deleteMasterDataVendor({ id, name }))
+    setOpenConfirmDelete(false)
   }
 
   const handleEdit = () => {
@@ -26,47 +37,85 @@ const RowOptions = ({ id, name, router }) => {
     setOpenModalEdit(true)
   }
 
-  const handleView = () => {
-    router.push(`/master/vendor/${id}`)
-  }
-
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleView}>
-          <Icon icon='tabler:eye' />
-        </IconButton>
-        <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton>
-        <IconButton onClick={handleDelete}>
-          <Icon icon='tabler:trash' />
-        </IconButton>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+        <Tooltip title='Lihat'>
+          <IconButton onClick={() => router.push(`/master/vendor/${id}`)} size='small'>
+            <Icon icon='tabler:eye' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Ubah'>
+          <IconButton onClick={handleEdit} size='small'>
+            <Icon icon='tabler:edit' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Hapus'>
+          <IconButton onClick={() => setOpenConfirmDelete(true)} size='small' sx={{ color: 'error.main' }}>
+            <Icon icon='tabler:trash' fontSize='1.125rem' />
+          </IconButton>
+        </Tooltip>
       </Box>
+
+      <ConfirmDialog
+        open={openConfirmDelete}
+        onClose={() => setOpenConfirmDelete(false)}
+        onConfirm={handleDelete}
+        title='Hapus Vendor'
+        itemName={name}
+        loading={loadingDelete}
+      />
       {openModalEdit && (
         <ModalAddMasterVendor open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
-      )}
-      {openModalView && (
-        <ModalAddMasterVendor open={openModalView} setOpen={setOpenModalView} typeModal={'VIEW'} id={id} />
       )}
     </>
   )
 }
 
-export default function TableMasterVendor({ }) {
+/** Email over phone number when both exist; whichever one is present alone otherwise. */
+const ContactCell = ({ email, phoneNumber }) => {
+  if (!email && !phoneNumber) {
+    return (
+      <Typography variant='body2' sx={{ color: 'text.secondary' }}>
+        -
+      </Typography>
+    )
+  }
+
+  if (email && phoneNumber) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Typography variant='body2' sx={{ color: 'text.primary', fontSize: '0.8125rem' }}>
+          {email}
+        </Typography>
+        <Typography variant='body2' sx={{ color: 'text.secondary', fontSize: '0.8125rem' }}>
+          {phoneNumber}
+        </Typography>
+      </Box>
+    )
+  }
+
+  return (
+    <Typography variant='body2' sx={{ color: 'text.primary' }}>
+      {email || phoneNumber}
+    </Typography>
+  )
+}
+
+export default function TableMasterVendor({}) {
   const dispatch = useDispatch()
   const router = useRouter()
   const [openModalAdd, setOpenModalAdd] = useState(false)
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
 
   const { data } = useSelector(state => state.masterVendor)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({ data, keys: ["name"], searchValue, setData: setFilteredData })
+    HandleSearh({ data, keys: ['name'], searchValue, setData: setFilteredData })
   }
 
   useEffect(() => {
@@ -78,127 +127,101 @@ export default function TableMasterVendor({ }) {
   }, [data])
 
   return (
-    <Card>
+    <>
       {openModalAdd && <ModalAddMasterVendor open={openModalAdd} setOpen={setOpenModalAdd} typeModal={'ADD'} />}
-      <DataGrid
-        autoHeight
+      <DataTable
+        itemLabel='vendor'
+        getRowId={row => row.id}
+        onRowClick={params => router.push(`/master/vendor/${params.row.id}`)}
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Cari nama vendor'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            actions={
+              <Button
+                variant='contained'
+                onClick={() => setOpenModalAdd(true)}
+                startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+              >
+                Tambah Vendor
+              </Button>
+            }
+          />
+        }
         columns={[
           {
-            flex: 0.02,
-            minWidth: 50,
+            flex: 0.08,
+            minWidth: 60,
             field: 'id',
-            headerName: 'Id',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.id}
-                </Typography>
-              )
-            }
+            headerName: 'ID',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.id}
+              </Typography>
+            )
+          },
+          {
+            flex: 0.2,
+            minWidth: 160,
+            field: 'name',
+            headerName: 'NAMA VENDOR',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.name}
+              </Typography>
+            )
+          },
+          {
+            flex: 0.22,
+            minWidth: 180,
+            field: 'contact',
+            headerName: 'EMAIL / NOMOR TELEPON',
+            sortable: false,
+            renderCell: params => <ContactCell email={params.row.email} phoneNumber={params.row.phoneNumber} />
           },
           {
             flex: 0.12,
-            minWidth: 100,
-            field: 'name',
-            headerName: 'Nama Vendor',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.name}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.08,
-            minWidth: 100,
-            field: 'phoneNumber',
-            headerName: 'Nomor Telepon',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params?.row?.phoneNumber}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.1,
-            minWidth: 100,
-            field: 'email',
-            headerName: 'Email',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params?.row?.email}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.07,
-            minWidth: 100,
+            minWidth: 110,
             field: 'rankName',
-            headerName: 'Rank',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.rankName}
-                </Typography>
-              )
-            }
+            headerName: 'RANK',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.rankName || '-'}
+              </Typography>
+            )
+          },
+          {
+            flex: 0.18,
+            minWidth: 140,
+            field: 'notes',
+            headerName: 'CATATAN',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.notes || '-'}
+              </Typography>
+            )
           },
           {
             flex: 0.15,
             minWidth: 120,
-            field: 'notes',
-            headerName: 'Catatan',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.notes}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.1,
+            sortable: false,
             field: 'actions',
-            headerName: 'Actions',
+            headerName: 'ACTION',
             renderCell: ({ row }) => (
-              <div onClick={(e) => e.stopPropagation()}>
-                <RowOptions id={row.id} name={row.name} router={router} />
-              </div>
+              <Box onClick={event => event.stopPropagation()} sx={{ width: '100%' }}>
+                <RowOptions id={row.id} name={row.name} />
+              </Box>
             )
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
-        onRowClick={params => {
-          router.push(`/master/vendor/${params.id}`)
-        }}
-        slots={{ toolbar: TableHeaderMasterVendor }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari nama vendor',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd,
-          }
-        }}
+        sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
       />
-    </Card>
+    </>
   )
 }

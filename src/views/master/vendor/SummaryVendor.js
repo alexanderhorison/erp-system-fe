@@ -1,36 +1,80 @@
-import { Card, CardContent, Divider, Grid, Typography } from '@mui/material'
-import { Box } from '@mui/system'
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
+import { useDispatch, useSelector } from 'react-redux'
 
-import CustomAvatar from 'src/@core/components/mui/avatar'
+// ** MUI Imports
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 
 import Icon from 'src/@core/components/icon'
-import { useRouter } from 'next/router'
-import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { fetchDashboardSummaryVendor } from 'src/store/apps/dashboard'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 
-const icon = {
-  totalPurchaseOrder: 'tabler:shopping-cart',
-  totalAmountPurchaseOrder: 'tabler:moneybag',
-  totalAmountPaymentPurchaseOrder: 'tabler:currency-dollar',
-  totalAmountDebtPurchaseOrder: 'tabler:file-dollar',
-  totalAmountBarterPurchaseOrder: 'tabler:arrows-exchange'
+// ** Design Tokens
+import { colors, radii, shadows, status as statusTokens, stone } from 'src/configs/designTokens'
+
+// ** Icon + tone per summary field, keyed by the API's `name` — mirrors
+// SummaryCustomer.js's field-meta map for the equivalent purchase-order fields.
+const FIELD_META = {
+  totalPurchaseOrder: { icon: 'tabler:clipboard-list' },
+  totalAmountPurchaseOrder: { icon: 'lucide:gem', tone: statusTokens.info },
+  totalAmountPaymentPurchaseOrder: { icon: 'lucide:banknote', tone: statusTokens.success },
+  totalAmountDebtPurchaseOrder: { icon: 'lucide:banknote', tone: statusTokens.danger },
+  totalAmountBarterPurchaseOrder: { icon: 'lucide:switch-camera', tone: statusTokens.warning }
 }
 
-const color = {
-  totalPurchaseOrder: 'primary',
-  totalAmountPurchaseOrder: 'info',
-  totalAmountPaymentPurchaseOrder: 'success',
-  totalAmountDebtPurchaseOrder: 'error',
-  totalAmountBarterPurchaseOrder: 'warning'
+const isMoneyField = name => /amount|debt|paid/i.test(name)
+
+const SummaryCard = ({ item }) => {
+  const meta = FIELD_META[item.name] || {}
+  const tone = meta.tone
+  const displayValue = isMoneyField(item.name)
+    ? priceFormatWIthCurrency(item.value)
+    : (item.value ?? 0).toLocaleString('id-ID')
+
+  return (
+    <Box
+      sx={{
+        p: 4,
+        height: '100%',
+        borderRadius: `${radii.lg}px`,
+        border: `1px solid ${colors.border}`,
+        boxShadow: shadows.xs,
+        backgroundColor: colors.background
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>{item.title}</Typography>
+        <Box
+          sx={{
+            width: 32,
+            height: 32,
+            flexShrink: 0,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: tone ? tone.bg : stone[100],
+            color: tone ? tone.fg : colors.mutedForeground
+          }}
+        >
+          <Icon icon={meta.icon || 'tabler:report'} fontSize='1.125rem' />
+        </Box>
+      </Box>
+      <Typography
+        sx={{ fontSize: '1.25rem', fontWeight: 600, color: colors.foreground, wordBreak: 'break-word' }}
+        title={displayValue}
+      >
+        {displayValue}
+      </Typography>
+    </Box>
+  )
 }
 
 export default function SummaryVendor() {
-  const query = useRouter().query
   const dispatch = useDispatch()
-
-  const id = query.id
+  const { id } = useRouter().query
 
   const { dataDashboardSummaryVendor: data, loadingDashboardSummaryVendor: loading } = useSelector(
     state => state.dashboard
@@ -40,108 +84,21 @@ export default function SummaryVendor() {
     if (id) {
       dispatch(fetchDashboardSummaryVendor({ id }))
     }
-  }, [id])
+  }, [id, dispatch])
 
-  const renderStats = () => {
-    if (!data || data.length === 0) return null
-
-    return data?.map((item, index) => {
-      const isMoneyValue = item.name.includes('Amount') || item.name.includes('Debt') || item.name.includes('Payment')
-      const displayValue = isMoneyValue ? priceFormatWIthCurrency(item.value) : item.value.toLocaleString('id-ID')
-
-      // Dynamic font size based on value length
-      const getFontSize = () => {
-        const valueLength = displayValue.length
-        if (valueLength > 25) return '0.95rem'
-        if (valueLength > 20) return '1rem'
-        if (valueLength > 15) return '1.1rem'
-        return '1.25rem'
-      }
-
-      return (
-        <Grid item xs={12} sm={6} key={index}>
-          <Card
-            sx={{
-              height: '100%',
-              transition: 'all 0.3s ease-in-out',
-              overflow: 'hidden',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: 6
-              }
-            }}
-          >
-            <CardContent sx={{ overflow: 'hidden' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <CustomAvatar skin='light' color={color[item.name]} sx={{ width: 50, height: 50, mr: 3 }}>
-                  <Icon icon={icon[item.name]} fontSize='1.75rem' />
-                </CustomAvatar>
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
-                    {item?.title}
-                  </Typography>
-                </Box>
-              </Box>
-
-              <Divider sx={{ mb: 3 }} />
-
-              <Box>
-                <Typography
-                  sx={{
-                    fontWeight: 700,
-                    mb: 1,
-                    fontSize: getFontSize(),
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    color:
-                      color[item.name] === 'error'
-                        ? 'error.main'
-                        : color[item.name] === 'success'
-                        ? 'success.main'
-                        : color[item.name] === 'warning'
-                        ? 'warning.main'
-                        : color[item.name] === 'info'
-                        ? 'info.main'
-                        : 'primary.main'
-                  }}
-                  title={displayValue}
-                >
-                  {displayValue}
-                </Typography>
-                <Typography
-                  variant='caption'
-                  color='text.secondary'
-                  sx={{
-                    display: 'block',
-                    lineHeight: 1.4,
-                    wordBreak: 'break-word',
-                    overflowWrap: 'break-word'
-                  }}
-                >
-                  {item?.description}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      )
-    })
+  if (loading) {
+    return <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>Memuat ringkasan...</Typography>
   }
+
+  if (!data || data.length === 0) return null
 
   return (
     <Grid container spacing={4}>
-      {loading ? (
-        <Grid item xs={12}>
-          <Card>
-            <CardContent sx={{ textAlign: 'center', py: 6 }}>
-              <Typography>Loading...</Typography>
-            </CardContent>
-          </Card>
+      {data.map((item, index) => (
+        <Grid item xs={12} sm={6} md={2.4} key={index}>
+          <SummaryCard item={item} />
         </Grid>
-      ) : (
-        renderStats()
-      )}
+      ))}
     </Grid>
   )
 }
