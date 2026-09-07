@@ -1,60 +1,61 @@
-import { Grid, Card, CardContent, Typography, Box } from '@mui/material'
-import CustomAvatar from 'src/@core/components/mui/avatar'
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+
 import Icon from 'src/@core/components/icon'
+
+// ** Design Tokens
+import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
+
+const cardSx = {
+  p: 4,
+  borderRadius: `${radii.lg}px`,
+  border: `1px solid ${colors.border}`,
+  boxShadow: shadows.xs,
+  backgroundColor: colors.background
+}
+
+const iconBadgeSx = tone => ({
+  width: 40,
+  height: 40,
+  flexShrink: 0,
+  borderRadius: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: tone.bg,
+  color: tone.fg
+})
 
 const DashboardCardSo = ({ dataDashboardCountSo, loadingDashboardCountSo }) => {
   return (
     <Grid container spacing={4}>
-      {/* Card Lunas */}
-      <Grid item xs={12} md={6}>
-        <Card sx={{ border: '2px solid rgba(76, 175, 80, 0.5)' }}>
-          <CardContent
-            sx={{
-              gap: 3,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              py: 1.5,
-              '&:last-child': { pb: 1.5 }
-            }}
-          >
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-              <Typography variant='h5' sx={{ mb: 0 }}>
-                {loadingDashboardCountSo ? '...' : dataDashboardCountSo.countPaid || 0}
-              </Typography>
-              <Typography variant='body2'>SO Lunas</Typography>
-            </Box>
-            <CustomAvatar skin='light' color='success' sx={{ width: 38, height: 38 }}>
-              <Icon icon='tabler:circle-check' fontSize='1.5rem' />
-            </CustomAvatar>
-          </CardContent>
-        </Card>
+      <Grid item xs={12} sm={6}>
+        <Box sx={{ ...cardSx, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
+          <Box>
+            <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground }}>SO Lunas</Typography>
+            <Typography sx={{ fontSize: '1.125rem', fontWeight: 600, color: colors.foreground, mt: 1 }}>
+              {loadingDashboardCountSo ? '...' : dataDashboardCountSo.countPaid || 0}
+            </Typography>
+          </Box>
+          <Box sx={iconBadgeSx(statusTokens.success)}>
+            <Icon icon='tabler:square-check' fontSize='1.25rem' />
+          </Box>
+        </Box>
       </Grid>
 
-      {/* Card Belum Lunas */}
-      <Grid item xs={12} md={6}>
-        <Card sx={{ border: '2px solid rgba(244, 67, 54, 0.5)' }}>
-          <CardContent
-            sx={{
-              gap: 3,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              py: 1.5,
-              '&:last-child': { pb: 1.5 }
-            }}
-          >
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-              <Typography variant='h5' sx={{ mb: 0 }}>
-                {loadingDashboardCountSo ? '...' : dataDashboardCountSo.countDebt || 0}
-              </Typography>
-              <Typography variant='body2'>SO Belum Lunas</Typography>
-            </Box>
-            <CustomAvatar skin='light' color='error' sx={{ width: 38, height: 38 }}>
-              <Icon icon='tabler:clock-hour-4' fontSize='1.5rem' />
-            </CustomAvatar>
-          </CardContent>
-        </Card>
+      <Grid item xs={12} sm={6}>
+        <Box sx={{ ...cardSx, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
+          <Box>
+            <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground }}>SO Belum Lunas</Typography>
+            <Typography sx={{ fontSize: '1.125rem', fontWeight: 600, color: colors.foreground, mt: 1 }}>
+              {loadingDashboardCountSo ? '...' : dataDashboardCountSo.countDebt || 0}
+            </Typography>
+          </Box>
+          <Box sx={iconBadgeSx(statusTokens.danger)}>
+            <Icon icon='tabler:clock-exclamation' fontSize='1.25rem' />
+          </Box>
+        </Box>
       </Grid>
     </Grid>
   )

@@ -1,21 +1,107 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Card, CardContent, Checkbox, CircularProgress, Divider, FormControlLabel, Grid, Typography, useTheme } from '@mui/material'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Checkbox from '@mui/material/Checkbox'
+import Chip from '@mui/material/Chip'
+import Divider from '@mui/material/Divider'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
 
-import Icon from 'src/@core/components/icon'
 import * as yup from 'yup'
 import { useRouter } from 'next/router'
 import { updateFormSalesOrder } from 'src/store/apps/sales-order'
 import PickersComponent from '../forms/form-elements/pickers/PickersCustomInput'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { priceFormat } from 'src/helpers/priceFormatter'
-import { Box } from '@mui/system'
+import { priceFormat, priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { UseAuth } from 'src/hooks/useAuth'
 import { returnFormatDateIsoString } from 'src/helpers/formatDate'
+import { notifyError } from 'src/helpers/notify'
+
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
+import FormActionBar from 'src/views/common/FormActionBar'
+import SectionHeading from 'src/views/common/SectionHeading'
+
+// ** Design Tokens
+import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
+
+const surfaceCardSx = {
+  borderRadius: `${radii.lg}px`,
+  border: `1px solid ${colors.border}`,
+  boxShadow: shadows.xs
+}
+
+const productRowSx = {
+  pb: 4,
+  mb: 4,
+  borderBottom: `1px solid ${colors.border}`
+}
+
+// ** Stock tint for the "Stok: N" chip beside the Produk field — green above the
+// product's minimum threshold, amber at/under it, red when exactly out of stock.
+const stockTone = (quantity, minimumStock) => {
+  const qty = Number(quantity)
+  if (!qty) return statusTokens.danger
+  if (minimumStock !== undefined && minimumStock !== null && qty <= Number(minimumStock)) return statusTokens.warning
+  return statusTokens.success
+}
+
+const toneChipSx = tone => ({
+  height: 22,
+  borderRadius: `${radii.full}px`,
+  border: `1px solid ${tone.border}`,
+  backgroundColor: tone.bg,
+  '& .MuiChip-label': {
+    px: 1.5,
+    fontSize: '0.6875rem',
+    fontWeight: 600,
+    lineHeight: '16px',
+    color: tone.fg
+  }
+})
+
+// ** Harga turns red when it's set below the product's Modal — flags a sale
+// priced under cost so it isn't submitted by mistake.
+const isPriceBelowModal = row => {
+  const price = Number(row?.price)
+  const modal = Number(row?.modal)
+  return Boolean(price) && Boolean(modal) && price < modal
+}
+
+const priceBelowModalSx = {
+  '& .MuiInputBase-input': {
+    color: statusTokens.danger.fg,
+    fontWeight: 600
+  }
+}
+
+const infoChipSx = {
+  height: 22,
+  borderRadius: `${radii.full}px`,
+  border: `1px solid ${colors.border}`,
+  backgroundColor: 'transparent',
+  '& .MuiChip-label': {
+    px: 1.5,
+    fontSize: '0.6875rem',
+    lineHeight: '16px',
+    color: colors.mutedForeground
+  }
+}
+
+// ** designTokens.js has no orange ramp. `status.warning` is amber, already used
+// for the low-stock chip elsewhere in this module, so it cannot double as the
+// barter tint the brief asks for ("orange/400", distinct from amber). Using a
+// literal Tailwind orange-400 / orange-50 pair here — a deliberate, called-out
+// exception, not a new token.
+const barterTone = { fg: '#FB923C', bg: '#FFF7ED', border: '#FDBA74' }
 
 export default function EditSalesOrderPage({ data, salesOrderCode }) {
   const dispatch = useDispatch()
@@ -138,6 +224,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
     name: 'barterProduct'
   })
   const formBarter = watch('barterProduct')
+  const grandTotalWatch = watch('grandTotal')
 
   const isAdmin = useMemo(() => {
     return user?.roleId === 1
@@ -161,10 +248,13 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
     }
     // Check duplicate index
     lastIndex !== -1 ? lastIndex : (duplicate = false)
-    setError(`data[${lastIndex}].warehouseProductId`, {
-      type: 'duplicate',
-      message: `Produk dan Satuan sudah dipilih`
-    })
+    if (duplicate) {
+      setError(`data[${lastIndex}].warehouseProductId`, {
+        type: 'duplicate',
+        message: `Produk dan Satuan sudah dipilih`
+      })
+      notifyError('Produk dan Satuan sudah dipilih')
+    }
 
     // Map Barang Barang Barter
     if (listBarter.length > 0) {
@@ -181,10 +271,13 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
       }
       // Check duplicate index
       lastIndex !== -1 ? lastIndex : (duplicate = false)
-      setError(`barterProduct[${lastIndex}].warehouseProductId`, {
-        type: 'duplicate',
-        message: `Produk dan Satuan sudah dipilih`
-      })
+      if (duplicate) {
+        setError(`barterProduct[${lastIndex}].warehouseProductId`, {
+          type: 'duplicate',
+          message: `Produk dan Satuan sudah dipilih`
+        })
+        notifyError('Produk dan Satuan sudah dipilih')
+      }
     }
 
     if (!duplicate) {
@@ -224,6 +317,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
         price: product.price,
         subTotal: product.subTotal,
         qty: product.qty,
+        minimumStock: product.minimumStock,
         warehouseId: product.warehouseId,
         warehouseName: product.warehouseName,
         modal: product.modal
@@ -241,6 +335,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
           price: product.price,
           subTotal: product.subTotal,
           qty: product.qty,
+          minimumStock: product.minimumStock,
           warehouseId: product.warehouseId,
           warehouseName: product.warehouseName,
           isNewModal: product.isNewModal,
@@ -282,24 +377,6 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
     setValue('grandTotal', salesOrderTotal - barterTotal) // Update grand total
     setValue('grandTotalCustomer', salesOrderTotal) // Update total sales order
     setValue('grandTotalBarter', barterTotal) // Update total barter
-  }
-
-  const titleProductInfo = index => {
-    const infos = {
-      titleProduct: `Rack: ${getValues(`data[${index}].rackName`) || '-'} | Unit: ${getValues(`data[${index}].unitName`) || '-'
-        }`,
-      titleQuantity: `QTY: ${getValues(`data[${index}].qty`) || '-'}`
-    }
-    return infos
-  }
-
-  const titleBarterInfo = index => {
-    const infos = {
-      titleProduct: `Rack: ${getValues(`barterProduct[${index}].rackName`) || '-'} | Unit: ${getValues(`barterProduct[${index}].unitName`) || '-'
-        }`,
-      titleQuantity: `QTY: ${getValues(`barterProduct[${index}].qty`) || '-'}`
-    }
-    return infos
   }
 
   const handlePriceChange = ({ event, index, fieldName, setValue, formStateField, onChange, isCalculation }) => {
@@ -347,161 +424,237 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
     }
   }
 
+  const grandTotalIsNegative = Number(grandTotalWatch) < 0
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Grid container spacing={6}>
-          {/* left Card */}
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Box display='flex' alignItems='center' flexDirection='column'>
-                  <Box display='flex' alignItems='center' width='100%' mb={2}>
-                    <Controller
-                      name={`customerId`}
-                      control={control}
-                      render={({ field: { value, onChange } }) => (
+        <PageHeader
+          title='Form Edit Sales Order'
+          subtitle={`Sales Order: ${salesOrderCode}`}
+          onBack={() => router.back()}
+          breadcrumbs={[{ label: 'Sales Order', href: '/sales-order' }, { label: 'Edit' }]}
+        />
+
+        {/* No `spacing` on this container: `FormActionBar`'s negative margins are
+            measured against the content column, and grid gutters would offset it. */}
+        <Grid container>
+        <Grid item xs={12}>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={8}>
+            <SectionHeading number={1} title='Informasi Customer' />
+            <Card elevation={0} sx={{ ...surfaceCardSx, mb: 4 }}>
+                  <CardContent sx={{ p: 5 }}>
+                    <Grid container spacing={4}>
+                      <Grid item xs={12} sm={6}>
                         <CustomTextField
                           fullWidth
                           label='Customer'
                           disabled
-                          value={data?.customer?.name}
-                          sx={{ display: 'block' }}
+                          value={data?.customer?.name || ''}
                         />
-                      )}
-                    />
-                  </Box>
-                  <Box sx={{ textAlign: 'left', width: '100%', mt: 2 }}>
-                    <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.email}</Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.address}</Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.phoneNumber}</Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>{data?.customer?.rankName}</Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Right Card */}
-          <Grid item xs={12} md={6} sx={{ textAlign: 'left' }}>
-            <Card sx={{ height: '100%' }}>
-              <CardContent>
-                <Grid container spacing={6} >
-                  <Grid item xs={12} md={4}>
-                    <DatePicker
-                      selected={date}
-                      id='basic'
-                      popperPlacement={popperPlacement}
-                      onChange={date => setDate(date)}
-                      fullWidth
-                      customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <DatePicker
-                      selected={shippingDate}
-                      id='basic'
-                      popperPlacement={popperPlacement}
-                      onChange={date => setShippingDate(date)}
-                      fullWidth
-                      customInput={<PickersComponent
-                        label='Tanggal Pengiriman' />}
-                    />
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12}>
-            <Card>
-              <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
-                Barang Sales Order
-              </Typography>
-              {fields.map((item, index) => (
-                <React.Fragment key={item.id}>
-                  <CardContent>
-                    <Grid container spacing={6}>
-                      <Grid item xs={12} md={4}>
-                        <Controller
-                          name={`data[${index}].warehouseName`}
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange } }) => (
-                            <CustomTextField
-                              value={value}
-                              disabled
-                              label='Gudang Sumber'
-                              sx={{ zIndex: 0, display: 'block' }}
-                            />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <DatePicker
+                          selected={date}
+                          id='basic'
+                          popperPlacement={popperPlacement}
+                          onChange={date => setDate(date)}
+                          fullWidth
+                          customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <Box>
+                          {customer?.email && (
+                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+                              {customer.email}
+                            </Typography>
                           )}
+                          {customer?.address && (
+                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+                              {customer.address}
+                            </Typography>
+                          )}
+                          {customer?.phoneNumber && (
+                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+                              {customer.phoneNumber}
+                            </Typography>
+                          )}
+                          {customer?.rankName && (
+                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+                              {customer.rankName}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <DatePicker
+                          selected={shippingDate}
+                          id='basic'
+                          popperPlacement={popperPlacement}
+                          onChange={date => setShippingDate(date)}
+                          fullWidth
+                          customInput={<PickersComponent label='Tanggal Pengiriman' />}
                         />
                       </Grid>
                     </Grid>
-                    <Grid container spacing={6} sx={{ marginTop: 1 }}>
-                      <Grid item xs={12} md={4}>
+                  </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, position: 'sticky', top: 16 }}>
+              <Card elevation={0} sx={surfaceCardSx}>
+                <CardContent sx={{ p: 5 }}>
+                  <Controller
+                    name='notes'
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                      <CustomTextField
+                        multiline
+                        rows={4}
+                        fullWidth
+                        label='Catatan'
+                        placeholder='Catatan...'
+                        value={value || ''}
+                        onChange={e => onChange(e.target.value)}
+                      />
+                    )}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card
+                elevation={0}
+                sx={{
+                  borderRadius: `${radii.lg}px`,
+                  border: `1px solid ${statusTokens.success.border}`,
+                  boxShadow: shadows.xs,
+                  backgroundColor: statusTokens.success.bg
+                }}
+              >
+                <CardContent sx={{ p: 5 }}>
+                  <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground, mb: 3 }}>
+                    Ringkasan
+                  </Typography>
+
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.5 }}>
+                    <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>Total Sales</Typography>
+                    <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>
+                      {priceFormat(getValues('grandTotalCustomer')) || 'Rp0'}
+                    </Typography>
+                  </Box>
+                  <Divider sx={{ borderColor: statusTokens.success.border }} />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.5 }}>
+                    <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>Total Barter</Typography>
+                    <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>
+                      {priceFormat(getValues('grandTotalBarter')) || 'Rp0'}
+                    </Typography>
+                  </Box>
+                  <Divider sx={{ borderColor: statusTokens.success.border, borderBottomWidth: 2 }} />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 2 }}>
+                    <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
+                      Grand Total
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: '1.0625rem',
+                        fontWeight: 700,
+                        color: grandTotalIsNegative ? colors.destructive : colors.foreground
+                      }}
+                    >
+                      {grandTotalWatch < 0 ? '-' : ''}
+                      {priceFormat(Math.abs(grandTotalWatch || 0)) || 'Rp0'}
+                    </Typography>
+                  </Box>
+                  {grandTotalIsNegative && (
+                    <Typography sx={{ fontSize: '0.75rem', color: colors.destructive, mt: 2 }}>
+                      Karena Total Barter &gt; Total Sales maka Anda perlu membayar senilai Grand Total kepada customer
+                    </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} md={8}>
+            <SectionHeading number={2} title='Barang Sales' />
+            <Card elevation={0} sx={{ ...surfaceCardSx, mb: 4 }}>
+              <CardContent sx={{ p: 5 }}>
+                {fields.map((item, index) => (
+                  <Box key={item.id} sx={index !== fields.length - 1 ? productRowSx : { mb: 4 }}>
+                    <Grid container spacing={4} alignItems='flex-start'>
+                      <Grid item xs={12} md={3}>
                         <Controller
-                          name={`data[${index}].productName`}
+                          name={`data[${index}].warehouseName`}
                           control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <div>
-                              <CustomTextField
-                                fullWidth
-                                label='Produk'
-                                disabled
-                                value={value}
-                                sx={{ display: 'block', zIndex: 0 }}
-                              />
-                              <Typography variant='body2' color='textSecondary' sx={{ marginTop: '4px' }}>
-                                {titleProductInfo(index).titleProduct}
-                              </Typography>
-                            </div>
+                          render={({ field: { value } }) => (
+                            <CustomTextField fullWidth value={value} disabled label='Gudang Sumber' />
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={1.5}>
+                      <Grid item xs={12} md={9}>
+                        <Controller
+                          name={`data[${index}].productName`}
+                          control={control}
+                          render={({ field: { value } }) => (
+                            <CustomTextField fullWidth label='Produk' disabled value={value} />
+                          )}
+                        />
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mt: 2 }}>
+                          <Chip size='small' label={`Rak: ${getValues(`data[${index}].rackName`) || '-'}`} sx={infoChipSx} />
+                          <Chip size='small' label={`Unit: ${getValues(`data[${index}].unitName`) || '-'}`} sx={infoChipSx} />
+                          {getValues(`data[${index}].qty`) !== undefined && getValues(`data[${index}].qty`) !== '' && (
+                            <Chip
+                              size='small'
+                              label={`Stok: ${getValues(`data[${index}].qty`)}`}
+                              sx={toneChipSx(
+                                stockTone(getValues(`data[${index}].qty`), getValues(`data[${index}].minimumStock`))
+                              )}
+                            />
+                          )}
+                        </Box>
+                      </Grid>
+
+                      <Grid item xs={6} md={isAdmin ? 3 : 4}>
                         <Controller
                           name={`data[${index}].quantity`}
                           control={control}
                           rules={{ required: true }}
                           render={({ field: { value, onChange } }) => (
-                            <div>
-                              <CustomTextField
-                                fullWidth
-                                label='Kuantiti'
-                                value={value}
-                                onChange={e => {
-                                  const newQuantity = +e.target.value
-                                  const currentPrice = formField[index].price || 0
-                                  const newSubTotal = newQuantity * currentPrice
+                            <CustomTextField
+                              fullWidth
+                              label='Kuantiti'
+                              value={value}
+                              onChange={e => {
+                                const newQuantity = +e.target.value
+                                const currentPrice = formField[index].price || 0
+                                const newSubTotal = newQuantity * currentPrice
 
-                                  // Update the quantity and the subtotal
-                                  onChange(newQuantity || '')
-                                  if (parseInt(newSubTotal, 10) > 0) {
-                                    setValue(`data[${index}].subTotal`, newSubTotal)
-                                  }
-                                  if (
-                                    formField[index].quantity &&
-                                    formField[index].price &&
-                                    parseInt(formField[index].quantity, 10) > 0
-                                  ) {
-                                    calculateTotals()
-                                  }
-                                }}
-                                type='number'
-                                sx={{ display: 'block' }}
-                                error={Boolean(errors?.data?.[index]?.quantity)}
-                                {...(errors?.data?.[index]?.quantity && {
-                                  helperText: errors?.data?.[index]?.quantity.message
-                                })}
-                              />
-                              <Typography variant='body2' color='textSecondary'>
-                                {titleProductInfo(index).titleQuantity}
-                              </Typography>
-                            </div>
+                                // Update the quantity and the subtotal
+                                onChange(newQuantity || '')
+                                if (parseInt(newSubTotal, 10) > 0) {
+                                  setValue(`data[${index}].subTotal`, newSubTotal)
+                                }
+                                if (
+                                  formField[index].quantity &&
+                                  formField[index].price &&
+                                  parseInt(formField[index].quantity, 10) > 0
+                                ) {
+                                  calculateTotals()
+                                }
+                              }}
+                              type='number'
+                              error={Boolean(errors?.data?.[index]?.quantity)}
+                              {...(errors?.data?.[index]?.quantity && {
+                                helperText: errors?.data?.[index]?.quantity.message
+                              })}
+                            />
                           )}
                         />
                       </Grid>
-                      <Grid item xs={5} md={2}>
+                      <Grid item xs={6} md={isAdmin ? 3 : 4}>
                         <Controller
                           name={`data[${index}].price`}
                           control={control}
@@ -509,7 +662,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                           render={({ field: { value, onChange } }) => (
                             <CustomTextField
                               fullWidth
-                              label='Price'
+                              label='Harga'
                               value={value ? priceFormat(value) : ''}
                               onChange={e => {
                                 handlePriceChange({
@@ -523,17 +676,17 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                                 })
                               }}
                               type='text'
-                              sx={{ display: 'block' }}
                               error={Boolean(errors?.data?.[index]?.price)}
                               {...(errors?.data?.[index]?.price && {
                                 helperText: errors?.data?.[index]?.price.message
                               })}
+                              sx={isPriceBelowModal(formField[index]) ? priceBelowModalSx : undefined}
                             />
                           )}
                         />
                       </Grid>
                       {isAdmin && (
-                        <Grid item xs={5} md={2}>
+                        <Grid item xs={6} md={3}>
                           <Controller
                             name={`data[${index}].modal`}
                             control={control}
@@ -554,7 +707,6 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                                     onChange
                                   })
                                 }}
-                                sx={{ display: 'block' }}
                                 error={Boolean(errors?.data?.[index]?.modal)}
                                 {...(errors?.data?.[index]?.modal && {
                                   helperText: errors?.data?.[index]?.modal.message
@@ -564,7 +716,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                           />
                         </Grid>
                       )}
-                      <Grid item xs={5} md={2.5}>
+                      <Grid item xs={6} md={isAdmin ? 3 : 4}>
                         <Controller
                           name={`data[${index}].subTotal`}
                           control={control}
@@ -576,163 +728,141 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                               value={priceFormat(value || 0)}
                               disabled
                               type='text'
-                              sx={{ display: 'block' }}
                               error={Boolean(errors?.data?.[index]?.subTotal)}
                               {...(errors?.data?.[index]?.subTotal && {
                                 helperText: errors?.data?.[index]?.subTotal.message
                               })}
+                              sx={{
+                                '& .MuiFilledInput-root.Mui-disabled': {
+                                  backgroundColor: `${statusTokens.info.bg} !important`,
+                                  border: `1px solid ${statusTokens.info.border}`
+                                },
+                                '& .MuiInputBase-input.Mui-disabled': {
+                                  WebkitTextFillColor: statusTokens.info.fg,
+                                  fontWeight: 600
+                                }
+                              }}
                             />
                           )}
                         />
                       </Grid>
                     </Grid>
-                  </CardContent>
-                  <Divider />
-                </React.Fragment>
-              ))}
-              <CardContent>
-                <Grid container spacing={6}>
-                  <Grid item xs={12} md={9.5} sx={{ marginTop: '1rem' }}></Grid>
-                  <Grid item xs={12} md={2.5}>
-                    <Controller
-                      name={`grandTotalCustomer`}
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          label='Total Sales Order'
-                          value={value ? priceFormat(value) : '0'}
-                          type='text'
-                          disabled
-                          sx={{ display: 'block' }}
-                          error={Boolean(errors?.grandTotalCustomer)}
-                          {...(errors?.grandTotalCustomer && {
-                            helperText: errors?.grandTotalCustomer.message
-                          })}
-                        />
-                      )}
-                    />
-                  </Grid>
-                </Grid>
+                  </Box>
+                ))}
+
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'flex-end',
+                      borderRadius: `${radii.full}px`,
+                      border: `1px solid ${statusTokens.info.border}`,
+                      backgroundColor: statusTokens.info.bg,
+                      px: 3,
+                      py: 1.5
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '0.75rem', fontWeight: 500, color: statusTokens.info.fg }}>
+                      Total Sales Order
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.9375rem', fontWeight: 700, color: statusTokens.info.fg }}>
+                      {priceFormatWIthCurrency(getValues('grandTotalCustomer')) || 0}
+                    </Typography>
+                  </Box>
+                </Box>
               </CardContent>
             </Card>
           </Grid>
+
           {barterFields.length > 0 && (
-            <Grid item xs={12}>
-              <Card>
-                <Typography fontSize={20} sx={{ paddingTop: 2, ml: 5, mt: 3 }}>
-                  Barang Barter
-                </Typography>
-                {barterFields.map((item, index) => (
-                  <React.Fragment key={item.id}>
-                    <CardContent>
-                      <Grid container spacing={6}>
-                        <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={8}>
+              <SectionHeading number={3} title='Barang Barter' />
+              <Card elevation={0} sx={{ ...surfaceCardSx, mb: 4 }}>
+                <CardContent sx={{ p: 5 }}>
+                  {barterFields.map((item, index) => (
+                    <Box key={item.id} sx={index !== barterFields.length - 1 ? productRowSx : { mb: 4 }}>
+                      <Grid container spacing={4} alignItems='flex-start'>
+                        <Grid item xs={12} md={3}>
                           <Controller
                             name={`barterProduct[${index}].warehouseName`}
                             control={control}
-                            rules={{ required: true }}
-                            render={({ field: { value, onChange } }) => (
-                              <CustomTextField
-                                value={value}
-                                disabled
-                                label='Gudang Sumber'
-                                sx={{ zIndex: 0, display: 'block' }}
-                              />
+                            render={({ field: { value } }) => (
+                              <CustomTextField fullWidth value={value} disabled label='Gudang Sumber' />
                             )}
                           />
                         </Grid>
-                        <Grid item xs={12} md={2} sx={{ marginTop: '1rem' }}>
-                          <Controller
-                            name={`barterProduct[${index}].isNewModal`}
-                            control={control}
-                            defaultValue={false}
-                            render={({ field: { value, onChange } }) => (
-                              <FormControlLabel
-                                control={
-                                  <Checkbox
-                                    checked={value}
-                                    onChange={e => onChange(e.target.checked)}
-                                  />
-                                }
-                                label='Modal Baru'
-                              />
-                            )}
-                          />
-                        </Grid>
-                      </Grid>
-                      <Grid container spacing={6} sx={{ marginTop: 1 }}>
-                        <Grid item xs={12} md={4}>
+                        <Grid item xs={12} md={9}>
                           <Controller
                             name={`barterProduct[${index}].productName`}
                             control={control}
-                            render={({ field: { value, onChange } }) => (
-                              <div>
-                                <CustomTextField
-                                  fullWidth
-                                  label='Produk'
-                                  disabled
-                                  value={value}
-                                  sx={{ display: 'block', zIndex: 0 }}
-                                />
-                                <Typography variant='body2' color='textSecondary' sx={{ marginTop: '4px' }}>
-                                  {titleBarterInfo(index).titleProduct}
-                                </Typography>
-                              </div>
+                            render={({ field: { value } }) => (
+                              <CustomTextField fullWidth label='Produk' disabled value={value} />
                             )}
                           />
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mt: 2 }}>
+                            <Chip size='small' label={`Rak: ${getValues(`barterProduct[${index}].rackName`) || '-'}`} sx={infoChipSx} />
+                            <Chip size='small' label={`Unit: ${getValues(`barterProduct[${index}].unitName`) || '-'}`} sx={infoChipSx} />
+                            {getValues(`barterProduct[${index}].qty`) !== undefined &&
+                              getValues(`barterProduct[${index}].qty`) !== '' && (
+                                <Chip
+                                  size='small'
+                                  label={`Stok: ${getValues(`barterProduct[${index}].qty`)}`}
+                                  sx={toneChipSx(
+                                    stockTone(
+                                      getValues(`barterProduct[${index}].qty`),
+                                      getValues(`barterProduct[${index}].minimumStock`)
+                                    )
+                                  )}
+                                />
+                              )}
+                          </Box>
                         </Grid>
-                        <Grid item xs={5} md={1.5}>
+
+                        <Grid item xs={6} md={3}>
                           <Controller
                             name={`barterProduct[${index}].quantity`}
                             control={control}
                             render={({ field: { value, onChange } }) => (
-                              <div>
-                                <CustomTextField
-                                  fullWidth
-                                  label='Kuantiti'
-                                  value={value}
-                                  onChange={e => {
-                                    const newQuantity = +e.target.value
-                                    const currentPrice = formBarter[index].price || 0
-                                    const newSubTotal = newQuantity * currentPrice
+                              <CustomTextField
+                                fullWidth
+                                label='Kuantiti'
+                                value={value}
+                                onChange={e => {
+                                  const newQuantity = +e.target.value
+                                  const currentPrice = formBarter[index].price || 0
+                                  const newSubTotal = newQuantity * currentPrice
 
-                                    // Update the quantity and the subtotal
-                                    onChange(newQuantity || '')
-                                    if (parseInt(newSubTotal, 10) > 0) {
-                                      setValue(`barterProduct[${index}].subTotal`, newSubTotal)
-                                    }
-                                    if (
-                                      formBarter[index].quantity &&
-                                      formBarter[index].price &&
-                                      parseInt(formBarter[index].quantity, 10) > 0
-                                    ) {
-                                      calculateTotals()
-                                    }
-                                  }}
-                                  type='number'
-                                  sx={{ display: 'block' }}
-                                  error={Boolean(errors?.barterProduct?.[index]?.quantity)}
-                                  {...(errors?.barterProduct?.[index]?.quantity && {
-                                    helperText: errors?.barterProduct?.[index]?.quantity.message
-                                  })}
-                                />
-                                <Typography variant='body2' color='textSecondary'>
-                                  {titleBarterInfo(index).titleQuantity}
-                                </Typography>
-                              </div>
+                                  // Update the quantity and the subtotal
+                                  onChange(newQuantity || '')
+                                  if (parseInt(newSubTotal, 10) > 0) {
+                                    setValue(`barterProduct[${index}].subTotal`, newSubTotal)
+                                  }
+                                  if (
+                                    formBarter[index].quantity &&
+                                    formBarter[index].price &&
+                                    parseInt(formBarter[index].quantity, 10) > 0
+                                  ) {
+                                    calculateTotals()
+                                  }
+                                }}
+                                type='number'
+                                error={Boolean(errors?.barterProduct?.[index]?.quantity)}
+                                {...(errors?.barterProduct?.[index]?.quantity && {
+                                  helperText: errors?.barterProduct?.[index]?.quantity.message
+                                })}
+                              />
                             )}
                           />
                         </Grid>
-                        <Grid item xs={5} md={2}>
+                        <Grid item xs={6} md={3}>
                           <Controller
                             name={`barterProduct[${index}].price`}
                             control={control}
                             render={({ field: { value, onChange } }) => (
                               <CustomTextField
                                 fullWidth
-                                label='Price'
+                                label='Harga'
                                 value={value ? priceFormat(value) : ''}
                                 onChange={e => {
                                   handlePriceChange({
@@ -746,7 +876,6 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                                   })
                                 }}
                                 type='text'
-                                sx={{ display: 'block' }}
                                 error={Boolean(errors?.barterProduct?.[index]?.price)}
                                 {...(errors?.barterProduct?.[index]?.price && {
                                   helperText: errors?.barterProduct?.[index]?.price.message
@@ -755,7 +884,20 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                             )}
                           />
                         </Grid>
-                        <Grid item xs={5} md={4.5}>
+                        <Grid item xs={6} md={3} sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Controller
+                            name={`barterProduct[${index}].isNewModal`}
+                            control={control}
+                            defaultValue={false}
+                            render={({ field: { value, onChange } }) => (
+                              <FormControlLabel
+                                control={<Checkbox checked={value} onChange={e => onChange(e.target.checked)} />}
+                                label='Modal Baru'
+                              />
+                            )}
+                          />
+                        </Grid>
+                        <Grid item xs={6} md={3}>
                           <Controller
                             name={`barterProduct[${index}].subTotal`}
                             control={control}
@@ -766,126 +908,64 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                                 value={priceFormat(value || 0)}
                                 disabled
                                 type='text'
-                                sx={{ display: 'block' }}
                                 error={Boolean(errors?.barterProduct?.[index]?.subTotal)}
                                 {...(errors?.barterProduct?.[index]?.subTotal && {
                                   helperText: errors?.barterProduct?.[index]?.subTotal.message
                                 })}
+                                sx={{
+                                  '& .MuiFilledInput-root.Mui-disabled': {
+                                    backgroundColor: `${barterTone.bg} !important`,
+                                    border: `1px solid ${barterTone.border}`
+                                  },
+                                  '& .MuiInputBase-input.Mui-disabled': {
+                                    WebkitTextFillColor: barterTone.fg,
+                                    fontWeight: 600
+                                  }
+                                }}
                               />
                             )}
                           />
                         </Grid>
                       </Grid>
-                    </CardContent>
-                    <Divider />
-                  </React.Fragment>
-                ))}
-                <CardContent>
-                  <Grid container spacing={6}>
-                    <Grid item xs={12} md={9.5} sx={{ marginTop: '1rem' }}></Grid>
-                    <Grid item xs={12} md={2.5}>
-                      <Controller
-                        name={`grandTotalBarter`}
-                        control={control}
-                        render={({ field: { value, onChange } }) => (
-                          <CustomTextField
-                            fullWidth
-                            label='Total Barter'
-                            value={value ? priceFormat(value) : '0'}
-                            type='text'
-                            disabled
-                            sx={{ display: 'block' }}
-                            error={Boolean(errors?.grandTotalBarter)}
-                            {...(errors?.grandTotalBarter && {
-                              helperText: errors?.grandTotalBarter.message
-                            })}
-                          />
-                        )}
-                      />
-                    </Grid>
-                  </Grid>
+                    </Box>
+                  ))}
+
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-end',
+                        borderRadius: `${radii.full}px`,
+                        border: `1px solid ${barterTone.border}`,
+                        backgroundColor: barterTone.bg,
+                        px: 3,
+                        py: 1.5
+                      }}
+                    >
+                      <Typography sx={{ fontSize: '0.75rem', fontWeight: 500, color: barterTone.fg }}>
+                        Total Barter
+                      </Typography>
+                      <Typography sx={{ fontSize: '0.9375rem', fontWeight: 700, color: barterTone.fg }}>
+                        {priceFormatWIthCurrency(getValues('grandTotalBarter')) || '0'}
+                      </Typography>
+                    </Box>
+                  </Box>
                 </CardContent>
               </Card>
             </Grid>
           )}
+        </Grid>
+        </Grid>
+
           <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Grid container spacing={6}>
-                  <Grid item xs={12} md={9.5} sx={{ marginTop: '1rem' }}></Grid>
-                  <Grid item xs={12} md={2.5}>
-                    <Controller
-                      name={`grandTotal`}
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange } }) => (
-                        <CustomTextField
-                          fullWidth
-                          label='Grand Total'
-                          value={value ? priceFormat(value) : '0'}
-                          type='text'
-                          disabled
-                          sx={{ display: 'block' }}
-                          error={Boolean(errors?.grandTotal)}
-                          {...(errors?.grandTotal && {
-                            helperText: errors?.grandTotal.message
-                          })}
-                        />
-                      )}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid item xs={12}>
-                  <Controller
-                    name={`notes`}
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange } }) => (
-                      <CustomTextField
-                        multiline
-                        rows={3}
-                        fullWidth
-                        label='Catatan'
-                        placeholder={'Catatan...'}
-                        value={value}
-                        sx={{ display: 'block' }}
-                        onChange={e => {
-                          onChange(e.target.value)
-                        }}
-                        type='text'
-                      />
-                    )}
-                  />
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid
-            container
-            sx={{ paddingLeft: '25px', marginTop: '20px' }}
-            display='flex'
-            justifyContent='flex-end'
-            gap={6}
-          >
-            <Button
-              variant='tonal'
-              color='secondary'
-              onClick={() => router.back()}
-              startIcon={<Icon icon='tabler:x' />}
-              disabled={loadingUpdateFormSalesOrder}
-            >
-              Cancel
-            </Button>
-            {loadingUpdateFormSalesOrder ? (
-              <Button variant='contained' disabled>
-                <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
-                Submitting...
-              </Button>
-            ) : (
-              <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
-                Submit
-              </Button>
-            )}
+            <FormActionBar
+              onCancel={() => router.back()}
+              loading={loadingUpdateFormSalesOrder}
+              submitLabel='Submit'
+              cancelLabel='Cancel'
+              loadingLabel='Submitting...'
+            />
           </Grid>
         </Grid>
       </form>

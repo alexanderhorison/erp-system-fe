@@ -1,44 +1,40 @@
-import { Grid, Typography } from '@mui/material'
-import { Box } from '@mui/system'
-import { useState, useEffect } from 'react'
+import Grid from '@mui/material/Grid'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import TimeFilter from 'src/pages/components/filter/FilterTime'
 import TableAllSalesOrder from 'src/views/sales-order/TableAllSalesOrder'
 import DashboardCardSo from 'src/views/sales-order/DashboardCardSo'
 import { dashboardCountSo } from 'src/store/apps/dashboard'
 
-export default function InternalTransfer() {
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
+
+export default function SalesOrder() {
   const dispatch = useDispatch()
   const { dataDashboardCountSo = { countPaid: 0, countDebt: 0 }, loadingDashboardCountSo = false } = useSelector(
     state => state.dashboard || {}
   )
-
-  const [timeFilter, setTimeFilter] = useState({
-    month: '',
-    year: new Date().getFullYear()
-  })
 
   useEffect(() => {
     dispatch(dashboardCountSo())
   }, [dispatch])
 
   return (
-    <Grid container spacing={3}>
-      {/* Dashboard Cards */}
+    <Grid container>
       <Grid item xs={12}>
-        <DashboardCardSo
-          dataDashboardCountSo={dataDashboardCountSo}
-          loadingDashboardCountSo={loadingDashboardCountSo}
-        />
-      </Grid>
+        <PageHeader title='Daftar Sales Order' breadcrumbs={[{ label: 'Home' }, { label: 'Sales Order' }]} />
 
-      {/* Table Sales Order */}
-      <Grid item xs={12}>
-        <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', paddingY: 3 }}>
-          <Typography fontSize={20}>Daftar Sales Order</Typography>
-          <TimeFilter timeFilter={timeFilter} setTimeFilter={setTimeFilter} />
-        </Box>
-        <TableAllSalesOrder timeFilter={timeFilter} />
+        <Grid container spacing={4} sx={{ mb: 4 }}>
+          <Grid item xs={12}>
+            <DashboardCardSo
+              dataDashboardCountSo={dataDashboardCountSo}
+              loadingDashboardCountSo={loadingDashboardCountSo}
+            />
+          </Grid>
+        </Grid>
+
+        {/* The month/year `TimeFilter` that used to sit beside the title is now
+            part of the table's shared filter panel. */}
+        <TableAllSalesOrder />
       </Grid>
     </Grid>
   )

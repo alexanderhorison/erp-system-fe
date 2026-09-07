@@ -9,13 +9,13 @@ import Typography from '@mui/material/Typography'
 
 import Icon from 'src/@core/components/icon'
 import { Status } from 'src/@core/components/common'
-import { returnFormatTime } from 'src/helpers/formatDate'
 import { fetchAllPointOfSaleByCustomerId, fetchDetailPointOfSale } from 'src/store/apps/pos'
 import ModalViewTransactionV4 from 'src/views/point-of-sale/transaction/ModalViewTransactionV4'
 
 // ** Shared Components
 import DataTable from 'src/views/common/DataTable'
 import TableToolbar from 'src/views/common/TableToolbar'
+import DateCell from 'src/views/common/DateCell'
 
 // ** Design Tokens
 import { colors } from 'src/configs/designTokens'
@@ -29,28 +29,6 @@ const RowOptions = ({ handleView }) => (
     </Tooltip>
   </Box>
 )
-
-/** Date over the time it happened, so the column stays narrow. */
-const DateCell = ({ date, timestamp }) => {
-  if (!date) {
-    return (
-      <Typography variant='body2' sx={{ color: colors.mutedForeground }}>
-        -
-      </Typography>
-    )
-  }
-
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {date}
-      </Typography>
-      <Typography noWrap sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
-        {returnFormatTime(timestamp)}
-      </Typography>
-    </Box>
-  )
-}
 
 export default function TablePosCustomer({ customerName }) {
   const dispatch = useDispatch()

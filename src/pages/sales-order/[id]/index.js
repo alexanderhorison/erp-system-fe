@@ -6,14 +6,19 @@ import Link from 'next/link'
 
 import Grid from '@mui/material/Grid'
 import Alert from '@mui/material/Alert'
-// ** Demo Components Imports
-import ButtonBack from 'src/views/common/ButtonBack'
+import CircularProgress from '@mui/material/CircularProgress'
+
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
 import { fetchDetailSalesOrder } from 'src/store/apps/sales-order'
 import ToolbarSalesOrder from 'src/views/sales-order/ToolbarSalesOrder'
 import DetailPageSalesOrder from 'src/views/sales-order/DetailPageSalesOrder'
 import { fetchAllSalesOrderPayment, resetSalesOrderPayments } from 'src/store/apps/sales-order-payment'
 import TablePayment from 'src/views/sales-order-payment/TablePayment'
 import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
+
+// ** Design Tokens
+import { radii } from 'src/configs/designTokens'
 
 export default function DetailSalesOrder({ }) {
   const dispatch = useDispatch()
@@ -40,22 +45,43 @@ export default function DetailSalesOrder({ }) {
     }
   }, [loadingDetailSalesOrder])
 
+  if (loadingDetailSalesOrder) {
+    return (
+      <Grid container justifyContent='center' alignItems='center' sx={{ height: '50vh' }}>
+        <CircularProgress />
+      </Grid>
+    )
+  }
+
   if (errorDetailSalesOrder) {
     return (
-      <Grid container spacing={6}>
+      <Grid container>
         <Grid item xs={12}>
-          <Alert severity='error'>
+          <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
             Surat Sales Order: {id} Tidak Ditemukan. Mohon cek list surat sales order:{' '}
             <Link href='/sales-order'>Surat Sales Order</Link>
           </Alert>
         </Grid>
       </Grid>
     )
-  } else if (data) {
-    return (
-      <>
-        <Grid container spacing={6}>
-          <ButtonBack paddingY={0} />
+  }
+
+  if (!data) return null
+
+  return (
+    <Grid container>
+      <Grid item xs={12}>
+        <PageHeader
+          title='Sales Order Details'
+          subtitle={data?.code}
+          onBack={() => router.back()}
+          breadcrumbs={[
+            { label: 'Home' },
+            { label: 'Sales Order', href: '/sales-order' },
+            { label: data?.code || 'Detail' }
+          ]}
+        />
+        <Grid container spacing={4}>
           <Grid item xl={9} md={8} xs={12}>
             <DetailPageSalesOrder data={data} />
           </Grid>
@@ -63,16 +89,16 @@ export default function DetailSalesOrder({ }) {
             <ToolbarSalesOrder id={id} data={data} />
           </Grid>
         </Grid>
-        {data?.status === 'APPROVED' && data?.id && (
-          <Grid container spacing={6} sx={{ mt: 2, mb: 2 }}>
+      </Grid>
+      {data?.status === 'APPROVED' && data?.id && (
+        <Grid item xs={12} sx={{ mt: 2 }}>
+          <Grid container spacing={4}>
             <Grid item xl={9} md={12} xs={12}>
               <TablePayment salesOrderData={data} />
             </Grid>
           </Grid>
-        )}
-      </>
-    )
-  } else {
-    return null
-  }
+        </Grid>
+      )}
+    </Grid>
+  )
 }

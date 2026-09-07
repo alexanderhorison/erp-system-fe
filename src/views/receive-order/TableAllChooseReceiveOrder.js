@@ -8,61 +8,13 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 
 import Icon from 'src/@core/components/icon'
-import { returnFormatTime } from 'src/helpers/formatDate'
 import { fetchAllDeliveryOrder } from 'src/store/apps/delivery-order'
 
 // ** Shared Components
 import DataTable from 'src/views/common/DataTable'
 import TableToolbar from 'src/views/common/TableToolbar'
-
-// ** Design Tokens
-import { colors } from 'src/configs/designTokens'
-
-/** Date over the time it happened, so the column stays narrow. */
-const DateCell = ({ date, timestamp }) => {
-  if (!date) {
-    return (
-      <Typography variant='body2' sx={{ color: colors.mutedForeground }}>
-        -
-      </Typography>
-    )
-  }
-
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {date}
-      </Typography>
-      <Typography noWrap sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
-        {returnFormatTime(timestamp)}
-      </Typography>
-    </Box>
-  )
-}
-
-/** Person's name over their role; the column renders an object, not a string. */
-const PersonCell = ({ person }) => {
-  if (!person?.name) {
-    return (
-      <Typography variant='body2' sx={{ color: colors.mutedForeground }}>
-        -
-      </Typography>
-    )
-  }
-
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Typography noWrap variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
-        {person.name}
-      </Typography>
-      {person.roleName && (
-        <Typography noWrap sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
-          {person.roleName}
-        </Typography>
-      )}
-    </Box>
-  )
-}
+import DateCell from 'src/views/common/DateCell'
+import PersonCell from 'src/views/common/PersonCell'
 
 const RowOptions = ({ handleView }) => (
   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>

@@ -6,7 +6,6 @@ import { Box, IconButton, Tooltip, Typography } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 
 import { Status } from 'src/@core/components/common'
-import { returnFormatTime } from 'src/helpers/formatDate'
 import { updateRequestOrder } from 'src/store/apps/product-request-order'
 
 // ** Shared Components
@@ -14,73 +13,12 @@ import DataTable from 'src/views/common/DataTable'
 import TableToolbar from 'src/views/common/TableToolbar'
 import FilterPanel from 'src/views/common/FilterPanel'
 import ConfirmDialog from 'src/views/common/ConfirmDialog'
+import DateCell from 'src/views/common/DateCell'
+import PersonCell from 'src/views/common/PersonCell'
+import { monthOptions, yearOptions, currentYear } from 'src/views/common/filterOptions'
 
 // ** Design Tokens
 import { colors, status as statusTokens } from 'src/configs/designTokens'
-
-const monthOptions = [
-  { value: 1, label: 'January' },
-  { value: 2, label: 'February' },
-  { value: 3, label: 'March' },
-  { value: 4, label: 'April' },
-  { value: 5, label: 'May' },
-  { value: 6, label: 'June' },
-  { value: 7, label: 'July' },
-  { value: 8, label: 'August' },
-  { value: 9, label: 'September' },
-  { value: 10, label: 'October' },
-  { value: 11, label: 'November' },
-  { value: 12, label: 'December' }
-]
-
-const currentYear = new Date().getFullYear()
-const yearOptions = [currentYear, currentYear - 1, currentYear - 2].map(year => ({ value: year, label: `${year}` }))
-
-/** Date over the time it happened, so the column stays narrow. */
-const DateCell = ({ date, timestamp }) => {
-  if (!date) {
-    return (
-      <Typography variant='body2' sx={{ color: colors.mutedForeground }}>
-        -
-      </Typography>
-    )
-  }
-
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {date}
-      </Typography>
-      <Typography noWrap sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
-        {returnFormatTime(timestamp)}
-      </Typography>
-    </Box>
-  )
-}
-
-/** Person's name over their role; both columns render an object, not a string. */
-const PersonCell = ({ person }) => {
-  if (!person?.name) {
-    return (
-      <Typography variant='body2' sx={{ color: colors.mutedForeground }}>
-        -
-      </Typography>
-    )
-  }
-
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Typography noWrap variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
-        {person.name}
-      </Typography>
-      {person.role && (
-        <Typography noWrap sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
-          {person.role}
-        </Typography>
-      )}
-    </Box>
-  )
-}
 
 const RowOptions = ({ handleView, handleProcess, handleReject, status }) => (
   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>

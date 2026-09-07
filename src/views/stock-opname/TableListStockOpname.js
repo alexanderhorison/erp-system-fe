@@ -14,24 +14,7 @@ import DataTable from 'src/views/common/DataTable'
 import TableToolbar from 'src/views/common/TableToolbar'
 import FilterPanel from 'src/views/common/FilterPanel'
 import ConfirmDialog from 'src/views/common/ConfirmDialog'
-
-const monthOptions = [
-  { value: 1, label: 'January' },
-  { value: 2, label: 'February' },
-  { value: 3, label: 'March' },
-  { value: 4, label: 'April' },
-  { value: 5, label: 'May' },
-  { value: 6, label: 'June' },
-  { value: 7, label: 'July' },
-  { value: 8, label: 'August' },
-  { value: 9, label: 'September' },
-  { value: 10, label: 'October' },
-  { value: 11, label: 'November' },
-  { value: 12, label: 'December' }
-]
-
-const currentYear = new Date().getFullYear()
-const yearOptions = [currentYear, currentYear - 1, currentYear - 2].map(year => ({ value: year, label: `${year}` }))
+import { monthOptions, yearOptions, currentYear } from 'src/views/common/filterOptions'
 
 const RowOptions = ({ code, name, id, status, router }) => {
   const dispatch = useDispatch()
