@@ -1,33 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react'
-import {
-  Grid,
-  Typography,
-  Card,
-  Alert,
-  CircularProgress,
-  Dialog,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
-  Chip,
-  Divider,
-  IconButton,
-  Tooltip,
-  Box,
-  Paper,
-  CardContent,
-  CardHeader,
-  Avatar,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon
-} from '@mui/material'
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
+import Alert from '@mui/material/Alert'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import Divider from '@mui/material/Divider'
+import Tooltip from '@mui/material/Tooltip'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import TextField from '@mui/material/TextField'
+import InputLabel from '@mui/material/InputLabel'
+import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
+import FormControl from '@mui/material/FormControl'
+import DialogContent from '@mui/material/DialogContent'
+import CircularProgress from '@mui/material/CircularProgress'
+
 import { useSelector, useDispatch } from 'react-redux'
 import Link from 'next/link'
 import Icon from 'src/@core/components/icon'
@@ -35,7 +23,46 @@ import { fetchDataUsers } from 'src/store/apps/user'
 import { voidPointOfSale } from 'src/store/apps/pos'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
-import TablePorductOpenBill from '../open-bill/TableProductOpenBill'
+import { Status } from 'src/@core/components/common'
+
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import SectionHeading from 'src/views/common/SectionHeading'
+
+// ** Design Tokens
+import { colors, radii, shadows, status as statusTokens, stone } from 'src/configs/designTokens'
+
+const mutedSx = {
+  fontSize: '0.8125rem',
+  lineHeight: '20px',
+  color: colors.mutedForeground
+}
+
+const InfoItem = ({ icon, label, value }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
+    <Box
+      sx={{
+        width: 32,
+        height: 32,
+        flexShrink: 0,
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: stone[100],
+        color: colors.mutedForeground
+      }}
+    >
+      <Icon icon={icon} fontSize='1.125rem' />
+    </Box>
+    <Box sx={{ minWidth: 0 }}>
+      <Typography sx={mutedSx}>{label}</Typography>
+      <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.foreground, whiteSpace: 'nowrap' }} noWrap>
+        {value || '-'}
+      </Typography>
+    </Box>
+  </Box>
+)
 
 export default function ModalViewTransactionV4({ open, setOpen, disableActions = false }) {
   const dispatch = useDispatch()
@@ -102,368 +129,306 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
     })
   }
 
+  const changeAmount = (data?.totalPayment || 0) - (data?.grandTotal || 0)
+
   return (
-    <Card>
+    <>
       <Dialog
         fullWidth
         open={open}
         scroll='paper'
         maxWidth='lg'
         onClose={handleClose}
-        sx={{
-          '& .MuiDialog-paper': {
-            overflow: 'hidden',
-            height: '40rem',
-            maxHeight: '40rem',
-            position: 'relative',
-            borderRadius: 2
+        PaperProps={{
+          sx: {
+            borderRadius: `${radii['3xl']}px`,
+            border: `1px solid ${colors.border}`,
+            boxShadow: shadows.lg,
+            backgroundColor: colors.background
           }
         }}
       >
-        {/* Fixed Header */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 10,
-            backgroundColor: 'background.paper',
-            borderBottom: '1px solid',
-            borderColor: 'divider',
-            px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`],
-            py: theme => `${theme.spacing(3)} !important`
-          }}
-        >
-          {/* Close Button */}
-          <Box sx={{ position: 'absolute', right: 16, top: 16 }}>
-            <Tooltip title='Close'>
-              <IconButton size='small' onClick={handleClose} sx={{ color: 'text.secondary' }}>
-                <Icon icon='mdi:close' fontSize={20} />
-              </IconButton>
-            </Tooltip>
-          </Box>
-
-          {/* Title Section */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Icon icon='mdi:receipt-text-outline' fontSize={28} />
-              <Typography variant='h4' sx={{ margin: 0, fontWeight: 600 }}>
-                Detail Transaction POS
-              </Typography>
+        {/* Header */}
+        <Box sx={{ p: 5, pb: 4 }}>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  flexShrink: 0,
+                  borderRadius: `${radii.lg}px`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: stone[100],
+                  color: colors.foreground
+                }}
+              >
+                <Icon icon='tabler:file-invoice' fontSize='1.25rem' />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography sx={{ fontSize: '1.125rem', fontWeight: 600, color: colors.foreground }}>
+                  Detail Transaksi POS
+                </Typography>
+                <Typography sx={{ ...mutedSx, mt: 0.5 }}>
+                  {data?.code || '-'}
+                </Typography>
+                {(data?.queueNumber != null || data?.shift) && (
+                  <Tooltip
+                    title={
+                      data?.shift ? (
+                        <Box>
+                          <Typography variant='caption' display='block'>
+                            <strong>{data.shift.shiftName}</strong>
+                          </Typography>
+                          <Typography variant='caption' display='block'>
+                            {data.shift.startShift ? data.shift.startShift.substring(0, 5) : '-'} -{' '}
+                            {data.shift.endShift ? data.shift.endShift.substring(0, 5) : '-'}
+                          </Typography>
+                        </Box>
+                      ) : (
+                        ''
+                      )
+                    }
+                  >
+                    <Typography sx={mutedSx}>
+                      {data?.queueNumber != null && `Antrian #${data.queueNumber}`}
+                      {data?.queueNumber != null && data?.shift && ' | '}
+                      {data?.shift &&
+                        `${data.shift.shiftName || 'Shift'} (${
+                          data.shift.startShift ? data.shift.startShift.substring(0, 5) : '-'
+                        })`}
+                    </Typography>
+                  </Tooltip>
+                )}
+              </Box>
             </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Typography variant='body2' sx={{ margin: 0, color: 'text.secondary', fontWeight: 500 }}>
-                {data?.code || '-'}
-              </Typography>
-              <Chip size='small' label={`Queue ${data?.queueNumber ?? '-'}`} color='primary' variant='outlined' />
-              {data?.shift && (
-                <Tooltip
-                  title={
-                    <Box>
-                      <Typography variant='caption' display='block'>
-                        <strong>{data.shift.shiftName}</strong>
-                      </Typography>
-                      <Typography variant='caption' display='block'>
-                        ID: {data.shift.id}
-                      </Typography>
-                      <Typography variant='caption' display='block'>
-                        {data.shift.startShift ? data.shift.startShift.substring(0, 5) : '-'} -{' '}
-                        {data.shift.endShift ? data.shift.endShift.substring(0, 5) : '-'}
-                      </Typography>
-                    </Box>
-                  }
-                >
-                  <Chip
-                    size='small'
-                    icon={<Icon icon='mdi:clock-outline' fontSize={16} />}
-                    label={`${data.shift.shiftName || 'Shift'} (${
-                      data.shift.startShift ? data.shift.startShift.substring(0, 5) : '-'
-                    } - ${data.shift.endShift ? data.shift.endShift.substring(0, 5) : '-'})`}
-                    color='secondary'
-                    variant='outlined'
-                  />
-                </Tooltip>
-              )}
-              {data?.status && (
-                <Chip
-                  size='small'
-                  label={data.status}
-                  color={data.status === 'VOID' ? 'error' : 'success'}
-                  variant='filled'
-                />
-              )}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+              {data?.status && <Status status={data.status} />}
+              <IconButton onClick={handleClose} size='small' aria-label='close' sx={{ color: colors.foreground, p: 1 }}>
+                <Icon icon='tabler:x' fontSize='1rem' />
+              </IconButton>
             </Box>
           </Box>
         </Box>
 
-        {/* Content Area */}
-        <DialogContent
-          sx={{
-            pb: theme => `${theme.spacing(4)} !important`,
-            px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`],
-            overflowY: 'auto',
-            height: 'calc(40rem - 60px)',
-            maxHeight: 'calc(40rem - 60px)',
-            pt: theme => [`${theme.spacing(24)} !important`, `${theme.spacing(24)} !important`]
-          }}
-        >
+        {/* Body */}
+        <DialogContent sx={{ px: 5, pb: 5, pt: 0 }}>
           {loadingDetailPointOfSale ? (
-            <Box sx={{ mt: 11, width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-              <CircularProgress sx={{ mb: 4 }} />
-              <Typography>Loading...</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
+              <CircularProgress />
             </Box>
           ) : errorDetailPointOfSale ? (
-            <Grid container spacing={6}>
-              <Grid item xs={12}>
-                <Alert severity='error'>
-                  Point of sale: {data?.code || ''} Tidak Ditemukan. Mohon cek list point of sale:{' '}
-                  <Link href='/point-of-sale'>Point of Sale</Link>
-                </Alert>
-              </Grid>
-            </Grid>
+            <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
+              Point of sale: {data?.code || ''} Tidak Ditemukan. Mohon cek list point of sale:{' '}
+              <Link href='/point-of-sale'>Point of Sale</Link>
+            </Alert>
           ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {/* Transaction Overview Cards */}
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                {/* Transaction Info Card */}
-                <Card sx={{ flex: 1, minWidth: 280 }}>
-                  <CardHeader
-                    avatar={
-                      <Avatar sx={{ bgcolor: 'primary.main' }}>
-                        <Icon icon='mdi:information-outline' fontSize={20} />
-                      </Avatar>
-                    }
-                    title='Transaction Information'
-                    titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {/* Info strip */}
+              <Grid
+                container
+                spacing={4}
+                sx={{
+                  m: 0,
+                  p: 4,
+                  borderRadius: `${radii.lg}px`,
+                  backgroundColor: stone[100]
+                }}
+              >
+                <Grid item xs={6} sm={3}>
+                  <InfoItem
+                    icon='tabler:calendar'
+                    label='Tanggal'
+                    value={`${returnFormatDate(data?.createdAt)}, ${returnFormatTime(data?.createdAt)}`}
                   />
-                  <CardContent sx={{ pt: 0 }}>
-                    <Grid container spacing={2}>
-                      {/* Left Column */}
-                      <Grid item xs={6}>
-                        <List dense>
-                          <ListItem sx={{ px: 0 }}>
-                            <ListItemIcon sx={{ minWidth: 36 }}>
-                              <Icon icon='mdi:tag-outline' fontSize={20} color='primary' />
-                            </ListItemIcon>
-                            <ListItemText
-                              primary='POS Code'
-                              secondary={data?.code || '-'}
-                              primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                              secondaryTypographyProps={{ variant: 'body1', fontWeight: 500 }}
-                            />
-                          </ListItem>
-                          <ListItem sx={{ px: 0 }}>
-                            <ListItemIcon sx={{ minWidth: 36 }}>
-                              <Icon icon='mdi:calendar-clock' fontSize={20} color='primary' />
-                            </ListItemIcon>
-                            <ListItemText
-                              primary='Tanggal'
-                              secondary={`${returnFormatDate(data?.createdAt)} ${returnFormatTime(data?.createdAt)}`}
-                              primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                              secondaryTypographyProps={{ variant: 'body1', fontWeight: 500 }}
-                            />
-                          </ListItem>
-                        </List>
-                      </Grid>
-                      {/* Right Column */}
-                      <Grid item xs={6}>
-                        <List dense>
-                          <ListItem sx={{ px: 0 }}>
-                            <ListItemIcon sx={{ minWidth: 36 }}>
-                              <Icon icon='mdi:storefront-outline' fontSize={20} color='primary' />
-                            </ListItemIcon>
-                            <ListItemText
-                              primary='Gudang'
-                              secondary={data?.warehouseName || '-'}
-                              primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                              secondaryTypographyProps={{ variant: 'body1', fontWeight: 500 }}
-                            />
-                          </ListItem>
-                          <ListItem sx={{ px: 0 }}>
-                            <ListItemIcon sx={{ minWidth: 36 }}>
-                              <Icon icon='mdi:account-tie-outline' fontSize={20} color='primary' />
-                            </ListItemIcon>
-                            <ListItemText
-                              primary='Kasir'
-                              secondary={data?.createdBy || 'Kasir Tidak Diketahui'}
-                              primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                              secondaryTypographyProps={{ variant: 'body1', fontWeight: 500 }}
-                            />
-                          </ListItem>
-                        </List>
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <InfoItem icon='tabler:building-warehouse' label='Gudang' value={data?.warehouseName} />
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <InfoItem icon='tabler:user-shield' label='Kasir' value={data?.createdBy} />
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <InfoItem icon='tabler:user' label='Pelanggan' value={data?.customer?.name} />
+                </Grid>
+              </Grid>
 
-                {/* Payment Summary Card */}
-                <Card sx={{ flex: 1, minWidth: 280 }}>
-                  <CardHeader
-                    avatar={
-                      <Avatar sx={{ bgcolor: 'primary.main' }}>
-                        <Icon icon='mdi:cash-multiple' fontSize={20} />
-                      </Avatar>
-                    }
-                    title='Payment Summary'
-                    titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
-                  />
-                  <CardContent sx={{ pt: 0 }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant='body2' color='text.secondary'>
-                          Total Items
-                        </Typography>
-                        <Chip label={data?.totalItems || 0} size='small' color='primary' variant='outlined' />
-                      </Box>
-
-                      <Divider />
-
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant='body2' color='text.secondary'>
-                          Sub Total
-                        </Typography>
-                        <Typography variant='body1' fontWeight={500}>
-                          {priceFormatWIthCurrency(data?.subTotal)}
-                        </Typography>
-                      </Box>
-
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant='body2' color='text.secondary'>
-                          Discount
-                        </Typography>
-                        <Typography variant='body1' fontWeight={500}>
-                          {priceFormatWIthCurrency(data?.totalDiscount || 0)}
-                        </Typography>
-                      </Box>
-
-                      <Divider />
-
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant='h6' color='primary' fontWeight={600}>
-                          Grand Total
-                        </Typography>
-                        <Typography variant='h6' color='primary' fontWeight={600}>
-                          {priceFormatWIthCurrency(data?.grandTotal)}
-                        </Typography>
-                      </Box>
-
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant='body2' color='text.secondary'>
-                          Payment
-                        </Typography>
-                        <Typography variant='body1' fontWeight={500}>
-                          {priceFormatWIthCurrency(data?.totalPayment)}
-                        </Typography>
-                      </Box>
-
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography
-                          variant='body2'
-                          color='text.secondary'
-                          sx={{ fontWeight: data?.totalPayment - data?.grandTotal < 0 ? 600 : 400 }}
-                        >
-                          {data?.totalPayment - data?.grandTotal >= 0 ? 'Change' : 'Remaining'}
-                        </Typography>
-                        <Typography
-                          variant='body1'
-                          fontWeight={500}
-                          sx={{
-                            color: data?.totalPayment - data?.grandTotal < 0 ? 'error.main' : 'success.main'
-                          }}
-                        >
-                          {priceFormatWIthCurrency(Math.abs((data?.totalPayment || 0) - (data?.grandTotal || 0)))}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
+              {/* 1. Ringkasan Pembayaran */}
+              <Box>
+                <SectionHeading number={1} title='Ringkasan Pembayaran' />
+                <Box
+                  sx={{
+                    borderRadius: `${radii.lg}px`,
+                    border: `1px solid ${statusTokens.success.border}`,
+                    boxShadow: shadows.xs,
+                    backgroundColor: statusTokens.success.bg,
+                    p: 4
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                    <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>Sub Total</Typography>
+                    <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>
+                      {priceFormatWIthCurrency(data?.subTotal)}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                    <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>Diskon</Typography>
+                    <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>
+                      {priceFormatWIthCurrency(data?.totalDiscount || 0)}
+                    </Typography>
+                  </Box>
+                  <Divider sx={{ borderBottomWidth: 2, my: 1 }} />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                    <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
+                      Grand Total
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.9375rem', fontWeight: 700, color: colors.foreground }}>
+                      {priceFormatWIthCurrency(data?.grandTotal)}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                    <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>Dibayar</Typography>
+                    <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>
+                      {priceFormatWIthCurrency(data?.totalPayment)}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                    <Typography
+                      sx={{
+                        fontSize: '0.8125rem',
+                        fontWeight: 600,
+                        color: changeAmount < 0 ? statusTokens.danger.fg : statusTokens.success.fg
+                      }}
+                    >
+                      {changeAmount >= 0 ? 'Kembalian' : 'Kurang Bayar'}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: '0.8125rem',
+                        fontWeight: 600,
+                        color: changeAmount < 0 ? statusTokens.danger.fg : statusTokens.success.fg
+                      }}
+                    >
+                      {priceFormatWIthCurrency(Math.abs(changeAmount))}
+                    </Typography>
+                  </Box>
+                </Box>
               </Box>
 
-              {/* Customer Information Card */}
-              <Card>
-                <CardHeader
-                  avatar={
-                    <Avatar sx={{ bgcolor: 'primary.main' }}>
-                      <Icon icon='mdi:account-outline' fontSize={20} />
-                    </Avatar>
-                  }
-                  title='Customer Information'
-                  titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
-                />
-                <CardContent sx={{ pt: 0 }}>
-                  {data?.customer?.name ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Avatar sx={{ width: 40, height: 40 }}>
-                        <Icon icon='mdi:account' fontSize={24} />
-                      </Avatar>
-                      <Box>
-                        <Typography variant='body1' fontWeight={500}>
-                          {data.customer.name}
-                        </Typography>
-                        {data.customer.email && (
-                          <Typography variant='body2' color='text.secondary'>
-                            {data.customer.email}
+              {/* 2. Produk Dibeli */}
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+                  <Box
+                    sx={{
+                      width: 22,
+                      height: 22,
+                      flexShrink: 0,
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: colors.foreground,
+                      color: colors.primaryForeground,
+                      fontSize: '0.75rem',
+                      fontWeight: 600
+                    }}
+                  >
+                    2
+                  </Box>
+                  <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground, flexShrink: 0 }}>
+                    Produk Dibeli
+                  </Typography>
+                  <Box sx={{ flexGrow: 1, height: '1px', backgroundColor: colors.border }} />
+                  <Typography sx={{ ...mutedSx, flexShrink: 0 }}>
+                    {data?.listProducts?.length || 0} Items
+                  </Typography>
+                </Box>
+                <DataTable
+                  itemLabel='produk'
+                  rows={data?.listProducts || []}
+                  getRowId={row => row.id}
+                  columns={[
+                    {
+                      flex: 0.4,
+                      minWidth: 160,
+                      field: 'productName',
+                      headerName: 'NAMA PRODUK',
+                      renderCell: params => (
+                        <Box sx={{ py: 1 }}>
+                          <Typography variant='body2' sx={{ color: colors.foreground, whiteSpace: 'normal' }}>
+                            {params.row.productName || params.row.title}
                           </Typography>
-                        )}
-                      </Box>
-                    </Box>
-                  ) : (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Avatar sx={{ width: 40, height: 40, bgcolor: 'grey.300' }}>
-                        <Icon icon='mdi:account-off' fontSize={24} />
-                      </Avatar>
-                      <Typography variant='body2' color='text.secondary'>
-                        No customer information available
-                      </Typography>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Products Section */}
-              <Card>
-                <CardHeader
-                  avatar={
-                    <Avatar sx={{ bgcolor: 'primary.main' }}>
-                      <Icon icon='mdi:package-variant' fontSize={20} />
-                    </Avatar>
-                  }
-                  title='Products'
-                  titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
-                  action={
-                    <Chip
-                      label={`${data?.listProducts?.length || 0} items`}
-                      size='small'
-                      color='secondary'
-                      variant='outlined'
-                    />
-                  }
+                          {params.row.notes && (
+                            <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground }}>
+                              Catatan: {params.row.notes}
+                            </Typography>
+                          )}
+                        </Box>
+                      )
+                    },
+                    {
+                      flex: 0.2,
+                      minWidth: 90,
+                      field: 'quantity',
+                      headerName: 'QUANTITY',
+                      renderCell: params => (
+                        <Typography variant='body2' sx={{ color: colors.foreground }}>
+                          {params.row.quantity}
+                        </Typography>
+                      )
+                    },
+                    {
+                      flex: 0.2,
+                      minWidth: 110,
+                      field: 'price',
+                      headerName: 'HARGA',
+                      renderCell: params => (
+                        <Typography variant='body2' sx={{ color: colors.foreground }}>
+                          {priceFormatWIthCurrency(params.row.price)}
+                        </Typography>
+                      )
+                    },
+                    {
+                      flex: 0.2,
+                      minWidth: 130,
+                      field: 'subTotal',
+                      headerName: 'TOTAL PEMBELIAN',
+                      renderCell: params => (
+                        <Typography variant='body2' sx={{ fontWeight: 500, color: colors.foreground }}>
+                          {priceFormatWIthCurrency(params.row.subTotal || 0)}
+                        </Typography>
+                      )
+                    }
+                  ]}
+                  sx={{ '& .MuiDataGrid-cell': { alignItems: 'flex-start', py: 1 } }}
                 />
-                <CardContent sx={{ pt: 0 }}>
-                  <TablePorductOpenBill data={data?.listProducts || []} />
-                </CardContent>
-              </Card>
+              </Box>
             </Box>
           )}
         </DialogContent>
 
-        {/* Footer Actions */}
-        <Divider />
-        <DialogActions
-          sx={{
-            justifyContent: 'flex-start',
-            py: theme => `${theme.spacing(1)} !important`,
-            px: theme => `${theme.spacing(3)} !important`
-          }}
-        >
-          {data && data.status !== 'VOID' && !disableActions && (
-            <Button color='error' variant='contained' onClick={() => setOpenVoid(true)}>
-              VOID
-            </Button>
-          )}
-        </DialogActions>
+        {/* Footer */}
+        {data && data.status !== 'VOID' && !disableActions && (
+          <>
+            <Divider sx={{ borderColor: colors.border }} />
+            <Box sx={{ p: 4, display: 'flex', justifyContent: 'flex-start' }}>
+              <Button
+                variant='contained'
+                onClick={() => setOpenVoid(true)}
+                startIcon={<Icon icon='tabler:ban' fontSize='1rem' />}
+                sx={{
+                  backgroundColor: statusTokens.danger.fg,
+                  '&:hover': { backgroundColor: statusTokens.danger.fg, filter: 'brightness(0.92)' }
+                }}
+              >
+                VOID
+              </Button>
+            </Box>
+          </>
+        )}
       </Dialog>
 
       {/* VOID Dialog */}
@@ -472,39 +437,45 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
         onClose={handleCloseVoid}
         maxWidth='xs'
         fullWidth
-        sx={{
-          '& .MuiDialog-paper': {
-            borderRadius: 2
+        PaperProps={{
+          sx: {
+            borderRadius: `${radii['3xl']}px`,
+            border: `1px solid ${colors.border}`,
+            boxShadow: shadows.lg,
+            backgroundColor: colors.background
           }
         }}
       >
-        {/* Void Dialog Header */}
-        <Box
-          sx={{
-            px: 4,
-            pt: 4,
-            pb: 2,
-            borderBottom: '1px solid',
-            borderColor: 'divider'
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-            <Icon icon='mdi:alert-circle-outline' fontSize={24} color='error' />
-            <Typography variant='h6' sx={{ fontWeight: 600 }}>
-              Void Transaction {data?.code}
+        {/* Header */}
+        <Box sx={{ p: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Icon icon='tabler:alert-circle' fontSize='1.5rem' color={statusTokens.danger.fg} />
+            <Typography sx={{ fontSize: '1.125rem', fontWeight: 600, color: colors.foreground }}>
+              Void Transaksi {data?.code}
             </Typography>
           </Box>
-          <Typography variant='body2' color='text.secondary'>
-            Konfirmasi void untuk transaksi: <strong>{data?.code}</strong>
-          </Typography>
+          <IconButton onClick={handleCloseVoid} size='small' aria-label='close' sx={{ color: colors.foreground, p: 1 }}>
+            <Icon icon='tabler:x' fontSize='1rem' />
+          </IconButton>
         </Box>
 
-        <DialogContent component='form' autoComplete='off' sx={{ px: 4, py: 4 }}>
+        <Box sx={{ px: 5 }}>
+          <Divider sx={{ borderColor: colors.border }} />
+        </Box>
+
+        <DialogContent component='form' autoComplete='off' sx={{ px: 5, py: 4 }}>
+          <Typography sx={{ ...mutedSx, mb: 3 }}>
+            Konfirmasi void untuk transaksi:{' '}
+            <Box component='span' sx={{ fontWeight: 600, color: colors.foreground }}>
+              {data?.code}
+            </Box>
+          </Typography>
+
           {/* Dummy input to prevent browser autofill */}
           <input type='text' name='prevent_autofill_username' autoComplete='off' style={{ display: 'none' }} />
 
           {/* Admin Selection */}
-          <FormControl fullWidth sx={{ mb: 2 }}>
+          <FormControl fullWidth sx={{ mb: 4 }}>
             <InputLabel id='admin-select-label'>Pilih Admin</InputLabel>
             <Select
               labelId='admin-select-label'
@@ -516,7 +487,7 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
               {users.map(u => (
                 <MenuItem key={u.id} value={u.id}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Icon icon='mdi:account-circle' fontSize={20} />
+                    <Icon icon='tabler:user-circle' fontSize='1.125rem' />
                     {u.name}
                   </Box>
                 </MenuItem>
@@ -544,31 +515,59 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
               autoCapitalize: 'off',
               style: { WebkitTextSecurity: 'disc' }
             }}
-            sx={{ mb: 1 }}
           />
 
           {/* Warning Alert */}
-          <Alert severity='warning' variant='outlined' sx={{ mt: 3 }} icon={<Icon icon='mdi:alert' />}>
+          <Alert
+            severity='warning'
+            variant='outlined'
+            sx={{ mt: 4, borderRadius: `${radii.lg}px` }}
+            icon={<Icon icon='tabler:alert-triangle' />}
+          >
             <Typography variant='body2'>Aksi ini tidak dapat dibatalkan setelah dikonfirmasi</Typography>
           </Alert>
         </DialogContent>
 
-        <Divider />
-        <DialogActions sx={{ px: 4, py: 2.5 }}>
-          <Button onClick={handleCloseVoid} disabled={submitting} sx={{ fontWeight: 600 }}>
+        <Box sx={{ px: 5 }}>
+          <Divider sx={{ borderColor: colors.border }} />
+        </Box>
+
+        <Box sx={{ p: 4, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4 }}>
+          <Button
+            variant='outlined'
+            color='secondary'
+            onClick={handleCloseVoid}
+            disabled={submitting}
+            startIcon={<Icon icon='tabler:x' fontSize='1rem' />}
+            sx={{
+              color: colors.foreground,
+              borderColor: colors.border3,
+              boxShadow: shadows.xs,
+              '&:hover': { borderColor: colors.border3 }
+            }}
+          >
             Batal
           </Button>
           <Button
-            color='error'
             variant='contained'
             disabled={!selectedAdmin || pin.length !== 4 || submitting}
             onClick={handleConfirmVoid}
-            sx={{ fontWeight: 600, minWidth: 140 }}
+            startIcon={
+              submitting ? (
+                <CircularProgress size={16} sx={{ color: 'inherit' }} />
+              ) : (
+                <Icon icon='tabler:ban' fontSize='1rem' />
+              )
+            }
+            sx={{
+              backgroundColor: statusTokens.danger.fg,
+              '&:hover': { backgroundColor: statusTokens.danger.fg, filter: 'brightness(0.92)' }
+            }}
           >
-            {submitting ? <CircularProgress size={20} /> : 'Confirm VOID'}
+            {submitting ? 'Memproses...' : 'Confirm VOID'}
           </Button>
-        </DialogActions>
+        </Box>
       </Dialog>
-    </Card>
+    </>
   )
 }

@@ -1,363 +1,320 @@
-import { useEffect, useState, useCallback, useMemo } from 'react'
-import { useRouter } from 'next/router'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 
 import Icon from 'src/@core/components/icon'
-
-import { DataGrid } from '@mui/x-data-grid'
-
-import { returnFormatTime } from 'src/helpers/formatDate'
-import { fetchAllPointOfSaleByWarehouseId, fetchDetailPointOfSale, printPos } from 'src/store/apps/pos'
-import TableHeaderPosTransaction from './TableHeaderPosTransaction'
-import ModalViewTransactionV4 from 'src/views/point-of-sale/transaction/ModalViewTransactionV4'
-import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { Status } from 'src/@core/components/common'
+import { fetchAllPointOfSaleByWarehouseId, fetchDetailPointOfSale } from 'src/store/apps/pos'
+import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
+import ModalViewTransactionV4 from 'src/views/point-of-sale/transaction/ModalViewTransactionV4'
 
-const RowOptions = ({ handleView, handlePrint, data }) => {
-  return (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleView}>
-          <Icon icon='tabler:eye' />
-        </IconButton>
-        {/* <IconButton onClick={handlePrint}>
-          <Icon icon='tabler:printer' />
-        </IconButton> */}
-      </Box>
-    </>
-  )
-}
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import FilterPanel from 'src/views/common/FilterPanel'
+import DateCell from 'src/views/common/DateCell'
+import PersonCell from 'src/views/common/PersonCell'
+import { monthOptions, yearOptions, currentYear } from 'src/views/common/filterOptions'
 
-export default function TableAllPosTransaction({ timeFilter }) {
+const RowOptions = ({ handleView }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+    <Tooltip title='Lihat Detail'>
+      <IconButton onClick={handleView} size='small'>
+        <Icon icon='tabler:eye' fontSize='1.125rem' />
+      </IconButton>
+    </Tooltip>
+  </Box>
+)
+
+// Fixed warehouse for the POS transaction listing, per the existing requirement.
+const WAREHOUSE_ID = 6
+
+export default function TableAllPosTransaction() {
   const dispatch = useDispatch()
-  const router = useRouter()
 
   const [searchText, setSearchText] = useState('')
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
+  const [filterAnchor, setFilterAnchor] = useState(null)
   const [openModalDetail, setOpenModalDetail] = useState(false)
 
-  // Filter states
-  const [filters, setFilters] = useState({
-    paymentType: '',
+  const [dataFilter, setDataFilter] = useState({
+    month: '',
+    year: currentYear,
+    status: '',
     orderBy: 'createdAt',
     orderType: 'DESC'
   })
 
-  const { dataPointOfSale: data, loadingDataPointOfSale: loading } = useSelector(state => state.pos)
+  const {
+    dataPointOfSale: data,
+    paginationPointOfSale: pagination,
+    loadingDataPointOfSale: loading
+  } = useSelector(state => state.pos)
 
-  // Helper function to convert year/month to date filtering
-  const filterByDateRange = useCallback((items, year, month) => {
-    if (!year || !items) return items
+  const filterFields = useMemo(
+    () => [
+      { name: 'month', label: 'Bulan', type: 'select', options: monthOptions, placeholder: 'Semua Bulan' },
+      { name: 'year', label: 'Tahun', type: 'select', options: yearOptions, placeholder: 'Semua Tahun' },
+      {
+        name: 'status',
+        label: 'Status',
+        type: 'select',
+        options: [
+          { value: 'PAID', label: 'Paid' },
+          { value: 'VOID', label: 'Void' }
+        ],
+        placeholder: 'Semua Status'
+      }
+    ],
+    []
+  )
+
+  const activeFilterCount = ['month', 'year', 'status'].filter(
+    key => dataFilter[key] !== '' && dataFilter[key] != null
+  ).length
+
+  // Helper: convert year/month to dateFrom/dateTo
+  const getDateRange = useCallback((year, month) => {
+    if (!year) return {}
 
     const yearNum = parseInt(year)
+    const formatDate = (y, m, d) => `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
 
-    return items.filter(item => {
-      if (!item.createdAt) return false
+    if (month) {
+      const monthNum = parseInt(month)
+      const dateFrom = formatDate(yearNum, monthNum, 1)
+      const lastDayOfMonth = new Date(yearNum, monthNum, 0).getDate()
+      const dateTo = formatDate(yearNum, monthNum, lastDayOfMonth)
+      return { dateFrom, dateTo }
+    }
 
-      const itemDate = new Date(item.createdAt)
-      const itemYear = itemDate.getFullYear()
-      const itemMonth = itemDate.getMonth() + 1 // getMonth() returns 0-11
-
-      if (month) {
-        const monthNum = parseInt(month)
-        return itemYear === yearNum && itemMonth === monthNum
-      } else {
-        return itemYear === yearNum
-      }
-    })
+    return { dateFrom: formatDate(yearNum, 1, 1), dateTo: formatDate(yearNum, 12, 31) }
   }, [])
 
-  // Apply all filters including search, payment type, and date range
-  const filteredData = useMemo(() => {
-    let result = data || []
-
-    // Apply date range filter
-    result = filterByDateRange(result, timeFilter?.year, timeFilter?.month)
-
-    // Apply search filter
-    if (searchText) {
-      const searchLower = searchText.toLowerCase()
-      result = result.filter(
-        item =>
-          item.code?.toLowerCase().includes(searchLower) ||
-          item.creator?.name?.toLowerCase().includes(searchLower) ||
-          item.warehouseName?.toLowerCase().includes(searchLower)
-      )
-    }
-
-    // Apply status filter (PAID status)
-    if (filters.paymentType) {
-      result = result.filter(item => item.status === filters.paymentType)
-    }
-
-    return result
-  }, [data, searchText, filters.paymentType, timeFilter?.year, timeFilter?.month, filterByDateRange])
-
-  // Apply sorting
-  const sortedData = useMemo(() => {
-    if (!filteredData) return []
-
-    const sorted = [...filteredData].sort((a, b) => {
-      const { orderBy, orderType } = filters
-
-      let aValue, bValue
-
-      if (orderBy === 'createdAt') {
-        aValue = new Date(a.createdAt).getTime()
-        bValue = new Date(b.createdAt).getTime()
-      } else if (orderBy === 'grandTotal') {
-        aValue = parseFloat(a.grandTotal) || 0
-        bValue = parseFloat(b.grandTotal) || 0
-      } else {
-        aValue = a[orderBy]
-        bValue = b[orderBy]
+  // Centralized fetch — filtering, search, sort and pagination are all server-side.
+  const fetchData = useCallback(
+    (customParams = {}, currentSearchText = searchText, currentFilters = dataFilter, currentPaginationModel = paginationModel) => {
+      const dateRange = getDateRange(currentFilters.year, currentFilters.month)
+      const params = {
+        page: 1,
+        limit: currentPaginationModel.pageSize,
+        ...(currentSearchText && { search: currentSearchText }),
+        ...(currentFilters.status && { status: currentFilters.status }),
+        orderBy: currentFilters.orderBy,
+        orderType: currentFilters.orderType,
+        ...dateRange,
+        paginate: true,
+        ...customParams
       }
+      dispatch(fetchAllPointOfSaleByWarehouseId({ warehouseId: WAREHOUSE_ID, ...params }))
+    },
+    [dispatch, getDateRange, searchText, dataFilter, paginationModel]
+  )
 
-      if (orderType === 'ASC') {
-        return aValue > bValue ? 1 : -1
-      } else {
-        return aValue < bValue ? 1 : -1
+  // Debounced search, cleaned up on unmount.
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId
+      const fn = (searchValue, currentFilters, currentPaginationModel) => {
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(() => {
+          fetchData({ search: searchValue, page: 1 }, searchValue, currentFilters, currentPaginationModel)
+        }, 500)
       }
-    })
-
-    return sorted
-  }, [filteredData, filters])
-
-  // Apply pagination on the frontend
-  const paginatedData = useMemo(() => {
-    const startIndex = paginationModel.page * paginationModel.pageSize
-    const endIndex = startIndex + paginationModel.pageSize
-    return sortedData.slice(startIndex, endIndex)
-  }, [sortedData, paginationModel])
-
-  // Debounced search function with proper cleanup
-  const debouncedSearch = useMemo(() => {
-    let timeoutId
-    const fn = searchValue => {
-      clearTimeout(timeoutId)
-      timeoutId = setTimeout(() => {
-        // Reset to page 1 when searching
-        setPaginationModel(prev => ({ ...prev, page: 0 }))
-      }, 500)
-    }
-
-    // Add cancel function to clear timeout
-    fn.cancel = () => {
-      clearTimeout(timeoutId)
-    }
-
-    return fn
-  }, [])
+      fn.cancel = () => clearTimeout(timeoutId)
+      return fn
+    })(),
+    [fetchData]
+  )
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
 
     if (searchValue === '') {
-      // Cancel any pending debounced search
       debouncedSearch.cancel()
-
-      // Reset pagination first
       setPaginationModel(prev => ({ ...prev, page: 0 }))
+      fetchData({ page: 1 }, '', dataFilter, paginationModel)
     } else {
-      debouncedSearch(searchValue)
+      debouncedSearch(searchValue, dataFilter, paginationModel)
     }
   }
 
-  const handleRowClick = params => {
-    const id = params?.code || params?.row?.code
+  const handleView = row => {
     setOpenModalDetail(true)
-    dispatch(fetchDetailPointOfSale(id))
-  }
-
-  const handleRowPrint = async params => {
-    dispatch(printPos(params.code))
+    dispatch(fetchDetailPointOfSale(row.code))
   }
 
   const handlePaginationChange = newPaginationModel => {
     setPaginationModel(newPaginationModel)
+    fetchData(
+      { page: newPaginationModel.page + 1, limit: newPaginationModel.pageSize },
+      searchText,
+      dataFilter,
+      newPaginationModel
+    )
   }
 
-  // Handle filter changes
-  const handleFilterChange = (filterType, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: value
-    }))
-
-    // Reset to page 1 when filtering
+  const handleApplyFilters = nextFilter => {
+    setDataFilter(prev => ({ ...prev, ...nextFilter }))
     setPaginationModel(prev => ({ ...prev, page: 0 }))
+    fetchData(
+      { page: 1, ...(nextFilter.status && { status: nextFilter.status }) },
+      searchText,
+      { ...dataFilter, ...nextFilter },
+      paginationModel
+    )
   }
 
-  // Handle sorting
+  const handleResetFilters = () => {
+    const reset = { month: '', year: '', status: '', orderBy: 'createdAt', orderType: 'DESC' }
+    setDataFilter(reset)
+    setPaginationModel(prev => ({ ...prev, page: 0 }))
+    fetchData({ page: 1 }, searchText, reset, paginationModel)
+  }
+
   const handleSortModelChange = sortModel => {
-    if (sortModel.length > 0) {
-      const { field, sort } = sortModel[0]
-      const orderBy = field === 'createdAt' ? 'createdAt' : field === 'grandTotal' ? 'grandTotal' : 'createdAt'
-      const orderType = sort.toUpperCase()
+    if (sortModel.length === 0) return
 
-      setFilters(prev => ({
-        ...prev,
-        orderBy,
-        orderType
-      }))
-    }
+    const { field, sort } = sortModel[0]
+    const orderBy = field === 'createdAt' ? 'createdAt' : 'createdAt'
+    const orderType = sort.toUpperCase()
+    const nextFilters = { ...dataFilter, orderBy, orderType }
+
+    setDataFilter(nextFilters)
+    fetchData({ page: 1, orderBy, orderType }, searchText, nextFilters, paginationModel)
   }
 
-  // Initial fetch when component mounts or warehouse changes
+  // Initial fetch and fetch when the year/month filter changes.
   useEffect(() => {
-    const warehouseId = 6 // Fixed warehouse ID as per requirement
-    dispatch(fetchAllPointOfSaleByWarehouseId(warehouseId))
-  }, [dispatch])
+    const dateRange = getDateRange(dataFilter.year, dataFilter.month)
+    dispatch(
+      fetchAllPointOfSaleByWarehouseId({
+        warehouseId: WAREHOUSE_ID,
+        page: 1,
+        limit: 25,
+        orderBy: 'createdAt',
+        orderType: 'DESC',
+        ...dateRange,
+        paginate: true
+      })
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, dataFilter.year, dataFilter.month])
 
   return (
-    <Card>
-      <DataGrid
-        autoHeight
+    <>
+      <FilterPanel
+        open={Boolean(filterAnchor)}
+        anchorEl={filterAnchor}
+        onClose={() => setFilterAnchor(null)}
+        fields={filterFields}
+        value={dataFilter}
+        onApply={handleApplyFilters}
+        onReset={handleResetFilters}
+      />
+
+      <DataTable
+        itemLabel='transaksi POS'
         loading={loading}
-        rows={paginatedData || []}
-        rowCount={sortedData?.length || 0}
-        paginationMode='client'
-        sortingMode='client'
-        paginationModel={paginationModel}
-        onPaginationModelChange={handlePaginationChange}
+        rows={data || []}
+        rowCount={pagination?.total || 0}
+        paginationMode='server'
+        sortingMode='server'
+        getRowId={row => row.id}
+        onRowClick={params => handleView(params.row)}
         onSortModelChange={handleSortModelChange}
-        pageSizeOptions={[5, 10, 25, 50]}
-        onCellClick={e => handleRowClick(e)}
-        slots={{ toolbar: TableHeaderPosTransaction }}
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Cari kode transaksi'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            onOpenFilters={setFilterAnchor}
+            activeFilterCount={activeFilterCount}
+          />
+        }
         columns={[
           {
-            flex: 0.1,
-            minWidth: 100,
+            flex: 0.14,
+            minWidth: 130,
             field: 'code',
-            headerName: 'Kode',
-            cellClassName: {
-              cursor: 'pointer'
-            },
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.code}
-                </Typography>
-              )
-            }
+            headerName: 'KODE',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+                {params.row.code}
+              </Typography>
+            )
           },
           {
-            flex: 0.15,
-            minWidth: 120,
+            flex: 0.16,
+            minWidth: 150,
             field: 'createdAt',
-            headerName: 'Tanggal Transaksi',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.dateCreated}
-                  </Typography>
-                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {returnFormatTime(params.row.createdAt)}
-                  </Typography>
-                </Box>
-              )
-            }
+            headerName: 'TANGGAL TRANSAKSI',
+            renderCell: params => <DateCell date={params.row.dateCreated} timestamp={params.row.createdAt} />
           },
           {
             flex: 0.16,
-            minWidth: 120,
+            minWidth: 150,
             field: 'creator',
-            headerName: 'Kasir',
-            renderCell: params => {
-              const { row } = params
-
-              return (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                      {row.creator.name}
-                    </Typography>
-                    <Typography noWrap variant='caption'>
-                      {row.creator.role}
-                    </Typography>
-                  </Box>
-                </Box>
-              )
-            }
+            headerName: 'KASIR',
+            sortable: false,
+            renderCell: params => <PersonCell person={params.row.creator} />
           },
           {
             flex: 0.16,
-            minWidth: 120,
+            minWidth: 140,
             field: 'grandTotal',
-            headerName: 'Total Pembelian',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {priceFormatWIthCurrency(params.row.grandTotal)}
-                </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.16,
-            minWidth: 120,
-            field: 'totalItems',
-            headerName: 'Total Item',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.totalItems || 0}
-                </Typography>
-              )
-            }
+            headerName: 'TOTAL PEMBELIAN',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+                {priceFormatWIthCurrency(params.row.grandTotal)}
+              </Typography>
+            )
           },
           {
             flex: 0.1,
-            minWidth: 120,
-            field: 'status',
-            headerName: 'Status',
-            renderCell: params => {
-              const { row } = params
-              return <Status status={row.status} />
-            }
+            minWidth: 100,
+            field: 'totalItems',
+            headerName: 'TOTAL ITEM',
+            sortable: false,
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.totalItems || 0}
+              </Typography>
+            )
           },
           {
-            flex: 0.01,
-            minWidth: 100,
+            flex: 0.12,
+            minWidth: 110,
+            field: 'status',
+            headerName: 'STATUS',
+            sortable: false,
+            renderCell: params => <Status status={params.row.status} />
+          },
+          {
+            flex: 0.08,
+            minWidth: 80,
             sortable: false,
             field: 'actions',
-            headerName: 'Actions',
+            headerName: 'ACTION',
             renderCell: ({ row }) => (
-              <div onClick={e => e.stopPropagation()}>
-                <RowOptions handleView={() => handleRowClick(row)} handlePrint={() => handleRowPrint(row)} data={row} />
-              </div>
+              <Box onClick={event => event.stopPropagation()} sx={{ width: '100%' }}>
+                <RowOptions handleView={() => handleView(row)} />
+              </Box>
             )
           }
         ]}
-        sx={{
-          height: '100%',
-
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          },
-          '& .MuiDataGrid-cell': {
-            cursor: 'pointer'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari kode, kasir, atau gudang',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            filters: filters,
-            onFilterChange: handleFilterChange
-          }
-        }}
+        pageSizeOptions={[5, 10, 25, 50]}
+        paginationModel={paginationModel}
+        onPaginationModelChange={handlePaginationChange}
+        sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
       />
+
       <ModalViewTransactionV4 setOpen={setOpenModalDetail} open={openModalDetail} disableActions={true} />
-    </Card>
+    </>
   )
 }

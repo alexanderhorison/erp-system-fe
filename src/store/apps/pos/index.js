@@ -191,11 +191,13 @@ export const chargePos = createAsyncThunk(
 // GET ALL POINT OF SALE BY WAREHOUSEID
 export const fetchAllPointOfSaleByWarehouseId = createAsyncThunk(
   'appProductPos/fetchAllPointOfSaleByWarehouseId',
-  async (warehouseId, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
+    const { warehouseId, ...params } = typeof payload === 'object' ? payload : { warehouseId: payload }
     try {
       const response = await axios({
         method: 'GET',
-        url: '/point-of-sale/get-all-point-of-sale/' + warehouseId
+        url: '/point-of-sale/get-all-point-of-sale/' + warehouseId,
+        params
       })
       return response.data
     } catch (error) {
@@ -387,6 +389,7 @@ export const appPosSlice = createSlice({
     errorListCustomerPos: false,
 
     dataPointOfSale: [],
+    paginationPointOfSale: { total: 0 },
     loadingDataPointOfSale: true,
     errorDataPointOfSale: false,
 
@@ -476,6 +479,7 @@ export const appPosSlice = createSlice({
       })
       .addCase(fetchAllPointOfSaleByWarehouseId.fulfilled, (state, action) => {
         state.dataPointOfSale = action.payload.data
+        state.paginationPointOfSale = action.payload.pagination || { total: 0 }
         state.loadingDataPointOfSale = false
       })
       .addCase(fetchAllPointOfSaleByWarehouseId.rejected, (state, action) => {
