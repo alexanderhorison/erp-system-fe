@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationDelete, swalError, swalSuccess } from 'src/helpers/swalFunction'
+import { swalDeleteConfirmed, swalError, swalSuccess } from 'src/helpers/swalFunction'
 
 const label = 'otoritas'
 
@@ -31,7 +31,7 @@ export const fetchOneRole = createAsyncThunk('appRoles/fetchOneRole', async para
 })
 
 // ** Add Role
-export const addRole = createAsyncThunk('appUsers/addRole', async (data, { getState, dispatch }) => {
+export const addRole = createAsyncThunk('appUsers/addRole', async ({ data, router }, { getState, dispatch }) => {
   try {
     const response = await axios({
       method: 'POST',
@@ -40,9 +40,11 @@ export const addRole = createAsyncThunk('appUsers/addRole', async (data, { getSt
     })
     swalSuccess({ label, name: 'Otoritas', response })
     dispatch(fetchRoles())
+    router?.push('/settings/roles')
     return
   } catch (error) {
     swalError({ label, error })
+    throw error
   }
 })
 
@@ -60,13 +62,14 @@ export const editRole = createAsyncThunk('appUsers/editRole', async ({ id, data,
     return
   } catch (error) {
     swalError({ label, error })
+    throw error
   }
 })
 
 // ** Delete Role
 export const deleteRole = createAsyncThunk('appUsers/deleteRole', async ({ id, name }, { getState, dispatch }) => {
   try {
-    await swalConfirmationDelete({
+    await swalDeleteConfirmed({
       label,
       name,
       axiosRequest: () => {
@@ -91,7 +94,11 @@ export const appRolesSlice = createSlice({
 
     detailRole: {},
     loadingDetail: false,
-    errorDetail: false
+    errorDetail: false,
+
+    loadingAdd: false,
+    loadingEdit: false,
+    loadingDelete: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -108,6 +115,33 @@ export const appRolesSlice = createSlice({
     builder.addCase(fetchOneRole.rejected, (state, action) => {
       state.loadingDetail = false
       state.errorDetail = action.error.message
+    })
+    builder.addCase(addRole.pending, state => {
+      state.loadingAdd = true
+    })
+    builder.addCase(addRole.fulfilled, state => {
+      state.loadingAdd = false
+    })
+    builder.addCase(addRole.rejected, state => {
+      state.loadingAdd = false
+    })
+    builder.addCase(editRole.pending, state => {
+      state.loadingEdit = true
+    })
+    builder.addCase(editRole.fulfilled, state => {
+      state.loadingEdit = false
+    })
+    builder.addCase(editRole.rejected, state => {
+      state.loadingEdit = false
+    })
+    builder.addCase(deleteRole.pending, state => {
+      state.loadingDelete = true
+    })
+    builder.addCase(deleteRole.fulfilled, state => {
+      state.loadingDelete = false
+    })
+    builder.addCase(deleteRole.rejected, state => {
+      state.loadingDelete = false
     })
   }
 })

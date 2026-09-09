@@ -1,174 +1,19 @@
-// ** React Imports
-import { useState, useEffect, useCallback } from 'react'
-
-// ** MUI Imports
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
-import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
-import { DataGrid } from '@mui/x-data-grid'
 
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
+import TableRole from 'src/views/settings/roles/TableRole'
 
-// ** Store Imports
-import { useDispatch, useSelector } from 'react-redux'
-
-// ** Custom Components Imports
-import TableHeader from 'src/views/settings/roles/TableHeader'
-
-// ** Actions Imports
-import { deleteRole, fetchRoles } from 'src/store/apps/role'
-import { fetchMenus } from 'src/store/apps/menu'
-import { useRouter } from 'next/router'
-
-const colors = {
-  support: 'info',
-  users: 'success',
-  manager: 'warning',
-  administrator: 'primary',
-  'restricted-user': 'error'
-}
-
-const RowOptions = ({ id, data }) => {
-  // ** Hooks
-  const dispatch = useDispatch()
-  const router = useRouter()
-
-  // State Modal Edit
-  // const [isModalEditRole, setIsModalEditRole] = useState(false)
-  // state data for edit
-  // const [dataRole, setDataRole] = useState(null)
-  // state on Close modal
-  // const modalEditRoleClosePress = useCallback(() => {
-  //   setIsModalEditRole(false)
-  // }, [])
-
-  // Action Open Modal
-  const modalOpenPress = useCallback(
-    (data, isView = false) =>
-      () => {
-        router.push(`/settings/roles/${data.id}`)
-      },
-    []
-  )
-
-  const handleDelete = () => {
-    const name = data?.name
-    dispatch(deleteRole({ id, name }))
-  }
-
+export default function PermissionsTable() {
   return (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={modalOpenPress(data)}>
-          <Icon icon='tabler:edit' />
-        </IconButton>
-        <IconButton>
-          <Icon icon='tabler:trash' onClick={handleDelete} />
-        </IconButton>
-      </Box>
-    </>
-  )
-}
-
-const defaultColumns = [
-  {
-    flex: 0.25,
-    field: 'name',
-    minWidth: 240,
-    headerName: 'Nama Otoritas',
-    renderCell: ({ row }) => <Typography sx={{ color: 'text.secondary' }}>{row.name}</Typography>
-  },
-  {
-    flex: 0.5,
-    field: 'description',
-    minWidth: 240,
-    headerName: 'Deskripsi Otoritas',
-    renderCell: ({ row }) => <Typography sx={{ color: 'text.secondary' }}>{row.description}</Typography>
-  },
-]
-
-const PermissionsTable = () => {
-  // ** State
-  const [value, setValue] = useState('')
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
-  const [filteredRoles, setFilteredRoles] = useState([])
-
-  // ** Hooks
-  const dispatch = useDispatch()
-  const roles = useSelector(state => state.role.dataRoles)
-
-  useEffect(() => {
-    dispatch(fetchRoles())
-    dispatch(fetchMenus())
-  }, [dispatch])
-
-  const handleFilter = useCallback(
-    val => {
-      setValue(val)
-      if (val.length) {
-        const filteredRows = roles.filter(row => row.name.toLowerCase().includes(val.toLowerCase()))
-        setFilteredRoles(filteredRows)
-      } else {
-        setFilteredRoles(roles)
-      }
-    },
-    [roles]
-  )
-
-  const clearFilter = useCallback(val => {
-    setValue('')
-    setFilteredRoles([])
-  }, [])
-
-  const onSubmit = e => {
-    e.preventDefault()
-  }
-
-  const columns = [
-    ...defaultColumns,
-    {
-      flex: 0.15,
-      minWidth: 120,
-      sortable: false,
-      field: 'actions',
-      headerName: 'Actions',
-      renderCell: ({ row }) => <RowOptions id={row.id} data={row} />
-    }
-  ]
-
-  return (
-    <>
-      <Grid container spacing={6}>
-        <Grid item xs={12}>
-          <Typography paddingY={3} fontSize={20}>
-            Daftar Otoritas
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <Card>
-            <TableHeader value={value} handleFilter={handleFilter} clearFilter={clearFilter} />
-            <DataGrid
-              autoHeight
-              rows={value ? filteredRoles : roles}
-              columns={columns}
-              disableRowSelectionOnClick
-              pageSizeOptions={[10, 25, 50]}
-              paginationModel={paginationModel}
-              onPaginationModelChange={setPaginationModel}
-              sx={{
-                '& .MuiSvgIcon-root': {
-                  fontSize: '1.125rem'
-                }
-              }}
-            />
-          </Card>
-        </Grid>
+    <Grid container>
+      <Grid item xs={12}>
+        <PageHeader
+          title='Daftar Otoritas'
+          breadcrumbs={[{ label: 'Users & Permissions' }, { label: 'Permissions' }]}
+        />
+        <TableRole />
       </Grid>
-    </>
+    </Grid>
   )
 }
-
-export default PermissionsTable
