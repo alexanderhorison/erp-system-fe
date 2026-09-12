@@ -1,13 +1,14 @@
-import { Grid, Typography } from '@mui/material'
+import Grid from '@mui/material/Grid'
+
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
 import TableEquity from 'src/views/equity/TableEquity'
 
 export default function Equity() {
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          Ekuitas Bulanan
-        </Typography>
+        <PageHeader title='Ekuitas Bulanan' breadcrumbs={[{ label: 'Monthly Equity' }, { label: 'Equity' }]} />
         <TableEquity />
       </Grid>
     </Grid>

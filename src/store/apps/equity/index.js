@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationDelete, swalToastError, swalSuccess } from 'src/helpers/swalFunction'
+import { swalDeleteConfirmed, swalToastError, swalSuccess } from 'src/helpers/swalFunction'
 
 const label = 'Ekuitas'
 
@@ -78,7 +78,7 @@ export const deleteEquity = createAsyncThunk(
   'equity/deleteEquity',
   async ({ id, period }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationDelete({
+      await swalDeleteConfirmed({
         label,
         name: period,
         axiosRequest: () => {

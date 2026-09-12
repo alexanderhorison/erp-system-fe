@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationDelete, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalDeleteConfirmed, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'Printer'
 // GET DETAIL PRINTER
@@ -62,7 +62,7 @@ export const fetchDeletePrinter = createAsyncThunk(
   'appDashboard/fetchDeletePrinter',
   async (payload, { rejectWithValue, dispatch }) => {
     try {
-      const response = await swalConfirmationDelete({
+      const response = await swalDeleteConfirmed({
         label: 'Printer',
         name: payload.name,
         axiosRequest: () => {

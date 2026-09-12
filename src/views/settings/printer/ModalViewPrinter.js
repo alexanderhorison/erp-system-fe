@@ -8,32 +8,35 @@ import Typography from '@mui/material/Typography'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-// ** Helpers
-import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
-import { returnFormatMonthYear } from 'src/helpers/formatDate'
+// ** Shared Components
+import StatusChip from 'src/views/common/StatusChip'
 
 // ** Design Tokens
 import { colors, radii, shadows, stone } from 'src/configs/designTokens'
-import { infoCardSx } from 'src/@core/components/common/InfoCardSx'
 
-const fieldRows = [
-  { name: 'shareCapital', label: 'Modal Saham' },
-  { name: 'retainedEarningsPreviousYear', label: 'Saldo Laba Tahun Lalu' },
-  { name: 'retainedEarningsCurrentYear', label: 'Saldo Laba Tahun Berjalan' },
-  { name: 'retainedEarningsThisMonth', label: 'Saldo Laba Bulan Ini' }
-]
+const printerTypeLabels = {
+  PRINTER_POS: 'Printer POS',
+  PRINTER_DOT_MATRIX: 'Printer Dot Matrix',
+  PRINTER_INJECT: 'Printer Inject'
+}
 
 /**
- * ModalViewEquity
+ * ModalViewPrinter
  * -------------------------------------------------------------------------------------
- * Read-only detail dialog for a monthly equity entry (Figma: "Detail Ekuitas")
- * — same custom token shell and key/value card layout as
- * `ModalViewCurrentAsset`/`ModalViewLongTerm`/`ModalViewShortTerm`.
+ * Read-only detail dialog for a printer (Figma: "Detail Printer") — same custom
+ * token shell and key/value card layout as the other view modals this session
+ * (`ModalViewCurrentAsset`, `ModalViewEquity`, ...).
  */
-export default function ModalViewEquity({ open, setOpen, selectedRow }) {
+export default function ModalViewPrinter({ open, setOpen, selectedRow, isOnline }) {
   const handleClose = () => setOpen(false)
 
   if (!selectedRow) return null
+
+  const fieldRows = [
+    { label: 'Nama Printer', value: selectedRow.value },
+    { label: 'Alamat IP', value: selectedRow.value_json?.ip || selectedRow.value_json?.printerHost },
+    { label: 'Tipe Printer', value: printerTypeLabels[selectedRow.value_json?.printerType] || selectedRow.key }
+  ]
 
   return (
     <Dialog
@@ -53,7 +56,7 @@ export default function ModalViewEquity({ open, setOpen, selectedRow }) {
       {/* Header */}
       <Box sx={{ p: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
         <Typography sx={{ fontSize: '1.25rem', fontWeight: 600, lineHeight: '24px', color: colors.foreground }}>
-          Detail Ekuitas
+          Detail Printer
         </Typography>
         <IconButton onClick={handleClose} size='small' aria-label='close' sx={{ color: colors.foreground, p: 1 }}>
           <Icon icon='tabler:x' fontSize='1rem' />
@@ -63,56 +66,49 @@ export default function ModalViewEquity({ open, setOpen, selectedRow }) {
       {/* Body */}
       <Box sx={{ px: 5, py: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
         <Box sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, overflow: 'hidden' }}>
-          <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
+          <Box
+            sx={{
+              px: 4,
+              py: 3,
+              backgroundColor: stone[100],
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}
+          >
             <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.foreground }}>
-              {returnFormatMonthYear(selectedRow.date)}
+              {selectedRow.value}
             </Typography>
+            <StatusChip isActive={isOnline} activeLabel='Online' inactiveLabel='Offline' />
           </Box>
 
           <Box sx={{ px: 4, py: 2 }}>
             {fieldRows.map(fieldItem => (
               <Box
-                key={fieldItem.name}
+                key={fieldItem.label}
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}
               >
                 <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>
                   {fieldItem.label}
                 </Typography>
                 <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
-                  {priceFormatWIthCurrency(selectedRow[fieldItem.name], false)}
+                  {fieldItem.value || '-'}
                 </Typography>
               </Box>
             ))}
-
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                pt: 3,
-                borderTop: `1px solid ${colors.border}`
-              }}
-            >
-              <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
-                Grand Total
-              </Typography>
-              <Typography sx={{ fontSize: '0.9375rem', fontWeight: 700, color: colors.foreground }}>
-                {priceFormatWIthCurrency(selectedRow.totalEquity, false)}
-              </Typography>
-            </Box>
           </Box>
         </Box>
 
-        {selectedRow.notes && (
-          <Box sx={infoCardSx}>
+        {selectedRow.description && (
+          <Box sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, overflow: 'hidden' }}>
             <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
               <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground }}>
-                Catatan
+                Deskripsi
               </Typography>
             </Box>
             <Box sx={{ px: 4, py: 3 }}>
               <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-                {selectedRow.notes}
+                {selectedRow.description}
               </Typography>
             </Box>
           </Box>
