@@ -3,110 +3,101 @@ import { Controller, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Box, Grid } from '@mui/material'
+
+// ** MUI Imports
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material'
+
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+
+// ** Custom Component Imports
 import CustomTextField from 'src/@core/components/mui/text-field'
+import PickersComponent from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+
+// ** Shared Components
+import AppModal from 'src/views/common/AppModal'
+import DatePickerHighZIndexStyles from 'src/views/common/DatePickerHighZIndexStyles'
+
+// ** Store
 import { addLongTerm, editLongTerm, fetchLongTermDetail } from 'src/store/apps/liabilities/long-term'
+
+// ** Helpers
 import { priceFormat } from 'src/helpers/priceFormatter'
-import BaseModal from 'src/views/common/BaseModal'
 
-// Global styles for DatePicker
-const datePickerStyles = `
-  .react-datepicker-popper {
-    z-index: 1500 !important;
-  }
-  .react-datepicker {
-    z-index: 1500 !important;
-  }
-  .high-z-index-popper {
-    z-index: 1500 !important;
-  }
-  .react-datepicker__month-year-dropdown-container {
-    display: flex;
-    gap: 10px;
-  }
-  .react-datepicker__month-dropdown {
-    min-width: 120px !important;
-    width: 120px !important;
-  }
-  .react-datepicker__month-option {
-    width: 100% !important;
-    text-align: center;
-    padding: 12px 16px !important;
-    margin: 4px 0 !important;
-    line-height: 1.6 !important;
-    min-height: 40px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 4px !important;
-  }
-  .react-datepicker__month-option:hover {
-    background-color: #e3f2fd !important;
-  }
-  .react-datepicker__month-year-dropdown {
-    min-width: 120px !important;
-    max-height: 200px !important;
-    overflow-y: auto !important;
-  }
-  .react-datepicker__year-option {
-    padding: 12px 16px !important;
-    margin: 4px 0 !important;
-    line-height: 1.6 !important;
-    min-height: 40px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 4px !important;
-  }
-  .react-datepicker__year-option:hover {
-    background-color: #e3f2fd !important;
-  }
-`
+// ** Design Tokens
+import { colors, radii, shadows } from 'src/configs/designTokens'
 
+const schema = yup.object({
+  date: yup
+    .date()
+    .required()
+    .typeError('Tanggal harus diisi')
+    .test('is-previous-month', 'Hanya dapat memilih bulan sebelum bulan ini', function (value) {
+      if (!value) return false
+      const now = new Date()
+      const currentMonth = now.getMonth()
+      const currentYear = now.getFullYear()
+      const selectedMonth = value.getMonth()
+      const selectedYear = value.getFullYear()
+
+      // Allow previous months in current year or any month in previous years
+      return selectedYear < currentYear || (selectedYear === currentYear && selectedMonth < currentMonth)
+    }),
+  shareholderLoans: yup
+    .number()
+    .transform(value => (isNaN(value) ? null : value))
+    .required('Pinjaman Kepada Pemegang Saham harus diisi')
+    .min(0, 'Nilai harus bernilai positif'),
+  longTermBankLoans: yup
+    .number()
+    .transform(value => (isNaN(value) ? null : value))
+    .required('Hutang Bank Jangka Panjang harus diisi')
+    .min(0, 'Nilai harus bernilai positif'),
+  otherLongtermLiabilities: yup
+    .number()
+    .transform(value => (isNaN(value) ? null : value))
+    .required('Kewajiban Jangka Panjang Lainnya harus diisi')
+    .min(0, 'Nilai harus bernilai positif'),
+  totalLongtermLiabilities: yup
+    .number()
+    .transform(value => (isNaN(value) ? null : value))
+    .required('Jumlah Liabilitas Jangka Panjang harus diisi')
+    .min(0, 'Nilai harus bernilai positif'),
+  notes: yup.string().nullable()
+})
+
+// Format date transformation helper
+function transformDetailLongTerm(data) {
+  if (!data) return null
+  return {
+    ...data,
+    date: data.date ? new Date(data.date) : null,
+    shareholderLoans: data.shareHolderLoans || '',
+    longTermBankLoans: data.longTermBankLoans || '',
+    otherLongtermLiabilities: data.otherLongtermLiabilities || '',
+    totalLongtermLiabilities: data.totalLongtermLiabilities || '',
+    notes: data.notes || ''
+  }
+}
+
+/**
+ * ModalFormLongTerm
+ * -------------------------------------------------------------------------------------
+ * Add/Edit dialog for a monthly long-term-liability entry (Figma: "Ubah
+ * Liabilitas Jangka Pendek" — same shell shared across liabilities/asset
+ * modules). Uses the shared `AppModal` shell; Grand Total is read-only.
+ */
 export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id }) {
   const dispatch = useDispatch()
-  const { detailLongTerm, loadingDetailLongTerm } = useSelector(state => state.longTerm)
+  const { detailLongTerm, loadingDetailLongTerm, loadingAction } = useSelector(state => state.longTerm)
 
-  const schema = yup.object({
-    date: yup
-      .date()
-      .required()
-      .typeError('Tanggal harus diisi')
-      .test('is-previous-month', 'Hanya dapat memilih bulan sebelum bulan ini', function (value) {
-        if (!value) return false
-        const now = new Date()
-        const currentMonth = now.getMonth()
-        const currentYear = now.getFullYear()
-        const selectedMonth = value.getMonth()
-        const selectedYear = value.getFullYear()
+  const theme = useTheme()
+  const { direction } = theme
+  const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
-        // Allow previous months in current year or any month in previous years
-        return selectedYear < currentYear || (selectedYear === currentYear && selectedMonth < currentMonth)
-      }),
-    shareholderLoans: yup
-      .number()
-      .transform(value => (isNaN(value) ? null : value))
-      .required('Pinjaman Kepada Pemegang Saham harus diisi')
-      .min(0, 'Nilai harus bernilai positif'),
-    longTermBankLoans: yup
-      .number()
-      .transform(value => (isNaN(value) ? null : value))
-      .required('Hutang Bank Jangka Panjang harus diisi')
-      .min(0, 'Nilai harus bernilai positif'),
-    otherLongtermLiabilities: yup
-      .number()
-      .transform(value => (isNaN(value) ? null : value))
-      .required('Kewajiban Jangka Panjang Lainnya harus diisi')
-      .min(0, 'Nilai harus bernilai positif'),
-    totalLongtermLiabilities: yup
-      .number()
-      .transform(value => (isNaN(value) ? null : value))
-      .required('Jumlah Liabilitas Jangka Panjang harus diisi')
-      .min(0, 'Nilai harus bernilai positif'),
-    notes: yup.string().nullable()
-  })
   const {
     control,
     handleSubmit,
@@ -135,20 +126,6 @@ export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id
   const handleClose = () => {
     reset()
     setOpen(false)
-  }
-
-  // Format date transformation helper
-  const transformDetailLongTerm = data => {
-    if (!data) return null
-    return {
-      ...data,
-      date: data.date ? new Date(data.date) : null,
-      shareholderLoans: data.shareHolderLoans || '',
-      longTermBankLoans: data.longTermBankLoans || '',
-      otherLongtermLiabilities: data.otherLongtermLiabilities || '',
-      totalLongtermLiabilities: data.totalLongtermLiabilities || '',
-      notes: data.notes || ''
-    }
   }
 
   useEffect(() => {
@@ -204,211 +181,171 @@ export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id
   }
 
   return (
-    <>
-      <BaseModal
-        open={open}
-        onClose={handleClose}
-        onSubmit={handleSubmit(onSubmit)}
-        title={
-          typeModal === 'ADD'
-            ? 'Tambahkan Liabilitas Jangka Panjang'
-            : typeModal === 'VIEW'
-            ? 'Detail Liabilitas Jangka Panjang'
-            : 'Ubah Liabilitas Jangka Panjang'
-        }
-        size='sm'
-        showActions={typeModal !== 'VIEW'}
-      >
-        <Grid container spacing={6}>
-          <Grid item xs={12} sm={6}>
-            <Controller
-              name='date'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <Box sx={{ overflow: 'visible', position: 'relative', zIndex: 1500 }}>
-                  <DatePicker
-                    selected={value}
-                    onChange={onChange}
-                    dateFormat='MMM yyyy'
-                    showMonthYearPicker
-                    showFullMonthYearPicker={false}
-                    disabled={typeModal === 'VIEW'}
-                    placeholderText='Pilih bulan sebelum bulan ini'
-                    maxDate={new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)}
-                    filterDate={date => {
-                      const now = new Date()
-                      const currentMonth = now.getMonth()
-                      const currentYear = now.getFullYear()
-                      const dateMonth = date.getMonth()
-                      const dateYear = date.getFullYear()
+    <AppModal
+      open={open}
+      onClose={handleClose}
+      onSubmit={handleSubmit(onSubmit)}
+      title={typeModal === 'ADD' ? 'Tambah Liabilitas Jangka Panjang' : 'Ubah Liabilitas Jangka Panjang'}
+      size='md'
+      loading={loadingAction}
+      loadingPage={loadingDetailLongTerm && typeModal === 'EDIT'}
+    >
+      <Grid container spacing={4}>
+        <Grid item xs={12} sm={6}>
+          <Controller
+            name='date'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <DatePicker
+                selected={value}
+                onChange={onChange}
+                dateFormat='MMM yyyy'
+                showMonthYearPicker
+                popperPlacement={popperPlacement}
+                popperProps={{ strategy: 'fixed' }}
+                popperClassName='high-z-index-popper'
+                disabled={typeModal === 'EDIT'}
+                placeholderText='Pilih bulan sebelum bulan ini'
+                maxDate={new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)}
+                filterDate={date => {
+                  const now = new Date()
+                  const currentMonth = now.getMonth()
+                  const currentYear = now.getFullYear()
+                  const dateMonth = date.getMonth()
+                  const dateYear = date.getFullYear()
 
-                      // Only allow previous months
-                      return dateYear < currentYear || (dateYear === currentYear && dateMonth < currentMonth)
-                    }}
-                    customInput={
-                      <CustomTextField
-                        fullWidth
-                        label='Tanggal'
-                        placeholder='Pilih bulan sebelum bulan ini'
-                        error={Boolean(errors.date)}
-                        helperText={errors.date?.message || 'Hanya dapat memilih bulan sebelum bulan ini'}
-                        InputProps={{
-                          style: { cursor: 'pointer' }
-                        }}
-                      />
-                    }
-                    popperProps={{
-                      strategy: 'fixed',
-                      modifiers: [
-                        {
-                          name: 'preventOverflow',
-                          options: {
-                            boundary: 'viewport'
-                          }
-                        },
-                        {
-                          name: 'flip',
-                          options: {
-                            fallbackPlacements: ['top-start', 'bottom-start', 'top-end', 'bottom-end']
-                          }
-                        },
-                        {
-                          name: 'offset',
-                          options: {
-                            offset: [0, 8]
-                          }
-                        }
-                      ]
-                    }}
-                    popperClassName='high-z-index-popper'
+                  // Only allow previous months
+                  return dateYear < currentYear || (dateYear === currentYear && dateMonth < currentMonth)
+                }}
+                customInput={
+                  <PickersComponent
+                    fullWidth
+                    label='Periode'
+                    error={Boolean(errors.date)}
+                    helperText={errors.date?.message || 'Hanya dapat memilih bulan sebelum bulan ini'}
                   />
-                </Box>
-              )}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Controller
-              name='shareholderLoans'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <CustomTextField
-                  fullWidth
-                  label='Pinjaman Kepada Pemegang Saham'
-                  onChange={e => {
-                    const numericValue = e.target.value.replace(/[^\d]/g, '')
-                    onChange(numericValue)
-                  }}
-                  error={Boolean(errors.shareholderLoans)}
-                  disabled={typeModal === 'VIEW'}
-                  placeholder='Masukkan nilai pinjaman'
-                  helperText={errors.shareholderLoans?.message}
-                  InputProps={{
-                    value: value ? priceFormat(value) : ''
-                  }}
-                />
-              )}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Controller
-              name='longTermBankLoans'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <CustomTextField
-                  fullWidth
-                  label='Hutang Bank Jangka Panjang'
-                  onChange={e => {
-                    const numericValue = e.target.value.replace(/[^\d]/g, '')
-                    onChange(numericValue)
-                  }}
-                  error={Boolean(errors.longTermBankLoans)}
-                  disabled={typeModal === 'VIEW'}
-                  placeholder='Masukkan hutang bank'
-                  helperText={errors.longTermBankLoans?.message}
-                  InputProps={{
-                    value: value ? priceFormat(value) : ''
-                  }}
-                />
-              )}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Controller
-              name='otherLongtermLiabilities'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <CustomTextField
-                  fullWidth
-                  label='Kewajiban Jangka Panjang Lainnya'
-                  onChange={e => {
-                    const numericValue = e.target.value.replace(/[^\d]/g, '')
-                    onChange(numericValue)
-                  }}
-                  error={Boolean(errors.otherLongtermLiabilities)}
-                  disabled={typeModal === 'VIEW'}
-                  placeholder='Masukkan kewajiban lainnya'
-                  helperText={errors.otherLongtermLiabilities?.message}
-                  InputProps={{
-                    value: value ? priceFormat(value) : ''
-                  }}
-                />
-              )}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
+                }
+              />
+            )}
+          />
+          <DatePickerHighZIndexStyles />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <Controller
+            name='shareholderLoans'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                label='Pinjaman Kepada Pemegang Saham'
+                onChange={e => {
+                  const numericValue = e.target.value.replace(/[^\d]/g, '')
+                  onChange(numericValue)
+                }}
+                error={Boolean(errors.shareholderLoans)}
+                placeholder='Masukkan nilai pinjaman'
+                helperText={errors.shareholderLoans?.message}
+                InputProps={{
+                  value: value ? priceFormat(value) : ''
+                }}
+              />
+            )}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <Controller
+            name='longTermBankLoans'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                label='Hutang Bank Jangka Panjang'
+                onChange={e => {
+                  const numericValue = e.target.value.replace(/[^\d]/g, '')
+                  onChange(numericValue)
+                }}
+                error={Boolean(errors.longTermBankLoans)}
+                placeholder='Masukkan hutang bank'
+                helperText={errors.longTermBankLoans?.message}
+                InputProps={{
+                  value: value ? priceFormat(value) : ''
+                }}
+              />
+            )}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <Controller
+            name='otherLongtermLiabilities'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                label='Kewajiban Jangka Panjang Lainnya'
+                onChange={e => {
+                  const numericValue = e.target.value.replace(/[^\d]/g, '')
+                  onChange(numericValue)
+                }}
+                error={Boolean(errors.otherLongtermLiabilities)}
+                placeholder='Masukkan kewajiban lainnya'
+                helperText={errors.otherLongtermLiabilities?.message}
+                InputProps={{
+                  value: value ? priceFormat(value) : ''
+                }}
+              />
+            )}
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          <Box
+            sx={{
+              p: 4,
+              borderRadius: `${radii.lg}px`,
+              border: `1px solid ${colors.border}`,
+              backgroundColor: colors.background
+            }}
+          >
+            <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground, mb: 1 }}>Grand Total</Typography>
             <Controller
               name='totalLongtermLiabilities'
               control={control}
-              rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <CustomTextField
-                  fullWidth
-                  label='Jumlah Liabilitas Jangka Panjang'
-                  disabled={true}
-                  placeholder='Total akan dihitung otomatis'
-                  helperText={errors.totalLongtermLiabilities?.message}
-                  InputProps={{
-                    value: value ? priceFormat(value) : ''
-                  }}
-                  sx={{
-                    '& .MuiInputBase-input.Mui-disabled': {
-                      color: 'text.primary',
-                      WebkitTextFillColor: 'text.primary'
-                    }
-                  }}
-                />
+              render={({ field }) => (
+                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, color: colors.foreground }}>
+                  {field.value ? priceFormat(field.value) : 'Rp 0'}
+                </Typography>
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <Controller
-              name='notes'
-              control={control}
-              render={({ field: { value, onChange } }) => (
-                <CustomTextField
-                  fullWidth
-                  multiline
-                  rows={3}
-                  value={value || ''}
-                  label='Catatan'
-                  onChange={onChange}
-                  error={Boolean(errors.notes)}
-                  disabled={typeModal === 'VIEW'}
-                  placeholder='Masukkan Catatan (Opsional)'
-                  helperText={errors.notes?.message}
-                />
-              )}
-            />
-          </Grid>
+          </Box>
         </Grid>
-      </BaseModal>
-      <style jsx global>
-        {datePickerStyles}
-      </style>
-    </>
+
+        <Grid item xs={12}>
+          <Controller
+            name='notes'
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                multiline
+                rows={3}
+                value={value || ''}
+                label='Catatan'
+                onChange={onChange}
+                error={Boolean(errors.notes)}
+                placeholder='Masukkan Catatan (Opsional)'
+                helperText={errors.notes?.message}
+              />
+            )}
+          />
+        </Grid>
+      </Grid>
+    </AppModal>
   )
 }

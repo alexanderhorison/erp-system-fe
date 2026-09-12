@@ -96,7 +96,10 @@ export const appMasterProductSlice = createSlice({
       depreciationMonths: '',
       acquisitionDate: '',
       notes: ''
-    }
+    },
+
+    loadingAction: false,
+    errorAction: null
   },
   reducers: {},
   extraReducers: builder => {
@@ -125,6 +128,28 @@ export const appMasterProductSlice = createSlice({
         state.detailData = {}
         state.loadingDetailData = false
         state.errorDetailData = action.error.message
+      })
+
+      .addCase(createMasterNonCurrentAsset.pending, state => {
+        state.loadingAction = true
+      })
+      .addCase(createMasterNonCurrentAsset.fulfilled, state => {
+        state.loadingAction = false
+      })
+      .addCase(createMasterNonCurrentAsset.rejected, (state, action) => {
+        state.loadingAction = false
+        state.errorAction = action.error.message
+      })
+
+      .addCase(updateMasterNonCurrentAsset.pending, state => {
+        state.loadingAction = true
+      })
+      .addCase(updateMasterNonCurrentAsset.fulfilled, state => {
+        state.loadingAction = false
+      })
+      .addCase(updateMasterNonCurrentAsset.rejected, (state, action) => {
+        state.loadingAction = false
+        state.errorAction = action.error.message
       })
   }
 })

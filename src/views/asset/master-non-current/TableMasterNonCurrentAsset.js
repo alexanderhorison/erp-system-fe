@@ -1,318 +1,216 @@
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 
 import Icon from 'src/@core/components/icon'
-
-import { DataGrid } from '@mui/x-data-grid'
-
 import HandleSearh from 'src/helpers/handleSearch'
 import { fetchMasterNonCurrentAsset } from 'src/store/apps/asset/master-non-current'
-import TableHeaderMasterNonCurrentAsset from './TableHeaderMasterNonCurrentAsset'
 import { nonCurrentAssetsType } from 'src/data/nonCurrentAssetsType'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
-import { returnFormatDate, returnFormatMonthYear } from 'src/helpers/formatDate'
-import ModalFormMasterNonCurrentAssets from './ModalFormMasterNonCurrentAssets'
+import { returnFormatMonthYear } from 'src/helpers/formatDate'
 
-const RowOptions = ({ handleView, handleEdit }) => {
-  return (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={() => handleView()}>
-          <Icon icon='tabler:eye' />
-        </IconButton>
-        <IconButton onClick={() => handleEdit()}>
-          <Icon icon='tabler:edit' />
-        </IconButton>
-      </Box>
-    </>
-  )
-}
+import ModalFormMasterNonCurrentAssets from './ModalFormMasterNonCurrentAssets'
+import ModalViewMasterNonCurrentAsset from './ModalViewMasterNonCurrentAsset'
+
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+
+const RowOptions = ({ onView, onEdit }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+    <Tooltip title='Lihat'>
+      <IconButton onClick={onView} size='small'>
+        <Icon icon='tabler:eye' fontSize='1.125rem' />
+      </IconButton>
+    </Tooltip>
+    <Tooltip title='Ubah'>
+      <IconButton onClick={onEdit} size='small'>
+        <Icon icon='tabler:edit' fontSize='1.125rem' />
+      </IconButton>
+    </Tooltip>
+  </Box>
+)
 
 export default function TableMasterNonCurrentAsset() {
   const dispatch = useDispatch()
-  const router = useRouter()
-  const [openModal, setOpenModal] = useState(false)
+
+  const [openModalForm, setOpenModalForm] = useState(false)
+  const [openModalDetail, setOpenModalDetail] = useState(false)
   const [typeModal, setTypeModal] = useState('ADD')
   const [selectedRow, setSelectedRow] = useState(null)
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
 
   const { allData: data, loadingAllData: loading } = useSelector(state => state.masterNonCurrentAsset)
 
   const handleSearch = searchValue => {
     setSearchText(searchValue)
-    HandleSearh({
-      data,
-      keys: ['name', 'assetType'],
-      searchValue,
-      setData: setFilteredData
-    })
+    HandleSearh({ data, keys: ['name', 'assetType'], searchValue, setData: setFilteredData })
   }
 
   const handleView = row => {
     setSelectedRow(row)
-    setTypeModal('VIEW')
-    setOpenModal(true)
+    setOpenModalDetail(true)
   }
 
   const handleAdd = () => {
     setSelectedRow(null)
     setTypeModal('ADD')
-    setOpenModal(true)
+    setOpenModalForm(true)
   }
 
   const handleEdit = row => {
     setSelectedRow(row)
     setTypeModal('EDIT')
-    setOpenModal(true)
+    setOpenModalForm(true)
   }
 
   useEffect(() => {
     dispatch(fetchMasterNonCurrentAsset())
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
-    if (data) {
-      setFilteredData(data)
-    }
+    setFilteredData(data)
   }, [data])
 
   return (
-    <Card>
-      <ModalFormMasterNonCurrentAssets
-        open={openModal}
-        setOpen={setOpenModal}
-        typeModal={typeModal}
-        data={selectedRow}
-      />
-      <DataGrid
-        autoHeight
+    <>
+      <DataTable
+        itemLabel='aset tidak lancar'
         loading={loading}
+        getRowId={row => row.id}
+        onRowClick={params => handleView(params.row)}
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Cari nama aset'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            actions={
+              <Button
+                variant='contained'
+                onClick={handleAdd}
+                startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+              >
+                Tambah Aset Tidak Lancar
+              </Button>
+            }
+          />
+        }
         columns={[
-          // {
-          //   flex: 0.05,
-          //   // minWidth: 100,
-          //   field: 'id',
-          //   headerName: 'Id',
-          //   headerAlign: 'left',
-          //   cellClassName: {
-          //     cursor: 'pointer'
-          //   },
-          //   renderCell: params => {
-          //     return (
-          //       <Typography
-          //         style={{ cursor: 'pointer' }}
-          //         variant='body2'
-          //         sx={{ color: 'text.primary', whiteSpace: 'normal', wordWrap: 'break-word' }}
-          //       >
-          //         {params.row.id}
-          //       </Typography>
-          //     )
-          //   }
-          // },
           {
-            flex: 2,
-            minWidth: 120,
+            flex: 0.22,
+            minWidth: 160,
             field: 'name',
-            headerName: 'Nama Aset',
-            headerAlign: 'left',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography
-                    variant='body2'
-                    sx={{ color: 'text.primary', whiteSpace: 'normal', wordWrap: 'break-word' }}
-                  >
-                    {params.row.name}
-                  </Typography>
-                </Box>
-              )
-            }
+            headerName: 'NAMA ASET',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.name}
+              </Typography>
+            )
           },
           {
-            flex: 2,
-            minWidth: 120,
+            flex: 0.15,
+            minWidth: 140,
             field: 'assetType',
-            headerName: 'Tipe Aset',
-            headerAlign: 'left',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography
-                    variant='body2'
-                    sx={{ color: 'text.primary', whiteSpace: 'normal', wordWrap: 'break-word' }}
-                  >
-                    {nonCurrentAssetsType.find(type => type.value === params.row.assetType)?.key || 'Unknown'}
-                  </Typography>
-                </Box>
-              )
-            }
+            headerName: 'JENIS ASET',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {nonCurrentAssetsType.find(type => type.value === params.row.assetType)?.key || 'Unknown'}
+              </Typography>
+            )
           },
           {
-            flex: 2,
-            minWidth: 120,
+            flex: 0.18,
+            minWidth: 150,
             field: 'assetValue',
-            headerName: 'Nilai Aset',
-            headerAlign: 'left',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography
-                    variant='body2'
-                    sx={{ color: 'text.primary', whiteSpace: 'normal', wordWrap: 'break-word' }}
-                  >
-                    {priceFormatWIthCurrency(params.row.assetValue, false)}
-                  </Typography>
-                </Box>
-              )
-            }
+            headerName: 'NILAI ASET',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {priceFormatWIthCurrency(params.row.assetValue, false)}
+              </Typography>
+            )
           },
           {
-            flex: 1,
-            minWidth: 120,
-            field: 'isDepreciable',
-            headerName: 'Depresiasi',
-            headerAlign: 'left',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography
-                    variant='body2'
-                    sx={{ color: 'text.primary', whiteSpace: 'normal', wordWrap: 'break-word' }}
-                  >
-                    {params.row.isDepreciable ? 'Ya' : 'Tidak'}
-                  </Typography>
-                </Box>
-              )
-            }
-          },
-          {
-            flex: 2,
-            minWidth: 120,
+            flex: 0.15,
+            minWidth: 140,
             field: 'acquisitionDate',
-            headerName: 'Waktu Akuisisi',
-            headerAlign: 'left',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography
-                    variant='body2'
-                    sx={{ color: 'text.primary', whiteSpace: 'normal', wordWrap: 'break-word' }}
-                  >
-                    {returnFormatMonthYear(params.row.acquisitionDate)}
-                  </Typography>
-                </Box>
-              )
-            }
+            headerName: 'WAKTU AKUISISI',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {returnFormatMonthYear(params.row.acquisitionDate)}
+              </Typography>
+            )
           },
           {
-            flex: 2,
-            minWidth: 120,
-            field: 'depreciationMonths',
-            headerName: 'Jumlah Depresiasi',
-            headerAlign: 'left',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography
-                    variant='body2'
-                    sx={{ color: 'text.primary', whiteSpace: 'normal', wordWrap: 'break-word' }}
-                  >
+            flex: 0.1,
+            minWidth: 110,
+            field: 'isDepreciable',
+            headerName: 'DEPRESIASI',
+            renderCell: params => (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                {params.row.isDepreciable ? 'Ya' : 'Tidak'}
+              </Typography>
+            )
+          },
+          {
+            flex: 0.18,
+            minWidth: 150,
+            field: 'depreciationValue',
+            headerName: 'JUMLAH DEPRESIASI',
+            sortable: false,
+            renderCell: params =>
+              params.row.isDepreciable ? (
+                <Box>
+                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
                     {priceFormatWIthCurrency(params.row.depreciationValue, false)}
                   </Typography>
                   <Typography variant='caption' sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
                     Per Bulan
                   </Typography>
                 </Box>
+              ) : (
+                <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                  -
+                </Typography>
               )
-            }
           },
-          // {
-          //   flex: 0.05,
-          //   field: 'notes',
-          //   headerName: 'Catatan',
-          //   headerAlign: 'left',
-          //   renderCell: params => {
-          //     return (
-          //       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          //         <Typography
-          //           variant='body2'
-          //           sx={{ color: 'text.primary', whiteSpace: 'normal', wordWrap: 'break-word' }}
-          //         >
-          //           {params.row.notes || '-'}
-          //         </Typography>
-          //       </Box>
-          //     )
-          //   }
-          // },
           {
             flex: 0.1,
-            minWidth: 100,
+            minWidth: 110,
             sortable: false,
             field: 'actions',
-            headerName: 'Actions',
-            headerAlign: 'left',
+            headerName: 'ACTION',
             renderCell: ({ row }) => (
-              <RowOptions handleView={() => handleView(row)} handleEdit={() => handleEdit(row)} />
+              <Box onClick={event => event.stopPropagation()} sx={{ width: '100%' }}>
+                <RowOptions onView={() => handleView(row)} onEdit={() => handleEdit(row)} />
+              </Box>
             )
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
-        // onCellClick={params => handleRowClick(params.row)}
-        slots={{ toolbar: TableHeaderMasterNonCurrentAsset }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          },
-          '& .MuiDataGrid-cell': {
-            cursor: 'pointer',
-            whiteSpace: 'normal !important',
-            wordWrap: 'break-word !important'
-          },
-          '& .MuiDataGrid-columnHeader': {
-            textAlign: 'left'
-          },
-          '& .MuiDataGrid-columnHeaderTitle': {
-            whiteSpace: 'normal !important',
-            wordWrap: 'break-word !important',
-            lineHeight: '1.2 !important'
-          },
-          '& .MuiDataGrid-columnHeader .MuiDataGrid-columnHeaderTitleContainer': {
-            height: 'auto !important',
-            minHeight: '40px !important'
-          },
-          '& .MuiDataGrid-row': {
-            maxHeight: 'none !important'
-          },
-          '& .MuiDataGrid-renderingZone': {
-            maxHeight: 'none !important'
-          },
-          '& .MuiDataGrid-columnHeaders': {
-            minHeight: '60px !important'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari nama aset',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            handleAdd: handleAdd
-          }
-        }}
+        sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
       />
-    </Card>
+
+      {openModalForm && (
+        <ModalFormMasterNonCurrentAssets
+          open={openModalForm}
+          setOpen={setOpenModalForm}
+          typeModal={typeModal}
+          data={selectedRow}
+        />
+      )}
+      <ModalViewMasterNonCurrentAsset open={openModalDetail} setOpen={setOpenModalDetail} selectedRow={selectedRow} />
+    </>
   )
 }

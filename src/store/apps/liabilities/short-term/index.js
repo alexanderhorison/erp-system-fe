@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalDeleteConfirmed, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = "Liabilitas Jangka Pendek";
 
@@ -94,7 +94,7 @@ export const deleteShortTerm = createAsyncThunk(
   'shortTerm/deleteShortTerm',
   async ({ id, date }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationDelete({
+      await swalDeleteConfirmed({
         label,
         name: date,
         axiosRequest: () => {
@@ -128,6 +128,11 @@ export const appMasterShortTerm = createSlice({
     piutangUsaha: 0,
     loadingPiutangUsaha: false,
     errorPiutangUsaha: null,
+
+    loadingAction: false,
+    errorAction: null,
+
+    loadingDelete: false,
   },
   reducers: {
     resetShortTermState: (state) => {
@@ -174,6 +179,38 @@ export const appMasterShortTerm = createSlice({
         state.piutangUsaha = {}
         state.loadingPiutangUsaha = false
         state.errorPiutangUsaha = action.error.message
+      })
+
+      .addCase(addShortTerm.pending, state => {
+        state.loadingAction = true
+      })
+      .addCase(addShortTerm.fulfilled, state => {
+        state.loadingAction = false
+      })
+      .addCase(addShortTerm.rejected, (state, action) => {
+        state.loadingAction = false
+        state.errorAction = action.error.message
+      })
+
+      .addCase(editShortTerm.pending, state => {
+        state.loadingAction = true
+      })
+      .addCase(editShortTerm.fulfilled, state => {
+        state.loadingAction = false
+      })
+      .addCase(editShortTerm.rejected, (state, action) => {
+        state.loadingAction = false
+        state.errorAction = action.error.message
+      })
+
+      .addCase(deleteShortTerm.pending, state => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteShortTerm.fulfilled, state => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteShortTerm.rejected, state => {
+        state.loadingDelete = false
       })
   }
 })

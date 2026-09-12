@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationDelete, swalToastError, swalSuccess } from 'src/helpers/swalFunction'
+import { swalDeleteConfirmed, swalToastError, swalSuccess } from 'src/helpers/swalFunction'
 
 const label = 'Aset Tidak Lancar'
 // GET ALL ASET TIDAL LANCAR BULANAN
@@ -62,7 +62,7 @@ export const fetchDeleteMonthlyNonCurrentAsset = createAsyncThunk(
   'monthlyNonCurrentAsset/fetchDeleteMonthlyNonCurrentAsset',
   async ({ id, date }, { rejectWithValue, dispatch }) => {
     try {
-      await swalConfirmationDelete({
+      await swalDeleteConfirmed({
         label,
         name: date,
         axiosRequest: () => {
@@ -91,7 +91,12 @@ export const appMonthlyNonCurrentAssetSlice = createSlice({
 
     detailData: {},
     loadingDetailData: false,
-    errorDetailData: null
+    errorDetailData: null,
+
+    loadingAction: false,
+    errorAction: null,
+
+    loadingDelete: false
   },
   reducers: {},
   extraReducers: builder => {
@@ -120,6 +125,27 @@ export const appMonthlyNonCurrentAssetSlice = createSlice({
         state.detailData = {}
         state.loadingDetailData = false
         state.errorDetailData = action.error.message
+      })
+
+      .addCase(createMonthlyNonCurrentAsset.pending, state => {
+        state.loadingAction = true
+      })
+      .addCase(createMonthlyNonCurrentAsset.fulfilled, state => {
+        state.loadingAction = false
+      })
+      .addCase(createMonthlyNonCurrentAsset.rejected, (state, action) => {
+        state.loadingAction = false
+        state.errorAction = action.error.message
+      })
+
+      .addCase(fetchDeleteMonthlyNonCurrentAsset.pending, state => {
+        state.loadingDelete = true
+      })
+      .addCase(fetchDeleteMonthlyNonCurrentAsset.fulfilled, state => {
+        state.loadingDelete = false
+      })
+      .addCase(fetchDeleteMonthlyNonCurrentAsset.rejected, state => {
+        state.loadingDelete = false
       })
   }
 })

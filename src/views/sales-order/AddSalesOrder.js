@@ -40,6 +40,7 @@ import { notifyError } from 'src/helpers/notify'
 import PageHeader from 'src/views/common/PageHeader'
 import FormActionBar from 'src/views/common/FormActionBar'
 import SectionHeading from 'src/views/common/SectionHeading'
+import DatePickerHighZIndexStyles from 'src/views/common/DatePickerHighZIndexStyles'
 
 // ** Design Tokens
 import { colors, radii, shadows, status as statusTokens, stone } from 'src/configs/designTokens'
@@ -553,6 +554,7 @@ export default function AddSalesOrder({}) {
 
   return (
     <>
+      <DatePickerHighZIndexStyles />
       <form onSubmit={handleSubmit(onSubmit)}>
         <PageHeader
           title='Pembuatan Sales Order'
@@ -624,6 +626,7 @@ export default function AddSalesOrder({}) {
                           selected={date}
                           id='basic'
                           popperPlacement={popperPlacement}
+                          popperClassName='high-z-index-popper'
                           onChange={date => setDate(date)}
                           fullWidth
                           customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
@@ -657,6 +660,7 @@ export default function AddSalesOrder({}) {
                         <DatePicker
                           selected={shippingDate}
                           id='basic'
+                          popperClassName='high-z-index-popper'
                           popperPlacement={popperPlacement}
                           onChange={date => setShippingDate(date)}
                           fullWidth
@@ -705,7 +709,9 @@ export default function AddSalesOrder({}) {
                       </Typography>
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.5 }}>
-                        <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>Total Sales Order</Typography>
+                        <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>
+                          Total Sales Order
+                        </Typography>
                         <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>
                           {priceFormatWIthCurrency(getValues('grandTotalCustomer')) || 'Rp0'}
                         </Typography>
@@ -716,7 +722,7 @@ export default function AddSalesOrder({}) {
                           - {priceFormatWIthCurrency(getValues('grandTotalBarter')) || 'Rp0'}
                         </Typography>
                       </Box>
-                      <Divider sx={{  borderBottomWidth: 2 }} />
+                      <Divider sx={{ borderBottomWidth: 2 }} />
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 2 }}>
                         <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
                           Grand Total
@@ -1318,11 +1324,7 @@ export default function AddSalesOrder({}) {
                                 control={control}
                                 defaultValue={false}
                                 render={({ field: { value, onChange } }) => (
-                                  <Checkbox
-                                    checked={value}
-                                    onChange={e => onChange(e.target.checked)}
-                                    sx={{ p: 0 }}
-                                  />
+                                  <Checkbox checked={value} onChange={e => onChange(e.target.checked)} sx={{ p: 0 }} />
                                 )}
                               />
                             </Grid>

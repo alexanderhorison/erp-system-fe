@@ -1,80 +1,51 @@
+import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import { Box, Grid } from '@mui/material'
+// ** MUI Imports
+import Grid from '@mui/material/Grid'
+import { useTheme } from '@mui/material'
+
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+
+// ** Custom Component Imports
 import CustomTextField from 'src/@core/components/mui/text-field'
+import PickersComponent from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+
+// ** Shared Components
+import AppModal from 'src/views/common/AppModal'
+import DatePickerHighZIndexStyles from 'src/views/common/DatePickerHighZIndexStyles'
+
+// ** Store
 import { createMonthlyNonCurrentAsset } from 'src/store/apps/asset/non-current'
-import { useEffect } from 'react'
-import BaseModal from 'src/views/common/BaseModal'
 
-// Global styles for DatePicker
-const datePickerStyles = `
-  .react-datepicker-popper {
-    z-index: 1500 !important;
-  }
-  .react-datepicker {
-    z-index: 1500 !important;
-  }
-  .high-z-index-popper {
-    z-index: 1500 !important;
-  }
-  .react-datepicker__month-year-dropdown-container {
-    display: flex;
-    gap: 10px;
-  }
-  .react-datepicker__month-dropdown {
-    min-width: 120px !important;
-    width: 120px !important;
-  }  .react-datepicker__month-option {
-    width: 100% !important;
-    text-align: center;
-    padding: 12px 16px !important;
-    margin: 4px 0 !important;
-    line-height: 1.6 !important;
-    min-height: 40px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 4px !important;
-  }
-  .react-datepicker__month-option:hover {
-    background-color: #e3f2fd !important;
-  }
-  .react-datepicker__month-year-dropdown {
-    min-width: 120px !important;
-    max-height: 200px !important;
-    overflow-y: auto !important;
-  }
-  .react-datepicker__year-option {
-    padding: 12px 16px !important;
-    margin: 4px 0 !important;
-    line-height: 1.6 !important;
-    min-height: 40px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 4px !important;
-  }  .react-datepicker__year-option:hover {
-    background-color: #e3f2fd !important;
-  }
-`
+const defaultValues = {
+  nonCurrentDate: '',
+  notes: ''
+}
 
+const schema = yup.object({
+  nonCurrentDate: yup.date().required('Waktu harus diisi'),
+  notes: yup.string().nullable()
+})
+
+/**
+ * ModalFormGenerateNonCurrentAssets
+ * -------------------------------------------------------------------------------------
+ * Add dialog for generating a monthly non-current-asset entry (Figma: "Tambah
+ * Aset Tidak Lancar"). Uses the shared `AppModal` shell; the month/year picker
+ * matches Sales Order's DatePicker usage (`PickersComponent` + `popperPlacement`).
+ */
 export default function ModalFormGenerateNonCurrentAssets({ open, setOpen }) {
   const dispatch = useDispatch()
+  const { loadingAction } = useSelector(state => state.nonCurrentAsset)
 
-  const defaultValues = {
-    nonCurrentDate: '',
-    notes: ''
-  }
-
-  const schema = yup.object({
-    nonCurrentDate: yup.date().required('Waktu harus diisi'),
-    notes: yup.string().nullable()
-  })
+  const theme = useTheme()
+  const { direction } = theme
+  const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
   const {
     control,
@@ -84,7 +55,7 @@ export default function ModalFormGenerateNonCurrentAssets({ open, setOpen }) {
   } = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema),
-    defaultValues: defaultValues
+    defaultValues
   })
 
   const handleClose = () => {
@@ -100,12 +71,7 @@ export default function ModalFormGenerateNonCurrentAssets({ open, setOpen }) {
       )}-${String(data.nonCurrentDate.getDate()).padStart(2, '0')}`,
       notes: data.notes || ''
     }
-    dispatch(
-      createMonthlyNonCurrentAsset({
-        data: formattedData,
-        setOpen: setOpen
-      })
-    )
+    dispatch(createMonthlyNonCurrentAsset({ data: formattedData, setOpen }))
   }
 
   useEffect(() => {
@@ -116,75 +82,49 @@ export default function ModalFormGenerateNonCurrentAssets({ open, setOpen }) {
   }, [open, reset])
 
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
-      title={'Buat Aset Tidak Lancar Bulanan'}
+      title='Buat Aset Tidak Lancar Bulanan'
       size='sm'
-      showActions={true}
+      loading={loadingAction}
     >
-      <Grid container spacing={6}>
-        <Grid item xs={12} sm={12}>
+      <Grid container spacing={4}>
+        <Grid item xs={12}>
           <Controller
             name='nonCurrentDate'
             control={control}
             rules={{ required: true }}
             render={({ field: { value, onChange } }) => (
-              <Box sx={{ overflow: 'visible', position: 'relative', zIndex: 1500 }}>
-                <DatePicker
-                  selected={value ? new Date(value) : null}
-                  onChange={onChange}
-                  dateFormat='MMM yyyy'
-                  showMonthYearPicker
-                  showFullMonthYearPicker={false}
-                  maxDate={
-                    new Date(
-                      new Date().getFullYear(),
-                      new Date().getMonth() - 1,
-                      new Date(new Date().getFullYear(), new Date().getMonth(), 0).getDate()
-                    )
-                  }
-                  placeholderText='Pilih bulan & tahun'
-                  customInput={
-                    <CustomTextField
-                      fullWidth
-                      label='Pilih bulan & tahun'
-                      error={Boolean(errors.nonCurrentDate)}
-                      helperText={errors.nonCurrentDate?.message}
-                      InputProps={{
-                        style: { cursor: 'pointer' }
-                      }}
-                    />
-                  }
-                  popperProps={{
-                    strategy: 'fixed',
-                    modifiers: [
-                      {
-                        name: 'preventOverflow',
-                        options: {
-                          boundary: 'viewport'
-                        }
-                      },
-                      {
-                        name: 'flip',
-                        options: {
-                          fallbackPlacements: ['top-start', 'bottom-start', 'top-end', 'bottom-end']
-                        }
-                      },
-                      {
-                        name: 'offset',
-                        options: {
-                          offset: [0, 8]
-                        }
-                      }
-                    ]
-                  }}
-                  popperClassName='high-z-index-popper'
-                />
-              </Box>
+              <DatePicker
+                selected={value ? new Date(value) : null}
+                onChange={date => onChange(date)}
+                dateFormat='MMM yyyy'
+                showMonthYearPicker
+                popperPlacement={popperPlacement}
+                popperProps={{ strategy: 'fixed' }}
+                popperClassName='high-z-index-popper'
+                maxDate={
+                  new Date(
+                    new Date().getFullYear(),
+                    new Date().getMonth() - 1,
+                    new Date(new Date().getFullYear(), new Date().getMonth(), 0).getDate()
+                  )
+                }
+                placeholderText='Pilih bulan & tahun'
+                customInput={
+                  <PickersComponent
+                    fullWidth
+                    label='Pilih bulan & tahun'
+                    error={Boolean(errors.nonCurrentDate)}
+                    helperText={errors.nonCurrentDate?.message}
+                  />
+                }
+              />
             )}
           />
+          <DatePickerHighZIndexStyles />
         </Grid>
         <Grid item xs={12}>
           <Controller
@@ -206,9 +146,6 @@ export default function ModalFormGenerateNonCurrentAssets({ open, setOpen }) {
           />
         </Grid>
       </Grid>
-      <style jsx global>
-        {datePickerStyles}
-      </style>
-    </BaseModal>
+    </AppModal>
   )
 }

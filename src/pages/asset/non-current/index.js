@@ -1,14 +1,21 @@
-import { Grid, Typography } from '@mui/material'
-import { Box } from '@mui/system'
+import Grid from '@mui/material/Grid'
+
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
 import TableNonCurrentAsset from 'src/views/asset/non-current/TableNonCurrentAsset'
 
 export default function NonCurrentAsset() {
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', paddingY: 3 }}>
-          <Typography fontSize={20}>Aset Tidak Lancar Bulanan</Typography>
-        </Box>
+        <PageHeader
+          title='Aset Tidak Lancar Bulanan'
+          breadcrumbs={[
+            { label: 'Assets' },
+            { label: 'Non-Current Assets' },
+            { label: 'Monthly Non-Current Assets' }
+          ]}
+        />
         <TableNonCurrentAsset />
       </Grid>
     </Grid>

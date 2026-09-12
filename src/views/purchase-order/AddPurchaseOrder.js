@@ -40,6 +40,7 @@ import { notifyError } from 'src/helpers/notify'
 import PageHeader from 'src/views/common/PageHeader'
 import FormActionBar from 'src/views/common/FormActionBar'
 import SectionHeading from 'src/views/common/SectionHeading'
+import DatePickerHighZIndexStyles from 'src/views/common/DatePickerHighZIndexStyles'
 
 // ** Design Tokens
 import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
@@ -554,6 +555,7 @@ export default function AddPurchaseOrder({}) {
 
   return (
     <>
+      <DatePickerHighZIndexStyles />
       <form onSubmit={handleSubmit(onSubmit)}>
         <PageHeader
           title='Pembuatan Purchase Order'
@@ -625,6 +627,7 @@ export default function AddPurchaseOrder({}) {
                           selected={date}
                           id='basic'
                           popperPlacement={popperPlacement}
+                          popperClassName='high-z-index-popper'
                           onChange={date => setDate(date)}
                           fullWidth
                           customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}

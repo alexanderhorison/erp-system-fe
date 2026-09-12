@@ -1,13 +1,17 @@
-import { Grid, Typography } from '@mui/material'
+import Grid from '@mui/material/Grid'
+
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
 import TableShortTerm from 'src/views/liabilities/short-term/TableShortTerm'
 
 export default function ShortTermLiabilities() {
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          Liabilitas Jangka Pendek Bulanan
-        </Typography>
+        <PageHeader
+          title='Liabilitas Jangka Pendek Bulanan'
+          breadcrumbs={[{ label: 'Monthly Liabilities' }, { label: 'Short Term' }]}
+        />
         <TableShortTerm />
       </Grid>
     </Grid>

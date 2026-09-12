@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalDeleteConfirmed, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = "Liabilitas Jangka Panjang";
 
@@ -78,7 +78,7 @@ export const deleteLongTerm = createAsyncThunk(
   'longTerm/deleteLongTerm',
   async ({ id, period }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationDelete({
+      await swalDeleteConfirmed({
         label,
         name: period,
         axiosRequest: () => {
@@ -112,6 +112,11 @@ export const appMasterLongTerm = createSlice({
     piutangUsaha: 0,
     loadingPiutangUsaha: false,
     errorPiutangUsaha: null,
+
+    loadingAction: false,
+    errorAction: null,
+
+    loadingDelete: false,
   },
   extraReducers: builder => {
     builder
@@ -141,6 +146,37 @@ export const appMasterLongTerm = createSlice({
         state.errorDetailLongTerm = action.error.message
       })
 
+      .addCase(addLongTerm.pending, state => {
+        state.loadingAction = true
+      })
+      .addCase(addLongTerm.fulfilled, state => {
+        state.loadingAction = false
+      })
+      .addCase(addLongTerm.rejected, (state, action) => {
+        state.loadingAction = false
+        state.errorAction = action.error.message
+      })
+
+      .addCase(editLongTerm.pending, state => {
+        state.loadingAction = true
+      })
+      .addCase(editLongTerm.fulfilled, state => {
+        state.loadingAction = false
+      })
+      .addCase(editLongTerm.rejected, (state, action) => {
+        state.loadingAction = false
+        state.errorAction = action.error.message
+      })
+
+      .addCase(deleteLongTerm.pending, state => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteLongTerm.fulfilled, state => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteLongTerm.rejected, state => {
+        state.loadingDelete = false
+      })
   }
 })
 

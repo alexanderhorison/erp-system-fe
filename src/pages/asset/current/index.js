@@ -1,13 +1,14 @@
-import { Grid, Typography } from '@mui/material'
+import Grid from '@mui/material/Grid'
+
+// ** Shared Components
+import PageHeader from 'src/views/common/PageHeader'
 import TableCurrentAsset from 'src/views/asset/current/TableCurrentAsset'
 
 export default function CurrentAsset() {
   return (
-    <Grid container spacing={6}>
+    <Grid container>
       <Grid item xs={12}>
-        <Typography paddingY={3} fontSize={20}>
-          Asset Lancar Bulanan
-        </Typography>
+        <PageHeader title='Aset Lancar Bulanan' breadcrumbs={[{ label: 'Assets' }, { label: 'Monthly Current Assets' }]} />
         <TableCurrentAsset />
       </Grid>
     </Grid>

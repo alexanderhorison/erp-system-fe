@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalDeleteConfirmed, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 
 const label = "Aset Lancar";
@@ -95,7 +95,7 @@ export const deleteAsset = createAsyncThunk(
   'assetCurrent/deleteAsset',
   async ({ id, period }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationDelete({
+      await swalDeleteConfirmed({
         label,
         name: period,
         axiosRequest: () => {
@@ -132,6 +132,8 @@ export const appMasterAssetCurrent = createSlice({
 
     loadingAction: false,
     errorAction: null,
+
+    loadingDelete: false,
   },
   reducers: {
     resetAssetCurrentState: (state) => {
@@ -200,6 +202,16 @@ export const appMasterAssetCurrent = createSlice({
       .addCase(editAsset.rejected, (state, action) => {
         state.loadingAction = false
         state.errorAction = action.error.message
+      })
+
+      .addCase(deleteAsset.pending, state => {
+        state.loadingDelete = true
+      })
+      .addCase(deleteAsset.fulfilled, state => {
+        state.loadingDelete = false
+      })
+      .addCase(deleteAsset.rejected, state => {
+        state.loadingDelete = false
       })
   }
 })

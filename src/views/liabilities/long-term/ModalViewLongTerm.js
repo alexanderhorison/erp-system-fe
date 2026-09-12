@@ -1,128 +1,155 @@
-import {
-  Box,
-  Button,
-  Card,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  Divider,
-  Grid,
-  IconButton,
-  Typography
-} from '@mui/material'
-import { styled } from '@mui/material/styles'
+// ** MUI Imports
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
+
+// ** Icon Imports
 import Icon from 'src/@core/components/icon'
+
+// ** Helpers
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
-import { returnFormatMonthYear } from 'src/helpers/formatDate'
+import { returnFormatDateDay, returnFormatMonthYear } from 'src/helpers/formatDate'
 
-const CustomCloseButton = styled(IconButton)(({ theme }) => ({
-  top: 0,
-  right: 0,
-  color: 'grey.500',
-  position: 'absolute',
-  boxShadow: theme.shadows[2],
-  transform: 'translate(10px, -10px)',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: `${theme.palette.background.paper} !important`,
-  transition: 'transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out',
-  '&:hover': {
-    transform: 'translate(7px, -5px)'
-  }
-}))
+// ** Design Tokens
+import { colors, radii, shadows, stone } from 'src/configs/designTokens'
+import { infoCardSx } from 'src/@core/components/common/InfoCardSx'
 
+const fieldRows = [
+  { name: 'shareHolderLoans', label: 'Pinjaman Kepada Pemegang Saham' },
+  { name: 'longTermBankLoans', label: 'Hutang Bank Jangka Panjang' },
+  { name: 'otherLongtermLiabilities', label: 'Kewajiban Jangka Panjang Lainnya' }
+]
+
+/**
+ * ModalViewLongTerm
+ * -------------------------------------------------------------------------------------
+ * Read-only detail dialog for a monthly long-term-liability entry (Figma:
+ * "Detail Liabilitas Jangka Panjang") — same custom token shell and key/value
+ * card layout as `ModalViewCurrentAsset`/`ModalViewShortTerm`.
+ */
 export default function ModalViewLongTerm({ open, setOpen, selectedRow }) {
-  const handleClose = () => {
-    setOpen(false)
-  }
+  const handleClose = () => setOpen(false)
 
   if (!selectedRow) return null
 
   return (
-    <Card>
-      <Dialog
-        fullWidth
-        open={open}
-        maxWidth='md'
-        scroll='body'
-        onClose={handleClose}
-        sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
-      >
-        <DialogContent
-          sx={{
-            pb: theme => `${theme.spacing(8)} !important`,
-            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-            pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-          }}
-        >
-          <CustomCloseButton onClick={handleClose}>
-            <Icon icon='tabler:x' fontSize='1.25rem' />
-          </CustomCloseButton>
-          <Box sx={{ mb: 4, textAlign: 'center' }}>
-            <Typography variant='h4' sx={{ mb: 2 }}>
-              Detail Liabilitas Jangka Panjang
-            </Typography>
-            <Typography variant='body2' color='text.secondary'>
-              Periode: {returnFormatMonthYear(selectedRow.date)}
+    <Dialog
+      fullWidth
+      open={open}
+      maxWidth='sm'
+      onClose={handleClose}
+      PaperProps={{
+        sx: {
+          borderRadius: `${radii['3xl']}px`,
+          border: `1px solid ${colors.border}`,
+          boxShadow: shadows.lg,
+          backgroundColor: colors.background
+        }
+      }}
+    >
+      {/* Header */}
+      <Box sx={{ p: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+        <Typography sx={{ fontSize: '1.25rem', fontWeight: 600, lineHeight: '24px', color: colors.foreground }}>
+          Detail Liabilitas Jangka Panjang
+        </Typography>
+        <IconButton onClick={handleClose} size='small' aria-label='close' sx={{ color: colors.foreground, p: 1 }}>
+          <Icon icon='tabler:x' fontSize='1rem' />
+        </IconButton>
+      </Box>
+
+      {/* Body */}
+      <Box sx={{ px: 5, py: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <Box sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, overflow: 'hidden' }}>
+          <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.foreground }}>
+              {returnFormatMonthYear(selectedRow.date)}
             </Typography>
           </Box>
 
-          <Grid container spacing={3}>
-            {[
-              { name: 'shareHolderLoans', label: 'Pinjaman Kepada Pemegang Saham' },
-              { name: 'longTermBankLoans', label: 'Hutang Bank Jangka Panjang' },
-              { name: 'otherLongtermLiabilities', label: 'Kewajiban Jangka Panjang Lainnya' },
-              { name: 'totalLongtermLiabilities', label: 'Jumlah Liabilitas Jangka Panjang' }
-            ].map(fieldItem => (
-              <Grid item xs={12} sm={6} key={fieldItem.name}>
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
-                    {fieldItem.label}
-                  </Typography>
-                  <Typography variant='h6' sx={{ fontWeight: 600 }}>
-                    {priceFormatWIthCurrency(selectedRow[fieldItem.name], false)}
-                  </Typography>
-                </Box>
-              </Grid>
+          <Box sx={{ px: 4, py: 2 }}>
+            {fieldRows.map(fieldItem => (
+              <Box
+                key={fieldItem.name}
+                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}
+              >
+                <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>{fieldItem.label}</Typography>
+                <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
+                  {priceFormatWIthCurrency(selectedRow[fieldItem.name], false)}
+                </Typography>
+              </Box>
             ))}
 
-            {/* Notes Section */}
-            {selectedRow.notes && (
-              <>
-                <Grid item xs={12}>
-                  <Divider sx={{ my: 1 }} />
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant='h6' sx={{ mb: 2 }}>
-                    Catatan
-                  </Typography>
-                  <Box
-                    sx={{
-                      p: 3,
-                      borderRadius: 1,
-                      backgroundColor: 'action.hover',
-                      border: theme => `1px solid ${theme.palette.divider}`
-                    }}
-                  >
-                    <Typography variant='body2' sx={{ whiteSpace: 'pre-wrap' }}>
-                      {selectedRow.notes}
-                    </Typography>
-                  </Box>
-                </Grid>
-              </>
-            )}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                pt: 3,
+                borderTop: `1px solid ${colors.border}`
+              }}
+            >
+              <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
+                Grand Total
+              </Typography>
+              <Typography sx={{ fontSize: '0.9375rem', fontWeight: 700, color: colors.foreground }}>
+                {priceFormatWIthCurrency(selectedRow.totalLongtermLiabilities, false)}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+
+        <Grid container spacing={4}>
+          <Grid item xs={12} sm={6} sx={{ display: 'flex' }}>
+            <Box sx={infoCardSx}>
+              <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
+                <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground }}>
+                  Catatan
+                </Typography>
+              </Box>
+              <Box sx={{ px: 4, py: 3 }}>
+                <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+                  {selectedRow.notes || '-'}
+                </Typography>
+              </Box>
+            </Box>
           </Grid>
-        </DialogContent>
-        <DialogActions
+          <Grid item xs={12} sm={6} sx={{ display: 'flex' }}>
+            <Box sx={infoCardSx}>
+              <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
+                <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground }}>
+                  Dibuat pada
+                </Typography>
+              </Box>
+              <Box sx={{ px: 4, py: 3 }}>
+                <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+                  {returnFormatDateDay(selectedRow.createdAt)}
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
+
+      {/* Footer */}
+      <Box sx={{ p: 4, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+        <Button
+          variant='outlined'
+          color='secondary'
+          onClick={handleClose}
+          startIcon={<Icon icon='tabler:x' fontSize='1rem' />}
           sx={{
-            px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-            pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+            color: colors.foreground,
+            borderColor: colors.border3,
+            boxShadow: shadows.xs,
+            '&:hover': { borderColor: colors.border3 }
           }}
         >
-          <Button variant='contained' onClick={handleClose}>
-            Tutup
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Card>
+          Close
+        </Button>
+      </Box>
+    </Dialog>
   )
 }

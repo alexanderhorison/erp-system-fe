@@ -1,60 +1,83 @@
-import { Grid, Typography, CircularProgress } from '@mui/material'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import CustomTextField from 'src/@core/components/mui/text-field'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Controller, useForm } from 'react-hook-form'
+import { subMonths, endOfMonth } from 'date-fns'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+
+// ** MUI Imports
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material'
+
+// ** Custom Component Imports
+import CustomTextField from 'src/@core/components/mui/text-field'
+import PickersComponent from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+
+// ** Shared Components
+import AppModal from 'src/views/common/AppModal'
+import DatePickerHighZIndexStyles from 'src/views/common/DatePickerHighZIndexStyles'
+
+// ** Store
+import { addShortTerm, editShortTerm, getPiutangUsaha, resetShortTermState } from 'src/store/apps/liabilities/short-term'
+
+// ** Helpers
 import { priceFormat } from 'src/helpers/priceFormatter'
-import { useEffect } from 'react'
-import { subMonths, endOfMonth } from 'date-fns'
 import parsePeriodString from 'src/helpers/parsePeriodString'
-import {
-  addShortTerm,
-  editShortTerm,
-  getPiutangUsaha,
-  resetShortTermState
-} from 'src/store/apps/liabilities/short-term'
-import BaseModal from 'src/views/common/BaseModal'
+
+// ** Design Tokens
+import { colors, radii, shadows } from 'src/configs/designTokens'
+
+const schema = yup.object().shape({
+  date: yup.date().required().typeError('Tanggal harus diisi'), // e.g., 2025-02-01
+  tradePayables: yup.string().required('Hutang Usaha wajib diisi'),
+  nonTradePayables: yup.string().required('Hutang Bukan Usaha wajib diisi'),
+  accruedExpenses: yup.string().required('Biaya Masih Harus Dibayar wajib diisi'),
+  taxPayables: yup.string().required('Hutang Pajak wajib diisi'),
+  totalShortTermLiabilities: yup.string().required('Total Keseluruhan wajib diisi'),
+  notes: yup.string().optional().default('')
+})
 
 function getPeriodValue(value) {
   if (!value) return ''
   const year = value.getFullYear()
   const month = (value.getMonth() + 1).toString().padStart(2, '0') // add 1 since JS months are 0-based
-  return `${year}-${month}-01` // => "2025-06"
+  return `${year}-${month}-01` // => "2025-06-01"
 }
 
+function transformDetailShortTerm(data) {
+  if (!data) return null
+
+  return {
+    ...data,
+    date: parsePeriodString(data.date),
+    tradePayables: data.tradePayables || '',
+    nonTradePayables: data.nonTradePayables || '',
+    accruedExpenses: data.accruedExpenses || '',
+    taxPayables: data.taxPayables || '',
+    totalShortTermLiabilities: data.totalShortTermLiabilities || '',
+    notes: data.notes || ''
+  }
+}
+
+/**
+ * ModalFormShortTerm
+ * -------------------------------------------------------------------------------------
+ * Add/Edit dialog for a monthly short-term-liability entry (Figma: "Ubah
+ * Liabilitas Jangka Pendek"). Uses the shared `AppModal` shell; Grand Total is
+ * read-only.
+ */
 export default function ModalFormShortTerm({ open, setOpen, typeModal, id }) {
   const dispatch = useDispatch()
 
-  const schema = yup.object().shape({
-    date: yup.date().required().typeError('Tanggal harus diisi'), // e.g., 2025-02-01
-    tradePayables: yup.string().required('Hutang Usaha wajib diisi'),
-    nonTradePayables: yup.string().required('Hutang Bukan Usaha wajib diisi'),
-    accruedExpenses: yup.string().required('Biaya Masih Harus Dibayar wajib diisi'),
-    taxPayables: yup.string().required('Hutang Pajak wajib diisi'),
-    totalShortTermLiabilities: yup.string().required('Total Keseluruhan wajib diisi'),
-    notes: yup.string().optional().default('')
-  })
+  const { loadingAction, detailShortTerm, loadingDetailShortTerm } = useSelector(state => state.shortTerm)
 
-  const { loadingPiutangUsaha, detailShortTerm, loadingDetailShortTerm } = useSelector(state => state.shortTerm)
-
-  function transformDetailShortTerm(data) {
-    if (!data) return null
-
-    return {
-      ...data,
-      date: parsePeriodString(data.date),
-      tradePayables: data.tradePayables || '',
-      nonTradePayables: data.nonTradePayables || '',
-      accruedExpenses: data.accruedExpenses || '',
-      taxPayables: data.taxPayables || '',
-      inventory: data.inventory || '',
-      totalShortTermLiabilities: data.totalShortTermLiabilities || '',
-      notes: data.notes || ''
-    }
-  }
+  const theme = useTheme()
+  const { direction } = theme
+  const popperPlacement = direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
   const {
     control,
@@ -70,7 +93,7 @@ export default function ModalFormShortTerm({ open, setOpen, typeModal, id }) {
 
   // Fetch Data Value
   useEffect(() => {
-    if (!loadingDetailShortTerm && ['EDIT', 'VIEW'].includes(typeModal)) {
+    if (!loadingDetailShortTerm && typeModal === 'EDIT') {
       const transformedData = transformDetailShortTerm(detailShortTerm)
       reset(transformedData)
     }
@@ -82,7 +105,7 @@ export default function ModalFormShortTerm({ open, setOpen, typeModal, id }) {
 
   // CLOSE MODAL AND RESET FORM
   const handleClose = () => {
-    dispatch(resetShortTermState()) // reset piutangUsaha & detailAssetCurrent
+    dispatch(resetShortTermState()) // reset piutangUsaha & detailShortTerm
     reset()
     setOpen(false)
   }
@@ -90,7 +113,7 @@ export default function ModalFormShortTerm({ open, setOpen, typeModal, id }) {
   const onSubmit = data => {
     const transformedData = {
       ...data,
-      date: getPeriodValue(new Date(data.date)) // Transform date to "YYYY-MM" format
+      date: getPeriodValue(new Date(data.date)) // Transform date to "YYYY-MM-01" format
     }
 
     if (typeModal === 'ADD') {
@@ -98,7 +121,7 @@ export default function ModalFormShortTerm({ open, setOpen, typeModal, id }) {
     } else {
       dispatch(editShortTerm({ id, data: transformedData }))
     }
-    dispatch(resetShortTermState()) // reset piutangUsaha & detailAssetCurrent
+    dispatch(resetShortTermState()) // reset piutangUsaha & detailShortTerm
     reset()
     setOpen(false)
   }
@@ -133,7 +156,7 @@ export default function ModalFormShortTerm({ open, setOpen, typeModal, id }) {
 
   useEffect(() => {
     if (date && ['ADD', 'EDIT'].includes(typeModal)) {
-      const formatted = getPeriodValue(date) // => "2025-06"
+      const formatted = getPeriodValue(date) // => "2025-06-01"
       dispatch(getPiutangUsaha(formatted)).then(res => {
         const total = res?.payload?.data || 0
         setValue('tradePayables', total)
@@ -151,117 +174,130 @@ export default function ModalFormShortTerm({ open, setOpen, typeModal, id }) {
   }, [values, setValue])
 
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
-      title={
-        typeModal === 'ADD'
-          ? 'Tambahkan Liabilitas Jangka Pendek'
-          : typeModal === 'VIEW'
-          ? 'Detail Liabilitas Jangka Pendek'
-          : 'Ubah Liabilitas Jangka Pendek'
-      }
+      title={typeModal === 'ADD' ? 'Tambah Liabilitas Jangka Pendek' : 'Ubah Liabilitas Jangka Pendek'}
       size='sm'
-      showActions={typeModal !== 'VIEW'}
+      loading={loadingAction}
+      loadingPage={loadingDetailShortTerm && typeModal === 'EDIT'}
     >
-      {loadingDetailShortTerm && typeModal !== 'ADD' ? (
-        <CircularProgress />
-      ) : (
-        <>
-          <Grid container spacing={6}>
-            <Grid item xs={12} md={6}>
-              <Controller
-                name='date'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { ref, value, ...rest }, fieldState }) => (
-                  <DatePicker
-                    {...rest}
-                    selected={value}
-                    onChange={rest.onChange}
-                    dateFormat='MMM yyyy'
-                    showMonthYearPicker
-                    placeholderText='Pilih Bulan & Tahun'
-                    maxDate={endOfMonth(subMonths(new Date(), 1))}
-                    disabled={['VIEW', 'EDIT'].includes(typeModal)}
-                    customInput={
-                      <CustomTextField
-                        fullWidth
-                        label='Date (Bulan & Tahun)'
-                        error={Boolean(fieldState.error)}
-                        helperText={fieldState.error?.message}
-                        inputRef={ref}
-                        inputProps={{ readOnly: true }}
-                      />
-                    }
+      <Grid container spacing={4}>
+        <Grid item xs={12} sm={6}>
+          <Controller
+            name='date'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { ref, value, ...rest }, fieldState }) => (
+              <DatePicker
+                {...rest}
+                selected={value}
+                onChange={rest.onChange}
+                dateFormat='MMM yyyy'
+                showMonthYearPicker
+                popperPlacement={popperPlacement}
+                popperProps={{ strategy: 'fixed' }}
+                popperClassName='high-z-index-popper'
+                placeholderText='Pilih Bulan & Tahun'
+                maxDate={endOfMonth(subMonths(new Date(), 1))}
+                disabled={typeModal === 'EDIT'}
+                customInput={
+                  <PickersComponent
+                    fullWidth
+                    label='Periode'
+                    error={Boolean(fieldState.error)}
+                    helperText={fieldState.error?.message}
+                    inputRef={ref}
                   />
-                )}
+                }
               />
-              <Typography variant='caption' sx={{ color: 'text.secondary', mt: 1 }}>
-                Perhatian: Jika input bulan maka data yang diambil pada hutang usaha adalah bulan tersebut.
-              </Typography>
-            </Grid>
+            )}
+          />
+          <DatePickerHighZIndexStyles />
+          <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground, mt: 1 }}>
+            Perhatian: Jika input bulan maka data yang diambil pada hutang usaha adalah bulan tersebut.
+          </Typography>
+        </Grid>
 
-            {[
-              { name: 'tradePayables', label: 'Hutang Usaha', disabled: true },
-              { name: 'nonTradePayables', label: 'Hutang Bukan Usaha' },
-              { name: 'accruedExpenses', label: 'Biaya Masih Harus Dibayar' },
-              { name: 'taxPayables', label: 'Hutang Pajak' },
-              { name: 'totalShortTermLiabilities', label: 'Grand Total', disabled: true, md: 12 }
-            ].map(fieldItem => (
-              <Grid item xs={12} md={fieldItem.md ? fieldItem.md : 6} key={fieldItem.name}>
-                <Controller
-                  name={fieldItem.name}
-                  control={control}
-                  render={({ field }) => (
-                    <CustomTextField
-                      fullWidth
-                      type='text'
-                      sx={{ zIndex: 0, display: 'block' }}
-                      value={field.value ? priceFormat(field.value) : ''}
-                      label={fieldItem.label}
-                      onChange={e => {
-                        handlePriceFieldChange({
-                          event: e,
-                          onChange: field.onChange
-                        })
-                      }}
-                      disabled={typeModal === 'VIEW' || fieldItem.disabled}
-                      error={Boolean(errors[fieldItem?.name])}
-                      {...(errors[fieldItem?.name] && {
-                        helperText: errors[fieldItem?.name]?.message
-                      })}
-                    />
-                  )}
-                />
-              </Grid>
-            ))}
-          </Grid>
-          <Grid item xs={12} sx={{ mt: 4 }}>
+        {[
+          { name: 'tradePayables', label: 'Hutang Usaha', disabled: true },
+          { name: 'nonTradePayables', label: 'Hutang Bukan Usaha' },
+          { name: 'accruedExpenses', label: 'Biaya Masih Harus Dibayar' },
+          { name: 'taxPayables', label: 'Hutang Pajak' }
+        ].map(fieldItem => (
+          <Grid item xs={12} sm={6} key={fieldItem.name}>
             <Controller
-              name='notes'
+              name={fieldItem.name}
               control={control}
-              render={({ field: { value, onChange } }) => (
+              render={({ field }) => (
                 <CustomTextField
                   fullWidth
-                  multiline
-                  rows={3}
-                  value={value || ''}
-                  label='Catatan'
-                  onChange={onChange}
-                  placeholder='Masukkan Catatan (Opsional)'
-                  disabled={typeModal === 'VIEW'}
-                  error={Boolean(errors?.notes)}
-                  {...(errors?.notes && {
-                    helperText: errors.notes?.message
+                  type='text'
+                  sx={{ zIndex: 0, display: 'block' }}
+                  value={field.value ? priceFormat(field.value) : ''}
+                  label={fieldItem.label}
+                  onChange={e => {
+                    handlePriceFieldChange({
+                      event: e,
+                      onChange: field.onChange
+                    })
+                  }}
+                  disabled={fieldItem.disabled}
+                  error={Boolean(errors[fieldItem?.name])}
+                  {...(errors[fieldItem?.name] && {
+                    helperText: errors[fieldItem?.name]?.message
                   })}
                 />
               )}
             />
           </Grid>
-        </>
-      )}
-    </BaseModal>
+        ))}
+
+        <Grid item xs={12}>
+          <Box
+            sx={{
+              p: 4,
+              borderRadius: `${radii['3xl']}px`,
+              border: `1px solid ${colors.border}`,
+              backgroundColor: colors.background
+            }}
+          >
+            <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground, mb: 1 }}>Grand Total</Typography>
+            <Controller
+              name='totalShortTermLiabilities'
+              control={control}
+              render={({ field }) => (
+                <Typography sx={{ fontSize: '1.375rem', fontWeight: 700, color: colors.foreground }}>
+                  {field.value ? priceFormat(field.value) : 'Rp 0'}
+                </Typography>
+              )}
+            />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Controller
+            name='notes'
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                multiline
+                rows={3}
+                value={value || ''}
+                label='Catatan'
+                onChange={onChange}
+                placeholder='Masukkan Catatan (Opsional)'
+                error={Boolean(errors?.notes)}
+                {...(errors?.notes && {
+                  helperText: errors.notes?.message
+                })}
+              />
+            )}
+          />
+        </Grid>
+      </Grid>
+    </AppModal>
   )
 }
