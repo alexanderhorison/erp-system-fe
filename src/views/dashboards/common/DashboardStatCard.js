@@ -25,7 +25,7 @@ export default function DashboardStatCard({ label, value, icon, tone = 'warning'
       elevation={0}
       sx={{
         p: 4,
-        borderRadius: `${radii.lg}px`,
+        borderRadius: `${radii['3xl']}px`,
         border: `1px solid ${colors.border}`,
         boxShadow: shadows.xs,
         display: 'flex',

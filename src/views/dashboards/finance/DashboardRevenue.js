@@ -23,7 +23,7 @@ ChartJS.register(ArcElement, Tooltip, Legend)
 const cardSx = {
   backgroundColor: colors.background,
   border: `1px solid ${colors.border}`,
-  borderRadius: `${radii.lg}px`,
+  borderRadius: `${radii["3xl"]}px`,
   boxShadow: shadows.xs,
   width: '100%',
 }
@@ -166,7 +166,7 @@ export default function DashboardRevenue() {
               <Card
                 sx={{
                   background: '#ffffff',
-                  borderRadius: 2,
+                  borderRadius: `${radii['3xl']}px`,
                   boxShadow: 2,
                   height: '100%'
                 }}
@@ -200,7 +200,7 @@ export default function DashboardRevenue() {
               <Card
                 sx={{
                   background: '#ffffff',
-                  borderRadius: 2,
+                  borderRadius: `${radii['3xl']}px`,
                   boxShadow: 2,
                   height: '100%'
                 }}
@@ -234,7 +234,7 @@ export default function DashboardRevenue() {
               <Card
                 sx={{
                   background: '#ffffff',
-                  borderRadius: 2,
+                  borderRadius: `${radii['3xl']}px`,
                   boxShadow: 2,
                   height: '100%'
                 }}
@@ -268,7 +268,7 @@ export default function DashboardRevenue() {
               <Card
                 sx={{
                   background: '#ffffff',
-                  borderRadius: 2,
+                  borderRadius: `${radii['3xl']}px`,
                   boxShadow: 2,
                   height: '100%'
                 }}
@@ -301,7 +301,7 @@ export default function DashboardRevenue() {
               <Card
                 sx={{
                   background: '#ffffff',
-                  borderRadius: 2,
+                  borderRadius: `${radii['3xl']}px`,
                   boxShadow: 2,
                   height: '100%'
                 }}
@@ -339,7 +339,7 @@ export default function DashboardRevenue() {
               <Card
                 sx={{
                   background: '#ffffff',
-                  borderRadius: 2,
+                  borderRadius: `${radii['3xl']}px`,
                   boxShadow: 2
                 }}
               >
@@ -438,7 +438,7 @@ export default function DashboardRevenue() {
               <Card
                 sx={{
                   background: '#ffffff',
-                  borderRadius: 2,
+                  borderRadius: `${radii['3xl']}px`,
                   boxShadow: 2
                 }}
               >

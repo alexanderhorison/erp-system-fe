@@ -106,13 +106,13 @@ export default function CustomDashboard({ query }) {
           <Grid item xs={12} sx={{ mt: 2 }}>
             <DashboardSectionLabel title='Produk & Dokumen' />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={6}>
             <DashboardBarangQuantityTerbanyak query={query} />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={3}>
             <DashboardJumlahSurat query={query} />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={3}>
             <DashboardJumlahSuratPending query={query} />
           </Grid>
           <Grid item xs={12} md={6}>

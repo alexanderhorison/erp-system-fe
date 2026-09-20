@@ -34,7 +34,7 @@ export default function DashboardBarangTidakBergerak({ query }) {
   return (
     <Card
       elevation={0}
-      sx={{ height: '100%', borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
+      sx={{ height: '100%', borderRadius: `${radii["3xl"]}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
     >
       <CardContent sx={{ p: 5 }}>
         <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground, mb: 1 }}>

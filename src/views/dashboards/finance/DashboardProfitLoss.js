@@ -33,7 +33,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineEleme
 const cardSx = {
   backgroundColor: colors.background,
   border: `1px solid ${colors.border}`,
-  borderRadius: `${radii.lg}px`,
+  borderRadius: `${radii["3xl"]}px`,
   boxShadow: shadows.xs
 }
 

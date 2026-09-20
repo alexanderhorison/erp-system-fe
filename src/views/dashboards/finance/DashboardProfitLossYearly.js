@@ -10,7 +10,7 @@ const cardSx = {
   height: '100%',
   backgroundColor: colors.background,
   border: `1px solid ${colors.border}`,
-  borderRadius: `${radii.lg}px`,
+  borderRadius: `${radii["3xl"]}px`,
   boxShadow: shadows.xs
 }
 
