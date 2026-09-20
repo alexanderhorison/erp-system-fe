@@ -1,75 +1,32 @@
-// ** MUI Imports
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import Typography from '@mui/material/Typography'
-import CardHeader from '@mui/material/CardHeader'
-import CardContent from '@mui/material/CardContent'
-
-
-import Grid from '@mui/material/Grid'
-
 // ** Custom Components Imports
-import CustomAvatar from 'src/@core/components/mui/avatar'
+import DashboardRankedBarList from 'src/views/dashboards/common/DashboardRankedBarList'
 
-// 4. DashboardSo4: Top 5 Customer yang total barter SO nya paling bnyk
+// designTokens.js has no purple in its ramp. Using a literal Tailwind
+// violet-500 here — a deliberate, called-out exception (same precedent as
+// `barterTone` in the sales-order form), since this card is specifically
+// about barter SOs.
+const barterBarColor = '#8B5CF6'
 
-export default function DashboardSo4({ data }) {
+/**
+ * DashboardSo4
+ * -------------------------------------------------------------------------------------
+ * "Top 5 Customer Dengan SO Barter Tertinggi" (Figma: sales-order dashboard
+ * — matches the mockup's "Vendor - PO Barter Tertinggi" pattern).
+ */
+export default function DashboardSo4({ data = [], loading = false }) {
+  const rows = data.map(item => ({
+    label: item.customerName,
+    value: Number(item.totalSoBarter) || 0,
+    displayValue: `${item.totalSoBarter} Surat`
+  }))
+
   return (
-    <Card
-      sx={{ height: '100%' }}
-    >
-      <CardHeader
-        title='Top 5 Customer Dengan SO Barter Tertinggi'
-        sx={{ '& .MuiCardHeader-action': { m: 0, alignSelf: 'center' } }}
-      />
-      <CardContent>
-        <Grid container spacing={6}>
-          <Grid item>
-            {data.map((item, index) => (
-              <Grid
-                key={index}
-                sx={{ display: 'flex', alignItems: 'center', mb: index !== data.length - 1 ? 4 : undefined }}
-              >
-                <Box >
-                  <CustomAvatar
-                    skin='light'
-                    variant='rounded'
-                    color={item.avatarColor}
-                    sx={{ mr: 4, width: 100, height: 40 }}
-                  >
-                    {item?.totalSoBarter} Surat
-                  </CustomAvatar>
-                </Box>
-                {item?.customerName}
-              </Grid>
-            ))}
-            {
-              data.length == 0 && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100%',
-                    width: '100%'
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontWeight: 500,
-                      fontSize: '0.875rem',
-                      color: 'text.secondary',
-                    }}
-                  >Tidak ada data</Typography>
-                </Box>
-              )
-            }
-          </Grid>
-          <Grid item xs={12} sm={7} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          </Grid>
-        </Grid>
-      </CardContent>
-    </Card>
+    <DashboardRankedBarList
+      title='Top 5 Customer Dengan SO Barter Tertinggi'
+      subtitle='Jumlah surat sales order barter per customer'
+      rows={rows}
+      color={barterBarColor}
+      loading={loading}
+    />
   )
 }

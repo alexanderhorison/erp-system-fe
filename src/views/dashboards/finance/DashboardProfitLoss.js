@@ -4,7 +4,6 @@ import {
   Grid,
   Card,
   CardContent,
-  CardHeader,
   Typography,
   FormControl,
   Select,
@@ -25,9 +24,18 @@ import {
   Legend
 } from 'chart.js'
 import { fetchDashboardFinanceProfitLoss } from 'src/store/apps/dashboard'
+import { colors, radii, shadows, status } from 'src/configs/designTokens'
+import DashboardSectionLabel from 'src/views/dashboards/common/DashboardSectionLabel'
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend)
+
+const cardSx = {
+  backgroundColor: colors.background,
+  border: `1px solid ${colors.border}`,
+  borderRadius: `${radii.lg}px`,
+  boxShadow: shadows.xs
+}
 
 export default function DashboardProfitLoss() {
   const dispatch = useDispatch()
@@ -111,8 +119,8 @@ export default function DashboardProfitLoss() {
       {
         label: 'Gain/Loss',
         data: dataDashboardFinanceProfitLoss?.map(item => item.gainLoss / 1000000) || [], // Convert to billions
-        backgroundColor: 'rgba(75, 192, 192, 0.8)',
-        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: status.success.bg,
+        borderColor: status.success.fg,
         borderWidth: 1,
         barThickness: 40
       }
@@ -193,8 +201,8 @@ export default function DashboardProfitLoss() {
       {
         label: 'Pendapatan',
         data: dataDashboardFinanceProfitLoss?.map(item => item.pendapatan / 1_000_000_000) || [], // Convert to billions
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+        borderColor: status.success.fg,
+        backgroundColor: status.success.bg,
         tension: 0.4,
         fill: false,
         yAxisID: 'y'
@@ -202,8 +210,8 @@ export default function DashboardProfitLoss() {
       {
         label: 'Pengeluaran',
         data: dataDashboardFinanceProfitLoss?.map(item => item.pengeluaran / 1_000_000_000) || [], // Convert to billions
-        borderColor: 'rgba(204, 28, 95, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+        borderColor: status.danger.fg,
+        backgroundColor: status.danger.bg,
         tension: 0.4,
         fill: false,
         yAxisID: 'y1'
@@ -299,16 +307,11 @@ export default function DashboardProfitLoss() {
   }
 
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardHeader
-        title={
-          <Typography variant='h6' align='center'>
-            Dashboard Profit Loss
-          </Typography>
-        }
-      />
-      <CardContent>
-        <Box>
+    <Box>
+      <DashboardSectionLabel title='Dashboard Profit Loss' />
+      <Card sx={cardSx}>
+        <CardContent>
+          <Box>
           {/* Filter Section */}
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid item xs={12} sm={6} md={3}>
@@ -357,11 +360,7 @@ export default function DashboardProfitLoss() {
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <Card
-                sx={{
-                  background: '#ffffff',
-                  borderRadius: 2,
-                  boxShadow: 2
-                }}
+                sx={cardSx}
               >
                 <CardContent>
                   <Box sx={{ height: 400 }}>
@@ -376,11 +375,7 @@ export default function DashboardProfitLoss() {
           <Grid container spacing={3} sx={{ mt: 3 }}>
             <Grid item xs={12}>
               <Card
-                sx={{
-                  background: '#ffffff',
-                  borderRadius: 2,
-                  boxShadow: 2
-                }}
+                sx={cardSx}
               >
                 <CardContent>
                   <Box sx={{ height: 400 }}>
@@ -390,8 +385,9 @@ export default function DashboardProfitLoss() {
               </Card>
             </Grid>
           </Grid>
-        </Box>
-      </CardContent>
-    </Card>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   )
 }

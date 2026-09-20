@@ -4,6 +4,15 @@ import { fetchDashboardFinanceProfitLossYearly } from 'src/store/apps/dashboard'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Chart from 'chart.js/auto'
+import { colors, radii, shadows, status } from 'src/configs/designTokens'
+
+const cardSx = {
+  height: '100%',
+  backgroundColor: colors.background,
+  border: `1px solid ${colors.border}`,
+  borderRadius: `${radii.lg}px`,
+  boxShadow: shadows.xs
+}
 
 export default function DashboardProfitLossYearly() {
   const dispatch = useDispatch()
@@ -66,8 +75,8 @@ export default function DashboardProfitLossYearly() {
             {
               label: 'Gain/Loss',
               data: gainLoss,
-              backgroundColor: 'rgba(75, 192, 192, 0.8)',
-              borderColor: 'rgba(75, 192, 192, 1)',
+              backgroundColor: status.success.bg,
+              borderColor: status.success.fg,
               borderWidth: 1,
               barThickness: 40
             }
@@ -142,7 +151,7 @@ export default function DashboardProfitLossYearly() {
   }, [dataDashboardFinanceProfitLossYearly])
 
   return (
-    <Card sx={{ height: '100%' }}>
+    <Card sx={cardSx}>
       <CardContent>
         <div style={{ height: '400px', width: '100%' }}>
           <canvas ref={chartRef}></canvas>

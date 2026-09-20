@@ -4,7 +4,6 @@ import {
   Grid,
   Card,
   CardContent,
-  CardHeader,
   Typography,
   FormControl,
   Select,
@@ -15,9 +14,24 @@ import {
 import { Pie } from 'react-chartjs-2'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { fetchDashboardFinanceRevenue } from 'src/store/apps/dashboard'
+import { colors, radii, shadows, status, stone } from 'src/configs/designTokens'
+import DashboardSectionLabel from 'src/views/dashboards/common/DashboardSectionLabel'
 
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend)
+
+const cardSx = {
+  backgroundColor: colors.background,
+  border: `1px solid ${colors.border}`,
+  borderRadius: `${radii.lg}px`,
+  boxShadow: shadows.xs,
+  width: '100%',
+}
+
+const metricCardSx = {
+  ...cardSx,
+  borderColor: stone[200]
+}
 
 export default function DashboardRevenue() {
   const dispatch = useDispatch()
@@ -74,13 +88,13 @@ export default function DashboardRevenue() {
   // Get color based on percentage
   const getPercentageColor = percent => {
     const numericValue = parseInt(percent.replace('%', ''))
-    return numericValue >= 0 ? '#4caf50' : '#f44336'
+    return numericValue >= 0 ? status.success.fg : status.danger.fg
   }
 
   const getPercentageColorCost = (percent) => {
-    if (!percent || typeof percent !== 'string') return '#000'; // fallback color
+    if (!percent || typeof percent !== 'string') return colors.foreground
     const numericValue = percent.split('%')[0]
-    return numericValue.includes('-') || numericValue == 0 ? '#4caf50' : '#f44336';
+    return numericValue.includes('-') || numericValue == 0 ? status.success.fg : status.danger.fg
   };
 
   useEffect(() => {
@@ -112,10 +126,11 @@ export default function DashboardRevenue() {
   }
 
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardHeader title={<Typography variant='h6'>Dashboard Revenue</Typography>} />
-      <CardContent>
-        <Box>
+    <Box>
+      <DashboardSectionLabel title='Dashboard Revenue' />
+      <Card sx={cardSx}>
+        <CardContent>
+          <Box>
           {/* Filter Section */}
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid item xs={12} sm={6} md={3}>
@@ -147,12 +162,13 @@ export default function DashboardRevenue() {
           {/* Cards Section */}
           <Grid container spacing={3}>
             {/* Total Revenue Card */}
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
               <Card
                 sx={{
                   background: '#ffffff',
                   borderRadius: 2,
-                  boxShadow: 2
+                  boxShadow: 2,
+                  height: '100%'
                 }}
               >
                 <CardContent>
@@ -162,7 +178,7 @@ export default function DashboardRevenue() {
                   <Typography
                     variant='h6'
                     component='div'
-                    sx={{ fontWeight: 'bold', mb: 1, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' } }}
+                    sx={{ fontWeight: 'bold', mb: 1, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.1rem', lg: '1.15rem' } }}
                   >
                     {formatCurrency(safeData.current.revenue)}
                   </Typography>
@@ -180,12 +196,13 @@ export default function DashboardRevenue() {
             </Grid>
 
             {/* Total Net Profit Card */}
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
               <Card
                 sx={{
                   background: '#ffffff',
                   borderRadius: 2,
-                  boxShadow: 2
+                  boxShadow: 2,
+                  height: '100%'
                 }}
               >
                 <CardContent>
@@ -195,7 +212,7 @@ export default function DashboardRevenue() {
                   <Typography
                     variant='h6'
                     component='div'
-                    sx={{ fontWeight: 'bold', mb: 1, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' } }}
+                    sx={{ fontWeight: 'bold', mb: 1, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.1rem', lg: '1.15rem' } }}
                   >
                     {formatCurrency(safeData.current.netProfit)}
                   </Typography>
@@ -213,12 +230,13 @@ export default function DashboardRevenue() {
             </Grid>
 
             {/* Total Margin */}
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
               <Card
                 sx={{
                   background: '#ffffff',
                   borderRadius: 2,
-                  boxShadow: 2
+                  boxShadow: 2,
+                  height: '100%'
                 }}
               >
                 <CardContent>
@@ -228,7 +246,7 @@ export default function DashboardRevenue() {
                   <Typography
                     variant='h6'
                     component='div'
-                    sx={{ fontWeight: 'bold', mb: 2, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' } }}
+                    sx={{ fontWeight: 'bold', mb: 2, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.1rem', lg: '1.15rem' } }}
                   >
                     {safeData.current.margin}
                   </Typography>
@@ -246,12 +264,13 @@ export default function DashboardRevenue() {
             </Grid>
 
             {/* Total Cost Card */}
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
               <Card
                 sx={{
                   background: '#ffffff',
                   borderRadius: 2,
-                  boxShadow: 2
+                  boxShadow: 2,
+                  height: '100%'
                 }}
               >
                 <CardContent>
@@ -261,7 +280,7 @@ export default function DashboardRevenue() {
                   <Typography
                     variant='h6'
                     component='div'
-                    sx={{ fontWeight: 'bold', mb: 1, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' } }}
+                    sx={{ fontWeight: 'bold', mb: 1, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.1rem', lg: '1.15rem' } }}
                   >
                     {formatCurrency(safeData.current.cost)}
                   </Typography>
@@ -277,14 +296,14 @@ export default function DashboardRevenue() {
                 </CardContent>
               </Card>
             </Grid>
-
             {/* Total Gross Profit Card */}
-            <Grid item xs={12} sm={6} md={4}>
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
               <Card
                 sx={{
                   background: '#ffffff',
                   borderRadius: 2,
-                  boxShadow: 2
+                  boxShadow: 2,
+                  height: '100%'
                 }}
               >
                 <CardContent>
@@ -294,7 +313,7 @@ export default function DashboardRevenue() {
                   <Typography
                     variant='h6'
                     component='div'
-                    sx={{ fontWeight: 'bold', mb: 1, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' } }}
+                    sx={{ fontWeight: 'bold', mb: 1, fontSize: { xs: '1rem', sm: '1.1rem', md: '1.1rem', lg: '1.15rem' } }}
                   >
                     {formatCurrency(safeData.current.grossProfit)}
                   </Typography>
@@ -513,8 +532,9 @@ export default function DashboardRevenue() {
               </Card>
             </Grid> */}
           </Grid>
-        </Box>
-      </CardContent>
-    </Card>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   )
 }

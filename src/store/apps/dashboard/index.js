@@ -37,10 +37,10 @@ export const fetchDashboardBarangHabis = createAsyncThunk(
         url: '/dashboard/minimum-stock',
         params: query
       })
-      return response.data.data
+      return { data: response.data.data, totalCount: response.data.meta?.totalCount ?? 0 }
     } catch (error) {
       swalToastError({ label, error })
-      return rejectWithValue([])
+      return rejectWithValue({ data: [], totalCount: 0 })
     }
   }
 )
@@ -55,10 +55,10 @@ export const fetchDashboardBarangTidakBergerak = createAsyncThunk(
         url: '/dashboard/slow-stock',
         params: query
       })
-      return response.data.data
+      return { data: response.data.data, totalCount: response.data.meta?.totalCount ?? 0 }
     } catch (error) {
       swalToastError({ label, error })
-      return rejectWithValue([])
+      return rejectWithValue({ data: [], totalCount: 0 })
     }
   }
 )
@@ -251,7 +251,7 @@ export const fetchDashboardSalesOrderOverDueDate = createAsyncThunk(
       const response = await axios({
         method: 'GET',
         url: '/dashboard/sales-order/so6',
-        query: query
+        params: query
       })
 
       return response.data.data
@@ -386,10 +386,12 @@ export const appMasterRankSlice = createSlice({
   initialState: {
     // 1
     dataDashboardBarangHabis: [],
+    totalCountDashboardBarangHabis: 0,
     loadingDashboardBarangHabis: false,
     errorDashboardBarangHabis: false,
     // 2
     dataDashboardBarangTidakBergerak: [],
+    totalCountDashboardBarangTidakBergerak: 0,
     loadingDashboardBarangTidakBergerak: false,
     errorDashboardBarangTidakBergerak: false,
     // 3
@@ -499,7 +501,8 @@ export const appMasterRankSlice = createSlice({
       // 1
       .addCase(fetchDashboardBarangHabis.fulfilled, (state, action) => {
         state.loadingDashboardBarangHabis = false
-        state.dataDashboardBarangHabis = action.payload
+        state.dataDashboardBarangHabis = action.payload.data
+        state.totalCountDashboardBarangHabis = action.payload.totalCount
       })
       .addCase(fetchDashboardBarangHabis.pending, (state, action) => {
         state.dataDashboardBarangHabis = []
@@ -512,7 +515,8 @@ export const appMasterRankSlice = createSlice({
       // 2
       .addCase(fetchDashboardBarangTidakBergerak.fulfilled, (state, action) => {
         state.loadingDashboardBarangTidakBergerak = false
-        state.dataDashboardBarangTidakBergerak = action.payload
+        state.dataDashboardBarangTidakBergerak = action.payload.data
+        state.totalCountDashboardBarangTidakBergerak = action.payload.totalCount
       })
       .addCase(fetchDashboardBarangTidakBergerak.pending, (state, action) => {
         state.dataDashboardBarangTidakBergerak = []

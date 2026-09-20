@@ -1,67 +1,124 @@
 // ** MUI Import
 import Grid from '@mui/material/Grid'
+
 // ** Custom Component Import
 import KeenSliderWrapper from 'src/@core/styles/libs/keen-slider'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
-import DashboardJumlahSurat from 'src/views/dashboards/custom/DashboardJumlahSurat'
-import DashboardBarangHabis from 'src/views/dashboards/custom/DashboardBarangHabis'
-import DashboardBarangQuantityTerbanyak from 'src/views/dashboards/custom/DashboardBarangQuantityTerbanyak'
-import DashboardJumlahSuratPending from 'src/views/dashboards/custom/DashboardJumlahSuratPending'
-import DashboardTotalQuantityPerUnit from 'src/views/dashboards/custom/DashboardTotalQuantityPerUnit'
-import DashboardBarangCepat from 'src/views/dashboards/custom/DashboardBarangCepat'
-import DashboardBarangTidakBergerak from 'src/views/dashboards/custom/DashboardBarangTidakBergerak'
-import DashboardBanyakProdukHilang from 'src/views/dashboards/custom/DashboardBanyakProdukHilang'
-import DashboardBanyakQuantityHilang from 'src/views/dashboards/custom/DashboardBanyakQuantityHilang'
 
-// 1. DashboardBarangHabis.js
-// 2. DashboardBarangTidakBergerak.js
-// 3. DashboardBarangCepat.js
-// 4. DashboardBarangQuantityTerbanyak.js
-// 5. DashboardTotalQuantityPerUnit.js
-// 6. DashboardJumlahSurat.js
-// 7. DashboardJumlahSuratPending.js
-// 8. DashboardBanyakProdukHilang.js
-// 9. DashboardBanyakQuantityHilang.js
+import DashboardStatCard from 'src/views/dashboards/common/DashboardStatCard'
+import DashboardSectionLabel from 'src/views/dashboards/common/DashboardSectionLabel'
+import DashboardJumlahSurat from 'src/views/dashboards/inventory/DashboardJumlahSurat'
+import DashboardBarangHabis from 'src/views/dashboards/inventory/DashboardBarangHabis'
+import DashboardBarangQuantityTerbanyak from 'src/views/dashboards/inventory/DashboardBarangQuantityTerbanyak'
+import DashboardJumlahSuratPending from 'src/views/dashboards/inventory/DashboardJumlahSuratPending'
+import DashboardTotalQuantityPerUnit from 'src/views/dashboards/inventory/DashboardTotalQuantityPerUnit'
+import DashboardBarangCepat from 'src/views/dashboards/inventory/DashboardBarangCepat'
+import DashboardBarangTidakBergerak from 'src/views/dashboards/inventory/DashboardBarangTidakBergerak'
+import DashboardBanyakProdukHilang from 'src/views/dashboards/inventory/DashboardBanyakProdukHilang'
+import DashboardBanyakQuantityHilang from 'src/views/dashboards/inventory/DashboardBanyakQuantityHilang'
 
+// ** Store
+import { useSelector } from 'react-redux'
+
+/**
+ * CustomDashboard
+ * -------------------------------------------------------------------------------------
+ * "Dashboard - Inventory" (Figma). Four KPI tiles, then two labeled sections:
+ * "Distribusi & Pergerakan Stok" (stock distribution + fast/slow/out-of-stock
+ * lists) and "Produk & Dokumen" (top-quantity chart, document counts,
+ * outstanding lists).
+ */
 export default function CustomDashboard({ query }) {
+  const {
+    totalCountDashboardBarangHabis,
+    loadingDashboardBarangHabis,
+    totalCountDashboardBarangTidakBergerak,
+    loadingDashboardBarangTidakBergerak,
+    dataDashboardJumlahSurat,
+    loadingDashboardJumlahSurat,
+    dataDashboardJumlahSuratPending,
+    loadingDashboardJumlahSuratPending
+  } = useSelector(state => state.dashboard)
+
+  const totalSuratDibuat = dataDashboardJumlahSurat.reduce((sum, item) => sum + (item.value || 0), 0)
+  const totalSuratPending = dataDashboardJumlahSuratPending.reduce((sum, item) => sum + (item.value || 0), 0)
+
   return (
     <ApexChartWrapper>
       <KeenSliderWrapper>
-        <Grid container spacing={6}>
-          {/* 1. DashboardBarangHabis*/}
-          <Grid item xs={12} sm={6} order={1}>
-            <DashboardBarangHabis query={query} />
+        <Grid container spacing={4}>
+          {/* Stat cards */}
+          <Grid item xs={12} sm={6} md={3}>
+            <DashboardStatCard
+              label='Barang Habis'
+              value={totalCountDashboardBarangHabis}
+              icon='tabler:alert-triangle'
+              tone='danger'
+              loading={loadingDashboardBarangHabis}
+            />
           </Grid>
-          {/* 2. DashboardBarangTidakBergerak*/}
-          <Grid item xs={12} sm={6} order={2}>
-            <DashboardBarangTidakBergerak query={query} />
+          <Grid item xs={12} sm={6} md={3}>
+            <DashboardStatCard
+              label='Barang Slow Stock'
+              value={totalCountDashboardBarangTidakBergerak}
+              icon='tabler:arrow-right'
+              tone='info'
+              loading={loadingDashboardBarangTidakBergerak}
+            />
           </Grid>
-          {/* 3. DashboardBarangCepat*/}
-          <Grid item xs={12} sm={6} order={2}>
-            <DashboardBarangCepat query={query} />
+          <Grid item xs={12} sm={6} md={3}>
+            <DashboardStatCard
+              label='Total Surat Dibuat'
+              value={totalSuratDibuat}
+              icon='tabler:file-text'
+              tone='success'
+              loading={loadingDashboardJumlahSurat}
+            />
           </Grid>
-          {/* 4. DashboardBarangQuantityTerbanyak*/}
-          <Grid item xs={12} sm={6} order={2}>
-            <DashboardBarangQuantityTerbanyak query={query} />
+          <Grid item xs={12} sm={6} md={3}>
+            <DashboardStatCard
+              label='Surat Pending'
+              value={totalSuratPending}
+              icon='tabler:alert-triangle'
+              tone='warning'
+              loading={loadingDashboardJumlahSuratPending}
+            />
           </Grid>
-          {/* 5. DashboardTotalQuantityPerUnit*/}
-          <Grid item xs={12} sm={6} order={0}>
+
+          {/* Distribusi & Pergerakan Stok */}
+          <Grid item xs={12} sx={{ mt: 2 }}>
+            <DashboardSectionLabel title='Distribusi & Pergerakan Stok' />
+          </Grid>
+          <Grid item xs={12} md={6}>
             <DashboardTotalQuantityPerUnit query={query} />
           </Grid>
-          {/* 6. DashboardJumlahSurat*/}
-          <Grid item xs={12} sm={3} order={2}>
+          <Grid item xs={12} md={6}>
+            <DashboardBarangHabis query={query} />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <DashboardBarangTidakBergerak query={query} />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <DashboardBarangCepat query={query} />
+          </Grid>
+
+          {/* Produk & Dokumen */}
+          <Grid item xs={12} sx={{ mt: 2 }}>
+            <DashboardSectionLabel title='Produk & Dokumen' />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <DashboardBarangQuantityTerbanyak query={query} />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <DashboardJumlahSurat query={query} />
           </Grid>
-          {/* 7. DashboardJumlahSuratPending*/}
-          <Grid item xs={12} sm={3} order={2}>
+          <Grid item xs={12} md={4}>
             <DashboardJumlahSuratPending query={query} />
           </Grid>
-          {/* 8. DashboardBanyakProdukHilang*/}
-          <Grid item xs={12} sm={6} order={2}>
+          <Grid item xs={12} md={6}>
             <DashboardBanyakProdukHilang query={query} />
           </Grid>
-          {/* 9. DashboardBanyakQuantityHilang*/}
-          <Grid item xs={12} sm={6} order={2}>
+          <Grid item xs={12} md={6}>
             <DashboardBanyakQuantityHilang query={query} />
           </Grid>
         </Grid>
