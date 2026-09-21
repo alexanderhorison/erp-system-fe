@@ -14,6 +14,8 @@ class CustomDocument extends Document {
   render() {
     const env = process.env.NEXT_PUBLIC_ENVIRONTMENT || process.env.NEXT_PUBLIC_ENVIRONMENT || 'production'
     const faviconHref = env === 'development' ? '/favicon-dev.svg?v=2' : '/favicon.ico'
+    const { siteUrl, ogImage, title } = this.props
+
     return (
       <Html lang='en'>
         <Head>
@@ -30,6 +32,16 @@ class CustomDocument extends Document {
             type="text/css"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
           />
+
+          {/* Open Graph / link-preview meta (Slack, WhatsApp, iMessage, Discord, etc. read these, not favicon) */}
+          <meta property='og:title' content={title} />
+          <meta property='og:site_name' content={title} />
+          <meta property='og:type' content='website' />
+          {siteUrl && <meta property='og:url' content={siteUrl} />}
+          {ogImage && <meta property='og:image' content={ogImage} />}
+          <meta name='twitter:card' content='summary' />
+          <meta name='twitter:title' content={title} />
+          {ogImage && <meta name='twitter:image' content={ogImage} />}
         </Head>
         <body>
           <Main />
@@ -66,9 +78,25 @@ CustomDocument.getInitialProps = async ctx => {
     )
   })
 
+  // Build an absolute origin from the incoming request so og:image/og:url are always
+  // absolute (some link-preview crawlers won't resolve relative URLs).
+  const req = ctx.req
+  let siteUrl = ''
+  if (req) {
+    const proto = req.headers['x-forwarded-proto'] || (req.socket && req.socket.encrypted ? 'https' : 'http')
+    const host = req.headers['x-forwarded-host'] || req.headers.host
+    if (host) {
+      siteUrl = `${proto}://${host}${req.url || ''}`
+    }
+  }
+  const origin = siteUrl ? siteUrl.replace(/^(https?:\/\/[^/]+).*$/, '$1') : ''
+
   return {
     ...initialProps,
-    styles: [...Children.toArray(initialProps.styles), ...emotionStyleTags]
+    styles: [...Children.toArray(initialProps.styles), ...emotionStyleTags],
+    siteUrl,
+    ogImage: origin ? `${origin}/images/apple-touch-icon.png` : '/images/apple-touch-icon.png',
+    title: 'TJAHAYA BERKAT ABADI'
   }
 }
 
