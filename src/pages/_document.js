@@ -14,7 +14,7 @@ class CustomDocument extends Document {
   render() {
     const env = process.env.NEXT_PUBLIC_ENVIRONTMENT || process.env.NEXT_PUBLIC_ENVIRONMENT || 'production'
     const faviconHref = env === 'development' ? '/favicon-dev.svg?v=2' : '/favicon.ico'
-    const { siteUrl, ogImage, title } = this.props
+    const { title } = this.props
 
     return (
       <Html lang='en'>
@@ -33,15 +33,15 @@ class CustomDocument extends Document {
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
           />
 
-          {/* Open Graph / link-preview meta (Slack, WhatsApp, iMessage, Discord, etc. read these, not favicon) */}
+          {/*
+            Intentionally no og:image / og:url: this app must not be indexed (see
+            robots.txt + _app.js noindex meta) and we don't want link previews to
+            show a large thumbnail card. Leaving only og:title lets platforms that
+            support it (e.g. WhatsApp/iMessage) fall back to the page's own
+            <link rel="icon"> as a small preview icon instead of a generic template
+            image — not all platforms do this, but none will show a thumbnail card.
+          */}
           <meta property='og:title' content={title} />
-          <meta property='og:site_name' content={title} />
-          <meta property='og:type' content='website' />
-          {siteUrl && <meta property='og:url' content={siteUrl} />}
-          {ogImage && <meta property='og:image' content={ogImage} />}
-          <meta name='twitter:card' content='summary' />
-          <meta name='twitter:title' content={title} />
-          {ogImage && <meta name='twitter:image' content={ogImage} />}
         </Head>
         <body>
           <Main />
@@ -78,24 +78,9 @@ CustomDocument.getInitialProps = async ctx => {
     )
   })
 
-  // Build an absolute origin from the incoming request so og:image/og:url are always
-  // absolute (some link-preview crawlers won't resolve relative URLs).
-  const req = ctx.req
-  let siteUrl = ''
-  if (req) {
-    const proto = req.headers['x-forwarded-proto'] || (req.socket && req.socket.encrypted ? 'https' : 'http')
-    const host = req.headers['x-forwarded-host'] || req.headers.host
-    if (host) {
-      siteUrl = `${proto}://${host}${req.url || ''}`
-    }
-  }
-  const origin = siteUrl ? siteUrl.replace(/^(https?:\/\/[^/]+).*$/, '$1') : ''
-
   return {
     ...initialProps,
     styles: [...Children.toArray(initialProps.styles), ...emotionStyleTags],
-    siteUrl,
-    ogImage: origin ? `${origin}/images/apple-touch-icon.png` : '/images/apple-touch-icon.png',
     title: 'TJAHAYA BERKAT ABADI'
   }
 }
