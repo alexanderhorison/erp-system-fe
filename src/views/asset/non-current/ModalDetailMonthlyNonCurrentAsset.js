@@ -13,7 +13,10 @@ import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { returnFormatDateDay, returnFormatMonthYear } from 'src/helpers/formatDate'
 
 // ** Design Tokens
-import { colors, radii, shadows, stone } from 'src/configs/designTokens'
+import { colors, radii, shadows } from 'src/configs/designTokens'
+
+// ** Shared Components
+import HeaderedCard from 'src/views/common/HeaderedCard'
 
 const assetRows = [
   { name: 'vehicleValue', label: 'Total Aset Kendaraan' },
@@ -68,83 +71,60 @@ export default function ModalDetailMonthlyNonCurrentAsset({ open, setOpen, selec
 
       {/* Body */}
       <Box sx={{ px: 5, py: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <Box sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, overflow: 'hidden' }}>
-          <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.foreground }}>
-              Aset — {returnFormatMonthYear(selectedRow.date)}
-            </Typography>
-          </Box>
-
-          <Box sx={{ px: 4, py: 2 }}>
-            {assetRows.map(fieldItem => (
-              <Box
-                key={fieldItem.name}
-                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}
-              >
-                <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>
-                  {fieldItem.label}
-                </Typography>
-                <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
-                  {priceFormatWIthCurrency(selectedRow[fieldItem.name], false)}
-                </Typography>
-              </Box>
-            ))}
-
+        <HeaderedCard title={`Aset — ${returnFormatMonthYear(selectedRow.date)}`}>
+          {assetRows.map(fieldItem => (
             <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                pt: 3,
-                borderTop: `1px solid ${colors.border}`
-              }}
+              key={fieldItem.name}
+              sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}
             >
-              <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
-                Grand Total
+              <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>
+                {fieldItem.label}
               </Typography>
-              <Typography sx={{ fontSize: '0.9375rem', fontWeight: 700, color: colors.foreground }}>
-                {priceFormatWIthCurrency(selectedRow.totalValue, false)}
+              <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
+                {priceFormatWIthCurrency(selectedRow[fieldItem.name], false)}
               </Typography>
             </Box>
-          </Box>
-        </Box>
+          ))}
 
-        <Box sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, overflow: 'hidden' }}>
-          <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.foreground }}>
-              Depresiasi
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              pt: 3,
+              borderTop: `1px solid ${colors.border}`
+            }}
+          >
+            <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
+              Grand Total
+            </Typography>
+            <Typography sx={{ fontSize: '0.9375rem', fontWeight: 700, color: colors.foreground }}>
+              {priceFormatWIthCurrency(selectedRow.totalValue, false)}
             </Typography>
           </Box>
+        </HeaderedCard>
 
-          <Box sx={{ px: 4, py: 2 }}>
-            {depreciationRows.map(fieldItem => (
-              <Box
-                key={fieldItem.name}
-                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}
-              >
-                <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>
-                  {fieldItem.label}
-                </Typography>
-                <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.foreground }}>
-                  {priceFormatWIthCurrency(selectedRow[fieldItem.name], false)}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        </Box>
+        <HeaderedCard title='Depresiasi'>
+          {depreciationRows.map(fieldItem => (
+            <Box
+              key={fieldItem.name}
+              sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}
+            >
+              <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>
+                {fieldItem.label}
+              </Typography>
+              <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.foreground }}>
+                {priceFormatWIthCurrency(selectedRow[fieldItem.name], false)}
+              </Typography>
+            </Box>
+          ))}
+        </HeaderedCard>
 
-        <Box sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, overflow: 'hidden' }}>
-          <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
-            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground }}>
-              Dibuat pada
-            </Typography>
-          </Box>
-          <Box sx={{ px: 4, py: 3 }}>
-            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-              {returnFormatDateDay(selectedRow.createdAt)}
-            </Typography>
-          </Box>
-        </Box>
+        <HeaderedCard title='Dibuat pada'>
+          <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+            {returnFormatDateDay(selectedRow.createdAt)}
+          </Typography>
+        </HeaderedCard>
       </Box>
 
       {/* Footer */}

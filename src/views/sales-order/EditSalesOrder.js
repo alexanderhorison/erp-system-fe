@@ -31,7 +31,7 @@ import SectionHeading from 'src/views/common/SectionHeading'
 import DatePickerHighZIndexStyles from 'src/views/common/DatePickerHighZIndexStyles'
 
 // ** Design Tokens
-import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
+import { colors, layout, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
 
 const surfaceCardSx = {
   borderRadius: `${radii.lg}px`,
@@ -499,84 +499,7 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                     </Grid>
                   </CardContent>
                 </Card>
-              </Grid>
 
-              <Grid item xs={12} md={4}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, position: 'sticky', top: 16 }}>
-                  <Card elevation={0} sx={surfaceCardSx}>
-                    <CardContent sx={{ p: 5 }}>
-                      <Controller
-                        name='notes'
-                        control={control}
-                        render={({ field: { value, onChange } }) => (
-                          <CustomTextField
-                            multiline
-                            rows={4}
-                            fullWidth
-                            label='Catatan'
-                            placeholder='Catatan...'
-                            value={value || ''}
-                            onChange={e => onChange(e.target.value)}
-                          />
-                        )}
-                      />
-                    </CardContent>
-                  </Card>
-
-                  <Card
-                    elevation={0}
-                    sx={{
-                      borderRadius: `${radii.lg}px`,
-                      border: `1px solid ${statusTokens.success.border}`,
-                      boxShadow: shadows.xs,
-                      backgroundColor: statusTokens.success.bg
-                    }}
-                  >
-                    <CardContent sx={{ p: 5 }}>
-                      <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground, mb: 3 }}>
-                        Ringkasan
-                      </Typography>
-
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.5 }}>
-                        <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>Total Sales</Typography>
-                        <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>
-                          {priceFormatWIthCurrency(getValues('grandTotalCustomer')) || 'Rp0'}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.5 }}>
-                        <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>Total Barter</Typography>
-                        <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>
-                          - {priceFormatWIthCurrency(getValues('grandTotalBarter')) || 'Rp0'}
-                        </Typography>
-                      </Box>
-                      <Divider sx={{ borderBottomWidth: 2 }} />
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 2 }}>
-                        <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
-                          Grand Total
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: '1.0625rem',
-                            fontWeight: 700,
-                            color: grandTotalIsNegative ? colors.destructive : colors.foreground
-                          }}
-                        >
-                          {grandTotalWatch < 0 ? '-' : ''}
-                          {priceFormatWIthCurrency(Math.abs(grandTotalWatch || 0)) || 'Rp0'}
-                        </Typography>
-                      </Box>
-                      {grandTotalIsNegative && (
-                        <Typography sx={{ fontSize: '0.75rem', color: colors.destructive, mt: 2 }}>
-                          Karena Total Barter &gt; Total Sales maka Anda perlu membayar senilai Grand Total kepada
-                          customer
-                        </Typography>
-                      )}
-                    </CardContent>
-                  </Card>
-                </Box>
-              </Grid>
-
-              <Grid item xs={12} md={8}>
                 <SectionHeading number={2} title='Barang Sales' />
                 <Card elevation={0} sx={{ ...surfaceCardSx, mb: 4 }}>
                   <CardContent sx={{ p: 5 }}>
@@ -783,10 +706,9 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                     </Box>
                   </CardContent>
                 </Card>
-              </Grid>
 
               {barterFields.length > 0 && (
-                <Grid item xs={12} md={8}>
+                <>
                   <SectionHeading number={3} title='Barang Barter' />
                   <Card elevation={0} sx={{ ...surfaceCardSx, mb: 4 }}>
                     <CardContent sx={{ p: 5 }}>
@@ -971,8 +893,94 @@ export default function EditSalesOrderPage({ data, salesOrderCode }) {
                       </Box>
                     </CardContent>
                   </Card>
-                </Grid>
+                </>
               )}
+              </Grid>
+
+              <Grid item xs={12} md={4}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 4,
+                    position: 'sticky',
+                    top: layout.topBarHeight + 16,
+                    maxHeight: `calc(100vh - ${layout.topBarHeight + 32}px)`,
+                    overflowY: 'auto'
+                  }}
+                >
+                  <Card elevation={0} sx={surfaceCardSx}>
+                    <CardContent sx={{ p: 5 }}>
+                      <Controller
+                        name='notes'
+                        control={control}
+                        render={({ field: { value, onChange } }) => (
+                          <CustomTextField
+                            multiline
+                            rows={4}
+                            fullWidth
+                            label='Catatan'
+                            placeholder='Catatan...'
+                            value={value || ''}
+                            onChange={e => onChange(e.target.value)}
+                          />
+                        )}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card
+                    elevation={0}
+                    sx={{
+                      borderRadius: `${radii.lg}px`,
+                      border: `1px solid ${statusTokens.success.border}`,
+                      boxShadow: shadows.xs,
+                      backgroundColor: statusTokens.success.bg
+                    }}
+                  >
+                    <CardContent sx={{ p: 5 }}>
+                      <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground, mb: 3 }}>
+                        Ringkasan
+                      </Typography>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.5 }}>
+                        <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>Total Sales</Typography>
+                        <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>
+                          {priceFormatWIthCurrency(getValues('grandTotalCustomer')) || 'Rp0'}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.5 }}>
+                        <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>Total Barter</Typography>
+                        <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>
+                          - {priceFormatWIthCurrency(getValues('grandTotalBarter')) || 'Rp0'}
+                        </Typography>
+                      </Box>
+                      <Divider sx={{ borderBottomWidth: 2 }} />
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 2 }}>
+                        <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
+                          Grand Total
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '1.0625rem',
+                            fontWeight: 700,
+                            color: grandTotalIsNegative ? colors.destructive : colors.foreground
+                          }}
+                        >
+                          {grandTotalWatch < 0 ? '-' : ''}
+                          {priceFormatWIthCurrency(Math.abs(grandTotalWatch || 0)) || 'Rp0'}
+                        </Typography>
+                      </Box>
+                      {grandTotalIsNegative && (
+                        <Typography sx={{ fontSize: '0.75rem', color: colors.destructive, mt: 2 }}>
+                          Karena Total Barter &gt; Total Sales maka Anda perlu membayar senilai Grand Total kepada
+                          customer
+                        </Typography>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Box>
+              </Grid>
             </Grid>
           </Grid>
 

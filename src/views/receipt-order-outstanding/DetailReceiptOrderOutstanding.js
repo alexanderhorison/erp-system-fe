@@ -176,7 +176,7 @@ const DetailReceiptOrderOutstanding = ({ data, setData }) => {
           }}
         >
           <Table size='small'>
-            <TableHead sx={{ backgroundColor: stone[100] }}>
+            <TableHead sx={{ backgroundColor: stone[100], textTransform: 'none' }}>
               <TableRow>
                 <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Produk & Rak</TableCell>
                 <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Kuantiti Asal</TableCell>

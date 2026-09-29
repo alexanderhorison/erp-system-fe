@@ -1,13 +1,11 @@
 // ** React Imports
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Styles Import
-import 'react-credit-cards/es/styles-compiled.css'
 
 // ** Icon Imports
 import { MenuItem } from '@mui/material'
@@ -15,9 +13,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { priceFormat } from 'src/helpers/priceFormatter'
 import { createSalesOrderPayment } from 'src/store/apps/sales-order-payment'
-import BaseModal from '../common/BaseModal'
+import AppModal from 'src/views/common/AppModal'
+import CurrencyInput from 'src/views/common/CurrencyInput'
+import PaymentSummaryCards from 'src/views/common/PaymentSummaryCards'
 
 export default function ModalAddPayment({
   open,
@@ -26,6 +25,7 @@ export default function ModalAddPayment({
   detailPayment,
   salesOrderId,
   amountDebt,
+  amountPaid,
   salesOrderCode
 }) {
   const dispatch = useDispatch()
@@ -72,7 +72,7 @@ export default function ModalAddPayment({
   }
 
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
@@ -81,6 +81,7 @@ export default function ModalAddPayment({
       showActions={typeModal !== 'VIEW'}
       loading={typeModal === 'ADD' ? loadingCreateSalesOrderPayment : false}
     >
+      {typeModal === 'ADD' && <PaymentSummaryCards label='SO' amountPaid={amountPaid} amountDebt={amountDebt} />}
       <Grid container spacing={6}>
         <Grid item xs={12}>
           <Grid container spacing={6}>
@@ -118,17 +119,11 @@ export default function ModalAddPayment({
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    fullWidth
-                    value={value ? priceFormat(value) : ''}
+                  <CurrencyInput
+                    value={value}
                     label='Total Pembayaran'
-                    placeholder=''
-                    onChange={e => {
-                      const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
-                      onChange(rawValue)
-                    }}
+                    onChange={onChange}
                     disabled={typeModal === 'VIEW'}
-                    type={'text'}
                     error={Boolean(errors.amount)}
                     aria-describedby='validation-schema-amount'
                     {...(errors.amount && { helperText: errors.amount.message })}
@@ -173,13 +168,8 @@ export default function ModalAddPayment({
               />
             </Grid>
           </Grid>
-          {typeModal === 'ADD' && (
-            <Typography variant='h6' sx={{ mt: 4 }}>
-              *Sisa Piutang belum terbayar Rp. {priceFormat(amountDebt)}
-            </Typography>
-          )}
         </Grid>
       </Grid>
-    </BaseModal>
+    </AppModal>
   )
 }

@@ -24,7 +24,6 @@ import { colors, radii, shadows, stone } from 'src/configs/designTokens'
  */
 export default function DashboardRankedBarList({ title, subtitle, rows = [], color, loading = false, emptyLabel = 'Tidak ada data' }) {
   const total = rows.reduce((sum, row) => sum + (row.value || 0), 0)
-  const maxValue = rows.length ? Math.max(...rows.map(row => row.value || 0)) : 0
 
   return (
     <Card
@@ -53,7 +52,7 @@ export default function DashboardRankedBarList({ title, subtitle, rows = [], col
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {rows.map((row, index) => {
             const percent = total ? Math.round(((row.value || 0) / total) * 100) : 0
-            const widthPercent = maxValue ? Math.max(((row.value || 0) / maxValue) * 100, 6) : 0
+            const widthPercent = total ? Math.max(percent, (row.value || 0) > 0 ? 2 : 0) : 0
 
             return (
               <Box key={`${row.label}-${index}`} sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -79,38 +78,37 @@ export default function DashboardRankedBarList({ title, subtitle, rows = [], col
                     {row.label}
                   </Typography>
                 </Box>
-                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
+                <Box
+                  sx={{
+                    flex: 1,
+                    height: 10,
+                    borderRadius: `${radii.full}px`,
+                    backgroundColor: stone[100],
+                    overflow: 'hidden'
+                  }}
+                >
                   <Box
                     sx={{
-                      flex: 1,
-                      height: 10,
+                      height: '100%',
+                      width: `${widthPercent}%`,
+                      minWidth: 4,
                       borderRadius: `${radii.full}px`,
-                      backgroundColor: stone[100],
-                      overflow: 'hidden'
+                      backgroundColor: color
                     }}
-                  >
-                    <Box
-                      sx={{
-                        height: '100%',
-                        width: `${widthPercent}%`,
-                        minWidth: 4,
-                        borderRadius: `${radii.full}px`,
-                        backgroundColor: color
-                      }}
-                    />
-                  </Box>
-                  <Typography
-                    sx={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      color: colors.foreground,
-                      whiteSpace: 'nowrap',
-                      flexShrink: 0
-                    }}
-                  >
-                    {row.displayValue ?? row.value} - {percent}%
-                  </Typography>
+                  />
                 </Box>
+                <Typography
+                  sx={{
+                    flex: '0 0 160px',
+                    textAlign: 'right',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    color: colors.foreground,
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {row.displayValue ?? row.value} - {percent}%
+                </Typography>
               </Box>
             )
           })}

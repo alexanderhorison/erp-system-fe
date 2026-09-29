@@ -6,16 +6,22 @@ import { useDispatch, useSelector } from 'react-redux'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** MUI Imports
+import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Icon Imports
+import Icon from 'src/@core/components/icon'
 import { transformProduct } from 'src/store/apps/product-warehouse'
 import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
 import AppModal from 'src/views/common/AppModal'
 import ProductInfoHeader from 'src/views/common/ProductInfoHeader'
+
+// ** Design Tokens
+import { colors, radii, status } from 'src/configs/designTokens'
 
 export default function ModalTransformationProduct({ open, setOpen, typeModal, warehouseId }) {
   const dispatch = useDispatch()
@@ -92,21 +98,25 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
   }
 
   const result = useMemo(() => {
+    const from = qty || 0
+    const fromUnit = selectedUnit?.unitFrom?.name
+    const toUnit = selectedUnit?.unitTo?.name
+
     if (qty > detailProductWarehouse.quantity) {
       setError(`qtyTransformation`, {
         type: 'duplicate',
         message: `Jumlah melebihi stok tersedia`
       })
-      return 'Jumlah melebihi stok tersedia'
+      return { from, fromUnit, to: 0, toUnit, error: 'Jumlah melebihi stok tersedia' }
     }
     if (qty && selectedUnit?.unitTo?.name) {
       if (qty % selectedUnit.amountFrom !== 0) {
-        return `Jumlah harus kelipatan ${selectedUnit.amountFrom}`;
+        return { from, fromUnit, to: 0, toUnit, error: `Jumlah harus kelipatan ${selectedUnit.amountFrom}` }
       }
       const total = (qty / selectedUnit.amountFrom) * selectedUnit.amountTo
-      return `${total} ${selectedUnit?.unitTo?.name}`
+      return { from, fromUnit, to: total, toUnit }
     }
-    return "-"
+    return { from, fromUnit, to: 0, toUnit }
   }, [selectedUnit, qty, detailProductWarehouse, setError])
 
   return (
@@ -114,7 +124,7 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
-      title='Transform Product'
+      title='Transformasi Produk'
       size='sm'
       showActions={typeModal !== 'VIEW'}
       loading={loadingTransformProduct}
@@ -122,10 +132,10 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
     >
       <ProductInfoHeader data={detailProductWarehouse} />
 
-      <Grid container spacing={4}>
+      <Grid container spacing={4} sx={{ mt: 2 }}>
           <Grid item xs={12}>
             <Grid container spacing={4}>
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6}>
                 <Controller
                   name={`transformation`}
                   control={control}
@@ -147,7 +157,7 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
                           {...(errors?.transformation && {
                             helperText: errors?.transformation.message
                           })}
-                          label='Formula'
+                          label='Pilih Rumus'
                         />
                       )}
                     />
@@ -162,7 +172,7 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
                   render={({ field: { value, onChange } }) => (
                     <CustomTextField
                       fullWidth
-                      label='Quantity'
+                      label='Jumlah'
                       value={value}
                       onChange={e => {
                         onChange(e.target.value)
@@ -176,14 +186,52 @@ export default function ModalTransformationProduct({ open, setOpen, typeModal, w
                   )}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <CustomTextField
-                  fullWidth
-                  label='Result'
-                  value={result}
-                  InputProps={{ readOnly: true }}
-                  sx={{ display: 'block' }}
-                />
+              <Grid item xs={12} sm={12}>
+                <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground, mb: 2 }}>
+                  Hasil
+                </Typography>
+                {(() => {
+                  const tone = result?.error ? status.danger : status.info
+
+                  return (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 3,
+                        px: 4,
+                        py: 3,
+                        borderRadius: `${radii.lg}px`,
+                        border: `1px solid ${tone.border}`,
+                        backgroundColor: tone.bg
+                      }}
+                    >
+                      <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: tone.fg }}>
+                        {result?.from ?? 0} {result?.fromUnit}
+                      </Typography>
+                      <Box
+                        sx={{
+                          width: 28,
+                          height: 28,
+                          flexShrink: 0,
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: colors.background,
+                          color: tone.fg,
+                          border: `1px solid ${tone.border}`
+                        }}
+                      >
+                        <Icon icon='tabler:arrow-right' fontSize='1rem' />
+                      </Box>
+                      <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: tone.fg }}>
+                        {result?.to ?? 0} {result?.toUnit}
+                      </Typography>
+                    </Box>
+                  )
+                })()}
               </Grid>
             </Grid>
           </Grid>

@@ -4,6 +4,7 @@ import { forwardRef } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { Controller } from "react-hook-form";
+import DatePickerHighZIndexStyles from 'src/views/common/DatePickerHighZIndexStyles'
 
 const CustomInput = forwardRef((props, ref) => {
   return <CustomTextField fullWidth {...props} inputRef={ref} label={props.label} autoComplete='off' />
@@ -26,6 +27,7 @@ export default function FormDatePicker({
       rules={{ required: true }}
       render={({ field: { value, onChange } }) => (
         <>
+          <DatePickerHighZIndexStyles />
           <DatePicker
             selected={value ? new Date(value) : null}
             name={name}
@@ -35,6 +37,8 @@ export default function FormDatePicker({
             disabled={disabled}
             placeholderText={placeholder}
             minDate={minDate}
+            popperClassName='high-z-index-popper'
+            popperProps={{ strategy: 'fixed' }}
           />
           {errors && (
             <div style={{ color: 'red', fontSize: 12, marginTop: 5 }}>

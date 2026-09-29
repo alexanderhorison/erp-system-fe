@@ -65,6 +65,7 @@ export default function TablePaymentPurchaseOrder({ purchaseOrderData }) {
           typeModal={'ADD'}
           purchaseOrderId={purchaseOrderData?.id}
           amountDebt={purchaseOrderData?.amountDebt}
+          amountPaid={purchaseOrderData?.amountPaid}
           purchaseOrderCode={purchaseOrderData?.code}
         />
       )}

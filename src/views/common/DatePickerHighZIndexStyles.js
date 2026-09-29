@@ -21,6 +21,10 @@ export default function DatePickerHighZIndexStyles() {
       .high-z-index-popper {
         z-index: 1500 !important;
       }
+      /* the arrow drifts off the input once the popper is position: fixed */
+      .high-z-index-popper .react-datepicker__triangle {
+        display: none;
+      }
     `}</style>
   )
 }

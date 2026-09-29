@@ -207,7 +207,7 @@ export default function ReceiveDelivery({ data }) {
               }}
             >
               <Table size='small'>
-                <TableHead sx={{ backgroundColor: stone[100] }}>
+                <TableHead sx={{ backgroundColor: stone[100], textTransform: 'none' }}>
                   <TableRow>
                     <TableCell sx={tableHeadCellSx}>Produk</TableCell>
                     <TableCell sx={tableHeadCellSx}>Unit</TableCell>

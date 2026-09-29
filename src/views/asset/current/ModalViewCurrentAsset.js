@@ -14,8 +14,10 @@ import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { returnFormatDateDay, returnFormatMonthYear } from 'src/helpers/formatDate'
 
 // ** Design Tokens
-import { colors, radii, shadows, stone } from 'src/configs/designTokens'
-import { infoCardSx } from 'src/@core/components/common/InfoCardSx'
+import { colors, radii, shadows } from 'src/configs/designTokens'
+
+// ** Shared Components
+import HeaderedCard from 'src/views/common/HeaderedCard'
 
 const fieldRows = [
   { name: 'accountsReceivable', label: 'Piutang Usaha' },
@@ -67,81 +69,53 @@ export default function ModalViewCurrentAsset({ open, setOpen, selectedRow }) {
 
       {/* Body */}
       <Box sx={{ px: 5, py: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <Box
-          sx={{
-            borderRadius: `${radii.lg}px`,
-            border: `1px solid ${colors.border}`,
-            overflow: 'hidden'
-          }}
-        >
-          <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.foreground }}>
-              {returnFormatMonthYear(selectedRow.period)}
-            </Typography>
-          </Box>
-
-          <Box sx={{ px: 4, py: 2 }}>
-            {fieldRows.map(fieldItem => (
-              <Box
-                key={fieldItem.name}
-                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}
-              >
-                <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>
-                  {fieldItem.label}
-                </Typography>
-                <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
-                  {priceFormatWIthCurrency(selectedRow[fieldItem.name], false)}
-                </Typography>
-              </Box>
-            ))}
-
+        <HeaderedCard title={returnFormatMonthYear(selectedRow.period)}>
+          {fieldRows.map(fieldItem => (
             <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                pt: 3,
-                borderTop: `1px solid ${colors.border}`
-              }}
+              key={fieldItem.name}
+              sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}
             >
-              <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
-                Grand Total
+              <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>
+                {fieldItem.label}
               </Typography>
-              <Typography sx={{ fontSize: '0.9375rem', fontWeight: 700, color: colors.foreground }}>
-                {priceFormatWIthCurrency(selectedRow.grandTotal, false)}
+              <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
+                {priceFormatWIthCurrency(selectedRow[fieldItem.name], false)}
               </Typography>
             </Box>
+          ))}
+
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              pt: 3,
+              borderTop: `1px solid ${colors.border}`
+            }}
+          >
+            <Typography sx={{ fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
+              Grand Total
+            </Typography>
+            <Typography sx={{ fontSize: '0.9375rem', fontWeight: 700, color: colors.foreground }}>
+              {priceFormatWIthCurrency(selectedRow.grandTotal, false)}
+            </Typography>
           </Box>
-        </Box>
+        </HeaderedCard>
 
         <Grid container spacing={4}>
           <Grid item xs={12} sm={6} sx={{ display: 'flex' }}>
-            <Box sx={infoCardSx}>
-              <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
-                <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground }}>
-                  Catatan
-                </Typography>
-              </Box>
-              <Box sx={{ px: 4, py: 3 }}>
-                <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-                  {selectedRow.notes || '-'}
-                </Typography>
-              </Box>
-            </Box>
+            <HeaderedCard title='Catatan' sx={{ flex: 1 }}>
+              <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+                {selectedRow.notes || '-'}
+              </Typography>
+            </HeaderedCard>
           </Grid>
           <Grid item xs={12} sm={6} sx={{ display: 'flex' }}>
-            <Box sx={infoCardSx}>
-              <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
-                <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground }}>
-                  Dibuat pada
-                </Typography>
-              </Box>
-              <Box sx={{ px: 4, py: 3 }}>
-                <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-                  {returnFormatDateDay(selectedRow.createdAt)}
-                </Typography>
-              </Box>
-            </Box>
+            <HeaderedCard title='Dibuat pada' sx={{ flex: 1 }}>
+              <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+                {returnFormatDateDay(selectedRow.createdAt)}
+              </Typography>
+            </HeaderedCard>
           </Grid>
         </Grid>
       </Box>

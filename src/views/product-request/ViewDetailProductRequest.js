@@ -131,7 +131,7 @@ const ViewDetailProductRequest = ({ data }) => {
           }}
         >
           <Table size='small'>
-            <TableHead sx={{ backgroundColor: stone[100] }}>
+            <TableHead sx={{ backgroundColor: stone[100], textTransform: 'none' }}>
               <TableRow>
                 <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Produk</TableCell>
                 <TableCell sx={{ ...sectionLabelSx, borderColor: colors.border }}>Unit</TableCell>

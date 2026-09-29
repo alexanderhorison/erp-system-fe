@@ -1,7 +1,6 @@
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import MenuItem from '@mui/material/MenuItem'
-import Typography from '@mui/material/Typography'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -15,9 +14,8 @@ import { createPurchaseOrderPayment } from 'src/store/apps/purchase-order-paymen
 
 // ** Shared Components
 import AppModal from 'src/views/common/AppModal'
-
-// ** Design Tokens
-import { colors } from 'src/configs/designTokens'
+import CurrencyInput from 'src/views/common/CurrencyInput'
+import PaymentSummaryCards from 'src/views/common/PaymentSummaryCards'
 
 export default function ModalAddPaymentPurchaseOrder({
   open,
@@ -26,6 +24,7 @@ export default function ModalAddPaymentPurchaseOrder({
   detailPayment,
   purchaseOrderId,
   amountDebt,
+  amountPaid,
   purchaseOrderCode
 }) {
   const dispatch = useDispatch()
@@ -84,6 +83,7 @@ export default function ModalAddPaymentPurchaseOrder({
       size='sm'
       showActions={typeModal !== 'VIEW'}
     >
+      {typeModal === 'ADD' && <PaymentSummaryCards label='PO' amountPaid={amountPaid} amountDebt={amountDebt} />}
       <Grid container spacing={4}>
         <Grid item xs={12}>
           <Controller
@@ -117,17 +117,11 @@ export default function ModalAddPaymentPurchaseOrder({
             control={control}
             rules={{ required: true }}
             render={({ field: { value, onChange } }) => (
-              <CustomTextField
-                fullWidth
-                value={value ? priceFormat(value) : ''}
+              <CurrencyInput
+                value={value}
                 label='Total Pembayaran'
-                placeholder=''
-                onChange={e => {
-                  const rawValue = e.target.value.replace(/\D/g, '') // Remove non-digit characters
-                  onChange(rawValue)
-                }}
+                onChange={onChange}
                 disabled={typeModal === 'VIEW'}
-                type='text'
                 error={Boolean(errors.amount)}
                 aria-describedby='validation-schema-amount'
                 {...(errors.amount && { helperText: errors.amount.message })}
@@ -171,13 +165,6 @@ export default function ModalAddPaymentPurchaseOrder({
             )}
           />
         </Grid>
-        {typeModal === 'ADD' && (
-          <Grid item xs={12}>
-            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.mutedForeground }}>
-              *Sisa Piutang belum terbayar Rp {priceFormat(amountDebt)}
-            </Typography>
-          </Grid>
-        )}
       </Grid>
     </AppModal>
   )

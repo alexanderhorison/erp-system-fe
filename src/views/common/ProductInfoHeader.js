@@ -75,7 +75,7 @@ export default function ProductInfoHeader({ data }) {
   const tone = hasQuantity ? stockTone(data.quantity, data.minimumStock) : null
 
   const chips = [
-    data?.minimumStock !== undefined && { key: 'min', label: `Minimum Stock: ${data.minimumStock}` },
+    data?.minimumStock !== undefined && { key: 'min', label: `Stok Minimal: ${data.minimumStock}` },
     data?.unitName && { key: 'unit', label: `Unit: ${data.unitName}` }
   ].filter(Boolean)
 
@@ -86,7 +86,7 @@ export default function ProductInfoHeader({ data }) {
       </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
         {hasQuantity && (
-          <Chip label={`Available Stock: ${data.quantity}`} size='small' sx={toneChipSx(tone)} />
+          <Chip label={`Stok Tersedia: ${data.quantity}`} size='small' sx={toneChipSx(tone)} />
         )}
         {chips.map(chip => (
           <Chip key={chip.key} label={chip.label} size='small' sx={chipSx} />

@@ -1,5 +1,6 @@
 import { Controller } from "react-hook-form";
 import CustomTextField from "src/@core/components/mui/text-field";
+import InputAdornment from "@mui/material/InputAdornment";
 import { keyframes } from "@mui/system";
 
 export default function FormInputText({
@@ -14,7 +15,8 @@ export default function FormInputText({
   rows = 1,
   type = 'text',
   required = false,
-  loading = false
+  loading = false,
+  startAdornment
 }) {
   // Define pulse animation using keyframes
   const pulse = keyframes`
@@ -42,6 +44,7 @@ export default function FormInputText({
           aria-describedby={`validation-schema-${name}`}
           {...(errors[name] && { helperText: errors[name].message })}
           InputProps={{
+            ...(startAdornment && { startAdornment: <InputAdornment position='start'>{startAdornment}</InputAdornment> }),
             sx: loading
               ? {
                 animation: `${pulse} 1.5s ease-in-out infinite`,

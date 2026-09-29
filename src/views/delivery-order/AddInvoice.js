@@ -154,10 +154,10 @@ export default function AddInvoice({ warehouse }) {
         <Grid item xs={12}>
           <SectionHeading number={1} title='Informasi Gudang' />
           <Grid container spacing={4} sx={{ mb: 4 }}>
-            <Grid item xs={12} md={8}>
-              <Card elevation={0} sx={surfaceCardSx}>
-                <CardContent sx={{ p: 5 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Grid item xs={12} md={8} sx={{ display: 'flex' }}>
+              <Card elevation={0} sx={{ ...surfaceCardSx, width: '100%' }}>
+                <CardContent sx={{ p: 5, height: '100%', display: 'flex', alignItems: 'center' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 4, width: '100%' }}>
                     <Box sx={{ flex: 1 }}>
                       <Controller
                         name='warehouseOrigin'
@@ -241,8 +241,8 @@ export default function AddInvoice({ warehouse }) {
               </Card>
             </Grid>
 
-            <Grid item xs={12} md={4}>
-              <Card elevation={0} sx={{ ...surfaceCardSx, height: '100%' }}>
+            <Grid item xs={12} md={4} sx={{ display: 'flex' }}>
+              <Card elevation={0} sx={{ ...surfaceCardSx, width: '100%' }}>
                 <CardContent sx={{ p: 5 }}>
                   <Controller
                     name='notes'

@@ -18,7 +18,10 @@ import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { returnFormatMonthYear } from 'src/helpers/formatDate'
 
 // ** Design Tokens
-import { colors, radii, shadows, stone } from 'src/configs/designTokens'
+import { colors, radii, shadows } from 'src/configs/designTokens'
+
+// ** Shared Components
+import HeaderedCard from 'src/views/common/HeaderedCard'
 
 /**
  * ModalViewMasterNonCurrentAsset
@@ -69,59 +72,44 @@ export default function ModalViewMasterNonCurrentAsset({ open, setOpen, selected
 
       {/* Body */}
       <Box sx={{ px: 5, py: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <Box sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, overflow: 'hidden' }}>
-          <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.foreground }}>
-              {selectedRow.name}
+        <HeaderedCard title={selectedRow.name}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>Jenis Aset</Typography>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
+              {nonCurrentAssetsType.find(type => type.value === selectedRow.assetType)?.key || 'Unknown'}
             </Typography>
           </Box>
 
-          <Box sx={{ px: 4, py: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}>
-              <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>Jenis Aset</Typography>
-              <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
-                {nonCurrentAssetsType.find(type => type.value === selectedRow.assetType)?.key || 'Unknown'}
-              </Typography>
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}>
-              <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>Nilai Aset</Typography>
-              <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
-                {priceFormatWIthCurrency(selectedRow.assetValue, false)}
-              </Typography>
-            </Box>
-
-            {selectedRow.depreciationMonths ? (
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}>
-                <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>Waktu Depresiasi</Typography>
-                <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
-                  {selectedRow.depreciationMonths} Bulan
-                  {depreciationEndDate && ` (${returnFormatMonthYear(depreciationEndDate)})`}
-                </Typography>
-              </Box>
-            ) : null}
-
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}>
-              <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>Waktu Akuisisi</Typography>
-              <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
-                {returnFormatMonthYear(selectedRow.acquisitionDate)}
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-
-        <Box sx={{ borderRadius: `${radii.lg}px`, overflow: 'hidden', border: `1px solid ${colors.border}` }}>
-          <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
-            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground }}>
-              Catatan
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>Nilai Aset</Typography>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
+              {priceFormatWIthCurrency(selectedRow.assetValue, false)}
             </Typography>
           </Box>
-          <Box sx={{ px: 4, py: 3 }}>
-            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-              {selectedRow.notes || '-'}
+
+          {selectedRow.depreciationMonths ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}>
+              <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>Waktu Depresiasi</Typography>
+              <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
+                {selectedRow.depreciationMonths} Bulan
+                {depreciationEndDate && ` (${returnFormatMonthYear(depreciationEndDate)})`}
+              </Typography>
+            </Box>
+          ) : null}
+
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>Waktu Akuisisi</Typography>
+            <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
+              {returnFormatMonthYear(selectedRow.acquisitionDate)}
             </Typography>
           </Box>
-        </Box>
+        </HeaderedCard>
+
+        <HeaderedCard title='Catatan'>
+          <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+            {selectedRow.notes || '-'}
+          </Typography>
+        </HeaderedCard>
       </Box>
 
       {/* Footer */}

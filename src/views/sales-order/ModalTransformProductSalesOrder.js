@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box'
-import Chip from '@mui/material/Chip'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { Controller, useForm } from 'react-hook-form'
@@ -16,22 +15,10 @@ import CustomAutocomplete from 'src/@core/components/mui/autocomplete'
 import CustomTextField from 'src/@core/components/mui/text-field'
 import Icon from 'src/@core/components/icon'
 import AppModal from 'src/views/common/AppModal'
+import ProductInfoHeader from 'src/views/common/ProductInfoHeader'
 
 // ** Design Tokens
 import { colors, radii, status as statusTokens } from 'src/configs/designTokens'
-
-const infoChipSx = {
-  height: 24,
-  borderRadius: `${radii.full}px`,
-  border: `1px solid ${colors.border}`,
-  backgroundColor: 'transparent',
-  '& .MuiChip-label': {
-    px: 2,
-    fontSize: '0.75rem',
-    lineHeight: '16px',
-    color: colors.mutedForeground
-  }
-}
 
 export default function ModalTransformProductSalesOrder({
   open,
@@ -50,7 +37,7 @@ export default function ModalTransformProductSalesOrder({
   const dispatch = useDispatch()
 
   const [selectedUnit, setSelectedUnit] = useState({})
-  const [qty, setQty] = useState(quantity)
+  const [qty, setQty] = useState(quantity ? +quantity : '')
 
   const { detailProductWarehouse, listTransformation } = useSelector(state => state.productWarehouse)
 
@@ -70,6 +57,7 @@ export default function ModalTransformProductSalesOrder({
     control,
     handleSubmit,
     setError,
+    clearErrors,
     formState: { errors }
   } = useForm({
     values: detailProductWarehouse,
@@ -83,32 +71,37 @@ export default function ModalTransformProductSalesOrder({
   }, [warehouseProductId])
 
   const result = useMemo(() => {
+    const from = qty || 0
+    const fromUnit = selectedUnit?.unitFrom?.name || detailProductWarehouse?.unitName
+    const toUnit = selectedUnit?.unitTo?.name
+
     if (qty > detailProductWarehouse.quantity) {
-      setError(`qtyTransformation`, {
-        type: 'duplicate',
-        message: `Jumlah melebihi stok tersedia`
-      })
-      return 'Jumlah melebihi stok tersedia'
+      return { from, fromUnit, to: 0, toUnit, error: 'Jumlah melebihi stok tersedia' }
     }
     if (qty && selectedUnit?.unitTo?.name) {
-      if (qty % selectedUnit?.amountFrom !== 0) {
-        return `Jumlah harus kelipatan ${selectedUnit?.amountFrom}`
+      if (qty % selectedUnit.amountFrom !== 0) {
+        return { from, fromUnit, to: 0, toUnit, error: `Jumlah harus kelipatan ${selectedUnit.amountFrom}` }
       }
-      const total = (qty / selectedUnit?.amountFrom) * selectedUnit?.amountTo
-      return { from: qty, fromUnit: detailProductWarehouse?.unitName, to: total, toUnit: selectedUnit?.unitTo?.name }
+      const total = (qty / selectedUnit.amountFrom) * selectedUnit.amountTo
+      return { from, fromUnit, to: total, toUnit }
     }
-    return null
-  }, [selectedUnit, qty, detailProductWarehouse, setError])
+    return { from, fromUnit, to: 0, toUnit }
+  }, [selectedUnit, qty, detailProductWarehouse])
 
   // ON SUBMIT
   const onSubmit = data => {
-    if (!selectedUnit) {
+    if (!selectedUnit?.id) {
       setError(`transformation`, {
         type: 'duplicate',
         message: `Rumus harus dipilih`
       })
     } else {
-      if (qty % selectedUnit?.amountFrom !== 0) {
+      if (!qty || qty <= 0) {
+        setError(`qtyTransformation`, {
+          type: 'duplicate',
+          message: `Jumlah harus diisi`
+        })
+      } else if (qty % selectedUnit?.amountFrom !== 0) {
         setError(`qtyTransformation`, {
           type: 'duplicate',
           message: `Jumlah harus kelipatan ${selectedUnit.amountFrom}`
@@ -134,10 +127,15 @@ export default function ModalTransformProductSalesOrder({
             setValue: setValue,
             getValues: getValues,
             indexForm: indexForm,
-            update: update,
+            update: (i, row) => update(i, { ...row, quantity: result.to }),
             listProduct: listProduct,
             warehouseId: warehouseId,
-            handleTransformProductUpdate: handleTransformProductUpdate,
+            handleTransformProductUpdate: (...args) => {
+              // hasil transformasi menjadi kuantiti di form
+              setValue(`data[${indexForm}].quantity`, result.to)
+              setValue(`data[${indexForm}].subTotal`, '')
+              handleTransformProductUpdate(...args)
+            },
             setDataWarehouseIds: setDataWarehouseIds
           })
         )
@@ -149,29 +147,7 @@ export default function ModalTransformProductSalesOrder({
     <AppModal open={open} onClose={handleClose} onSubmit={handleSubmit(onSubmit)} title={title} size='sm' showActions>
       <Grid container spacing={4}>
         <Grid item xs={12}>
-          <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground, mb: 2 }}>
-            {detailProductWarehouse?.productName}
-          </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-            <Chip
-              size='small'
-              label={`Stok Tersedia: ${detailProductWarehouse?.quantity ?? '-'}`}
-              sx={{
-                height: 24,
-                borderRadius: `${radii.full}px`,
-                border: `1px solid ${statusTokens.success.border}`,
-                backgroundColor: statusTokens.success.bg,
-                '& .MuiChip-label': {
-                  px: 2,
-                  fontSize: '0.75rem',
-                  lineHeight: '16px',
-                  color: statusTokens.success.fg
-                }
-              }}
-            />
-            <Chip size='small' label={`Stok Minimal: ${detailProductWarehouse?.minimumStock ?? '-'}`} sx={infoChipSx} />
-            <Chip size='small' label={`Unit: ${detailProductWarehouse?.unitName || '-'}`} sx={infoChipSx} />
-          </Box>
+          <ProductInfoHeader data={detailProductWarehouse} />
         </Grid>
         <Grid item xs={12} sm={6}>
           <Controller
@@ -208,14 +184,16 @@ export default function ModalTransformProductSalesOrder({
             name='qtyTransformation'
             control={control}
             rules={{ required: true }}
-            render={({ field: { value, onChange } }) => (
+            render={({ field: { onChange } }) => (
               <CustomTextField
                 fullWidth
                 label='Jumlah'
-                value={quantity}
-                disabled
+                value={qty}
                 onChange={e => {
+                  const next = +e.target.value
+                  setQty(next > 0 ? next : '')
                   onChange(e.target.value)
+                  clearErrors('qtyTransformation')
                 }}
                 type='number'
                 error={Boolean(errors.qtyTransformation)}
@@ -228,58 +206,48 @@ export default function ModalTransformProductSalesOrder({
           <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground, mb: 2 }}>
             Hasil
           </Typography>
-          {result && typeof result === 'object' ? (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 3,
-                px: 4,
-                py: 3,
-                borderRadius: `${radii.lg}px`,
-                border: `1px solid ${statusTokens.info.border}`,
-                backgroundColor: statusTokens.info.bg
-              }}
-            >
-              <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: statusTokens.info.fg }}>
-                {result.from} {result.fromUnit}
-              </Typography>
+          {(() => {
+            const tone = result?.error ? statusTokens.danger : statusTokens.info
+
+            return (
               <Box
                 sx={{
-                  width: 28,
-                  height: 28,
-                  flexShrink: 0,
-                  borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: colors.background,
-                  color: statusTokens.info.fg,
-                  border: `1px solid ${statusTokens.info.border}`
+                  gap: 3,
+                  px: 4,
+                  py: 3,
+                  borderRadius: `${radii.lg}px`,
+                  border: `1px solid ${tone.border}`,
+                  backgroundColor: tone.bg
                 }}
               >
-                <Icon icon='tabler:arrow-right' fontSize='1rem' />
+                <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: tone.fg }}>
+                  {result?.from ?? 0} {result?.fromUnit}
+                </Typography>
+                <Box
+                  sx={{
+                    width: 28,
+                    height: 28,
+                    flexShrink: 0,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: colors.background,
+                    color: tone.fg,
+                    border: `1px solid ${tone.border}`
+                  }}
+                >
+                  <Icon icon='tabler:arrow-right' fontSize='1rem' />
+                </Box>
+                <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: tone.fg }}>
+                  {result?.to ?? 0} {result?.toUnit}
+                </Typography>
               </Box>
-              <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: statusTokens.info.fg }}>
-                {result.to} {result.toUnit}
-              </Typography>
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                px: 4,
-                py: 3,
-                borderRadius: `${radii.lg}px`,
-                border: `1px solid ${colors.border}`,
-                backgroundColor: colors.background
-              }}
-            >
-              <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>{result || '-'}</Typography>
-            </Box>
-          )}
+            )
+          })()}
         </Grid>
       </Grid>
     </AppModal>

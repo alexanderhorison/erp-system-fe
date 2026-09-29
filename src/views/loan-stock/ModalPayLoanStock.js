@@ -17,13 +17,14 @@ import Typography from '@mui/material/Typography'
 // ** Custom Component Imports
 import AppModal from 'src/views/common/AppModal'
 import CustomTextField from 'src/@core/components/mui/text-field'
+import HeaderedCard from 'src/views/common/HeaderedCard'
 
 // ** Store Imports
 import { fetchProductWarehouseDetail } from 'src/store/apps/product-warehouse'
 import { payLoanStock } from 'src/store/apps/loan-stock'
 
 // ** Design Tokens
-import { colors, radii, shadows, status as statusTokens, stone } from 'src/configs/designTokens'
+import { colors, status as statusTokens } from 'src/configs/designTokens'
 
 // ** Validation Schema — messages stay in Bahasa (docs/REVAMP_BASELINE.md §0).
 const schema = yup.object().shape({
@@ -42,22 +43,6 @@ const schema = yup.object().shape({
       return value <= this.parent.maxQuantity
     })
 })
-
-// ** Bordered panel wrapping each group of the dialog, matching the shared
-// surface treatment used by the detail toolbars.
-const panelSx = {
-  borderRadius: `${radii.lg}px`,
-  border: `1px solid ${colors.border}`,
-  boxShadow: shadows.xs,
-  overflow: 'hidden'
-}
-
-const panelHeaderSx = {
-  px: 4,
-  py: 3,
-  backgroundColor: stone[100],
-  borderBottom: `1px solid ${colors.border}`
-}
 
 /** One label/value line inside the product panel. */
 const InfoRow = ({ label, value, tone }) => (
@@ -152,15 +137,8 @@ export default function ModalPayLoanStock({ open, setOpen, loanData }) {
       <Grid container spacing={4}>
         {/* Product Information */}
         <Grid item xs={12}>
-          <Box sx={panelSx}>
-            <Box sx={panelHeaderSx}>
-              <Typography
-                sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: '20px', color: colors.foreground }}
-              >
-                Informasi Produk
-              </Typography>
-            </Box>
-            <Box sx={{ px: 4, py: 3, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <HeaderedCard title='Informasi Produk'>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
               <InfoRow label='Nama Produk' value={loanData.productName} />
               <InfoRow label='Gudang' value={loanData.warehouseName} />
               <InfoRow
@@ -176,66 +154,57 @@ export default function ModalPayLoanStock({ open, setOpen, loanData }) {
                 tone={availableStock > 0 ? statusTokens.success.fg : statusTokens.danger.fg}
               />
             </Box>
-          </Box>
+          </HeaderedCard>
         </Grid>
 
         {/* Payment */}
         <Grid item xs={12}>
-          <Box sx={panelSx}>
-            <Box sx={panelHeaderSx}>
-              <Typography
-                sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: '20px', color: colors.foreground }}
-              >
-                Pembayaran
-              </Typography>
-            </Box>
-            <Box sx={{ px: 4, py: 3 }}>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={6}>
-                  <Controller
-                    name='quantity'
-                    control={control}
-                    render={({ field }) => (
-                      <CustomTextField
-                        {...field}
-                        fullWidth
-                        type='number'
-                        label='Jumlah yang Dibayar'
-                        placeholder='0'
-                        error={Boolean(errors.quantity)}
-                        helperText={errors.quantity?.message}
-                        InputProps={{
-                          inputProps: {
-                            min: 1,
-                            max: maxPayable,
-                            step: 1
-                          }
-                        }}
-                        onChange={e => {
-                          const value = e.target.value
-                          // Only allow positive integers
-                          if (value === '' || (Number(value) >= 0 && !value.includes('-'))) {
-                            field.onChange(value)
-                          }
-                        }}
-                      />
-                    )}
-                  />
-                </Grid>
-
-                {/* Read-only ceiling, shown beside the input so the limit is
-                    visible while typing rather than below the field. */}
-                <Grid item xs={12} sm={6}>
-                  <CustomTextField
-                    fullWidth
-                    disabled
-                    label='Maksimal Pembayaran'
-                    value={`${maxPayable} ${loanData.unitName}`}
-                  />
-                </Grid>
+          <HeaderedCard title='Pembayaran'>
+            <Grid container spacing={4}>
+              <Grid item xs={12} sm={6}>
+                <Controller
+                  name='quantity'
+                  control={control}
+                  render={({ field }) => (
+                    <CustomTextField
+                      {...field}
+                      fullWidth
+                      type='number'
+                      label='Jumlah yang Dibayar'
+                      placeholder='0'
+                      error={Boolean(errors.quantity)}
+                      helperText={errors.quantity?.message}
+                      InputProps={{
+                        inputProps: {
+                          min: 1,
+                          max: maxPayable,
+                          step: 1
+                        }
+                      }}
+                      onChange={e => {
+                        const value = e.target.value
+                        // Only allow positive integers
+                        if (value === '' || (Number(value) >= 0 && !value.includes('-'))) {
+                          field.onChange(value)
+                        }
+                      }}
+                    />
+                  )}
+                />
               </Grid>
-            </Box>
-          </Box>
+
+              {/* Read-only ceiling, shown beside the input so the limit is
+                  visible while typing rather than below the field. */}
+              <Grid item xs={12} sm={6}>
+                <CustomTextField
+                  fullWidth
+                  disabled
+                  label='Maksimal Pembayaran'
+                  value={`${maxPayable} ${loanData.unitName}`}
+                />
+              </Grid>
+            </Grid>
+          </HeaderedCard>
         </Grid>
       </Grid>
     </AppModal>

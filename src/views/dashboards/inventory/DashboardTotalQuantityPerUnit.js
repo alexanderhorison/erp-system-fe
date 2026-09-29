@@ -37,7 +37,6 @@ export default function DashboardTotalQuantityPerUnit({ query }) {
     .sort((a, b) => b.value - a.value)
 
   const total = rows.reduce((sum, row) => sum + row.value, 0)
-  const maxValue = rows.length ? rows[0].value : 0
 
   return (
     <Card
@@ -57,7 +56,7 @@ export default function DashboardTotalQuantityPerUnit({ query }) {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {rows.map((row, index) => {
             const percent = total ? Math.round((row.value / total) * 100) : 0
-            const widthPercent = maxValue ? Math.max((row.value / maxValue) * 100, 6) : 0
+            const widthPercent = total ? Math.max(percent, row.value > 0 ? 2 : 0) : 0
 
             return (
               <Box key={row.label} sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -78,43 +77,42 @@ export default function DashboardTotalQuantityPerUnit({ query }) {
                 >
                   {index + 1}
                 </Box>
-                <Box sx={{ minWidth: 72, flexShrink: 0 }}>
+                <Box sx={{ width: 72, flexShrink: 0 }}>
                   <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }} noWrap>
                     {row.label}
                   </Typography>
                 </Box>
-                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
+                <Box
+                  sx={{
+                    flex: 1,
+                    height: 10,
+                    borderRadius: `${radii.full}px`,
+                    backgroundColor: stone[100],
+                    overflow: 'hidden'
+                  }}
+                >
                   <Box
                     sx={{
-                      flex: 1,
-                      height: 10,
+                      height: '100%',
+                      width: `${widthPercent}%`,
+                      minWidth: 4,
                       borderRadius: `${radii.full}px`,
-                      backgroundColor: stone[100],
-                      overflow: 'hidden'
+                      backgroundColor: colors.foregroundAlt
                     }}
-                  >
-                    <Box
-                      sx={{
-                        height: '100%',
-                        width: `${widthPercent}%`,
-                        minWidth: 4,
-                        borderRadius: `${radii.full}px`,
-                        backgroundColor: colors.foregroundAlt
-                      }}
-                    />
-                  </Box>
-                  <Typography
-                    sx={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      color: colors.foreground,
-                      whiteSpace: 'nowrap',
-                      flexShrink: 0
-                    }}
-                  >
-                    {row.value} - {percent}%
-                  </Typography>
+                  />
                 </Box>
+                <Typography
+                  sx={{
+                    flex: '0 0 96px',
+                    textAlign: 'right',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    color: colors.foreground,
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {row.value} - {percent}%
+                </Typography>
               </Box>
             )
           })}

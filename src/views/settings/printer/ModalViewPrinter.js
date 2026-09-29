@@ -10,9 +10,10 @@ import Icon from 'src/@core/components/icon'
 
 // ** Shared Components
 import StatusChip from 'src/views/common/StatusChip'
+import HeaderedCard from 'src/views/common/HeaderedCard'
 
 // ** Design Tokens
-import { colors, radii, shadows, stone } from 'src/configs/designTokens'
+import { colors, radii, shadows } from 'src/configs/designTokens'
 
 const printerTypeLabels = {
   PRINTER_POS: 'Printer POS',
@@ -65,53 +66,31 @@ export default function ModalViewPrinter({ open, setOpen, selectedRow, isOnline 
 
       {/* Body */}
       <Box sx={{ px: 5, py: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <Box sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, overflow: 'hidden' }}>
-          <Box
-            sx={{
-              px: 4,
-              py: 3,
-              backgroundColor: stone[100],
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}
-          >
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.foreground }}>
-              {selectedRow.value}
-            </Typography>
-            <StatusChip isActive={isOnline} activeLabel='Online' inactiveLabel='Offline' />
-          </Box>
-
-          <Box sx={{ px: 4, py: 2 }}>
-            {fieldRows.map(fieldItem => (
-              <Box
-                key={fieldItem.label}
-                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}
-              >
-                <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>
-                  {fieldItem.label}
-                </Typography>
-                <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
-                  {fieldItem.value || '-'}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        </Box>
+        <HeaderedCard
+          title={selectedRow.value}
+          action={<StatusChip isActive={isOnline} activeLabel='Online' inactiveLabel='Offline' />}
+        >
+          {fieldRows.map(fieldItem => (
+            <Box
+              key={fieldItem.label}
+              sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 2 }}
+            >
+              <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>
+                {fieldItem.label}
+              </Typography>
+              <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
+                {fieldItem.value || '-'}
+              </Typography>
+            </Box>
+          ))}
+        </HeaderedCard>
 
         {selectedRow.description && (
-          <Box sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, overflow: 'hidden' }}>
-            <Box sx={{ px: 4, py: 3, backgroundColor: stone[100] }}>
-              <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground }}>
-                Deskripsi
-              </Typography>
-            </Box>
-            <Box sx={{ px: 4, py: 3 }}>
-              <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-                {selectedRow.description}
-              </Typography>
-            </Box>
-          </Box>
+          <HeaderedCard title='Deskripsi'>
+            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+              {selectedRow.description}
+            </Typography>
+          </HeaderedCard>
         )}
       </Box>
 

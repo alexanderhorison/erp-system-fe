@@ -8,9 +8,10 @@ import Icon from 'src/@core/components/icon'
 
 // ** Local Components
 import BoxCode from './BoxCode'
+import HeaderedCard from 'src/views/common/HeaderedCard'
 
 // ** Design Tokens
-import { colors, radii, shadows, status, stone } from 'src/configs/designTokens'
+import { colors, radii, status, stone } from 'src/configs/designTokens'
 
 /**
  * Visual treatment per entry kind. A deletion always reads as destructive,
@@ -18,11 +19,11 @@ import { colors, radii, shadows, status, stone } from 'src/configs/designTokens'
  * and anything else (INITIATE) is neutral.
  */
 const entryTone = ({ deleted, adjustmentType }) => {
-  if (deleted) return { ...status.danger, icon: 'tabler:trash', sign: '' }
-  if (adjustmentType === 'PLUS') return { ...status.success, icon: 'tabler:plus', sign: '+' }
-  if (adjustmentType === 'MINUS') return { ...status.danger, icon: 'tabler:minus', sign: '-' }
+  if (deleted) return { ...status.danger, solid: status.danger.fg, icon: 'tabler:trash', sign: '' }
+  if (adjustmentType === 'PLUS') return { ...status.success, solid: status.success.fg, icon: 'tabler:plus', sign: '+' }
+  if (adjustmentType === 'MINUS') return { ...status.danger, solid: status.danger.fg, icon: 'tabler:minus', sign: '-' }
 
-  return { fg: stone[600], bg: stone[100], border: colors.border, icon: 'tabler:check', sign: '' }
+  return { fg: stone[600], bg: stone[100], border: colors.border, solid: stone[500], icon: 'tabler:check', sign: '' }
 }
 
 /**
@@ -71,9 +72,8 @@ export default function TimelineItemHistory(props) {
             alignItems: 'center',
             justifyContent: 'center',
             borderRadius: `${radii.full}px`,
-            backgroundColor: tone.bg,
-            border: `1px solid ${tone.border}`,
-            color: tone.fg
+            backgroundColor: tone.solid,
+            color: colors.background
           }}
         >
           <Icon icon={tone.icon} fontSize='0.875rem' />
@@ -130,25 +130,12 @@ export default function TimelineItemHistory(props) {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: notes ? '1.4fr 1fr' : '1fr' },
+            gridTemplateColumns: { xs: '1fr', md: '1.4fr 1fr' },
             gap: 3,
             alignItems: 'stretch'
           }}
         >
-          <Box
-            sx={{
-              p: 3,
-              borderRadius: `${radii.md}px`,
-              border: `1px solid ${colors.border}`,
-              backgroundColor: stone[50]
-            }}
-          >
-            <Typography
-              sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground, mb: 1 }}
-            >
-              {props.createdBy || '-'}
-            </Typography>
-
+          <HeaderedCard title={props.createdBy || '-'} meta={`${props.date || ''} ${props.time || ''}`.trim()}>
             <Typography
               sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.foreground }}
             >
@@ -188,29 +175,14 @@ export default function TimelineItemHistory(props) {
                 ))}
               </Box>
             )}
-          </Box>
+          </HeaderedCard>
 
           {/* Notes were behind an accordion; they are short enough to show inline. */}
-          {notes && (
-            <Box
-              sx={{
-                p: 3,
-                borderRadius: `${radii.md}px`,
-                border: `1px solid ${colors.border}`,
-                backgroundColor: colors.background,
-                boxShadow: shadows.xs
-              }}
-            >
-              <Typography
-                sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground, mb: 1 }}
-              >
-                Catatan
-              </Typography>
-              <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.foreground }}>
-                {notes}
-              </Typography>
-            </Box>
-          )}
+          <HeaderedCard title='Catatan'>
+            <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.foreground }}>
+              {notes || '-'}
+            </Typography>
+          </HeaderedCard>
         </Box>
       </Box>
     </Box>
