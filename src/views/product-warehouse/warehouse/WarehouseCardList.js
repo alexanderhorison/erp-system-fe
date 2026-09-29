@@ -32,9 +32,9 @@ const WarehouseCard = ({ warehouse, onClick }) => (
     elevation={0}
     sx={{
       height: '100%',
-      borderRadius: `${radii.lg}px`,
+      borderRadius: '24px',
       border: `1px solid ${colors.border}`,
-      boxShadow: shadows.xs,
+      boxShadow: shadows.sm,
       transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
       '&:hover': {
         borderColor: colors.border3,
@@ -51,7 +51,9 @@ const WarehouseCard = ({ warehouse, onClick }) => (
         alignItems: 'center',
         justifyContent: 'flex-start',
         gap: 3,
-        borderRadius: `${radii.lg}px`
+        py: 3,
+        px: 4,
+        borderRadius: '24px'
       }}
     >
       <Box
@@ -63,7 +65,7 @@ const WarehouseCard = ({ warehouse, onClick }) => (
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: `${radii.full}px`,
-          backgroundColor: stone[100],
+          backgroundColor: stone[200],
           color: stone[500]
         }}
       >
@@ -71,12 +73,12 @@ const WarehouseCard = ({ warehouse, onClick }) => (
       </Box>
 
       {/* minWidth:0 lets a long name ellipsize instead of stretching the card */}
-      <Box sx={{ minWidth: 0 }}>
+      <Box sx={{ minWidth: 0, flexGrow: 1 }}>
         <Typography
           sx={{
-            fontSize: '1rem',
-            fontWeight: 600,
-            lineHeight: '24px',
+            fontSize: '1.125rem',
+            fontWeight: 700,
+            lineHeight: '26px',
             color: colors.foreground,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -98,6 +100,8 @@ const WarehouseCard = ({ warehouse, onClick }) => (
           {warehouse.location || '-'}
         </Typography>
       </Box>
+
+      <Icon icon='tabler:chevron-right' fontSize='1.125rem' style={{ flexShrink: 0, color: colors.foreground }} />
     </CardActionArea>
   </Card>
 )
