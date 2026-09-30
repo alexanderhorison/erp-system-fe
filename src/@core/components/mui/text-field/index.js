@@ -1,9 +1,15 @@
 // ** React Import
-import { forwardRef } from 'react'
+import { Children, forwardRef, isValidElement } from 'react'
 
 // ** MUI Imports
-import { styled } from '@mui/material/styles'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
+import { styled } from '@mui/material/styles'
+import InputAdornment from '@mui/material/InputAdornment'
+
+// ** Design Tokens
+import { colors } from 'src/configs/designTokens'
 
 const TextFieldStyled = styled(TextField)(({ theme }) => ({
   alignItems: 'flex-start',
@@ -198,9 +204,103 @@ const TextFieldStyled = styled(TextField)(({ theme }) => ({
   }
 }))
 
+// ** Text of the <MenuItem> a `select` field currently points at.
+const selectedOptionLabel = (children, value) => {
+  const values = Array.isArray(value) ? value : [value]
+  const labels = []
+
+  Children.forEach(children, child => {
+    if (isValidElement(child) && values.includes(child.props.value)) labels.push(child.props.children)
+  })
+
+  return labels.length ? labels.map((label, index) => (index ? [', ', label] : label)) : null
+}
+
+// ** Only plain "Rp" / unit prefixes and suffixes carry meaning in the text view.
+// ** Autocomplete's own end adornment (clear / popup buttons) is not an InputAdornment.
+const adornmentContent = adornment => {
+  if (isValidElement(adornment) && adornment.type === InputAdornment) return adornment.props.children
+
+  return null
+}
+
+/**
+ * A disabled field is not an input the user can act on, so it renders as a
+ * label over plain text instead of a greyed-out pill. Pass `keepDisabledField`
+ * for the rare disabled value that should keep the field treatment (e.g. a
+ * highlighted, computed Sub Total).
+ */
+const DisabledText = ({ label, value, select, children, InputProps, inputProps, multiline, error, helperText, sx }) => {
+  const raw = value ?? inputProps?.value
+  const isEmpty = raw === undefined || raw === null || raw === '' || (Array.isArray(raw) && raw.length === 0)
+  const text = select ? selectedOptionLabel(children, raw) : isEmpty ? null : String(raw)
+  const prefix = adornmentContent(InputProps?.startAdornment)
+  const suffix = adornmentContent(InputProps?.endAdornment)
+  const chips = Array.isArray(InputProps?.startAdornment) ? InputProps.startAdornment : null
+
+  return (
+    <Box sx={[{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }, ...(Array.isArray(sx) ? sx : [sx])]}>
+      {label && (
+        <Typography sx={{ width: '100%', mb: 1, lineHeight: 1.154, fontSize: 'body2.fontSize', color: 'text.primary' }}>
+          {label}
+        </Typography>
+      )}
+      <Box
+        sx={{
+          width: '100%',
+          display: 'flex',
+          alignItems: multiline ? 'flex-start' : 'center',
+          flexWrap: 'wrap',
+          gap: 1,
+          minHeight: multiline ? 0 : 40,
+          py: multiline ? 1 : 0
+        }}
+      >
+        {chips}
+        <Typography
+          sx={{
+            fontSize: 'body2.fontSize',
+            lineHeight: '20px',
+            color: colors.mutedForeground,
+            whiteSpace: multiline ? 'pre-wrap' : 'normal',
+            overflowWrap: 'anywhere'
+          }}
+        >
+          {prefix && `${prefix} `}
+          {text ?? (chips ? null : '-')}
+          {suffix && ` ${suffix}`}
+        </Typography>
+      </Box>
+      {error && helperText && (
+        <Typography sx={{ mt: 1, lineHeight: 1.154, fontSize: 'body2.fontSize', color: 'error.main' }}>
+          {helperText}
+        </Typography>
+      )}
+    </Box>
+  )
+}
+
 const CustomTextField = forwardRef((props, ref) => {
   // ** Props
-  const { size = 'small', InputLabelProps, ...rest } = props
+  const { size = 'small', InputLabelProps, keepDisabledField = false, ...rest } = props
+
+  if (rest.disabled && !keepDisabledField) {
+    return (
+      <DisabledText
+        label={rest.label}
+        value={rest.value}
+        select={rest.select}
+        InputProps={rest.InputProps}
+        inputProps={rest.inputProps}
+        multiline={rest.multiline}
+        error={rest.error}
+        helperText={rest.helperText}
+        sx={rest.sx}
+      >
+        {rest.children}
+      </DisabledText>
+    )
+  }
 
   return (
     <TextFieldStyled

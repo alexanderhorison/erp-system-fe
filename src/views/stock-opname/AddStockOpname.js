@@ -7,9 +7,8 @@ import { Controller, useForm } from 'react-hook-form'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
-import Grid from '@mui/material/Grid'
 import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
 import { useTheme } from '@mui/material/styles'
 
 // ** Date Picker
@@ -25,6 +24,7 @@ import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
 import { checkStockOpnameWarehouse, createStockOpname } from 'src/store/apps/stock-opname'
 
 // ** Shared Components
+import HeaderedCard from 'src/views/common/HeaderedCard'
 import FormActionBar from 'src/views/common/FormActionBar'
 import TableAddStockOpname from './TableAddStockOpname'
 
@@ -227,34 +227,27 @@ export default function AddStockOpname({ warehouse }) {
         </Grid>
 
         <Grid item xs={12} lg={3.5} sx={{ mt: { xs: 4, lg: 0 } }}>
-          <Card elevation={0} sx={surfaceCardSx}>
-            <CardContent>
-              <Typography
-                sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: '20px', color: colors.foreground, mb: 3 }}
-              >
-                Catatan
-              </Typography>
-              <Controller
-                name={`notes`}
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    multiline
-                    rows={4}
-                    fullWidth
-                    placeholder={'Catatan...'}
-                    value={value}
-                    onChange={e => {
-                      onChange(e.target.value)
-                    }}
-                    type='text'
-                    sx={{ display: 'block' }}
-                  />
-                )}
-              />
-            </CardContent>
-          </Card>
+          <HeaderedCard title='Catatan'>
+            <Controller
+              name={`notes`}
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <CustomTextField
+                  multiline
+                  rows={4}
+                  fullWidth
+                  placeholder={'Catatan...'}
+                  value={value}
+                  onChange={e => {
+                    onChange(e.target.value)
+                  }}
+                  type='text'
+                  sx={{ display: 'block' }}
+                />
+              )}
+            />
+          </HeaderedCard>
         </Grid>
 
         <Grid item xs={12}>

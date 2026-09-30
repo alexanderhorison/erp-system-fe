@@ -8,7 +8,6 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 // ** Styles Import
 
 // ** Icon Imports
-import { MenuItem } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -16,6 +15,7 @@ import * as yup from 'yup'
 import { createSalesOrderPayment } from 'src/store/apps/sales-order-payment'
 import AppModal from 'src/views/common/AppModal'
 import CurrencyInput from 'src/views/common/CurrencyInput'
+import PaymentMethodSelect from 'src/views/common/PaymentMethodSelect'
 import PaymentSummaryCards from 'src/views/common/PaymentSummaryCards'
 
 export default function ModalAddPayment({
@@ -91,25 +91,14 @@ export default function ModalAddPayment({
                 control={control}
                 rules={{ required: true }}
                 render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    select
-                    fullWidth
-                    label='Tipe Pembayaran'
-                    value={value || ''}
+                  <PaymentMethodSelect
+                    options={dataTypePayment}
+                    value={value}
                     onChange={onChange}
                     disabled={typeModal === 'VIEW'}
                     error={Boolean(errors.typePayment)}
-                    aria-describedby='validation-schema-typePayment'
                     {...(errors.typePayment && { helperText: errors.typePayment.message })}
-                  >
-                    {dataTypePayment.map(item => {
-                      return (
-                        <MenuItem key={item.id} value={item.value}>
-                          {item.name}
-                        </MenuItem>
-                      )
-                    })}
-                  </CustomTextField>
+                  />
                 )}
               />
             </Grid>

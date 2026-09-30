@@ -8,9 +8,9 @@ import { yupResolver } from '@hookform/resolvers/yup'
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
 
 // ** Custom Component Imports
 import CustomTextField from 'src/@core/components/mui/text-field'
@@ -22,6 +22,7 @@ import { fetchMasterDataWarehouse } from 'src/store/apps/master/warehouse'
 import { findProductWarehouse } from 'src/store/apps/product-warehouse'
 
 // ** Shared Components
+import HeaderedCard from 'src/views/common/HeaderedCard'
 import PageHeader from 'src/views/common/PageHeader'
 import FormActionBar from 'src/views/common/FormActionBar'
 
@@ -187,7 +188,10 @@ export default function ProcessProductRequest() {
                     {/* Warehouse Select */}
                     <Grid item xs={12} md={3}>
                       <Typography sx={fieldLabelSx}>
-                        Gudang <Box component='span' sx={{ color: colors.destructive }}>*</Box>
+                        Gudang{' '}
+                        <Box component='span' sx={{ color: colors.destructive }}>
+                          *
+                        </Box>
                       </Typography>
                       <Controller
                         name={`data.${index}.warehouseId`}
@@ -260,34 +264,27 @@ export default function ProcessProductRequest() {
         </Grid>
 
         <Grid item xs={12} lg={3.5} sx={{ mt: { xs: 4, lg: 0 } }}>
-          <Card elevation={0} sx={surfaceCardSx}>
-            <CardContent>
-              <Typography
-                sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: '20px', color: colors.foreground, mb: 3 }}
-              >
-                Catatan
-              </Typography>
-              <Controller
-                name={`notes`}
-                control={control}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    multiline
-                    rows={4}
-                    fullWidth
-                    placeholder={'Catatan...'}
-                    value={value}
-                    disabled
-                    onChange={e => {
-                      onChange(e.target.value)
-                    }}
-                    type='text'
-                    sx={{ display: 'block' }}
-                  />
-                )}
-              />
-            </CardContent>
-          </Card>
+          <HeaderedCard title='Catatan'>
+            <Controller
+              name={`notes`}
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <CustomTextField
+                  multiline
+                  rows={4}
+                  fullWidth
+                  placeholder={'Catatan...'}
+                  value={value}
+                  disabled
+                  onChange={e => {
+                    onChange(e.target.value)
+                  }}
+                  type='text'
+                  sx={{ display: 'block' }}
+                />
+              )}
+            />
+          </HeaderedCard>
         </Grid>
 
         <Grid item xs={12}>

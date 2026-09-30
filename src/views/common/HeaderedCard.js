@@ -8,11 +8,15 @@ import { colors, radii, shadows, stone } from 'src/configs/designTokens'
 /**
  * HeaderedCard
  * -------------------------------------------------------------------------------------
- * A single rounded, bordered card with a shaded header strip (title, optional
- * right-aligned meta) and a body below it — one continuous border, not two
- * separately-bordered boxes stacked together.
+ * The standard panel. A single rounded, bordered card with a stone-100 header
+ * strip (title, optional right-aligned meta / action) and a body below it — one
+ * continuous border, not two separately-bordered boxes stacked together.
+ *
+ * Every titled panel in the app uses this — side-panel cards on detail pages
+ * ("Action", "Informasi Tambahan"), "Catatan", and so on. Don't hand-roll a
+ * Card with an inline title.
  */
-export default function HeaderedCard({ title, meta, action, children, sx }) {
+export default function HeaderedCard({ title, meta, action, children, sx, contentSx }) {
   return (
     <Box
       sx={{
@@ -32,7 +36,7 @@ export default function HeaderedCard({ title, meta, action, children, sx }) {
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: 2,
-          backgroundColor: stone[50],
+          backgroundColor: stone[100],
           borderTopLeftRadius: `${radii['3xl']}px`,
           borderTopRightRadius: `${radii['3xl']}px`
         }}
@@ -61,7 +65,8 @@ export default function HeaderedCard({ title, meta, action, children, sx }) {
           borderTop: `1px solid ${colors.border}`,
           borderBottomLeftRadius: `${radii['3xl']}px`,
           borderBottomRightRadius: `${radii['3xl']}px`,
-          backgroundColor: colors.background
+          backgroundColor: colors.background,
+          ...contentSx
         }}
       >
         {children}

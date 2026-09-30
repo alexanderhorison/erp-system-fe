@@ -4,11 +4,9 @@ import { useDispatch, useSelector } from 'react-redux'
 
 // ** MUI Imports
 import Alert from '@mui/material/Alert'
-import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
 
 import 'react-datepicker/dist/react-datepicker.css'
 import Icon from 'src/@core/components/icon'
@@ -17,6 +15,7 @@ import Icon from 'src/@core/components/icon'
 import { confirmStockOpname, updateStatusStockOpname } from 'src/store/apps/stock-opname'
 
 // ** Shared Components
+import HeaderedCard from 'src/views/common/HeaderedCard'
 import ConfirmDialog from 'src/views/common/ConfirmDialog'
 import FormActionBar from 'src/views/common/FormActionBar'
 import TableDetailStockOpname from './TableDetailStockOpname'
@@ -24,12 +23,6 @@ import HeaderDetailStockOpname from './HeaderDetailStockOpname'
 
 // ** Design Tokens
 import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
-
-const surfaceCardSx = {
-  borderRadius: `${radii.lg}px`,
-  border: `1px solid ${colors.border}`,
-  boxShadow: shadows.xs
-}
 
 export default function DetailStockOpname({ stockOpnameId, detailStockOpname }) {
   const dispatch = useDispatch()
@@ -121,18 +114,11 @@ export default function DetailStockOpname({ stockOpnameId, detailStockOpname }) 
       </Grid>
 
       <Grid item xs={12} lg={3.5} sx={{ mt: { xs: 4, lg: 0 } }}>
-        <Card elevation={0} sx={surfaceCardSx}>
-          <CardContent>
-            <Typography
-              sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: '20px', color: colors.foreground, mb: 2 }}
-            >
-              Catatan
-            </Typography>
-            <Typography sx={{ fontSize: '0.875rem', lineHeight: '20px', color: colors.mutedForeground }}>
-              {detailStockOpname?.notes || '-'}
-            </Typography>
-          </CardContent>
-        </Card>
+        <HeaderedCard title='Catatan'>
+          <Typography sx={{ fontSize: '0.875rem', lineHeight: '20px', color: colors.mutedForeground }}>
+            {detailStockOpname?.notes || '-'}
+          </Typography>
+        </HeaderedCard>
       </Grid>
 
       {/* Action footer, sharing the add form's pinned bar. `PageHeader` already

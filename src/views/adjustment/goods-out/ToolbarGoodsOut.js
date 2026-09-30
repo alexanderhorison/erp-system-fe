@@ -4,9 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
 import Button from '@mui/material/Button'
-import CardContent from '@mui/material/CardContent'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -16,11 +14,12 @@ import { UseAuth } from 'src/hooks/useAuth'
 import { updateAdjustmentGoodsOut } from 'src/store/apps/adjustment/goods-out'
 
 // ** Shared Components
+import HeaderedCard from 'src/views/common/HeaderedCard'
 import ConfirmDialog from 'src/views/common/ConfirmDialog'
 import DownloadButton from 'src/views/components/buttons/ButtonDownload'
 
 // ** Design Tokens
-import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
+import { colors, shadows, status as statusTokens } from 'src/configs/designTokens'
 
 const ToolbarGoodsOut = ({ id, status }) => {
   const auth = UseAuth()
@@ -43,45 +42,40 @@ const ToolbarGoodsOut = ({ id, status }) => {
 
   return (
     <>
-      <Card
-        elevation={0}
-        sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
-      >
-        <CardContent>
-          <DownloadButton url={'adjustment-goods-out'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
+      <HeaderedCard title='Action'>
+        <DownloadButton url={'adjustment-goods-out'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
 
-          {canApprove && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 3 }}>
-              <Button
-                fullWidth
-                variant='contained'
-                onClick={() => setConfirmAction('approve')}
-                startIcon={<Icon icon='tabler:check' fontSize='1rem' />}
-                sx={{
-                  backgroundColor: statusTokens.success.fg,
-                  '&:hover': { backgroundColor: statusTokens.success.fg, filter: 'brightness(0.92)' }
-                }}
-              >
-                Terima Barang Keluar
-              </Button>
-              <Button
-                fullWidth
-                variant='outlined'
-                onClick={() => setConfirmAction('reject')}
-                startIcon={<Icon icon='tabler:x' fontSize='1rem' />}
-                sx={{
-                  color: colors.destructive,
-                  borderColor: colors.destructive,
-                  boxShadow: shadows.xs,
-                  '&:hover': { borderColor: colors.destructive, backgroundColor: statusTokens.danger.bg }
-                }}
-              >
-                Tolak Barang Keluar
-              </Button>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
+        {canApprove && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 3 }}>
+            <Button
+              fullWidth
+              variant='contained'
+              onClick={() => setConfirmAction('approve')}
+              startIcon={<Icon icon='tabler:check' fontSize='1rem' />}
+              sx={{
+                backgroundColor: statusTokens.success.fg,
+                '&:hover': { backgroundColor: statusTokens.success.fg, filter: 'brightness(0.92)' }
+              }}
+            >
+              Terima Barang Keluar
+            </Button>
+            <Button
+              fullWidth
+              variant='outlined'
+              onClick={() => setConfirmAction('reject')}
+              startIcon={<Icon icon='tabler:x' fontSize='1rem' />}
+              sx={{
+                color: colors.destructive,
+                borderColor: colors.destructive,
+                boxShadow: shadows.xs,
+                '&:hover': { borderColor: colors.destructive, backgroundColor: statusTokens.danger.bg }
+              }}
+            >
+              Tolak Barang Keluar
+            </Button>
+          </Box>
+        )}
+      </HeaderedCard>
 
       <ConfirmDialog
         open={Boolean(confirmAction)}

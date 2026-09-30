@@ -4,10 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
 
 // ** MUI Imports
-import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
 
 import CustomTextField from 'src/@core/components/mui/text-field'
 
@@ -16,27 +13,16 @@ import { fetchDetailStockOpname, updateStockOpname } from 'src/store/apps/stock-
 import HeaderDetailStockOpname from './HeaderDetailStockOpname'
 
 // ** Shared Components
+import HeaderedCard from 'src/views/common/HeaderedCard'
 import FormActionBar from 'src/views/common/FormActionBar'
 
-// ** Design Tokens
-import { colors, radii, shadows } from 'src/configs/designTokens'
-
-const surfaceCardSx = {
-  borderRadius: `${radii.lg}px`,
-  border: `1px solid ${colors.border}`,
-  boxShadow: shadows.xs
-}
-
-
-export default function EditStockOpname({ }) {
+export default function EditStockOpname({}) {
   const dispatch = useDispatch()
   const router = useRouter()
 
   const { id } = router.query
 
-  const { detailStockOpname, loading, loadingUpdate } = useSelector(
-    state => state.stockOpname
-  )
+  const { detailStockOpname, loading, loadingUpdate } = useSelector(state => state.stockOpname)
 
   const [fields, setFields] = useState([])
 
@@ -49,7 +35,7 @@ export default function EditStockOpname({ }) {
     mode: 'onChange'
   })
 
-  const onSubmit = (status) => {
+  const onSubmit = status => {
     const mapData = fields.map(item => {
       let different = null
       if (item.actualStock !== null) {
@@ -59,7 +45,7 @@ export default function EditStockOpname({ }) {
       if (isNaN(different)) {
         different = null
       }
-      if (item.actualStock === "") {
+      if (item.actualStock === '') {
         actualStock = null
         different = null
       }
@@ -80,7 +66,7 @@ export default function EditStockOpname({ }) {
 
   useEffect(() => {
     setFields(detailStockOpname?.listProduct)
-    setValue("notes", detailStockOpname?.notes || "")
+    setValue('notes', detailStockOpname?.notes || '')
   }, [detailStockOpname, setValue])
 
   useEffect(() => {
@@ -122,34 +108,27 @@ export default function EditStockOpname({ }) {
         </Grid>
 
         <Grid item xs={12} lg={3.5} sx={{ mt: { xs: 4, lg: 0 } }}>
-          <Card elevation={0} sx={surfaceCardSx}>
-            <CardContent>
-              <Typography
-                sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: '20px', color: colors.foreground, mb: 3 }}
-              >
-                Catatan
-              </Typography>
-              <Controller
-                name={`notes`}
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    multiline
-                    rows={4}
-                    fullWidth
-                    placeholder={'Catatan...'}
-                    value={value}
-                    onChange={e => {
-                      onChange(e.target.value)
-                    }}
-                    type='text'
-                    sx={{ display: 'block' }}
-                  />
-                )}
-              />
-            </CardContent>
-          </Card>
+          <HeaderedCard title='Catatan'>
+            <Controller
+              name={`notes`}
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <CustomTextField
+                  multiline
+                  rows={4}
+                  fullWidth
+                  placeholder={'Catatan...'}
+                  value={value}
+                  onChange={e => {
+                    onChange(e.target.value)
+                  }}
+                  type='text'
+                  sx={{ display: 'block' }}
+                />
+              )}
+            />
+          </HeaderedCard>
         </Grid>
 
         <Grid item xs={12}>

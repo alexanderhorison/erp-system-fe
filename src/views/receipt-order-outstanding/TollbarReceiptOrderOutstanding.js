@@ -2,10 +2,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** MUI Imports
-import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
 import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
 
@@ -16,16 +13,11 @@ import { approveOutstandingProduct, saveToDraftOutstandingProduct } from 'src/st
 import DownloadButton from 'src/views/components/buttons/ButtonDownload'
 
 // ** Shared Components
+import HeaderedCard from 'src/views/common/HeaderedCard'
 import ConfirmDialog from 'src/views/common/ConfirmDialog'
 
 // ** Design Tokens
-import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
-
-const surfaceCardSx = {
-  borderRadius: `${radii['3xl']}px`,
-  border: `1px solid ${colors.border}`,
-  boxShadow: shadows.xs
-}
+import { colors, radii, status as statusTokens } from 'src/configs/designTokens'
 
 const ToolbarReceiptOrderOutstanding = ({ id, status, data }) => {
   const dispatch = useDispatch()
@@ -55,87 +47,79 @@ const ToolbarReceiptOrderOutstanding = ({ id, status, data }) => {
 
   return (
     <>
-      <Card elevation={0} sx={surfaceCardSx}>
-        <CardContent>
-          <DownloadButton
-            url={'delivery-order-receive-outstanding'}
-            id={id}
-            setIsLoading={setIsLoading}
-            isLoading={isLoading}
+      <HeaderedCard title='Action'>
+        <DownloadButton
+          url={'delivery-order-receive-outstanding'}
+          id={id}
+          setIsLoading={setIsLoading}
+          isLoading={isLoading}
+        />
+
+        {status === 'PENDING' && (
+          <>
+            <Button
+              fullWidth
+              variant='contained'
+              color='warning'
+              disabled={loadingSaveDraft}
+              onClick={() => setConfirmAction('save')}
+              startIcon={loadingSaveDraft ? undefined : <Icon icon='tabler:device-floppy' fontSize='1.125rem' />}
+              sx={{ mt: 2 }}
+            >
+              {loadingSaveDraft ? 'Menyimpan...' : 'Simpan Surat'}
+            </Button>
+
+            <Button
+              fullWidth
+              variant='contained'
+              color='success'
+              disabled={loadingApprove}
+              onClick={() => setConfirmAction('approve')}
+              startIcon={loadingApprove ? undefined : <Icon icon='tabler:discount-check' fontSize='1.125rem' />}
+              sx={{ mt: 2 }}
+            >
+              {loadingApprove ? 'Menyelesaikan...' : 'Selesaikan Surat'}
+            </Button>
+          </>
+        )}
+      </HeaderedCard>
+
+      <HeaderedCard
+        title='Informasi Tambahan'
+        action={
+          <Chip
+            size='small'
+            label='Important!'
+            sx={{
+              height: 20,
+              borderRadius: `${radii.full}px`,
+              backgroundColor: statusTokens.warning.bg,
+              border: `1px solid ${statusTokens.warning.border}`,
+              '& .MuiChip-label': {
+                px: 1.5,
+                fontSize: '0.6875rem',
+                fontWeight: 600,
+                lineHeight: '16px',
+                color: statusTokens.warning.fg
+              }
+            }}
           />
-
-          {status === 'PENDING' && (
-            <>
-              <Button
-                fullWidth
-                variant='contained'
-                color='warning'
-                disabled={loadingSaveDraft}
-                onClick={() => setConfirmAction('save')}
-                startIcon={
-                  loadingSaveDraft ? undefined : <Icon icon='tabler:device-floppy' fontSize='1.125rem' />
-                }
-                sx={{ mt: 2 }}
-              >
-                {loadingSaveDraft ? 'Menyimpan...' : 'Simpan Surat'}
-              </Button>
-
-              <Button
-                fullWidth
-                variant='contained'
-                color='success'
-                disabled={loadingApprove}
-                onClick={() => setConfirmAction('approve')}
-                startIcon={
-                  loadingApprove ? undefined : <Icon icon='tabler:discount-check' fontSize='1.125rem' />
-                }
-                sx={{ mt: 2 }}
-              >
-                {loadingApprove ? 'Menyelesaikan...' : 'Selesaikan Surat'}
-              </Button>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card elevation={0} sx={{ ...surfaceCardSx, mt: 4 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 3 }}>
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: '20px', color: colors.foreground }}>
-              Informasi Tambahan
-            </Typography>
-            <Chip
-              size='small'
-              label='Important!'
-              sx={{
-                height: 20,
-                borderRadius: `${radii.full}px`,
-                backgroundColor: statusTokens.warning.bg,
-                border: `1px solid ${statusTokens.warning.border}`,
-                '& .MuiChip-label': {
-                  px: 1.5,
-                  fontSize: '0.6875rem',
-                  fontWeight: 600,
-                  lineHeight: '16px',
-                  color: statusTokens.warning.fg
-                }
-              }}
-            />
-          </Box>
-          <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground, mb: 2 }}>
-            1. Anda dapat mengubah kolom status untuk memasukkan produk yang sedang dalam status outstanding,
-            sehingga memudahkan pengelolaan stok.
-          </Typography>
-          <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground, mb: 2 }}>
-            2. Tombol "Simpan Surat" memungkinkan Anda menyimpan data sementara, sehingga Anda dapat mengeditnya lagi
-            nanti jika diperlukan.
-          </Typography>
-          <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground }}>
-            3. Dengan menekan tombol "Selesaikan Surat", surat outstanding akan ditutup dan produk tidak dapat
-            diubah lagi, sehingga memastikan keakuratan dan integritas data.
-          </Typography>
-        </CardContent>
-      </Card>
+        }
+        sx={{ mt: 4 }}
+      >
+        <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground, mb: 2 }}>
+          1. Anda dapat mengubah kolom status untuk memasukkan produk yang sedang dalam status outstanding, sehingga
+          memudahkan pengelolaan stok.
+        </Typography>
+        <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground, mb: 2 }}>
+          2. Tombol "Simpan Surat" memungkinkan Anda menyimpan data sementara, sehingga Anda dapat mengeditnya lagi
+          nanti jika diperlukan.
+        </Typography>
+        <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground }}>
+          3. Dengan menekan tombol "Selesaikan Surat", surat outstanding akan ditutup dan produk tidak dapat diubah
+          lagi, sehingga memastikan keakuratan dan integritas data.
+        </Typography>
+      </HeaderedCard>
 
       <ConfirmDialog
         open={confirmAction === 'save'}

@@ -5,7 +5,6 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
 import { useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -22,6 +21,7 @@ import { notifyError } from 'src/helpers/notify'
 // ** Shared Components
 import PageHeader from 'src/views/common/PageHeader'
 import FormActionBar from 'src/views/common/FormActionBar'
+import HeaderedCard from 'src/views/common/HeaderedCard'
 import SectionHeading from 'src/views/common/SectionHeading'
 
 // ** Design Tokens
@@ -58,14 +58,10 @@ export default function AddInvoice({ warehouse }) {
             const { quantity } = this.parent
             return value <= quantity
           })
-          .test(
-            'is-greater-than-zero',
-            'Jumlah stok minimal harus lebih dari 0',
-            function (value) {
-              const num = Number(value);
-              return num >= 0;
-            }
-          )
+          .test('is-greater-than-zero', 'Jumlah stok minimal harus lebih dari 0', function (value) {
+            const num = Number(value)
+            return num >= 0
+          })
       })
     )
   })
@@ -100,7 +96,7 @@ export default function AddInvoice({ warehouse }) {
       lastIndexMap.set(key, i)
     }
     // Check duplicate index
-    lastIndex !== -1 ? (lastIndex) : (duplicate = false)
+    lastIndex !== -1 ? lastIndex : (duplicate = false)
     if (duplicate) {
       setError(`data[${lastIndex}].productWarehouseId`, {
         type: 'duplicate',
@@ -142,10 +138,7 @@ export default function AddInvoice({ warehouse }) {
       <PageHeader
         title='Pembuatan Surat Jalan'
         onBack={() => router.back()}
-        breadcrumbs={[
-          { label: 'Surat Jalan', href: '/delivery-order' },
-          { label: 'Tambah' }
-        ]}
+        breadcrumbs={[{ label: 'Surat Jalan', href: '/delivery-order' }, { label: 'Tambah' }]}
       />
 
       {/* No `spacing` on this container: `FormActionBar`'s negative margins are
@@ -242,25 +235,22 @@ export default function AddInvoice({ warehouse }) {
             </Grid>
 
             <Grid item xs={12} md={4} sx={{ display: 'flex' }}>
-              <Card elevation={0} sx={{ ...surfaceCardSx, width: '100%' }}>
-                <CardContent sx={{ p: 5 }}>
-                  <Controller
-                    name='notes'
-                    control={control}
-                    render={({ field: { value, onChange } }) => (
-                      <CustomTextField
-                        multiline
-                        rows={4}
-                        fullWidth
-                        label='Catatan'
-                        placeholder='Catatan...'
-                        value={value || ''}
-                        onChange={e => onChange(e.target.value)}
-                      />
-                    )}
-                  />
-                </CardContent>
-              </Card>
+              <HeaderedCard title='Catatan' sx={{ width: '100%' }}>
+                <Controller
+                  name='notes'
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      multiline
+                      rows={4}
+                      fullWidth
+                      placeholder='Catatan...'
+                      value={value || ''}
+                      onChange={e => onChange(e.target.value)}
+                    />
+                  )}
+                />
+              </HeaderedCard>
             </Grid>
           </Grid>
         </Grid>
@@ -383,7 +373,12 @@ export default function AddInvoice({ warehouse }) {
                         )}
                       />
                     </Grid>
-                    <Grid item xs={12} md={1} sx={{ display: 'flex', justifyContent: { xs: 'flex-end', md: 'center' }, pt: { md: 2 } }}>
+                    <Grid
+                      item
+                      xs={12}
+                      md={1}
+                      sx={{ display: 'flex', justifyContent: { xs: 'flex-end', md: 'center' }, pt: { md: 2 } }}
+                    >
                       {fields.length > 1 && (
                         <IconButton onClick={() => deleteItem(index)} color='error' size='small'>
                           <Icon icon='tabler:trash' fontSize='1.125rem' />

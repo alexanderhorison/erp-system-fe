@@ -969,6 +969,7 @@ export default function AddSalesOrder({}) {
                                     label='Sub Total'
                                     value={priceFormat(value || 0)}
                                     disabled
+                                    keepDisabledField
                                     type='text'
                                     error={Boolean(errors?.data?.[index]?.subTotal)}
                                     {...(errors?.data?.[index]?.subTotal && {
@@ -1265,6 +1266,7 @@ export default function AddSalesOrder({}) {
                                     label='Sub Total'
                                     value={priceFormat(value || 0)}
                                     disabled
+                                    keepDisabledField
                                     type='text'
                                     error={Boolean(errors?.barterProduct?.[index]?.subTotal)}
                                     {...(errors?.barterProduct?.[index]?.subTotal && {

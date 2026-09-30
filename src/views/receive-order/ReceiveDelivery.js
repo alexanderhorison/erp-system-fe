@@ -24,6 +24,7 @@ import { createDeliveryOrderReceive } from 'src/store/apps/receive-order'
 // ** Shared Components
 import PageHeader from 'src/views/common/PageHeader'
 import FormActionBar from 'src/views/common/FormActionBar'
+import HeaderedCard from 'src/views/common/HeaderedCard'
 import SectionHeading from 'src/views/common/SectionHeading'
 
 // ** Design Tokens
@@ -168,26 +169,23 @@ export default function ReceiveDelivery({ data }) {
             </Grid>
 
             <Grid item xs={12} md={4}>
-              <Card elevation={0} sx={{ ...surfaceCardSx, height: '100%' }}>
-                <CardContent sx={{ p: 5 }}>
-                  <Controller
-                    name='notes'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange } }) => (
-                      <CustomTextField
-                        multiline
-                        rows={4}
-                        fullWidth
-                        label='Catatan'
-                        placeholder='Catatan...'
-                        value={value || ''}
-                        onChange={e => onChange(e.target.value)}
-                      />
-                    )}
-                  />
-                </CardContent>
-              </Card>
+              <HeaderedCard title='Catatan' sx={{ height: '100%' }}>
+                <Controller
+                  name='notes'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      multiline
+                      rows={4}
+                      fullWidth
+                      placeholder='Catatan...'
+                      value={value || ''}
+                      onChange={e => onChange(e.target.value)}
+                    />
+                  )}
+                />
+              </HeaderedCard>
             </Grid>
           </Grid>
         </Grid>

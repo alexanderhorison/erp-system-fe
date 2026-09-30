@@ -4,11 +4,9 @@ import { useDispatch } from 'react-redux'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
 import Chip from '@mui/material/Chip'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
 import LinearProgress from '@mui/material/LinearProgress'
 
 // ** Icon Imports
@@ -24,17 +22,12 @@ import { pdfFormData } from 'src/helpers/generatePdfFormData'
 import GeneratePdfPurchaseOrder from './GeneratePdfPurchaseOrder'
 
 // ** Shared Components
+import HeaderedCard from 'src/views/common/HeaderedCard'
 import ConfirmDialog from 'src/views/common/ConfirmDialog'
 import DownloadButton from 'src/views/components/buttons/ButtonDownload'
 
 // ** Design Tokens
-import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
-
-const surfaceCardSx = {
-  borderRadius: `${radii['3xl']}px`,
-  border: `1px solid ${colors.border}`,
-  boxShadow: shadows.xs
-}
+import { colors, radii, status as statusTokens } from 'src/configs/designTokens'
 
 const infoChipSx = tone => ({
   height: 20,
@@ -105,108 +98,93 @@ const ToolbarPurchaseOrder = ({ id, data }) => {
 
   const canApprove = [1, 3].includes(auth?.user?.roleId) && data?.status === 'PENDING'
   const payment = data?.status === 'APPROVED' && data?.id ? paymentTone(data) : null
-  const paidPercent = data?.grandTotal
-    ? Math.min(100, Math.round(((data.amountPaid || 0) / data.grandTotal) * 100))
-    : 0
+  const paidPercent = data?.grandTotal ? Math.min(100, Math.round(((data.amountPaid || 0) / data.grandTotal) * 100)) : 0
 
   return (
     <>
-      <Card elevation={0} sx={surfaceCardSx}>
-        <CardContent>
-          <DownloadButton url={'purchase-order'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
+      <HeaderedCard title='Action'>
+        <DownloadButton url={'purchase-order'} id={id} setIsLoading={setIsLoading} isLoading={isLoading} />
 
-          <Button
-            fullWidth
-            variant='contained'
-            onClick={handleClick}
-            startIcon={<Icon fontSize='1.125rem' icon='tabler:mail' />}
-            sx={{ mb: 2 }}
-          >
-            Kirim Email
-          </Button>
+        <Button
+          fullWidth
+          variant='contained'
+          onClick={handleClick}
+          startIcon={<Icon fontSize='1.125rem' icon='tabler:mail' />}
+          sx={{ mb: 2 }}
+        >
+          Kirim Email
+        </Button>
 
-          {canApprove && (
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-              <Button
-                fullWidth
-                variant='contained'
-                color='error'
-                onClick={() => setConfirmAction('reject')}
-                startIcon={<Icon fontSize='1.125rem' icon='tabler:x' />}
-              >
-                Tolak
-              </Button>
-              <Button
-                fullWidth
-                variant='contained'
-                color='success'
-                onClick={() => setConfirmAction('approve')}
-                startIcon={<Icon fontSize='1.125rem' icon='tabler:check' />}
-              >
-                Terima
-              </Button>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
+        {canApprove && (
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+            <Button
+              fullWidth
+              variant='contained'
+              color='error'
+              onClick={() => setConfirmAction('reject')}
+              startIcon={<Icon fontSize='1.125rem' icon='tabler:x' />}
+            >
+              Tolak
+            </Button>
+            <Button
+              fullWidth
+              variant='contained'
+              color='success'
+              onClick={() => setConfirmAction('approve')}
+              startIcon={<Icon fontSize='1.125rem' icon='tabler:check' />}
+            >
+              Terima
+            </Button>
+          </Box>
+        )}
+      </HeaderedCard>
 
       {payment && (
-        <Card elevation={0} sx={{ ...surfaceCardSx, mt: 4 }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 3 }}>
-              <Typography
-                sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: '20px', color: colors.foreground }}
-              >
-                Status Pembayaran
-              </Typography>
-              <Chip size='small' label={payment.label} sx={infoChipSx(payment.tone)} />
-            </Box>
+        <HeaderedCard
+          title='Status Pembayaran'
+          action={<Chip size='small' label={payment.label} sx={infoChipSx(payment.tone)} />}
+          sx={{ mt: 4 }}
+        >
+          <LinearProgress
+            variant='determinate'
+            value={paidPercent}
+            sx={{
+              height: 6,
+              borderRadius: `${radii.full}px`,
+              backgroundColor: colors.border,
+              mb: 1,
+              '& .MuiLinearProgress-bar': { borderRadius: `${radii.full}px`, backgroundColor: statusTokens.success.fg }
+            }}
+          />
+          <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground, mb: 3 }}>
+            {paidPercent}% dari Rp {priceFormat(data?.grandTotal)}
+          </Typography>
 
-            <LinearProgress
-              variant='determinate'
-              value={paidPercent}
-              sx={{
-                height: 6,
-                borderRadius: `${radii.full}px`,
-                backgroundColor: colors.border,
-                mb: 1,
-                '& .MuiLinearProgress-bar': { borderRadius: `${radii.full}px`, backgroundColor: statusTokens.success.fg }
-              }}
-            />
-            <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground, mb: 3 }}>
-              {paidPercent}% dari Rp {priceFormat(data?.grandTotal)}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5 }}>
+            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>Total sudah bayar</Typography>
+            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground }}>
+              Rp {priceFormat(data?.amountPaid)}
             </Typography>
-
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5 }}>
-              <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>Total sudah bayar</Typography>
-              <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground }}>
-                Rp {priceFormat(data?.amountPaid)}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5 }}>
-              <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>Total belum bayar</Typography>
-              <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: statusTokens.danger.fg }}>
-                Rp {priceFormat(data?.amountDebt)}
-              </Typography>
-            </Box>
-          </CardContent>
-        </Card>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5 }}>
+            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>Total belum bayar</Typography>
+            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: statusTokens.danger.fg }}>
+              Rp {priceFormat(data?.amountDebt)}
+            </Typography>
+          </Box>
+        </HeaderedCard>
       )}
 
-      <Card elevation={0} sx={{ ...surfaceCardSx, mt: 4 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 3 }}>
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: '20px', color: colors.foreground }}>
-              Informasi Tambahan
-            </Typography>
-            <Chip size='small' label='Important!' sx={infoChipSx(statusTokens.warning)} />
-          </Box>
-          <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground }}>
-            Jika purchase order diterima, maka barang akan langsung masuk ke gudang. Jika barang tidak ada, maka
-            barang akan di inisialisasi.
-          </Typography>
-        </CardContent>
-      </Card>
+      <HeaderedCard
+        title='Informasi Tambahan'
+        action={<Chip size='small' label='Important!' sx={infoChipSx(statusTokens.warning)} />}
+        sx={{ mt: 4 }}
+      >
+        <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground }}>
+          Jika purchase order diterima, maka barang akan langsung masuk ke gudang. Jika barang tidak ada, maka barang
+          akan di inisialisasi.
+        </Typography>
+      </HeaderedCard>
 
       {isShow && (
         <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
