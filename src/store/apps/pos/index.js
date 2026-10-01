@@ -3,6 +3,7 @@ import axios from 'src/configs/axios'
 import { swalConfirmationAdd, swalNotifSuccess, swalToastError } from 'src/helpers/swalFunction'
 import { fetchMasterDataCustomer } from '../master/customer'
 import { swalConfirmationChargePos, swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
+import { messageFromError, notifyError, notifySuccess } from 'src/helpers/notify'
 
 const label = 'produk'
 // GET ALL WAREHOUSE
@@ -326,34 +327,47 @@ export const printPos = createAsyncThunk('appProductPos/printPos', async (params
 // VOID POS
 export const voidPointOfSale = createAsyncThunk(
   'appProductPos/voidPointOfSale',
-  async ({ code, adminUserId, pin, warehouseId }, { dispatch, rejectWithValue }) => {
+  async ({ code, adminUserId, pin, warehouseId, skipPrompt = false }, { dispatch, rejectWithValue }) => {
+    const performVoid = async () => {
+      const response = await axios({
+        method: 'POST',
+        url: `/point-of-sale/void/${code}`,
+        data: { adminUserId, pin }
+      })
+
+      // Refresh list and detail
+      if (warehouseId) dispatch(fetchAllPointOfSaleByWarehouseId(warehouseId))
+      const detailResult = await dispatch(fetchDetailPointOfSale(code))
+      const detailData = detailResult?.payload?.data || detailResult?.payload
+      if (detailData) {
+        dispatch(populateCartFromTransaction(detailData))
+      }
+
+      return response.data
+    }
+
+    // The caller already asked for confirmation (ConfirmDialog), so void straight away
+    if (skipPrompt) {
+      try {
+        const data = await performVoid()
+        notifySuccess('Transaksi berhasil di-VOID')
+
+        return data
+      } catch (error) {
+        notifyError(messageFromError(error, 'Terjadi kesalahan'))
+
+        return rejectWithValue([])
+      }
+    }
+
     // Show confirmation first (handled in action level)
     return new Promise((resolve, reject) => {
       swalConfirmationOnly({
         title: 'Konfirmasi VOID',
         text: `Apakah anda yakin ingin VOID transaksi ${code}?`,
         onClickYes: async () => {
-          try {
-            const response = await axios({
-              method: 'POST',
-              url: `/point-of-sale/void/${code}`,
-              data: { adminUserId, pin }
-            })
-
-            // Refresh list and detail
-            if (warehouseId) dispatch(fetchAllPointOfSaleByWarehouseId(warehouseId))
-            const detailResult = await dispatch(fetchDetailPointOfSale(code))
-            const detailData = detailResult?.payload?.data || detailResult?.payload
-            if (detailData) {
-              dispatch(populateCartFromTransaction(detailData))
-            }
-
-            // let confirmation helper display success animation
-            resolve(response.data)
-          } catch (error) {
-            // Let the confirmation helper show the error modal so it stays visible
-            throw error
-          }
+          // let confirmation helper display success animation (and the error, if any)
+          resolve(await performVoid())
         },
         onClickNo: () => {
           resolve({ cancelled: true })

@@ -48,8 +48,11 @@ export default function FilterPanel({
   onReset,
   title = 'Filters',
   applyLabel = 'Apply Filters',
-  resetLabel = 'Reset'
+  resetLabel = 'Reset',
+  // 'large' = touch-friendly (POS): wider panel, taller fields, bigger buttons
+  size = 'default'
 }) {
+  const isLarge = size === 'large'
   const [draft, setDraft] = useState(value)
 
   // ** Re-sync the staged values whenever the panel is reopened, so a dismissed
@@ -83,6 +86,7 @@ export default function FilterPanel({
         <CustomTextField
           select
           fullWidth
+          size={isLarge ? 'medium' : 'small'}
           name={field.name}
           label={field.label}
           SelectProps={{
@@ -105,6 +109,7 @@ export default function FilterPanel({
     return (
       <CustomTextField
         fullWidth
+        size={isLarge ? 'medium' : 'small'}
         name={field.name}
         label={field.label}
         type={field.type || 'text'}
@@ -129,7 +134,7 @@ export default function FilterPanel({
             mt: 2,
             // ** Two columns of fields rather than one tall stack. Capped so a
             // module with many filters scrolls instead of covering the page.
-            width: { xs: 'calc(100vw - 32px)', sm: 520 },
+            width: { xs: 'calc(100vw - 32px)', sm: isLarge ? 680 : 520 },
             maxWidth: 'calc(100vw - 32px)',
             maxHeight: 'calc(100vh - 160px)',
             display: 'flex',
@@ -144,9 +149,24 @@ export default function FilterPanel({
     >
       {/* Header */}
       <Box
-        sx={{ px: 4, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexShrink: 0 }}
+        sx={{
+          px: isLarge ? 5 : 4,
+          py: isLarge ? 4 : 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
+          flexShrink: 0
+        }}
       >
-        <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: '20px', color: colors.foreground }}>
+        <Typography
+          sx={{
+            fontSize: isLarge ? '1.125rem' : '0.875rem',
+            fontWeight: 600,
+            lineHeight: '24px',
+            color: colors.foreground
+          }}
+        >
           {title}
         </Typography>
         <IconButton onClick={onClose} size='small' aria-label='close' sx={{ color: colors.foreground, p: 1 }}>
@@ -157,8 +177,8 @@ export default function FilterPanel({
       <Divider sx={{ borderColor: colors.border }} />
 
       {/* Fields */}
-      <Box sx={{ px: 4, py: 3, overflowY: 'auto', flex: '1 1 auto' }}>
-        <Grid container spacing={3}>
+      <Box sx={{ px: isLarge ? 5 : 4, py: isLarge ? 4 : 3, overflowY: 'auto', flex: '1 1 auto' }}>
+        <Grid container spacing={isLarge ? 5 : 3}>
           {fields.map(field => (
             <Grid item xs={12} sm={field.fullWidth ? 12 : 6} key={field.name}>
               {renderField(field)}
@@ -170,15 +190,26 @@ export default function FilterPanel({
       <Divider sx={{ borderColor: colors.border }} />
 
       {/* Footer */}
-      <Box sx={{ px: 4, py: 3, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2, flexShrink: 0 }}>
+      <Box
+        sx={{
+          px: isLarge ? 5 : 4,
+          py: isLarge ? 4 : 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          gap: isLarge ? 3 : 2,
+          flexShrink: 0
+        }}
+      >
         <Button
-          size='small'
+          size={isLarge ? 'medium' : 'small'}
           variant='outlined'
           color='secondary'
           onClick={handleReset}
           startIcon={<Icon icon='tabler:rotate-2' fontSize='1rem' />}
           sx={{
-            minWidth: 104,
+            minWidth: isLarge ? 136 : 104,
+            height: isLarge ? 44 : undefined,
             color: colors.foreground,
             borderColor: colors.border3,
             boxShadow: shadows.xs,
@@ -188,9 +219,9 @@ export default function FilterPanel({
           {resetLabel}
         </Button>
         <Button
-          size='small'
+          size={isLarge ? 'medium' : 'small'}
           variant='contained'
-          sx={{ minWidth: 104 }}
+          sx={{ minWidth: isLarge ? 136 : 104, height: isLarge ? 44 : undefined }}
           onClick={handleApply}
           startIcon={<Icon icon='tabler:filter' fontSize='1rem' />}
         >

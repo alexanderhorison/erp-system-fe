@@ -178,6 +178,9 @@ export default function PointOfSale() {
   // Tidak perlu manual connect dari frontend lagi
 
   const isPosMenu = selectedMenu?.code === 'POS'
+  const isTransactionMenu = selectedMenu?.code === 'TRANSACTION'
+  const isRequestProductMenu = selectedMenu?.code === 'REQUEST_BARANG'
+  const isOpenBillMenu = selectedMenu?.code === 'OPEN_BILL'
 
   return (
     <>
@@ -240,6 +243,34 @@ export default function PointOfSale() {
                 isLowHeight={isLowHeight}
               />
             </Box>
+          ) : isTransactionMenu ? (
+            <Box sx={{ width: '100%', height: '100%', minHeight: 0 }}>
+              <TransactionLayout
+                warehouseId={warehouse.warehouseId}
+                isMobile={isMobile}
+                isTablet={isTablet}
+                isLowHeight={isLowHeight}
+              />
+            </Box>
+          ) : isOpenBillMenu ? (
+            <Box sx={{ width: '100%', height: '100%', minHeight: 0 }}>
+              <OpenBillLayout
+                setSelectedMenu={setSelectedMenu}
+                warehouse={warehouse}
+                isMobile={isMobile}
+                isTablet={isTablet}
+                isLowHeight={isLowHeight}
+              />
+            </Box>
+          ) : isRequestProductMenu ? (
+            <Box sx={{ width: '100%', height: '100%', minHeight: 0 }}>
+              <RequestProductLayout
+                warehouseId={warehouse.warehouseId}
+                isMobile={isMobile}
+                isTablet={isTablet}
+                isLowHeight={isLowHeight}
+              />
+            </Box>
           ) : (
             <Card
               sx={{
@@ -262,40 +293,10 @@ export default function PointOfSale() {
                   flexDirection: 'column'
                 }}
               >
-                {selectedMenu?.code === 'TRANSACTION' && (
-                  <TransactionLayout
-                    warehouseId={warehouse.warehouseId}
-                    isMobile={isMobile}
-                    isTablet={isTablet}
-                    isLowHeight={isLowHeight}
-                  />
-                )}
-
-                {selectedMenu?.code === 'OPEN_BILL' && (
-                  <OpenBillLayout
-                    setSelectedMenu={setSelectedMenu}
-                    warehouse={warehouse}
-                    isMobile={isMobile}
-                    isTablet={isTablet}
-                    isLowHeight={isLowHeight}
-                  >
-                    Open Bill
-                  </OpenBillLayout>
-                )}
-
                 {selectedMenu?.code === 'SETTING' && (
                   <SettingPosLayout
                     setWarehouse={setWarehouse}
                     user={user}
-                    isMobile={isMobile}
-                    isTablet={isTablet}
-                    isLowHeight={isLowHeight}
-                  />
-                )}
-
-                {selectedMenu?.code === 'REQUEST_BARANG' && (
-                  <RequestProductLayout
-                    warehouseId={warehouse.warehouseId}
                     isMobile={isMobile}
                     isTablet={isTablet}
                     isLowHeight={isLowHeight}

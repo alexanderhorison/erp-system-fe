@@ -44,7 +44,8 @@ export default function AppModal({
   footerExtra = null,
   submitDisabled = false,
   subtitle = null,
-  hideHeader = false
+  hideHeader = false,
+  submitSx = null
 }) {
   return (
     <Dialog
@@ -139,7 +140,7 @@ export default function AppModal({
               type='submit'
               variant='contained'
               disabled={loading || submitDisabled}
-              sx={actionButtonSx}
+              sx={{ ...actionButtonSx, ...submitSx }}
               startIcon={
                 loading ? (
                   <CircularProgress size={16} sx={{ color: 'inherit' }} />

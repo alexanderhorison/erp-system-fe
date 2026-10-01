@@ -1,18 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid'
 import Alert from '@mui/material/Alert'
+import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import Divider from '@mui/material/Divider'
 import Tooltip from '@mui/material/Tooltip'
-import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
-import TextField from '@mui/material/TextField'
-import InputLabel from '@mui/material/InputLabel'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
-import FormControl from '@mui/material/FormControl'
 import DialogContent from '@mui/material/DialogContent'
 import CircularProgress from '@mui/material/CircularProgress'
 
@@ -26,6 +22,9 @@ import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
 
 // ** Shared Components
+import AppModal from 'src/views/common/AppModal'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
+import CustomTextField from 'src/@core/components/mui/text-field'
 import DataTable from 'src/views/common/DataTable'
 import SectionHeading from 'src/views/common/SectionHeading'
 
@@ -49,7 +48,7 @@ const InfoItem = ({ icon, label, value }) => (
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: stone[100],
+        backgroundColor: stone[200],
         color: colors.mutedForeground
       }}
     >
@@ -74,6 +73,7 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
   const [pin, setPin] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [pendingVoid, setPendingVoid] = useState(null)
+  const [openConfirmVoid, setOpenConfirmVoid] = useState(false)
   const pinInputNameRef = useRef(`pin_${Math.random().toString(36).slice(2)}`)
 
   useEffect(() => {
@@ -121,11 +121,13 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
   }
 
   const handleConfirmVoid = () => {
+    setOpenConfirmVoid(false)
     setPendingVoid({
       code: data.code,
       adminUserId: selectedAdmin,
       pin,
-      warehouseId: data.warehouseId
+      warehouseId: data.warehouseId,
+      skipPrompt: true
     })
   }
 
@@ -157,12 +159,12 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
                   width: 40,
                   height: 40,
                   flexShrink: 0,
-                  borderRadius: `${radii.lg}px`,
+                  borderRadius: `${radii['3xl']}px`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: stone[100],
-                  color: colors.foreground
+                  backgroundColor: stone[200],
+                  color: colors.mutedForeground,
                 }}
               >
                 <Icon icon='tabler:file-invoice' fontSize='1.25rem' />
@@ -233,7 +235,8 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
                   gap: 4,
                   p: 4,
                   borderRadius: `${radii['3xl']}px`,
-                  backgroundColor: stone[100]
+                  backgroundColor: stone[100],
+                  border: `1px solid ${stone[400]}`,
                 }}
               >
                 <InfoItem
@@ -420,79 +423,64 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
       </Dialog>
 
       {/* VOID Dialog */}
-      <Dialog
+      <AppModal
         open={openVoid}
         onClose={handleCloseVoid}
-        maxWidth='xs'
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: `${radii['3xl']}px`,
-            border: `1px solid ${colors.border}`,
-            boxShadow: shadows.lg,
-            backgroundColor: colors.background
-          }
+        // The PIN field lives inside this form: Enter asks for the final confirmation like the button does.
+        onSubmit={event => {
+          event.preventDefault()
+          setOpenConfirmVoid(true)
+        }}
+        title={`Void Transaksi ${data?.code || ''}`}
+        size='xs'
+        cancelLabel='Batal'
+        submitLabel={submitting ? 'Memproses...' : 'Confirm VOID'}
+        submitIcon='tabler:ban'
+        submitDisabled={!selectedAdmin || pin.length !== 4 || submitting}
+        submitSx={{
+          backgroundColor: statusTokens.danger.fg,
+          '&:hover': { backgroundColor: statusTokens.danger.fg, filter: 'brightness(0.92)' }
         }}
       >
-        {/* Header */}
-        <Box sx={{ p: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Icon icon='tabler:alert-circle' fontSize='1.5rem' color={statusTokens.danger.fg} />
-            <Typography sx={{ fontSize: '1.125rem', fontWeight: 600, color: colors.foreground }}>
-              Void Transaksi {data?.code}
-            </Typography>
+        <Typography sx={{ ...mutedSx, mb: 4 }}>
+          Konfirmasi void untuk transaksi:{' '}
+          <Box component='span' sx={{ fontWeight: 600, color: colors.foreground }}>
+            {data?.code}
           </Box>
-          <IconButton onClick={handleCloseVoid} size='small' aria-label='close' sx={{ color: colors.foreground, p: 1 }}>
-            <Icon icon='tabler:x' fontSize='1rem' />
-          </IconButton>
-        </Box>
+        </Typography>
 
-        <Box sx={{ px: 5 }}>
-          <Divider sx={{ borderColor: colors.border }} />
-        </Box>
+        {/* Dummy input to prevent browser autofill */}
+        <input type='text' name='prevent_autofill_username' autoComplete='off' style={{ display: 'none' }} />
 
-        <DialogContent component='form' autoComplete='off' sx={{ px: 5, py: 4 }}>
-          <Typography sx={{ ...mutedSx, mb: 3 }}>
-            Konfirmasi void untuk transaksi:{' '}
-            <Box component='span' sx={{ fontWeight: 600, color: colors.foreground }}>
-              {data?.code}
-            </Box>
-          </Typography>
-
-          {/* Dummy input to prevent browser autofill */}
-          <input type='text' name='prevent_autofill_username' autoComplete='off' style={{ display: 'none' }} />
-
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {/* Admin Selection */}
-          <FormControl fullWidth sx={{ mb: 4 }}>
-            <InputLabel id='admin-select-label'>Pilih Admin</InputLabel>
-            <Select
-              labelId='admin-select-label'
-              value={selectedAdmin}
-              label='Pilih Admin'
-              onChange={e => setSelectedAdmin(e.target.value)}
-              disabled={submitting}
-            >
-              {users.map(u => (
-                <MenuItem key={u.id} value={u.id}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Icon icon='tabler:user-circle' fontSize='1.125rem' />
-                    {u.name}
-                  </Box>
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <CustomTextField
+            select
+            fullWidth
+            label='Pilih Admin'
+            value={selectedAdmin}
+            onChange={e => setSelectedAdmin(e.target.value)}
+            disabled={submitting}
+            keepDisabledField
+          >
+            {users.map(u => (
+              <MenuItem key={u.id} value={u.id}>
+                {u.name}
+              </MenuItem>
+            ))}
+          </CustomTextField>
 
           {/* PIN Input */}
-          <TextField
-            label='PIN Admin (4 digit)'
+          <CustomTextField
             fullWidth
+            label='PIN Admin (4 digit)'
             name={pinInputNameRef.current}
             autoComplete='off'
             value={pin}
             onChange={e => setPin(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
             type='tel'
             disabled={submitting}
+            keepDisabledField
             inputProps={{
               inputMode: 'numeric',
               pattern: '[0-9]*',
@@ -504,58 +492,51 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
               style: { WebkitTextSecurity: 'disc' }
             }}
           />
-
-          {/* Warning Alert */}
-          <Alert
-            severity='warning'
-            variant='outlined'
-            sx={{ mt: 4, borderRadius: `${radii['3xl']}px` }}
-            icon={<Icon icon='tabler:alert-triangle' />}
-          >
-            <Typography variant='body2'>Aksi ini tidak dapat dibatalkan setelah dikonfirmasi</Typography>
-          </Alert>
-        </DialogContent>
-
-        <Box sx={{ px: 5 }}>
-          <Divider sx={{ borderColor: colors.border }} />
         </Box>
 
-        <Box sx={{ p: 4, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4 }}>
-          <Button
-            variant='outlined'
-            color='secondary'
-            onClick={handleCloseVoid}
-            disabled={submitting}
-            startIcon={<Icon icon='tabler:x' fontSize='1rem' />}
-            sx={{
-              color: colors.foreground,
-              borderColor: colors.border3,
-              boxShadow: shadows.xs,
-              '&:hover': { borderColor: colors.border3 }
-            }}
-          >
-            Batal
-          </Button>
-          <Button
-            variant='contained'
-            disabled={!selectedAdmin || pin.length !== 4 || submitting}
-            onClick={handleConfirmVoid}
-            startIcon={
-              submitting ? (
-                <CircularProgress size={16} sx={{ color: 'inherit' }} />
-              ) : (
-                <Icon icon='tabler:ban' fontSize='1rem' />
-              )
-            }
-            sx={{
-              backgroundColor: statusTokens.danger.fg,
-              '&:hover': { backgroundColor: statusTokens.danger.fg, filter: 'brightness(0.92)' }
-            }}
-          >
-            {submitting ? 'Memproses...' : 'Confirm VOID'}
-          </Button>
+        {/* Warning note */}
+        <Box
+          sx={{
+            mt: 4,
+            px: 3,
+            py: 2,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            borderRadius: `${radii['3xl']}px`,
+            border: `1px solid ${statusTokens.warning.border}`,
+            backgroundColor: statusTokens.warning.bg
+          }}
+        >
+          <Icon
+            icon='tabler:alert-triangle'
+            fontSize='1rem'
+            style={{ color: statusTokens.warning.fg, flexShrink: 0 }}
+          />
+          <Typography sx={{ fontSize: '0.75rem', lineHeight: '16px', color: statusTokens.warning.fg }}>
+            Aksi ini tidak dapat dibatalkan setelah dikonfirmasi
+          </Typography>
         </Box>
-      </Dialog>
+      </AppModal>
+
+      <ConfirmDialog
+        open={openConfirmVoid}
+        onClose={() => setOpenConfirmVoid(false)}
+        onConfirm={handleConfirmVoid}
+        title='Konfirmasi VOID'
+        description={
+          <>
+            Apakah anda yakin ingin VOID transaksi{' '}
+            <Box component='span' sx={{ fontWeight: 600, color: colors.foreground }}>
+              {data?.code}
+            </Box>
+            ?
+          </>
+        }
+        confirmLabel='Ya'
+        cancelLabel='Tidak'
+        confirmIcon='tabler:check'
+      />
     </>
   )
 }

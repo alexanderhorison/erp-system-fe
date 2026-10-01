@@ -1,42 +1,78 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
+import { Box, CircularProgress, IconButton, Tooltip, Typography } from '@mui/material'
 
 import Icon from 'src/@core/components/icon'
-
-import { DataGrid } from '@mui/x-data-grid'
 
 import HandleSearh from 'src/helpers/handleSearch'
 import { returnFormatTime } from 'src/helpers/formatDate'
 import { Status } from 'src/@core/components/common'
-import TableHeaderPointOfSale from './TableHeaderPointOfSale'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { fetchDetailPointOfSale, printPos } from 'src/store/apps/pos'
 import ModalViewTransactionV4 from './ModalViewTransactionV4'
 import PrintConfirmDialog from '../PrintConfirmDialog'
 
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import FilterPanel from 'src/views/common/FilterPanel'
+import { monthOptions, yearOptions, currentYear } from 'src/views/common/filterOptions'
+
+// ** Design Tokens
+import { colors, status as statusTokens } from 'src/configs/designTokens'
+
 const RowOptions = ({ handleView, handlePrint }) => {
   return (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleView}>
-          <Icon icon='tabler:eye' />
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+      <Tooltip title='Lihat'>
+        <IconButton onClick={handleView} size='small'>
+          <Icon icon='tabler:eye' fontSize='1.125rem' />
         </IconButton>
-        <IconButton onClick={handlePrint}>
-          <Icon icon='tabler:printer' />
+      </Tooltip>
+      <Tooltip title='Print'>
+        <IconButton onClick={handlePrint} size='small'>
+          <Icon icon='tabler:printer' fontSize='1.125rem' />
         </IconButton>
-      </Box>
-    </>
+      </Tooltip>
+    </Box>
   )
 }
 
-export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLowHeight }) {
+// ** Printer health, read from the backend via Redux (nothing is connected from the browser).
+const PrinterStatus = () => {
+  const { printerHealthStatus, loadingPrinterHealth } = useSelector(state => state.printer)
+  const printerPos = localStorage.getItem('printerPos') ? JSON.parse(localStorage.getItem('printerPos')) : null
+
+  // Find health status for selected printer based on IP
+  const healthStatus = printerHealthStatus?.find(status => status.ip === printerPos?.ip)
+  const isConnected = healthStatus?.status === 'ONLINE'
+  const tone = isConnected ? statusTokens.success : statusTokens.danger
+
+  return (
+    <Tooltip title={printerPos?.name || 'Printer belum dipilih'}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Icon
+          icon={isConnected ? 'tabler:circle-check' : 'tabler:circle-x'}
+          fontSize='1rem'
+          style={{ color: tone.fg }}
+        />
+        <Typography sx={{ fontSize: '0.8125rem', whiteSpace: 'nowrap', color: colors.foreground }}>
+          Status Printer:{' '}
+          {loadingPrinterHealth ? <CircularProgress size={12} color='inherit' /> : isConnected ? 'Online' : 'Offline'}
+        </Typography>
+      </Box>
+    </Tooltip>
+  )
+}
+
+export default function TablePointOfSale({ timeFilter, setTimeFilter, isMobile, isTablet, isLowHeight }) {
   const dispatch = useDispatch()
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: isLowHeight ? 5 : 10 })
   const [openModalDetail, setOpenModalDetail] = useState(false)
+  const [filterAnchor, setFilterAnchor] = useState(null)
 
   const { dataPointOfSale: data, loadingDataPointOfSale } = useSelector(state => state.pos)
 
@@ -69,6 +105,18 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
     setPrintTarget(null)
   }
 
+  const filterFields = useMemo(
+    () => [
+      { name: 'month', label: 'Bulan', type: 'select', options: monthOptions, placeholder: 'Semua Bulan' },
+      { name: 'year', label: 'Tahun', type: 'select', options: yearOptions, placeholder: 'Semua Tahun' }
+    ],
+    []
+  )
+
+  const activeFilterCount = [timeFilter?.month, timeFilter?.year !== currentYear ? timeFilter?.year : ''].filter(
+    value => value !== '' && value != null
+  ).length
+
   useEffect(() => {
     if (timeFilter && timeFilter.year) {
       const filtered = data.filter(item => {
@@ -90,197 +138,139 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
 
   return (
     <>
-      <Card
-        sx={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden'
-        }}
-      >
-        <DataGrid
-          loading={loadingDataPointOfSale}
-          columns={[
-            {
-              flex: 0.1,
-              minWidth: 100,
-              field: 'code',
-              headerName: 'Kode',
-              cellClassName: {
-                cursor: 'pointer'
-              },
-              renderCell: params => {
-                return (
-                  <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.code}
+      <FilterPanel
+        size='large'
+        open={Boolean(filterAnchor)}
+        anchorEl={filterAnchor}
+        onClose={() => setFilterAnchor(null)}
+        fields={filterFields}
+        value={timeFilter}
+        onApply={next => setTimeFilter(prev => ({ ...prev, month: next.month || '', year: next.year || currentYear }))}
+        onReset={() => setTimeFilter({ month: '', year: currentYear })}
+      />
+
+      <DataTable
+        itemLabel='datas'
+        loading={loadingDataPointOfSale}
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Cari kode'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            onOpenFilters={setFilterAnchor}
+            activeFilterCount={activeFilterCount}
+            actions={<PrinterStatus />}
+          />
+        }
+        columns={[
+          {
+            flex: 0.12,
+            minWidth: 130,
+            field: 'code',
+            headerName: 'Kode',
+            renderCell: params => <Typography variant='body2'>{params.row.code}</Typography>
+          },
+          {
+            flex: 0.15,
+            minWidth: 150,
+            field: 'createdAt',
+            headerName: 'Tanggal Transaksi',
+            renderCell: params => (
+              <Box sx={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3 }}>
+                <Typography variant='body2'>{params.row.dateCreated}</Typography>
+                <Typography noWrap sx={{ fontSize: '0.75rem', color: colors.mutedForeground }}>
+                  {returnFormatTime(params.row.createdAt)}
+                </Typography>
+              </Box>
+            )
+          },
+          {
+            flex: 0.13,
+            minWidth: 130,
+            field: 'creator',
+            headerName: 'Dibuat Oleh',
+            valueGetter: params => params.row.creator?.name || '',
+            renderCell: ({ row }) => (
+              <Box sx={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3 }}>
+                <Typography noWrap variant='body2'>
+                  {row.creator?.name}
+                </Typography>
+                <Typography noWrap sx={{ fontSize: '0.75rem', color: colors.mutedForeground }}>
+                  {row.creator?.role}
+                </Typography>
+              </Box>
+            )
+          },
+          {
+            flex: 0.14,
+            minWidth: 140,
+            field: 'shift',
+            headerName: 'Shift',
+            valueGetter: params => params.row.shift?.shiftName || '',
+            renderCell: ({ row }) =>
+              row.shift ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3 }}>
+                  <Typography noWrap variant='body2'>
+                    {row.shift.shiftName}
                   </Typography>
-                )
-              }
-            },
-            {
-              flex: 0.15,
-              minWidth: 120,
-              field: 'createdAt',
-              headerName: 'Tanggal Dibuat',
-              renderCell: params => {
-                return (
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                      {params.row.dateCreated}
-                    </Typography>
-                    <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                      {returnFormatTime(params.row.createdAt)}
-                    </Typography>
-                  </Box>
-                )
-              }
-            },
-            {
-              flex: 0.16,
-              minWidth: 120,
-              field: 'creator',
-              headerName: 'Dibuat Oleh',
-              renderCell: params => {
-                const { row } = params
-                return (
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                        {row.creator.name}
-                      </Typography>
-                      <Typography noWrap variant='caption'>
-                        {row.creator.role}
-                      </Typography>
-                    </Box>
-                  </Box>
-                )
-              }
-            },
-            {
-              flex: 0.15,
-              minWidth: 120,
-              field: 'shift',
-              headerName: 'Shift',
-              renderCell: params => {
-                const { row } = params
-                console.log(row)
-                return (
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                      {row.shift ? (
-                        <>
-                          <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                            {row.shift.shiftName}
-                          </Typography>
-                          <Typography noWrap variant='caption'>
-                            {row.shift.startShift} - {row.shift.endShift}
-                          </Typography>
-                        </>
-                      ) : (
-                        <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                          -
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
-                )
-              }
-            },
-            {
-              flex: 0.16,
-              minWidth: 120,
-              field: 'grandTotal',
-              headerName: 'Total Pembelian',
-              renderCell: params => {
-                return (
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {priceFormatWIthCurrency(params.row.grandTotal)}
+                  <Typography noWrap sx={{ fontSize: '0.75rem', color: colors.mutedForeground }}>
+                    {row.shift.startShift} - {row.shift.endShift}
                   </Typography>
-                )
-              }
-            },
-            {
-              flex: 0.16,
-              minWidth: 120,
-              field: 'totalItems',
-              headerName: 'Total Item',
-              renderCell: params => {
-                return (
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row.totalItems}
-                  </Typography>
-                )
-              }
-            },
-            {
-              flex: 0.1,
-              minWidth: 120,
-              field: 'status',
-              headerName: 'Status',
-              renderCell: params => {
-                const { row } = params
-                return <Status status={row.status} />
-              }
-            },
-            {
-              flex: 0.01,
-              minWidth: 100,
-              sortable: false,
-              field: 'actions',
-              headerName: 'Actions',
-              renderCell: ({ row }) => (
-                <div onClick={e => e.stopPropagation()}>
-                  <RowOptions
-                    handleView={() => handleRowClick(row)}
-                    handlePrint={() => handleRowPrint(row)}
-                    data={row}
-                  />
-                </div>
+                </Box>
+              ) : (
+                <Typography variant='body2'>-</Typography>
               )
-            }
-          ]}
-          pageSizeOptions={isLowHeight ? [5, 10] : [5, 10, 25]}
-          onCellClick={e => handleRowClick(e)}
-          paginationModel={paginationModel}
-          slots={{ toolbar: TableHeaderPointOfSale }}
-          onPaginationModelChange={setPaginationModel}
-          rows={filteredData}
-          sx={{
-            height: '100%',
-            '& .MuiSvgIcon-root': {
-              fontSize: '1.125rem'
-            },
-            '& .MuiDataGrid-cell': {
-              cursor: 'pointer'
-            },
-            '& .MuiDataGrid-footerContainer': {
-              borderTop: '1px solid rgba(224, 224, 224, 1)',
-              minHeight: isLowHeight ? '40px' : '52px'
-            },
-            '& .MuiTablePagination-root': {
-              fontSize: isLowHeight ? '0.75rem' : '0.875rem'
-            }
-          }}
-          slotProps={{
-            baseButton: {
-              size: 'medium',
-              variant: 'outlined'
-            },
-            toolbar: {
-              value: searchText,
-              placeholder: 'Cari point of sale',
-              clearSearch: () => handleSearch(''),
-              onChange: event => handleSearch(event.target.value)
-            }
-          }}
-        />
-        <ModalViewTransactionV4 setOpen={setOpenModalDetail} open={openModalDetail} />
-        <PrintConfirmDialog
-          open={Boolean(printTarget)}
-          onClose={() => setPrintTarget(null)}
-          onConfirm={handleConfirmPrint}
-        />
-      </Card>
+          },
+          {
+            flex: 0.15,
+            minWidth: 150,
+            field: 'grandTotal',
+            headerName: 'Total Pembelian',
+            renderCell: params => (
+              <Typography variant='body2'>{priceFormatWIthCurrency(params.row.grandTotal)}</Typography>
+            )
+          },
+          {
+            flex: 0.1,
+            minWidth: 100,
+            field: 'totalItems',
+            headerName: 'Total Item',
+            renderCell: params => <Typography variant='body2'>{params.row.totalItems}</Typography>
+          },
+          {
+            flex: 0.1,
+            minWidth: 110,
+            field: 'status',
+            headerName: 'Status',
+            renderCell: ({ row }) => <Status status={row.status} />
+          },
+          {
+            flex: 0.1,
+            minWidth: 110,
+            sortable: false,
+            field: 'actions',
+            headerName: 'Action',
+            renderCell: ({ row }) => (
+              <div onClick={e => e.stopPropagation()}>
+                <RowOptions handleView={() => handleRowClick(row)} handlePrint={() => handleRowPrint(row)} data={row} />
+              </div>
+            )
+          }
+        ]}
+        pageSizeOptions={isLowHeight ? [5, 10] : [5, 10, 25]}
+        onRowClick={params => handleRowClick(params)}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        rows={filteredData}
+        sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
+      />
+      <ModalViewTransactionV4 setOpen={setOpenModalDetail} open={openModalDetail} />
+      <PrintConfirmDialog
+        open={Boolean(printTarget)}
+        onClose={() => setPrintTarget(null)}
+        onConfirm={handleConfirmPrint}
+      />
     </>
   )
 }

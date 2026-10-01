@@ -1,20 +1,44 @@
-import { Button, Divider, Grid, Typography } from '@mui/material'
+import { Button, Divider, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { Status } from 'src/@core/components/common'
-import { priceFormat, priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
+import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import TablePorductOpenBill from './TableProductOpenBill'
 import { generateIdProduct } from 'src/helpers/pos/autoSavePos'
-import { returnFormatDate, returnFormatDateDay, returnFormatTime } from 'src/helpers/formatDate'
+import { returnFormatDate, returnFormatTime } from 'src/helpers/formatDate'
 import ModalSendEmailCustomer from '../ModalSendEmailCustomer'
+
+// ** Shared Components
+import HeaderedCard from 'src/views/common/HeaderedCard'
+
+// ** Design Tokens
+import { colors, radii, status as statusTokens } from 'src/configs/designTokens'
+
+// ** One label/value line: muted label at the left, value at the right.
+const DetailRow = ({ label, children }) => (
+  <Box sx={{ py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
+    <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>{label}</Typography>
+    <Box sx={{ textAlign: 'right', minWidth: 0 }}>{children}</Box>
+  </Box>
+)
+
+const valueSx = { fontSize: '0.875rem', fontWeight: 500, color: colors.foreground }
+
+const SummaryRow = ({ label, value, strong = false, color = colors.foreground }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
+    <Typography
+      sx={{ fontSize: strong ? '0.9375rem' : '0.8125rem', fontWeight: strong ? 700 : 500, color: colors.foreground }}
+    >
+      {label}
+    </Typography>
+    <Typography sx={{ fontSize: strong ? '0.9375rem' : '0.8125rem', fontWeight: strong ? 700 : 500, color }}>
+      {value}
+    </Typography>
+  </Box>
+)
 
 export default function DetailOpenBillAndTransaction({ data, type, disableActions = false }) {
   const [openModalEmail, setOpenModalEmail] = useState(false)
-
-  const title = {
-    openBill: 'Bill Details',
-    transaction: 'Transaction Details'
-  }
 
   const mappedData = useMemo(() => {
     let temp = {
@@ -58,129 +82,84 @@ export default function DetailOpenBillAndTransaction({ data, type, disableAction
 
   return (
     <>
-      <Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant='h4'>{title[type]}</Typography>
-          {type != 'openBill' && !disableActions && (
-            <Button
-              variant='contained'
-              color='primary'
-              onClick={handleEmailReceipt}
-              sx={{
-                textTransform: 'none',
-                fontWeight: 'bold',
-                marginRight: 3
-              }}
-              gutterBottom
-            >
-              Email Receipt
-            </Button>
-          )}
-        </Box>
-        <Grid container spacing={2} sx={{ mt: 2 }}>
-          {/* ID */}
-          <Grid item xs={12} sm={3}>
-            <Typography variant='subtitle' fontWeight='bold'>
-              {type === 'openBill' ? 'Bill ID' : 'POS Code'}
-            </Typography>
-            <Typography variant='body1'>{mappedData?.code}</Typography>
-            <Typography variant='body2'>
-              {returnFormatDate(mappedData?.createdAt)} - {returnFormatTime(mappedData?.createdAt)}{' '}
-            </Typography>
-            {/* <Typography variant="body2"></Typography> */}
-          </Grid>
-          {/* Warehouse */}
-          <Grid item xs={12} sm={3}>
-            <Typography variant='subtitle' fontWeight='bold'>
-              Warehouse Name
-            </Typography>
-            <Typography variant='body1'>{mappedData?.warehouseName}</Typography>
-          </Grid>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' }, gap: 4 }}>
+          <HeaderedCard
+            title='Details'
+            action={
+              type !== 'openBill' && !disableActions ? (
+                <Button size='small' variant='contained' onClick={handleEmailReceipt}>
+                  Email Receipt
+                </Button>
+              ) : null
+            }
+          >
+            <Box sx={{ px: 4, py: 2 }}>
+              <DetailRow label={type === 'openBill' ? 'Bill ID' : 'POS Code'}>
+                <Typography sx={valueSx}>{mappedData?.code}</Typography>
+              </DetailRow>
+              <DetailRow label='Gudang'>
+                <Typography sx={valueSx}>{mappedData?.warehouseName}</Typography>
+              </DetailRow>
+              <DetailRow label='Cashier'>
+                <Typography sx={valueSx}>{mappedData?.createdBy || 'Unknown Cashier'}</Typography>
+              </DetailRow>
+              <DetailRow label='Tanggal'>
+                <Typography sx={valueSx}>
+                  {returnFormatDate(mappedData?.createdAt)} - {returnFormatTime(mappedData?.createdAt)}
+                </Typography>
+              </DetailRow>
+              <DetailRow label='Status'>
+                <Status status={mappedData.status} />
+              </DetailRow>
+            </Box>
+          </HeaderedCard>
 
-          <Grid item xs={12} sm={3}>
-            <Typography variant='subtitle1' fontWeight='bold'>
-              Cashier
-            </Typography>
-            <Typography variant='body1'>{mappedData?.createdBy || 'Unknown Cashier'}</Typography>
-          </Grid>
-
-          <Grid item xs={12} sm={3}>
-            <Typography variant='subtitle1' fontWeight='bold'>
-              Status
-            </Typography>
-            <Status status={mappedData.status} />
-          </Grid>
-
-          <Divider style={{ width: '100%', margin: '20px 0' }} />
-
-          <Grid item xs={12}>
-            <Typography variant='h6' gutterBottom>
-              Customer Information
-            </Typography>
-            {!mappedData?.customer?.name ? (
-              <Typography variant='body2' color='textSecondary'>
-                No customer details available.
+          <HeaderedCard title='Customer Information'>
+            <Box sx={{ px: 4, py: 3 }}>
+              <Typography
+                sx={{
+                  fontSize: '0.875rem',
+                  color: mappedData?.customer?.name ? colors.foreground : colors.mutedForeground
+                }}
+              >
+                {mappedData?.customer?.name || '-'}
               </Typography>
-            ) : (
-              <Typography variant='body1'>{JSON.stringify(mappedData?.customer?.name)}</Typography>
-            )}
-          </Grid>
+            </Box>
+          </HeaderedCard>
+        </Box>
 
-          <Divider style={{ width: '100%', margin: '20px 0' }} />
+        <TablePorductOpenBill data={mappedData?.products} />
 
-          <Grid item xs={12} height={'auto'}>
-            <Typography variant='h6' gutterBottom>
-              Products
-            </Typography>
-            <TablePorductOpenBill data={mappedData?.products} />
-          </Grid>
-          <Divider style={{ width: '100%', margin: '2px 0' }} />
-
-          <Grid item xs={12}>
-            <Grid container>
-              {/* Left Column */}
-              <Grid item xs={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Typography variant='subtitle1'>Total Items: {mappedData?.totalQuantity}</Typography>
-                </Box>
-              </Grid>
-
-              {/* Right Column */}
-              <Grid item xs={6}>
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant='subtitle1'>Sub Total:</Typography>
-                    <Typography variant='body1'>{priceFormatWIthCurrency(mappedData?.subTotal)}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant='subtitle1'>Discount:</Typography>
-                    <Typography variant='body1'>{priceFormatWIthCurrency(mappedData?.totalDiscount)}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant='subtitle1'>Total Price:</Typography>
-                    <Typography variant='body1'>{priceFormatWIthCurrency(mappedData?.grandTotal)}</Typography>
-                  </Box>
-                  {type === 'transaction' && (
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant='subtitle1'>Total Payment:</Typography>
-                      <Typography variant='body1'>{priceFormatWIthCurrency(mappedData?.totalPayment)}</Typography>
-                    </Box>
-                  )}
-                  {type === 'transaction' && (
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant='subtitle1'>
-                        {mappedData?.change >= 0 ? `Change:` : 'Sisa Hutang: '}
-                      </Typography>
-                      <Typography variant='body1' sx={{ color: `${mappedData?.change >= 0 ? '' : '#ff0000ff'}` }}>
-                        {priceFormatWIthCurrency(Math.abs(mappedData?.change))}
-                      </Typography>
-                    </Box>
-                  )}
-                </Box>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
+        {/* Ringkasan */}
+        <Box
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            borderRadius: `${radii['3xl']}px`,
+            border: `1px solid ${statusTokens.success.border}`,
+            backgroundColor: statusTokens.success.bg
+          }}
+        >
+          <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: colors.foreground }}>Ringkasan</Typography>
+          <SummaryRow label='Total Barang' value={mappedData?.totalQuantity} />
+          <SummaryRow label='Sub Total' value={priceFormatWIthCurrency(mappedData?.subTotal)} />
+          <SummaryRow label='Discount' value={priceFormatWIthCurrency(mappedData?.totalDiscount)} />
+          {type === 'transaction' && (
+            <>
+              <SummaryRow label='Total Payment' value={priceFormatWIthCurrency(mappedData?.totalPayment)} />
+              <SummaryRow
+                label={mappedData?.change >= 0 ? 'Change' : 'Sisa Hutang'}
+                value={priceFormatWIthCurrency(Math.abs(mappedData?.change))}
+                color={mappedData?.change >= 0 ? colors.foreground : colors.destructive}
+              />
+            </>
+          )}
+          <Divider sx={{ borderColor: colors.foreground }} />
+          <SummaryRow label='Grand Total' value={priceFormatWIthCurrency(mappedData?.grandTotal)} strong />
+        </Box>
       </Box>
       {openModalEmail && (
         <ModalSendEmailCustomer

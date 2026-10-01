@@ -1,89 +1,108 @@
-import { Button, Card, Dialog, DialogContent, Grid } from "@mui/material";
+import { useState } from 'react'
+import { Box, Button } from '@mui/material'
 import Icon from 'src/@core/components/icon'
-import { swalConfirmationOnly } from "src/helpers/swalFunctionPos";
-import DetailOpenBillAndTransaction from "./DetailOpenBillAndTransaction";
-import { CustomCloseButton } from "src/views/pages/dialog-examples/DialogEditUserInfo";
+import { notifySuccess } from 'src/helpers/notify'
+import DetailOpenBillAndTransaction from './DetailOpenBillAndTransaction'
+
+// ** Shared Components
+import AppModal from 'src/views/common/AppModal'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
+import { actionButtonSx } from 'src/views/common/actionButtonSx'
+
+// ** Design Tokens
+import { colors, shadows } from 'src/configs/designTokens'
 
 export default function ModalDetailOpenBill({ open, setOpen, data, setSelectedMenu }) {
+  // Which action is waiting for the cashier's answer: 'remove' | 'select' | null
+  const [pendingAction, setPendingAction] = useState(null)
 
-  const handleRemove = (billId) => {
-    swalConfirmationOnly({
-      title: 'Hapus Bill?',
-      text: 'Apakah anda ingin menghapus bill ini?',
-      confirmButtonText: 'Ya, Hapus',
-      showCancelButton: true,
-      cancelButtonText: 'Tidak',
-      icon: 'warning',
-      onClickYes: () => {
-        const listBill = JSON.parse(localStorage.getItem('openBill'))
-        const newBill = listBill.filter(bill => bill.id !== billId)
-        localStorage.setItem('openBill', JSON.stringify(newBill))
-        setOpen(false)
-      },
-    })
+  const handleRemove = billId => {
+    const listBill = JSON.parse(localStorage.getItem('openBill'))
+    const newBill = listBill.filter(bill => bill.id !== billId)
+    localStorage.setItem('openBill', JSON.stringify(newBill))
+    setOpen(false)
+    notifySuccess('Bill dihapus')
   }
 
-  const handleSelect = (billId) => {
+  const handleSelect = billId => {
     const listBill = JSON.parse(localStorage.getItem('openBill'))
     const selectedBill = listBill.filter(bill => bill.id === billId)[0]
     const listProductPos = selectedBill?.products
     const selectedCustomerPos = selectedBill?.customer
 
-    swalConfirmationOnly({
-      title: 'Pilih Bill?',
-      text: 'Apakah anda ingin memilih bill ini?',
-      confirmButtonText: 'Ya, Pilih',
-      showCancelButton: true,
-      cancelButtonText: 'Tidak',
-      icon: 'warning',
-      onClickYes: () => {
-        localStorage.setItem('listProductPos', JSON.stringify(listProductPos))
-        localStorage.setItem('selectedCustomerPos', JSON.stringify(selectedCustomerPos))
-        localStorage.setItem('warehousePos', JSON.stringify(selectedBill?.warehouse))
-        localStorage.setItem('billId', JSON.stringify(selectedBill?.id))
-        setSelectedMenu({
-          name: "POS",
-          code: "POS"
-        })
-        setOpen(false)
-      },
+    localStorage.setItem('listProductPos', JSON.stringify(listProductPos))
+    localStorage.setItem('selectedCustomerPos', JSON.stringify(selectedCustomerPos))
+    localStorage.setItem('warehousePos', JSON.stringify(selectedBill?.warehouse))
+    localStorage.setItem('billId', JSON.stringify(selectedBill?.id))
+    setSelectedMenu({
+      name: 'POS',
+      code: 'POS'
     })
+    setOpen(false)
+    notifySuccess('Bill dipilih')
+  }
+
+  const handleConfirm = () => {
+    const action = pendingAction
+    setPendingAction(null)
+    if (action === 'remove') handleRemove(data.id)
+    if (action === 'select') handleSelect(data.id)
   }
 
   return (
-    <Card>
-      <Dialog
-        fullWidth
+    <>
+      <AppModal
         open={open}
-        maxWidth='md'
-        scroll='body'
         onClose={() => setOpen(false)}
-        sx={{ '& .MuiDialog-paper': { overflow: 'visible' }, zoom: 1 }}
+        onSubmit={event => event.preventDefault()}
+        title='Bill Details'
+        size='md'
+        showActions={false}
       >
-        <DialogContent
-          sx={{
-            height: "85vh",
-            overflow: "auto"
-          }}
-        >
-          <CustomCloseButton onClick={() => setOpen(false)}>
-            <Icon icon='tabler:x' fontSize='1.25rem' />
-          </CustomCloseButton>
-          <Grid container py={3} spacing={4}>
-            <Grid item xs={6}>
-              <Button fullWidth variant='outlined' onClick={() => handleRemove(data.id)}>
-                Hapus Bill
-              </Button>
-            </Grid>
-            <Grid item xs={6}>
-              <Button fullWidth variant='contained' onClick={() => handleSelect(data.id)}>
-                Pilih Bill
-              </Button>
-            </Grid>
-          </Grid>
-          <DetailOpenBillAndTransaction data={data} type='openBill' />
-        </DialogContent>
-      </Dialog>
-    </Card>
+        {open && data?.id && <DetailOpenBillAndTransaction data={data} type='openBill' />}
+
+        <Box sx={{ mt: 5, display: 'flex', justifyContent: 'flex-end', gap: 4 }}>
+          <Button
+            variant='outlined'
+            color='secondary'
+            onClick={() => setPendingAction('remove')}
+            startIcon={<Icon icon='tabler:trash' fontSize='1rem' />}
+            sx={{ ...actionButtonSx, color: colors.foreground, borderColor: colors.border3, boxShadow: shadows.xs }}
+          >
+            Hapus Bill
+          </Button>
+          <Button
+            variant='contained'
+            onClick={() => setPendingAction('select')}
+            startIcon={<Icon icon='tabler:pointer' fontSize='1rem' />}
+            sx={actionButtonSx}
+          >
+            Pilih Bill
+          </Button>
+        </Box>
+      </AppModal>
+
+      <ConfirmDialog
+        open={pendingAction === 'remove'}
+        onClose={() => setPendingAction(null)}
+        onConfirm={handleConfirm}
+        title='Hapus Bill?'
+        description='Apakah anda ingin menghapus bill ini?'
+        confirmLabel='Ya'
+        cancelLabel='Tidak'
+        confirmIcon='tabler:trash'
+      />
+      <ConfirmDialog
+        open={pendingAction === 'select'}
+        onClose={() => setPendingAction(null)}
+        onConfirm={handleConfirm}
+        title='Pilih Bill?'
+        description='Apakah anda ingin memilih bill ini?'
+        confirmLabel='Ya'
+        cancelLabel='Tidak'
+        confirmIcon='tabler:check'
+        destructive={false}
+      />
+    </>
   )
 }

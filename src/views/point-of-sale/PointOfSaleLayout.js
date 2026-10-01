@@ -8,7 +8,7 @@ import ModalAddProductPos from './ModalAddProductPos'
 import CartProductPos from './CartProductPos'
 import ModalAddCustomerPos from './ModalAddCustomerPos'
 import ModalChargePos from './ModalChargePos'
-import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
+import { notifySuccess } from 'src/helpers/notify'
 import ModalEditProductPos from './ModalEditProductPos'
 import ProductCustomField from './ProductCustomField'
 import { autoSavePos, generateIdOpenBill } from 'src/helpers/pos/autoSavePos'
@@ -89,6 +89,7 @@ export default function PointOfSaleLayout({
   const [searchProduct, setSearchProduct] = useState('')
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [openConfirmReset, setOpenConfirmReset] = useState(false)
+  const [openConfirmNewBill, setOpenConfirmNewBill] = useState(false)
 
   const [selectedProduct, setSelectedProduct] = useState({})
   const [selectedProductEdit, setSelectedProductEdit] = useState({})
@@ -394,19 +395,16 @@ export default function PointOfSaleLayout({
 
   const handleSaveBill = () => {
     if (fields.length > 0) {
-      swalConfirmationOnly({
-        title: 'Transaksi Baru?',
-        text: 'Apakah anda ingin membuat transaksi baru?',
-        confirmButtonText: 'Ya, Buat',
-        showCancelButton: true,
-        cancelButtonText: 'Tidak',
-        icon: 'warning',
-        onClickYes: () => {
-          autoSavePos()
-          resetAllField()
-        }
-      })
+      setOpenConfirmNewBill(true)
     }
+  }
+
+  // Save the current bill as an open bill, then start a fresh one
+  const handleConfirmNewBill = () => {
+    setOpenConfirmNewBill(false)
+    autoSavePos()
+    resetAllField()
+    notifySuccess('Transaksi baru dibuat')
   }
 
   useEffect(() => {
@@ -912,6 +910,17 @@ export default function PointOfSaleLayout({
             </Box>
           </>
         }
+        confirmLabel='Ya'
+        cancelLabel='Tidak'
+        confirmIcon='tabler:check'
+        destructive={false}
+      />
+      <ConfirmDialog
+        open={openConfirmNewBill}
+        onClose={() => setOpenConfirmNewBill(false)}
+        onConfirm={handleConfirmNewBill}
+        title='Transaksi Baru?'
+        description='Apakah anda ingin membuat transaksi baru?'
         confirmLabel='Ya'
         cancelLabel='Tidak'
         confirmIcon='tabler:check'

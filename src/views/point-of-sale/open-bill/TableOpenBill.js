@@ -1,22 +1,24 @@
 import { useEffect, useState } from 'react'
 
-import { Box, Card, IconButton, Typography } from '@mui/material'
+import { Box, IconButton, Tooltip, Typography } from '@mui/material'
 
 import Icon from 'src/@core/components/icon'
 
-import { DataGrid } from '@mui/x-data-grid'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import ModalDetailOpenBill from './ModalDetailOpenBill'
 
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+
 const RowOptions = ({ handleView, data }) => {
   return (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={() => handleView(data)}>
-          <Icon icon='tabler:eye' />
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+      <Tooltip title='Lihat'>
+        <IconButton onClick={() => handleView(data)} size='small'>
+          <Icon icon='tabler:edit' fontSize='1.125rem' />
         </IconButton>
-      </Box>
-    </>
+      </Tooltip>
+    </Box>
   )
 }
 
@@ -26,7 +28,7 @@ export default function TableOpenBill({ setSelectedMenu, warehouse, isMobile, is
   const [selectedData, setSelectedData] = useState({})
   const [openModalDetail, setOpenModalDetail] = useState(false)
 
-  const handleRowClick = (params) => {
+  const handleRowClick = params => {
     setOpenModalDetail(true)
     setSelectedData(params)
   }
@@ -39,98 +41,65 @@ export default function TableOpenBill({ setSelectedMenu, warehouse, isMobile, is
   }, [openModalDetail, warehouse])
 
   return (
-    <Card sx={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden'
-    }}>
+    <>
       <ModalDetailOpenBill
         open={openModalDetail}
         setOpen={setOpenModalDetail}
         data={selectedData}
         setSelectedMenu={setSelectedMenu}
       />
-      <DataGrid
+      <DataTable
+        itemLabel='datas'
         columns={[
           {
-            flex: 0.15,
-            minWidth: 100,
+            flex: 0.25,
+            minWidth: 200,
             field: 'id',
             headerName: 'ID',
-            cellClassName: {
-              cursor: 'pointer'
-            },
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.id}
-                </Typography>
-              )
-            }
+            renderCell: params => <Typography variant='body2'>{params.row.id}</Typography>
           },
           {
-            flex: 0.15,
-            minWidth: 120,
-            field: 'createdAt',
+            flex: 0.18,
+            minWidth: 140,
+            field: 'warehouse',
             headerName: 'Gudang',
-            renderCell: params => {
-              return (
-                <Typography style={{ cursor: 'pointer' }} variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.warehouse?.warehouseName}
-                </Typography>
-              )
-            }
+            valueGetter: params => params.row.warehouse?.warehouseName || '',
+            renderCell: params => <Typography variant='body2'>{params.row.warehouse?.warehouseName}</Typography>
           },
           {
-            flex: 0.16,
-            minWidth: 120,
-            field: 'creator',
+            flex: 0.18,
+            minWidth: 140,
+            field: 'customer',
             headerName: 'Customer',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                      {params.row.customer?.name || '-'}
-                    </Typography>
-                  </Box>
-                </Box>
-              )
-            }
+            valueGetter: params => params.row.customer?.name || '',
+            renderCell: params => (
+              <Typography noWrap variant='body2'>
+                {params.row.customer?.name || '-'}
+              </Typography>
+            )
           },
           {
-            flex: 0.16,
-            minWidth: 120,
-            field: 'grandTotal',
+            flex: 0.18,
+            minWidth: 150,
+            field: 'subTotalPrice',
             headerName: 'Total Pembelian',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {priceFormatWIthCurrency(params.row.subTotalPrice || 0)}
-                </Typography>
-              )
-            }
+            renderCell: params => (
+              <Typography variant='body2'>{priceFormatWIthCurrency(params.row.subTotalPrice || 0)}</Typography>
+            )
           },
           {
-            flex: 0.16,
-            minWidth: 120,
-            field: 'totalQuantity',
+            flex: 0.12,
+            minWidth: 110,
+            field: 'totalItem',
             headerName: 'Total Item',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.totalItem || 0}
-                </Typography>
-              )
-            }
+            renderCell: params => <Typography variant='body2'>{params.row.totalItem || 0}</Typography>
           },
           {
-            flex: 0.01,
-            minWidth: 100,
+            flex: 0.09,
+            minWidth: 90,
             sortable: false,
             field: 'actions',
-            headerName: 'Actions',
+            headerName: 'Action',
             renderCell: ({ row }) => (
               <div onClick={e => e.stopPropagation()}>
                 <RowOptions handleView={() => handleRowClick(row)} data={row} />
@@ -139,40 +108,12 @@ export default function TableOpenBill({ setSelectedMenu, warehouse, isMobile, is
           }
         ]}
         pageSizeOptions={isLowHeight ? [5, 10] : [5, 10, 25]}
-        onCellClick={e => handleRowClick(e?.row)}
+        onRowClick={params => handleRowClick(params?.row)}
         paginationModel={paginationModel}
-        // slots={{ toolbar: TableHeaderPointOfSale }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        sx={{
-          height: '100%',
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          },
-          '& .MuiDataGrid-cell': {
-            cursor: 'pointer'
-          },
-          '& .MuiDataGrid-footerContainer': {
-            borderTop: '1px solid rgba(224, 224, 224, 1)',
-            minHeight: isLowHeight ? '40px' : '52px'
-          },
-          '& .MuiTablePagination-root': {
-            fontSize: isLowHeight ? '0.75rem' : '0.875rem'
-          }
-        }}
-      // slotProps={{
-      //   baseButton: {
-      //     size: 'medium',
-      //     variant: 'outlined'
-      //   },
-      //   toolbar: {
-      //     value: searchText,
-      //     placeholder: 'Cari point of sale',
-      //     clearSearch: () => handleSearch(''),
-      //     onChange: event => handleSearch(event.target.value)
-      //   }
-      // }}
+        sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
       />
-    </Card>
+    </>
   )
 }
