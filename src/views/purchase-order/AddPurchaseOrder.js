@@ -9,6 +9,7 @@ import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
+import InputAdornment from '@mui/material/InputAdornment'
 import Typography from '@mui/material/Typography'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
@@ -44,6 +45,24 @@ import DatePickerHighZIndexStyles from 'src/views/common/DatePickerHighZIndexSty
 
 // ** Design Tokens
 import { colors, layout, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
+
+// Calendar icon at the end of the date fields. Clicking it focuses the input, which opens the picker.
+const dateInputProps = {
+  endAdornment: (
+    <InputAdornment position='end'>
+      <Icon icon='tabler:calendar' fontSize='1.125rem' />
+    </InputAdornment>
+  )
+}
+
+// Vendor rank pill next to the vendor name (info tone).
+const rankChipSx = {
+  height: 22,
+  borderRadius: `${radii.full}px`,
+  border: `1px solid ${statusTokens.info.border}`,
+  backgroundColor: statusTokens.info.bg,
+  '& .MuiChip-label': { px: 2, fontSize: '0.6875rem', fontWeight: 500, color: statusTokens.info.fg }
+}
 
 const surfaceCardSx = {
   borderRadius: `${radii['3xl']}px`,
@@ -574,55 +593,37 @@ export default function AddPurchaseOrder({}) {
                   <CardContent sx={{ p: 5 }}>
                     <Grid container spacing={4}>
                       <Grid item xs={12} sm={6}>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
-                          <Box sx={{ flex: 1 }}>
-                            <Controller
-                              name={`vendorId`}
-                              control={control}
-                              rules={{ required: true }}
-                              render={({ field: { value, onChange } }) => (
-                                <CustomAutocomplete
-                                  options={masterVendor}
-                                  id='autocomplete-custom'
-                                  getOptionLabel={option => option.name || ''}
-                                  onChange={(event, newValue) => {
-                                    onChange(+newValue?.id || '')
-                                    setVendorData(newValue)
-                                  }}
-                                  renderInput={params => (
-                                    <CustomTextField
-                                      value={value}
-                                      {...params}
-                                      fullWidth
-                                      error={Boolean(errors?.vendorId)}
-                                      {...(errors?.vendorId && {
-                                        helperText: errors?.vendorId.message
-                                      })}
-                                      label='Vendor'
-                                    />
-                                  )}
+                        <Controller
+                          name={`vendorId`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomAutocomplete
+                              options={masterVendor}
+                              footerAction={{ label: 'Tambah Vendor Baru', onClick: handleAddVendor }}
+                              id='autocomplete-custom'
+                              getOptionLabel={option => option.name || ''}
+                              onChange={(event, newValue) => {
+                                onChange(+newValue?.id || '')
+                                setVendorData(newValue)
+                              }}
+                              renderInput={params => (
+                                <CustomTextField
+                                  value={value}
+                                  {...params}
+                                  fullWidth
+                                  error={Boolean(errors?.vendorId)}
+                                  {...(errors?.vendorId && {
+                                    helperText: errors?.vendorId.message
+                                  })}
+                                  label='Vendor'
                                 />
                               )}
                             />
-                          </Box>
-                          <IconButton
-                            onClick={handleAddVendor}
-                            size='small'
-                            sx={{
-                              width: 40,
-                              height: 40,
-                              flexShrink: 0,
-                              borderRadius: `${radii.md}px`,
-                              backgroundColor: colors.foreground,
-                              color: colors.primaryForeground,
-                              '&:hover': { backgroundColor: colors.foreground }
-                            }}
-                          >
-                            <Icon fontSize='1.125rem' icon='tabler:plus' />
-                          </IconButton>
-                        </Box>
+                          )}
+                        />
                       </Grid>
-                      <Grid item xs={12} sm={6}>
+                      <Grid item xs={12} sm={6} sx={{ '& .react-datepicker-wrapper': { width: '100%' } }}>
                         <DatePicker
                           selected={date}
                           id='basic'
@@ -630,32 +631,32 @@ export default function AddPurchaseOrder({}) {
                           popperClassName='high-z-index-popper'
                           onChange={date => setDate(date)}
                           fullWidth
-                          customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
+                          customInput={
+                            <PickersComponent fullWidth label='Tanggal Jatuh Tempo' InputProps={dateInputProps} />
+                          }
                         />
                       </Grid>
                       <Grid item xs={12} sm={6}>
-                        <Box>
-                          {vendorData?.email && (
-                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-                              {vendorData.email}
-                            </Typography>
-                          )}
-                          {vendorData?.address && (
-                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-                              {vendorData.address}
-                            </Typography>
-                          )}
-                          {vendorData?.phoneNumber && (
-                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-                              {vendorData.phoneNumber}
-                            </Typography>
-                          )}
-                          {vendorData?.rankName && (
-                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-                              {vendorData.rankName}
-                            </Typography>
-                          )}
-                        </Box>
+                        {vendorData?.id && (
+                          <Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                              <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.foreground }}>
+                                {vendorData.name}
+                              </Typography>
+                              {vendorData.rankName && <Chip size='small' label={vendorData.rankName} sx={rankChipSx} />}
+                            </Box>
+                            {vendorData.phoneNumber && (
+                              <Typography sx={{ mt: 1, fontSize: '0.9375rem', color: colors.foreground }}>
+                                {vendorData.phoneNumber}
+                              </Typography>
+                            )}
+                            {vendorData.address && (
+                              <Typography sx={{ mt: 1, fontSize: '0.75rem', color: colors.mutedForeground }}>
+                                {vendorData.address}
+                              </Typography>
+                            )}
+                          </Box>
+                        )}
                       </Grid>
                     </Grid>
                   </CardContent>
@@ -696,7 +697,7 @@ export default function AddPurchaseOrder({}) {
                               )}
                             />
                           </Grid>
-                          <Grid item xs={12} md={7}>
+                          <Grid item xs={12} md={6}>
                             <Controller
                               name={`data[${index}].masterProductId`}
                               control={control}
@@ -729,11 +730,13 @@ export default function AddPurchaseOrder({}) {
                                 />
                               )}
                             />
-                            <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1.5, mt: 2 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
-                                <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>
-                                  Transformasi
-                                </Typography>
+                          </Grid>
+                          <Grid item xs={6} md={1}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                              <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>
+                                Transformasi
+                              </Typography>
+                              <Box>
                                 <IconButton
                                   onClick={() => handleTransformHarga(index)}
                                   disabled={getValues(`data[${index}].disabledTransform`)}
@@ -743,7 +746,12 @@ export default function AddPurchaseOrder({}) {
                                     border: `1px solid ${colors.border3}`,
                                     backgroundColor: colors.background,
                                     color: colors.foreground,
-                                    '&:hover': { backgroundColor: colors.background }
+                                    '&:hover': { backgroundColor: colors.background },
+                                    '&.Mui-disabled': {
+                                      borderColor: colors.border,
+                                      color: colors.mutedForeground,
+                                      opacity: 0.6
+                                    }
                                   }}
                                 >
                                   <Icon icon='lucide:arrow-left-right' fontSize='1.125rem' />
@@ -753,7 +761,7 @@ export default function AddPurchaseOrder({}) {
                           </Grid>
                           <Grid
                             item
-                            xs={12}
+                            xs={6}
                             md={1}
                             sx={{ display: 'flex', justifyContent: { xs: 'flex-end', md: 'center' } }}
                           >
@@ -957,7 +965,7 @@ export default function AddPurchaseOrder({}) {
                           border: `1px solid ${statusTokens.info.border}`,
                           backgroundColor: statusTokens.info.bg,
                           px: 3,
-                          py: 1.5,
+                          py: 1.5
                         }}
                       >
                         <Typography sx={{ fontSize: '0.75rem', fontWeight: 500, color: statusTokens.info.fg }}>
@@ -1021,7 +1029,7 @@ export default function AddPurchaseOrder({}) {
                                 )}
                               />
                             </Grid>
-                            <Grid item xs={12} md={7}>
+                            <Grid item xs={12} md={6}>
                               <Controller
                                 name={`barterProduct[${index}].warehouseProductId`}
                                 control={control}
@@ -1104,31 +1112,39 @@ export default function AddPurchaseOrder({}) {
                                     sx={toneChipSx(tone)}
                                   />
                                 )}
-                                {getValues(`barterProduct[${index}].quantity`) > 0 && (
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
-                                    <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>
-                                      Transformasi
-                                    </Typography>
-                                    <IconButton
-                                      onClick={() => onSelectTransform(index)}
-                                      size='small'
-                                      aria-label='Transformasi Produk'
-                                      sx={{
-                                        border: `1px solid ${colors.border3}`,
-                                        backgroundColor: colors.background,
-                                        color: colors.foreground,
-                                        '&:hover': { backgroundColor: colors.background }
-                                      }}
-                                    >
-                                      <Icon icon='lucide:arrow-left-right' fontSize='1.125rem' />
-                                    </IconButton>
-                                  </Box>
-                                )}
+                              </Box>
+                            </Grid>
+                            <Grid item xs={6} md={1}>
+                              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>
+                                  Transformasi
+                                </Typography>
+                                <Box>
+                                  <IconButton
+                                    onClick={() => onSelectTransform(index)}
+                                    disabled={!(getValues(`barterProduct[${index}].quantity`) > 0)}
+                                    size='small'
+                                    aria-label='Transformasi Produk'
+                                    sx={{
+                                      border: `1px solid ${colors.border3}`,
+                                      backgroundColor: colors.background,
+                                      color: colors.foreground,
+                                      '&:hover': { backgroundColor: colors.background },
+                                      '&.Mui-disabled': {
+                                        borderColor: colors.border,
+                                        color: colors.mutedForeground,
+                                        opacity: 0.6
+                                      }
+                                    }}
+                                  >
+                                    <Icon icon='lucide:arrow-left-right' fontSize='1.125rem' />
+                                  </IconButton>
+                                </Box>
                               </Box>
                             </Grid>
                             <Grid
                               item
-                              xs={12}
+                              xs={6}
                               md={1}
                               sx={{ display: 'flex', justifyContent: { xs: 'flex-end', md: 'center' } }}
                             >

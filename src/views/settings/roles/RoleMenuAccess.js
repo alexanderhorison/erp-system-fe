@@ -9,7 +9,6 @@ import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
-import Grid from '@mui/material/Grid'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography from '@mui/material/Typography'
 
@@ -38,6 +37,28 @@ const countChipSx = allChecked => ({
     color: allChecked ? statusTokens.success.fg : colors.mutedForeground
   }
 })
+
+const MASONRY_COLUMNS = 2
+
+// Rough card height (header + section titles + rows) from the full item list — not from the
+// expanded state, so cards don't jump between columns when one is collapsed.
+const groupWeight = group =>
+  2 +
+  (group.items?.length || 0) +
+  (group.sections || []).reduce((sum, section) => sum + 1 + section.items.length, 0)
+
+// Walks the groups in order, always dropping the next one into the currently shortest column.
+const splitIntoColumns = groups => {
+  const columns = Array.from({ length: MASONRY_COLUMNS }, () => ({ items: [], weight: 0 }))
+
+  groups.forEach((group, order) => {
+    const target = columns.reduce((shortest, column) => (column.weight < shortest.weight ? column : shortest))
+    target.items.push({ group, order })
+    target.weight += groupWeight(group)
+  })
+
+  return columns.map(column => column.items)
+}
 
 const matchesQuery = (item, query) => item.name.toLowerCase().includes(query)
 
@@ -183,7 +204,7 @@ function GroupCard({ group, expanded, onToggleExpand, checkedMenuIds, checkedAct
  * -------------------------------------------------------------------------------------
  * "Menu Akses" card grid for the role add/edit page. Each `roleMenuGroups` entry
  * renders as a collapsible card with its own "All" checkbox and a `checked/total`
- * count chip; a search box filters which groups/items are visible (matched items
+ * count chip, laid out as a masonry grid; a search box filters which groups/items are visible (matched items
  * stay, groups with no match collapse out of view) and Buka Semua/Tutup Semua
  * expand or collapse every card at once.
  */
@@ -205,6 +226,8 @@ export default function RoleMenuAccess({ checkedMenuIds, setCheckedMenuIds, chec
       return flatItems.some(item => matchesQuery(item, query))
     })
   }, [query])
+
+  const masonryColumns = useMemo(() => splitIntoColumns(visibleGroups), [visibleGroups])
 
   const handleToggleExpand = key => () => {
     setExpandedKeys(prev => (prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]))
@@ -304,22 +327,32 @@ export default function RoleMenuAccess({ checkedMenuIds, setCheckedMenuIds, chec
 
       <Divider sx={{ mb: 4, borderColor: colors.border }} />
 
-      <Grid container spacing={4}>
-        {visibleGroups.map(group => (
-          <Grid item xs={12} md={6} key={group.key}>
-            <GroupCard
-              group={group}
-              expanded={expandedKeys.includes(group.key)}
-              onToggleExpand={handleToggleExpand(group.key)}
-              checkedMenuIds={checkedMenuIds || []}
-              checkedActions={checkedActions || []}
-              onToggle={handleToggle}
-              onToggleAction={handleToggleAction}
-              onToggleAll={handleToggleAll}
-            />
-          </Grid>
+      {/* Masonry: two flex columns, so a short card on the left lets the next card slide up
+          into the gap instead of leaving a blank row beside a tall one. Below `md` the column
+          wrappers use `display: contents` and `order` restores the original sequence. */}
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'flex-start', gap: 4 }}>
+        {masonryColumns.map((column, columnIndex) => (
+          <Box
+            key={columnIndex}
+            sx={{ display: { xs: 'contents', md: 'flex' }, flexDirection: 'column', flex: 1, minWidth: 0, gap: 4 }}
+          >
+            {column.map(({ group, order }) => (
+              <Box key={group.key} sx={{ order: { xs: order, md: 0 }, width: '100%' }}>
+                <GroupCard
+                  group={group}
+                  expanded={expandedKeys.includes(group.key)}
+                  onToggleExpand={handleToggleExpand(group.key)}
+                  checkedMenuIds={checkedMenuIds || []}
+                  checkedActions={checkedActions || []}
+                  onToggle={handleToggle}
+                  onToggleAction={handleToggleAction}
+                  onToggleAll={handleToggleAll}
+                />
+              </Box>
+            ))}
+          </Box>
         ))}
-      </Grid>
+      </Box>
     </Box>
   )
 }

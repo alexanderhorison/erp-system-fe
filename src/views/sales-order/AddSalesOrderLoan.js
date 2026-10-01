@@ -8,6 +8,7 @@ import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
+import InputAdornment from '@mui/material/InputAdornment'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material'
 import React, { useEffect, useMemo, useState } from 'react'
@@ -43,6 +44,24 @@ import DatePickerHighZIndexStyles from 'src/views/common/DatePickerHighZIndexSty
 
 // ** Design Tokens
 import { colors, layout, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
+
+// Calendar icon at the end of the date fields. Clicking it focuses the input, which opens the picker.
+const dateInputProps = {
+  endAdornment: (
+    <InputAdornment position='end'>
+      <Icon icon='tabler:calendar' fontSize='1.125rem' />
+    </InputAdornment>
+  )
+}
+
+// Customer rank pill next to the customer name (info tone).
+const rankChipSx = {
+  height: 22,
+  borderRadius: `${radii.full}px`,
+  border: `1px solid ${statusTokens.info.border}`,
+  backgroundColor: statusTokens.info.bg,
+  '& .MuiChip-label': { px: 2, fontSize: '0.6875rem', fontWeight: 500, color: statusTokens.info.fg }
+}
 
 const surfaceCardSx = {
   borderRadius: `${radii['3xl']}px`,
@@ -514,55 +533,37 @@ export default function AddSalesOrderLoan({}) {
                   <CardContent sx={{ p: 5 }}>
                     <Grid container spacing={4}>
                       <Grid item xs={12} sm={6}>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
-                          <Box sx={{ flex: 1 }}>
-                            <Controller
-                              name={`customerId`}
-                              control={control}
-                              rules={{ required: true }}
-                              render={({ field: { value, onChange } }) => (
-                                <CustomAutocomplete
-                                  options={masterCustomer}
-                                  id='autocomplete-custom'
-                                  getOptionLabel={option => option.name || ''}
-                                  onChange={(event, newValue) => {
-                                    onChange(+newValue?.id || '')
-                                    setCustomerData(newValue)
-                                  }}
-                                  renderInput={params => (
-                                    <CustomTextField
-                                      value={value}
-                                      {...params}
-                                      fullWidth
-                                      error={Boolean(errors?.customerId)}
-                                      {...(errors?.customerId && {
-                                        helperText: errors?.customerId.message
-                                      })}
-                                      label='Customer'
-                                    />
-                                  )}
+                        <Controller
+                          name={`customerId`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange } }) => (
+                            <CustomAutocomplete
+                              options={masterCustomer}
+                              footerAction={{ label: 'Tambah Customer Baru', onClick: handleAddCustomer }}
+                              id='autocomplete-custom'
+                              getOptionLabel={option => option.name || ''}
+                              onChange={(event, newValue) => {
+                                onChange(+newValue?.id || '')
+                                setCustomerData(newValue)
+                              }}
+                              renderInput={params => (
+                                <CustomTextField
+                                  value={value}
+                                  {...params}
+                                  fullWidth
+                                  error={Boolean(errors?.customerId)}
+                                  {...(errors?.customerId && {
+                                    helperText: errors?.customerId.message
+                                  })}
+                                  label='Customer'
                                 />
                               )}
                             />
-                          </Box>
-                          <IconButton
-                            onClick={handleAddCustomer}
-                            size='small'
-                            sx={{
-                              width: 40,
-                              height: 40,
-                              flexShrink: 0,
-                              borderRadius: `${radii.md}px`,
-                              backgroundColor: colors.foreground,
-                              color: colors.primaryForeground,
-                              '&:hover': { backgroundColor: colors.foreground }
-                            }}
-                          >
-                            <Icon fontSize='1.125rem' icon='tabler:plus' />
-                          </IconButton>
-                        </Box>
+                          )}
+                        />
                       </Grid>
-                      <Grid item xs={12} sm={6}>
+                      <Grid item xs={12} sm={6} sx={{ '& .react-datepicker-wrapper': { width: '100%' } }}>
                         <DatePicker
                           selected={date}
                           id='basic'
@@ -570,34 +571,36 @@ export default function AddSalesOrderLoan({}) {
                           popperClassName='high-z-index-popper'
                           onChange={date => setDate(date)}
                           fullWidth
-                          customInput={<PickersComponent label='Tanggal Jatuh Tempo' />}
+                          customInput={
+                            <PickersComponent fullWidth label='Tanggal Jatuh Tempo' InputProps={dateInputProps} />
+                          }
                         />
                       </Grid>
                       <Grid item xs={12} sm={6}>
-                        <Box>
-                          {customerData?.email && (
-                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-                              {customerData.email}
-                            </Typography>
-                          )}
-                          {customerData?.address && (
-                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-                              {customerData.address}
-                            </Typography>
-                          )}
-                          {customerData?.phoneNumber && (
-                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-                              {customerData.phoneNumber}
-                            </Typography>
-                          )}
-                          {customerData?.rankName && (
-                            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
-                              {customerData.rankName}
-                            </Typography>
-                          )}
-                        </Box>
+                        {customerData?.id && (
+                          <Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                              <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: colors.foreground }}>
+                                {customerData.name}
+                              </Typography>
+                              {customerData.rankName && (
+                                <Chip size='small' label={customerData.rankName} sx={rankChipSx} />
+                              )}
+                            </Box>
+                            {customerData.phoneNumber && (
+                              <Typography sx={{ mt: 1, fontSize: '0.9375rem', color: colors.foreground }}>
+                                {customerData.phoneNumber}
+                              </Typography>
+                            )}
+                            {customerData.address && (
+                              <Typography sx={{ mt: 1, fontSize: '0.75rem', color: colors.mutedForeground }}>
+                                {customerData.address}
+                              </Typography>
+                            )}
+                          </Box>
+                        )}
                       </Grid>
-                      <Grid item xs={12} sm={6}>
+                      <Grid item xs={12} sm={6} sx={{ '& .react-datepicker-wrapper': { width: '100%' } }}>
                         <DatePicker
                           selected={shippingDate}
                           id='basic'
@@ -605,7 +608,9 @@ export default function AddSalesOrderLoan({}) {
                           popperClassName='high-z-index-popper'
                           onChange={date => setShippingDate(date)}
                           fullWidth
-                          customInput={<PickersComponent label='Tanggal Pengiriman' />}
+                          customInput={
+                            <PickersComponent fullWidth label='Tanggal Pengiriman' InputProps={dateInputProps} />
+                          }
                         />
                       </Grid>
                     </Grid>
