@@ -36,7 +36,15 @@ export default function AppModal({
   cancelLabel = 'Cancel',
   submitIcon = 'tabler:device-floppy',
   loading = false,
-  loadingPage = false
+  loadingPage = false,
+  // ** Optional extras (all backwards compatible): content at the right of the header,
+  // a hidden close button, a node between Cancel and Submit, and a submit lock.
+  headerAction = null,
+  showClose = true,
+  footerExtra = null,
+  submitDisabled = false,
+  subtitle = null,
+  hideHeader = false
 }) {
   return (
     <Dialog
@@ -56,34 +64,45 @@ export default function AppModal({
     >
       <Box component='form' onSubmit={onSubmit} sx={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         {/* Header */}
-        <Box
-          sx={{
-            p: 4,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 2
-          }}
-        >
-          <Typography
+        {!hideHeader && (
+          <Box
             sx={{
-              fontSize: '1.25rem',
-              fontWeight: 600,
-              lineHeight: '24px',
-              color: colors.foreground
+              p: 4,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 2
             }}
           >
-            {title}
-          </Typography>
-          <IconButton
-            onClick={onClose}
-            size='small'
-            aria-label='close'
-            sx={{ color: colors.foreground, p: 1 }}
-          >
-            <Icon icon='tabler:x' fontSize='1rem' />
-          </IconButton>
-        </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography
+                sx={{
+                  fontSize: '1.25rem',
+                  fontWeight: 600,
+                  lineHeight: '24px',
+                  color: colors.foreground,
+                  minWidth: 0,
+                  overflowWrap: 'anywhere'
+                }}
+              >
+                {title}
+              </Typography>
+              {subtitle && (
+                <Typography sx={{ mt: 1, fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
+                  {subtitle}
+                </Typography>
+              )}
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+              {headerAction}
+              {showClose && (
+                <IconButton onClick={onClose} size='small' aria-label='close' sx={{ color: colors.foreground, p: 1 }}>
+                  <Icon icon='tabler:x' fontSize='1rem' />
+                </IconButton>
+              )}
+            </Box>
+          </Box>
+        )}
 
         {/* Body */}
         <Box sx={{ px: 5, py: 4, overflowY: 'auto' }}>
@@ -115,10 +134,11 @@ export default function AppModal({
             >
               {cancelLabel}
             </Button>
+            {footerExtra}
             <Button
               type='submit'
               variant='contained'
-              disabled={loading}
+              disabled={loading || submitDisabled}
               sx={actionButtonSx}
               startIcon={
                 loading ? (

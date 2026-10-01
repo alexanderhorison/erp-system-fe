@@ -164,9 +164,10 @@ export const validatePricePos = createAsyncThunk(
 // CHARGE PAYMENT
 export const chargePos = createAsyncThunk(
   'appProductPos/chargePos',
-  async ({ data, selectedPayment, subTotalPrice, onComplete }, { rejectWithValue }) => {
+  async ({ data, selectedPayment, subTotalPrice, onComplete, skipPrompt = false }, { rejectWithValue }) => {
     try {
       await swalConfirmationChargePos({
+        skipPrompt,
         title: `Pembayaran menggunakan ${selectedPayment?.label}?`,
         text: `Sebesar Rp. ${subTotalPrice || 0}`,
         width: 500,
@@ -243,11 +244,56 @@ export const fetchDetailPointOfSale = createAsyncThunk(
 
 // PRINT POS
 export const printPos = createAsyncThunk('appProductPos/printPos', async (params, { rejectWithValue }) => {
+  const code = typeof params === 'object' && params.code ? params.code : params
+  const isCopy = typeof params === 'object' ? params.isCopy : false
+  // The caller already asked for confirmation (PrintConfirmDialog), so print straight away
+  const skipPrompt = typeof params === 'object' ? Boolean(params.skipPrompt) : false
+
+  const performPrint = async () => {
+    // Validasi code
+    const codeString = typeof code === 'object' ? code.code || code.id : code
+    if (!codeString) {
+      throw new Error('Code tidak valid untuk print')
+    }
+
+    // Get printer data from localStorage
+    const printerPosData = localStorage.getItem('printerPos')
+    const printerPos = printerPosData ? JSON.parse(printerPosData) : null
+
+    // Prepare request body with printer info and isCopy flag
+    const requestBody = printerPos
+      ? {
+          ip: printerPos.ip,
+          name: printerPos.name,
+          isCopy: isCopy
+        }
+      : {
+          isCopy: isCopy
+        }
+
+    // Kirim request ke backend - BE yang handle semua printing logic
+    const response = await axios({
+      method: 'POST',
+      url: `/point-of-sale/print-v3/${codeString}`,
+      data: requestBody
+    })
+
+    swalNotifSuccess({ message: response?.data?.message || 'Struk berhasil dicetak!' })
+    return response.data
+  }
+
+  if (skipPrompt) {
+    try {
+      return await performPrint()
+    } catch (error) {
+      console.error('❌ Print Error:', error)
+      swalToastError({ label: 'Print', error })
+      return rejectWithValue([])
+    }
+  }
+
   // Show confirmation first
   return new Promise((resolve, reject) => {
-    const code = typeof params === 'object' && params.code ? params.code : params
-    const isCopy = typeof params === 'object' ? params.isCopy : false
-
     swalConfirmationOnly({
       title: 'Print Point of Sale',
       text: 'Apakah anda yakin ingin mencetak Point of Sale ini?',
@@ -257,36 +303,7 @@ export const printPos = createAsyncThunk('appProductPos/printPos', async (params
       cancelButtonText: 'Tidak',
       onClickYes: async () => {
         try {
-          // Validasi code
-          const codeString = typeof code === 'object' ? code.code || code.id : code
-          if (!codeString) {
-            throw new Error('Code tidak valid untuk print')
-          }
-
-          // Get printer data from localStorage
-          const printerPosData = localStorage.getItem('printerPos')
-          const printerPos = printerPosData ? JSON.parse(printerPosData) : null
-
-          // Prepare request body with printer info and isCopy flag
-          const requestBody = printerPos
-            ? {
-              ip: printerPos.ip,
-              name: printerPos.name,
-              isCopy: isCopy
-            }
-            : {
-              isCopy: isCopy
-            }
-
-          // Kirim request ke backend - BE yang handle semua printing logic
-          const response = await axios({
-            method: 'POST',
-            url: `/point-of-sale/print-v3/${codeString}`,
-            data: requestBody
-          })
-
-          swalNotifSuccess({ message: response?.data?.message || 'Struk berhasil dicetak!' })
-          resolve(response.data)
+          resolve(await performPrint())
         } catch (error) {
           console.error('❌ Print Error:', error)
           swalToastError({ label: 'Print', error })
@@ -405,8 +422,7 @@ export const appPosSlice = createSlice({
     errorDataPointOfSaleCustomer: false,
 
     loadingChargePos: false,
-    errorChargePos: false
-    ,
+    errorChargePos: false,
     loadingVoidPos: false,
     errorVoidPos: false,
 
@@ -528,11 +544,11 @@ export const appPosSlice = createSlice({
         state.errorChargePos = action.error.message
       })
       // VALIDATE PRICE POS
-      .addCase(validatePricePos.pending, (state) => {
+      .addCase(validatePricePos.pending, state => {
         state.loadingValidatePrice = true
         state.errorValidatePrice = false
       })
-      .addCase(validatePricePos.fulfilled, (state) => {
+      .addCase(validatePricePos.fulfilled, state => {
         state.loadingValidatePrice = false
       })
       .addCase(validatePricePos.rejected, (state, action) => {

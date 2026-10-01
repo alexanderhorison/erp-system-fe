@@ -3,47 +3,34 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
-
-// ** Styles Import
-import 'react-credit-cards/es/styles-compiled.css'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { CircularProgress, IconButton, Checkbox, FormControlLabel } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { fetchDetailProductPos, updateFavoriteProductPos } from 'src/store/apps/pos'
+import { fetchDetailProductPos } from 'src/store/apps/pos'
+import CustomTextField from 'src/@core/components/mui/text-field'
 import FormInputText from '../common/Form/FormInputText'
 import FormInputNumberPos from '../common/FormPos/FormInputNumberPos'
 import FormInputPricePos from '../common/FormPos/FormInputPricePos'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
-import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
 import { autoSavePos } from 'src/helpers/pos/autoSavePos'
 
-const CustomCloseButton = styled(IconButton)(({ theme }) => ({
-  top: 0,
-  right: 0,
-  color: 'grey.500',
-  position: 'absolute',
-  boxShadow: theme.shadows[2],
-  transform: 'translate(10px, -10px)',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: `${theme.palette.background.paper} !important`,
-  transition: 'transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out',
-  '&:hover': {
-    transform: 'translate(7px, -5px)'
-  }
-}))
+// ** Shared Components
+import AppModal from 'src/views/common/AppModal'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
+import { actionButtonSx } from 'src/views/common/actionButtonSx'
+import { FieldLabel, SubTotalField, UnitPicker } from './ProductModalParts'
+
+// ** Design Tokens
+import { colors, shadows } from 'src/configs/designTokens'
 
 const saveToLocalStorage = data => localStorage.setItem('listProductPos', JSON.stringify(data))
 
@@ -54,6 +41,7 @@ export default function ModalEditProductPos({ open, setOpen, data, updateProduct
   const [selected, setSelected] = useState(null)
   const [isFavorite, setIsFavorite] = useState(false)
   const [showNotes, setShowNotes] = useState(false)
+  const [openConfirmRemove, setOpenConfirmRemove] = useState(false)
 
   // SHCEMA YUP VALIDATION
   const schema = yup.object().shape({
@@ -138,22 +126,13 @@ export default function ModalEditProductPos({ open, setOpen, data, updateProduct
   }
 
   const handleRemoveProduct = () => {
-    swalConfirmationOnly({
-      title: 'Hapus Produk Dari Keranjang?',
-      text: 'Produk akan dihapus dari keranjang',
-      confirmButtonText: 'Ya, Hapus',
-      showCancelButton: true,
-      cancelButtonText: 'Tidak',
-      icon: 'warning',
-      onClickYes: () => {
-        removeProduct(data?.index)
-        const fields = localStorage.getItem('listProductPos')
-        const updatedFields = JSON.parse(fields).filter((item, index) => index !== data?.index)
-        localStorage.setItem('listProductPos', JSON.stringify(updatedFields))
-        autoSavePos()
-        setOpen(false)
-      }
-    })
+    removeProduct(data?.index)
+    const fields = localStorage.getItem('listProductPos')
+    const updatedFields = JSON.parse(fields).filter((item, index) => index !== data?.index)
+    localStorage.setItem('listProductPos', JSON.stringify(updatedFields))
+    autoSavePos()
+    setOpenConfirmRemove(false)
+    setOpen(false)
   }
 
   const tempQuantity = useCallback(() => {
@@ -171,216 +150,139 @@ export default function ModalEditProductPos({ open, setOpen, data, updateProduct
   }, [data?.id])
 
   return (
-    <Card>
-      <Dialog
-        fullWidth
+    <>
+      <AppModal
         open={open}
-        scroll='paper'
-        maxWidth='xl'
         onClose={handleClose}
-        sx={{
-          '& .MuiDialog-paper': {
-            overflow: 'hidden',
-            height: '30rem',
-            maxHeight: '30rem',
-            position: 'relative'
-          }
-        }}
+        onSubmit={handleSubmit(onSubmit)}
+        title={data?.productName}
+        size='xl'
+        loadingPage={loadingDetailProductPos}
+        submitDisabled={!selected}
+        showClose={false}
+        footerExtra={
+          <Button
+            variant='outlined'
+            color='error'
+            onClick={() => setOpenConfirmRemove(true)}
+            startIcon={<Icon icon='tabler:trash' fontSize='1rem' />}
+            sx={{
+              ...actionButtonSx,
+              color: colors.destructive,
+              borderColor: colors.destructive,
+              boxShadow: shadows.xs
+            }}
+          >
+            Hapus Dari Keranjang
+          </Button>
+        }
       >
-        {loadingDetailProductPos && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 10,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              bgcolor: 'rgba(255, 255, 255, 0.8)'
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        )}
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent
-            sx={{
-              pb: theme => `${theme.spacing(12)} !important`,
-              px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`],
-              overflowY: 'auto',
-              height: data?.description ? 'calc(30rem - 80px)' : 'calc(30rem - 60px)',
-              maxHeight: data?.description ? 'calc(30rem - 80px)' : 'calc(30rem - 60px)',
-              pt: theme => [`${theme.spacing(data?.description ? 20 : 16)} !important`, `${theme.spacing(data?.description ? 20 : 16)} !important`]
-            }}
-          >
-            {/* FIXED PRODUCT NAME HEADER WITHIN MODAL */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                zIndex: 2,
-                backgroundColor: 'background.paper',
-                borderBottom: '1px solid',
-                borderColor: 'divider',
-                px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`],
-                py: theme => `${theme.spacing(3)} !important`,
-                textAlign: 'center',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              <Typography
-                variant='h4'
-                sx={{
-                  margin: 0
-                }}
-              >
-                {data?.productName}
+        <Grid container spacing={4}>
+          {data?.description && (
+            <Grid item xs={12}>
+              <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>
+                ({data.description})
               </Typography>
-              {data?.description && (
-                <Typography
-                  variant='body2'
-                  sx={{
-                    margin: 0,
-                    color: 'text.secondary',
-                    fontStyle: 'italic'
-                  }}
-                >
-                  ({data?.description})
-                </Typography>
-              )}
-            </Box>
+            </Grid>
+          )}
 
-            <Grid container spacing={6}>
-              <Grid item xs={12}>
-                <Typography variant='h6' sx={{ marginBottom: 1 }}>
-                  PILIH UNIT {!selected?.unitName && <span style={{ color: 'red' }}>*</span>}
-                </Typography>
-                <Grid container spacing={6} alignItems={'center'}>
-                  {detailProductPos?.map((item, index) => (
-                    <Grid item key={index} xs={6}>
-                      <Button
-                        fullWidth
-                        variant={selected?.unitName === item.unitName ? 'contained' : 'outlined'}
-                        onClick={() => {
-                          setSelected({
-                            ...selected,
-                            unitName: item?.unitName,
-                            unitId: item?.unitId,
-                            qty: item?.quantity,
-                            quantity: '',
-                            price: item?.basePrice,
-                            MasterProductPriceId: item?.MasterProductPriceId
-                          })
-                        }}
-                      >
-                        {item.unitName}
-                      </Button>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Grid>
-              <Grid item xs={12}>
-                <Grid container spacing={6}>
-                  <Grid item xs={6}>
-                    <FormInputPricePos
-                      control={control}
-                      name='price'
-                      errors={errors}
-                      label='Harga'
-                      disabled={selected ? false : true}
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <FormInputNumberPos
-                      multiline
-                      rows={1}
-                      control={control}
-                      name='quantity'
-                      errors={errors}
-                      label={`Stock: ${tempQuantity()}`}
-                      max={tempQuantity()}
-                      disabled={tempQuantity() === 'Kosong' ? true : selected ? false : true}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant='body2' sx={{ color: 'text.secondary' }}>
-                      Sub Total: {priceFormatWIthCurrency(calculateSubTotal)}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={showNotes}
-                          onChange={e => setShowNotes(e.target.checked)}
-                          disabled={!selected}
-                        />
-                      }
-                      label='Notes'
-                    />
-                    {showNotes && (
-                      <Box sx={{ mt: 2 }}>
-                        <FormInputText
-                          multiline
-                          rows={3}
-                          control={control}
-                          name='notes'
-                          errors={errors}
-                          label='Notes'
-                          disabled={selected ? false : true}
-                        />
-                      </Box>
-                    )}
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
-          </DialogContent>
-          {/* FIXED BUTTONS AT BOTTOM */}
-          <DialogActions
-            sx={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              backgroundColor: 'background.paper',
-              borderTop: '1px solid',
-              borderColor: 'divider',
-              px: theme => [`${theme.spacing(3)} !important`, `${theme.spacing(6)} !important`], // Reduced horizontal padding
-              py: theme => `${theme.spacing(2)} !important`, // Reduced vertical padding
-              zIndex: 1
-            }}
-          >
-            <Grid container spacing={6}>
-              <Grid item xs={6}>
-                <Button
-                  fullWidth
-                  variant='outlined'
-                  color='secondary'
-                  onClick={handleRemoveProduct}
-                  startIcon={<Icon icon={'tabler:trash'} fontSize='1.25rem' />}
-                >
-                  Hapus Dari Keranjang
-                </Button>
-              </Grid>
-              <Grid item xs={6}>
-                <Button fullWidth type='submit' variant='contained' disabled={!selected ? true : false}>
-                  Save
-                </Button>
-              </Grid>
-            </Grid>
-          </DialogActions>
-        </form>
-      </Dialog>
-    </Card>
+          <Grid item xs={12}>
+            <FieldLabel>
+              Pilih Unit {!selected?.unitName && <span style={{ color: colors.destructive }}>*</span>}
+            </FieldLabel>
+            <UnitPicker
+              units={detailProductPos}
+              selectedUnitName={selected?.unitName}
+              onSelect={item =>
+                setSelected({
+                  ...selected,
+                  unitName: item?.unitName,
+                  unitId: item?.unitId,
+                  qty: item?.quantity,
+                  quantity: '',
+                  price: item?.basePrice,
+                  MasterProductPriceId: item?.MasterProductPriceId
+                })
+              }
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <CustomTextField fullWidth label='Stok' value={tempQuantity()} disabled keepDisabledField />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FieldLabel>Kuantiti</FieldLabel>
+            <FormInputNumberPos
+              control={control}
+              name='quantity'
+              errors={errors}
+              label1={null}
+              label={null}
+              max={tempQuantity()}
+              disabled={tempQuantity() === 'Kosong' ? true : selected ? false : true}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <FieldLabel>Harga</FieldLabel>
+            <FormInputPricePos
+              control={control}
+              name='price'
+              errors={errors}
+              label=''
+              disabled={selected ? false : true}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <SubTotalField value={priceFormatWIthCurrency(calculateSubTotal)} />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={
+                <Checkbox checked={showNotes} onChange={e => setShowNotes(e.target.checked)} disabled={!selected} />
+              }
+              label='Catatan'
+            />
+            {showNotes && (
+              <Box sx={{ mt: 1 }}>
+                <FormInputText
+                  multiline
+                  rows={3}
+                  control={control}
+                  name='notes'
+                  errors={errors}
+                  label=''
+                  disabled={selected ? false : true}
+                />
+              </Box>
+            )}
+          </Grid>
+        </Grid>
+      </AppModal>
+
+      <ConfirmDialog
+        open={openConfirmRemove}
+        onClose={() => setOpenConfirmRemove(false)}
+        onConfirm={handleRemoveProduct}
+        title='Hapus Produk dari Keranjang'
+        description={
+          <>
+            Apakah Anda yakin menghapus produk dari keranjang?
+            <Box component='span' sx={{ display: 'block', mt: 2 }}>
+              Produk:{' '}
+              <Box component='span' sx={{ fontWeight: 600, color: colors.foreground }}>
+                {data?.productName}
+              </Box>
+            </Box>
+          </>
+        }
+        confirmLabel='Ya'
+        cancelLabel='Tidak'
+        confirmIcon='tabler:check'
+        destructive={false}
+      />
+    </>
   )
 }

@@ -1,32 +1,31 @@
-import { Button, Card, Dialog, DialogContent, Grid, IconButton, Typography } from "@mui/material";
-import { Box } from "@mui/system";
-import Icon from 'src/@core/components/icon'
-import { styled } from '@mui/material/styles'
-import TableCustomerPos from "./TableCustomerPos";
-import CustomTextField from "src/@core/components/mui/text-field";
-import { useEffect, useState } from "react";
-import FormAddCustomerPos from "./FormAddCustomerPos";
-import { useDispatch, useSelector } from "react-redux";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from 'yup'
-import { addMasterDataCustomerPos, fetchCustomerPos } from "src/store/apps/pos";
-import { useDebounce } from "src/hooks/useDebounce";
+import { useEffect, useState } from 'react'
 
-const CustomCloseButton = styled(IconButton)(({ theme }) => ({
-  top: 0,
-  right: 0,
-  color: 'grey.500',
-  position: 'absolute',
-  boxShadow: theme.shadows[2],
-  transform: 'translate(10px, -10px)',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: `${theme.palette.background.paper} !important`,
-  transition: 'transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out',
-  '&:hover': {
-    transform: 'translate(7px, -5px)'
-  }
-}))
+// ** MUI Imports
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+
+// ** Third Party Imports
+import { useDispatch, useSelector } from 'react-redux'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+
+// ** Icon Imports
+import Icon from 'src/@core/components/icon'
+
+// ** Store & Hooks
+import { addMasterDataCustomerPos, fetchCustomerPos } from 'src/store/apps/pos'
+import { useDebounce } from 'src/hooks/useDebounce'
+
+// ** Components
+import AppModal from 'src/views/common/AppModal'
+import TableToolbar from 'src/views/common/TableToolbar'
+import { actionButtonSx } from 'src/views/common/actionButtonSx'
+import TableCustomerPos from './TableCustomerPos'
+import FormAddCustomerPos from './FormAddCustomerPos'
+
+// ** Design Tokens
+import { colors, shadows } from 'src/configs/designTokens'
 
 export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCustomerPos, selectedCustomer }) {
   const dispatch = useDispatch()
@@ -34,11 +33,9 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
   const { listCustomerPos: listDataCustomer, loadingListCustomerPos } = useSelector(state => state.pos)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 })
 
-
   const [listDataCustomerPos, setListDataCustomerPos] = useState([])
   const [searchText, setSearchText] = useState('')
   const debouncedSearch = useDebounce(searchText, 200)
-
 
   const [newCustomerField, setNewCustomerField] = useState(false)
 
@@ -63,7 +60,7 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
     // description: yup.string().optional(),
     // gender: yup.string().required('Jenis kelamin harus diisi'),
     // notes: yup.string().optional(),
-    rankId: yup.number().required('Rank harus dipilih'),
+    rankId: yup.number().required('Rank harus dipilih')
   })
 
   // FORM FOR CUSTOMER
@@ -74,13 +71,13 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
   } = useForm({
     values: {
       name: '',
-      rankId: 1, // default value at prod is Level 1
+      rankId: 1 // default value at prod is Level 1
     },
     mode: 'onChange',
     resolver: yupResolver(schema)
   })
 
-  const handleSaveNewCustomerPos = (data) => {
+  const handleSaveNewCustomerPos = data => {
     dispatch(addMasterDataCustomerPos({ data, setOpen, setSelectedCustomerPos }))
   }
 
@@ -90,11 +87,13 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
   }
 
   useEffect(() => {
-    dispatch(fetchCustomerPos({
-      page: paginationModel.page + 1,
-      pageSize: paginationModel.pageSize,
-      name: debouncedSearch
-    }))
+    dispatch(
+      fetchCustomerPos({
+        page: paginationModel.page + 1,
+        pageSize: paginationModel.pageSize,
+        name: debouncedSearch
+      })
+    )
   }, [paginationModel, debouncedSearch])
 
   useEffect(() => {
@@ -102,107 +101,87 @@ export default function ModalAddCustomerPos({ open, setOpen, data, setSelectedCu
   }, [listDataCustomer])
 
   return (
-    <Card>
-      <Dialog
-        fullWidth
-        open={open}
-        maxWidth='md'
-        scroll='body'
-        // Prevent closing modal when clicking outside (backdrop) or pressing Escape
-        onClose={(event, reason) => {
-          if (reason === 'backdropClick' || reason === 'escapeKeyDown') return
-          handleClose()
-        }}
-        disableEscapeKeyDown
-        sx={{ '& .MuiDialog-paper': { overflow: 'visible' }, zoom: 1 }}
-      >
-        <DialogContent
-          sx={{
-            height: "85vh"
-          }}
-        >
-          <CustomCloseButton onClick={handleClose}>
-            <Icon icon='tabler:x' fontSize='1.25rem' />
-          </CustomCloseButton>
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant='h4' sx={{}}>
-              {
-                newCustomerField ? 'Add New Customer' : 'Please Choose Customer'
-              }
-            </Typography>
+    <AppModal
+      open={open}
+      // Closing stays explicit (X / buttons): a stray backdrop click or Escape must not drop the form.
+      onClose={(event, reason) => {
+        if (reason === 'backdropClick' || reason === 'escapeKeyDown') return
+        handleClose()
+      }}
+      // The search box lives inside AppModal's <form>; Enter must not submit it natively.
+      onSubmit={event => event.preventDefault()}
+      title={newCustomerField ? 'Add New Customer' : 'Please Choose Customer'}
+      size='md'
+      showActions={false}
+    >
+      {newCustomerField ? (
+        <>
+          <FormAddCustomerPos open={newCustomerField} setOpen={setNewCustomerField} control={control} errors={errors} />
+          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end', gap: 4 }}>
+            <Button
+              variant='outlined'
+              color='secondary'
+              onClick={() => setNewCustomerField(false)}
+              startIcon={<Icon icon='tabler:x' fontSize='1rem' />}
+              sx={{ ...actionButtonSx, color: colors.foreground, borderColor: colors.border3, boxShadow: shadows.xs }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant='contained'
+              onClick={handleSubmit(handleSaveNewCustomerPos)}
+              startIcon={<Icon icon='tabler:device-floppy' fontSize='1rem' />}
+              sx={actionButtonSx}
+            >
+              Save
+            </Button>
           </Box>
-          <Grid container py={3} spacing={4}>
-            <Grid item xs={newCustomerField ? 6 : !selectedCustomer?.id ? 8 : 4}>
-              {newCustomerField ? (
-                <Button fullWidth variant='outlined' onClick={() => setNewCustomerField(false)}>
-                  Cancel
-                </Button>
-              ) : (
-                <CustomTextField
-                  fullWidth
-                  value={searchText}
-                  placeholder={'Cari ...'}
-                  onChange={e => handleSearch(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <Box sx={{ mr: 4, display: 'flex' }}>
-                        <Icon fontSize='1.25rem' icon='tabler:search' />
-                      </Box>
-                    ),
-                    endAdornment: (
-                      <IconButton size='small' title='Clear' aria-label='Clear' onClick={() => { }}>
-                        <Icon fontSize='1.25rem' icon='tabler:x' />
-                      </IconButton>
-                    )
-                  }}
-                  sx={{
-                    '& .MuiInputBase-root > svg': {
-                      mr: 2
-                    }
-                  }}
-                />
-              )}
-            </Grid>
-            {selectedCustomer?.id && !newCustomerField && (
-              <Grid item xs={4}>
-                {
-                  <Button fullWidth variant='contained' onClick={handleRemoveCustomer}>
-                    Remove Customer
+        </>
+      ) : (
+        <TableCustomerPos
+          dataCustomer={listDataCustomerPos}
+          setSelectedCustomerPos={setSelectedCustomerPos}
+          setOpen={setOpen}
+          paginationModel={paginationModel}
+          setPaginationModel={setPaginationModel}
+          loading={loadingListCustomerPos}
+          toolbar={
+            <TableToolbar
+              value={searchText}
+              placeholder='Cari customer'
+              onChange={e => handleSearch(e.target.value)}
+              clearSearch={() => handleSearch('')}
+              actions={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                  {selectedCustomer?.id && (
+                    <Button
+                      variant='outlined'
+                      color='secondary'
+                      onClick={handleRemoveCustomer}
+                      sx={{
+                        color: colors.foreground,
+                        borderColor: colors.border3,
+                        boxShadow: shadows.xs,
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      Remove Customer
+                    </Button>
+                  )}
+                  <Button
+                    variant='contained'
+                    onClick={handleAddNewCustomer}
+                    startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+                    sx={{ whiteSpace: 'nowrap' }}
+                  >
+                    Tambah Customer
                   </Button>
-                }
-              </Grid>
-            )}
-            <Grid item xs={newCustomerField ? 6 : 4}>
-              {
-                newCustomerField ? (
-                  <Button fullWidth variant='contained' onClick={handleSubmit(handleSaveNewCustomerPos)}>Save</Button>
-                ) : (
-                  <Button fullWidth variant='contained' onClick={() => handleAddNewCustomer()}>Add New Customer</Button>
-                )
+                </Box>
               }
-            </Grid>
-          </Grid>
-          {
-            newCustomerField ? (
-              <FormAddCustomerPos
-                open={newCustomerField}
-                setOpen={setNewCustomerField}
-                control={control}
-                errors={errors}
-              />
-            ) : (
-              <TableCustomerPos
-                dataCustomer={listDataCustomerPos}
-                setSelectedCustomerPos={setSelectedCustomerPos}
-                setOpen={setOpen}
-                paginationModel={paginationModel}
-                setPaginationModel={setPaginationModel}
-                loading={loadingListCustomerPos}
-              />
-            )
+            />
           }
-        </DialogContent>
-      </Dialog>
-    </Card>
+        />
+      )}
+    </AppModal>
   )
 }

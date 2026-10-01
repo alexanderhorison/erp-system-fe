@@ -1,12 +1,16 @@
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import { IconButton, Tooltip } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
+
+import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+
 import Icon from 'src/@core/components/icon'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import ModalEditProductPrice from './ModalEditProductPrice'
+
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
 
 export default function TableMasterProductPrice({ product }) {
   const { data } = useSelector(state => state.masterProductPrice)
@@ -30,79 +34,58 @@ export default function TableMasterProductPrice({ product }) {
       flex: 0.25,
       minWidth: 200,
       field: 'productName',
-      headerName: 'Product'
-    },
-    {
-      flex: 0.2,
-      minWidth: 180,
-      field: 'unitName',
-      headerName: 'Unit'
+      headerName: 'PRODUCT'
     },
     {
       flex: 0.15,
-      minWidth: 160,
-      align: 'left',
-      headerName: 'Base Price',
+      minWidth: 140,
+      field: 'unitName',
+      headerName: 'UNIT'
+    },
+    {
+      flex: 0.15,
+      minWidth: 140,
+      headerName: 'BASE PRICE',
       field: 'basePrice',
-      headerAlign: 'left',
       renderCell: ({ row }) => priceFormat(row.basePrice ?? 0)
     },
     {
       flex: 0.15,
-      minWidth: 160,
-      align: 'left',
-      headerName: 'Base Price Pos',
+      minWidth: 140,
+      headerName: 'BASE PRICE POS',
       field: 'basePricePos',
-      headerAlign: 'left',
       renderCell: ({ row }) => priceFormat(row.basePricePos ?? 0)
     },
     {
       flex: 0.15,
-      minWidth: 160,
-      align: 'left',
-      headerName: 'Master Modal',
+      minWidth: 140,
+      headerName: 'MASTER MODAL',
       field: 'masterModal',
-      headerAlign: 'left',
       renderCell: ({ row }) => priceFormat(row.masterModal ?? 0)
     },
     {
-      flex: 0.08,
-      minWidth: 80,
+      flex: 0.1,
+      minWidth: 100,
       sortable: false,
       field: 'actions',
-      headerName: 'Actions',
-      headerAlign: 'center',
-      align: 'center',
+      headerName: 'ACTION',
       renderCell: ({ row }) => (
-        <Tooltip>
-          <IconButton size='small' onClick={() => handleEditClick(row)}>
-            <Icon icon='tabler:edit' fontSize='1.2rem' />
-          </IconButton>
-        </Tooltip>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+          <Tooltip title='Edit'>
+            <IconButton size='small' onClick={() => handleEditClick(row)}>
+              <Icon icon='tabler:edit' fontSize='1.125rem' />
+            </IconButton>
+          </Tooltip>
+        </Box>
       )
     }
   ]
 
   return (
     <>
-      <Card>
-        <Box>
-          <DataGrid
-            columns={columns}
-            rows={rowsWithProductName?.slice(0, 10)}
-            autoHeight={true}
-            disableRowSelectionOnClick
-          />
-        </Box>
-      </Card>
+      <DataTable columns={columns} rows={rowsWithProductName?.slice(0, 10)} />
 
-      {openModal && selectedRow && (
-        <ModalEditProductPrice
-          open={openModal}
-          setOpen={setOpenModal}
-          row={selectedRow}
-        />
-      )}
+      {openModal && selectedRow && <ModalEditProductPrice open={openModal} setOpen={setOpenModal} row={selectedRow} />}
     </>
   )
 }

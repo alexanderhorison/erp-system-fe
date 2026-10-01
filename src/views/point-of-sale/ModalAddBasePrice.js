@@ -1,18 +1,21 @@
-import { Box, Button, Card, Dialog, DialogActions, DialogContent, Grid, Typography } from '@mui/material'
-import { CustomCloseButton } from '../pages/dialog-examples/DialogEditUserInfo'
-import Icon from 'src/@core/components/icon'
+import Typography from '@mui/material/Typography'
 import { useDispatch, useSelector } from 'react-redux'
 import { addMasterDataProductPrice } from 'src/store/apps/master/product-price'
-import { DataGrid } from '@mui/x-data-grid'
-import swal from 'src/pages/sweetalert'
+import { notifyError } from 'src/helpers/notify'
 import { fetchDetailProductPos } from 'src/store/apps/pos'
-import { environtmentColor } from 'src/helpers/getEnvirontmentColor'
+
+// ** Shared Components
+import AppModal from 'src/views/common/AppModal'
+import DataTable from 'src/views/common/DataTable'
+
+// ** Design Tokens
+import { colors } from 'src/configs/designTokens'
 
 export default function ModalAddBasePrice({ open, setOpen, product, setSelected }) {
   const dispatch = useDispatch()
   const handleClose = () => {
     const warehouse = JSON.parse(localStorage.getItem('warehousePos'))
-      dispatch(fetchDetailProductPos({ warehouseId: warehouse?.warehouseId, productId: product?.productId }))
+    dispatch(fetchDetailProductPos({ warehouseId: warehouse?.warehouseId, productId: product?.productId }))
     setSelected(null)
     setOpen(false)
   }
@@ -32,22 +35,22 @@ export default function ModalAddBasePrice({ open, setOpen, product, setSelected 
       minWidth: 200,
       editable: false,
       field: 'productName',
-      headerName: 'Product'
+      headerName: 'PRODUCT'
     },
     {
       flex: 0.15,
-      minWidth: 230,
+      minWidth: 140,
       field: 'unitName',
       editable: false,
-      headerName: 'Unit'
+      headerName: 'UNIT'
     },
     {
-      flex: 0.20,
-      minWidth: 200,
+      flex: 0.2,
+      minWidth: 160,
       editable: true,
       type: 'number',
       align: 'left',
-      headerName: 'Base Price Pos',
+      headerName: 'BASE PRICE POS',
       field: 'basePricePos',
       headerAlign: 'left'
     }
@@ -56,12 +59,7 @@ export default function ModalAddBasePrice({ open, setOpen, product, setSelected 
   const onChangeVal = (newRow, oldRow) => {
     if (newRow.basePricePos < 0) {
       newRow.basePricePos = 0
-      swal.fire({
-        icon: 'error',
-        title: 'Base price pos harus lebih dari 0',
-        timer: 2000,
-        confirmButtonColor: environtmentColor()
-      })
+      notifyError('Base price pos harus lebih dari 0')
     } else {
       dispatch(addMasterDataProductPrice(newRow))
     }
@@ -69,32 +67,24 @@ export default function ModalAddBasePrice({ open, setOpen, product, setSelected 
   }
 
   return (
-    <>
-      <Card>
-        <Dialog
-          fullWidth
-          open={open}
-          maxWidth='md'
-          scroll='body'
-          onClose={handleClose}
-          disableEnforceFocus
-          sx={{ '& .MuiDialog-paper': { overflow: 'visible' } }}
-        >
-          <DialogContent>
-            <CustomCloseButton onClick={handleClose}>
-              <Icon icon='tabler:x' fontSize='1.25rem' />
-            </CustomCloseButton>
-            <DataGrid
-              sx={{ marginTop: 2 }}
-              columns={columns}
-              rows={rowsWithProductName?.slice(0, 10)}
-              autoHeight={true}
-              processRowUpdate={onChangeVal}
-              experimentalFeatures={{ newEditingApi: true }}
-            />
-          </DialogContent>
-        </Dialog>
-      </Card>
-    </>
+    <AppModal
+      open={open}
+      onClose={handleClose}
+      // Cells are edited inline inside AppModal's <form>; Enter must only commit the cell.
+      onSubmit={event => event.preventDefault()}
+      title='Add Base Price'
+      size='md'
+      showActions={false}
+    >
+      <Typography sx={{ mb: 3, fontSize: '0.8125rem', color: colors.mutedForeground }}>
+        Klik dua kali pada Base Price Pos untuk mengubah nilainya
+      </Typography>
+      <DataTable
+        columns={columns}
+        rows={rowsWithProductName?.slice(0, 10)}
+        processRowUpdate={onChangeVal}
+        experimentalFeatures={{ newEditingApi: true }}
+      />
+    </AppModal>
   )
 }

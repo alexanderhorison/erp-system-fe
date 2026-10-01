@@ -27,6 +27,7 @@ export default function FormInputPricePos({
   fullWidth,
   multiline = false,
   rows = 1,
+  keepDisabledField = false,
 }) {
   return (
     <Controller
@@ -62,6 +63,7 @@ export default function FormInputPricePos({
             }, 0);
           }}
           disabled={disabled}
+          keepDisabledField={keepDisabledField}
           error={Boolean(errors[name])}
           aria-describedby={`validation-schema-${name}`}
           {...(errors[name] && { helperText: errors[name].message })}

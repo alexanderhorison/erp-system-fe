@@ -1,45 +1,24 @@
 import React, { useEffect, useState } from 'react'
-import {
-  Card,
-  CardContent,
-  Button,
-  Typography,
-  Grid,
-  Box,
-  CircularProgress,
-  Alert,
-  Container,
-  IconButton,
-  Tooltip,
-  useTheme
-} from '@mui/material'
+import { Alert, Avatar, Box, Button, CircularProgress, IconButton, Tooltip, Typography } from '@mui/material'
 import { useRouter } from 'next/router'
 import axios from 'src/configs/axios'
 import { toast } from 'sonner'
 import Icon from 'src/@core/components/icon'
 import { UseAuth } from 'src/hooks/useAuth'
 import swal from 'src/pages/sweetalert'
+import { notifyInfo } from 'src/helpers/notify'
 import { environtmentColor } from 'src/helpers/getEnvirontmentColor'
+import Logo from 'src/icons/logo'
+import { PosClock } from 'src/views/point-of-sale/DetailUserPos'
+import { colors, radii, shadows, status as statusTokens, stone } from 'src/configs/designTokens'
 
 const PointOfSaleShiftPage = () => {
   const router = useRouter()
   const auth = UseAuth()
-  const theme = useTheme()
   const [shifts, setShifts] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedShift, setSelectedShift] = useState(null)
   const [starting, setStarting] = useState(false)
-
-  // Get current time
-  const [currentTime, setCurrentTime] = useState(new Date())
-
-  // Update time every second
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
 
   // Disable scroll
   useEffect(() => {
@@ -74,7 +53,7 @@ const PointOfSaleShiftPage = () => {
       } else {
         console.error('Error checking current shift:', error)
         toast.error('Gagal memeriksa shift aktif')
-        setLoading(false)  // Ensure loading is set to false to prevent stuck
+        setLoading(false) // Ensure loading is set to false to prevent stuck
       }
     }
   }
@@ -132,15 +111,7 @@ const PointOfSaleShiftPage = () => {
       })
 
       if (result.isConfirmed) {
-        swal.fire({
-          title: 'Logging out...',
-          text: 'Mohon tunggu sebentar',
-          icon: 'info',
-          showConfirmButton: false,
-          timer: 1000,
-          timerProgressBar: true,
-          confirmButtonColor: environtmentColor()
-        })
+        notifyInfo('Logging out...')
 
         setTimeout(() => {
           auth.logout()
@@ -155,14 +126,6 @@ const PointOfSaleShiftPage = () => {
     if (!time) return ''
     // Time format is HH:mm:ss, we only need HH:mm
     return time.substring(0, 5)
-  }
-
-  const formatCurrentTime = () => {
-    return currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-  }
-
-  const formatCurrentDate = () => {
-    return currentTime.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
   }
 
   if (loading) {
@@ -189,218 +152,231 @@ const PointOfSaleShiftPage = () => {
       sx={{
         height: '100vh',
         overflow: 'hidden',
-        bgcolor: 'background.default',
+        bgcolor: stone[100],
         display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        py: 4
+        flexDirection: 'column'
       }}
     >
-      {/* Header with User Info and Logout */}
-      <Container maxWidth='lg' sx={{ mb: 3 }}>
-        <Card sx={{ border: 1, borderColor: 'divider' }}>
-          <CardContent>
-            <Grid container alignItems='center' minHeight={60}>
-              {/* Left: User Info */}
-              <Grid item xs={4}>
-                <Box display='flex' alignItems='center' gap={2} justifyContent='flex-start'>
-                  <Box
-                    sx={{
-                      width: 50,
-                      height: 50,
-                      borderRadius: '50%',
-                      bgcolor: 'primary.main',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontWeight: 700,
-                      fontSize: '1.2rem'
-                    }}
-                  >
-                    {auth.user?.name?.charAt(0).toUpperCase() || 'U'}
-                  </Box>
-                  <Box>
-                    <Typography variant='h6' fontWeight={600} color='text.primary'>
-                      {auth.user?.name || 'User'}
-                    </Typography>
-                    <Box display='flex' alignItems='center' gap={1}>
-                      <Typography variant='body2' color='text.secondary' fontWeight={500}>
-                        {auth.user?.Role?.name || 'Cashier'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-              </Grid>
-
-              {/* Center: Date & Time */}
-              <Grid item xs={4}>
-                <Box textAlign='center'>
-                  <Typography variant='body2' color='text.secondary' fontWeight={500}>
-                    {formatCurrentDate()}
-                  </Typography>
-                  <Box display='flex' alignItems='center' justifyContent='center' gap={0.5} mt={0.5}>
-                    <Icon icon='mdi:clock-outline' fontSize={18} color={theme.palette.primary.main} />
-                    <Typography variant='h6' fontWeight={600} color='primary.main'>
-                      {formatCurrentTime()}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
-
-              {/* Right: Logout Button */}
-              <Grid item xs={4}>
-                <Box display='flex' justifyContent='flex-end'>
-                  <Tooltip title='Logout'>
-                    <IconButton
-                      onClick={handleLogoutClick}
-                      sx={{
-                        border: 2,
-                        borderColor: 'error.main',
-                        color: 'error.main',
-                        '&:hover': {
-                          borderColor: 'error.dark',
-                          bgcolor: 'error.light',
-                          transform: 'scale(1.05)'
-                        },
-                        transition: 'all 0.2s'
-                      }}
-                    >
-                      <Icon icon='mdi:logout' fontSize={24} />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-      </Container>
-
-      <Container maxWidth='lg'>
-        <Box sx={{ width: '100%' }}>
-          {/* Title Section */}
-          <Box textAlign='center' mb={4}>
-            <Box
+      {/* Top bar: brand, clock, user and logout */}
+      <Box
+        component='header'
+        sx={{
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 3,
+          px: { xs: 3, md: 5 },
+          py: 2,
+          borderBottom: `1px solid ${colors.border}`,
+          backgroundColor: colors.background
+        }}
+      >
+        <Logo width={36} height={36} style={{ flexShrink: 0 }} />
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <PosClock />
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              pl: 1,
+              pr: 4,
+              height: 40,
+              borderRadius: 9999,
+              border: `1px solid ${colors.border3}`,
+              backgroundColor: stone[50],
+              boxShadow: shadows.xs
+            }}
+          >
+            <Avatar
               sx={{
-                width: 80,
-                height: 80,
-                borderRadius: '50%',
-                bgcolor: 'grey.100',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                mb: 2
+                width: 28,
+                height: 28,
+                fontSize: '0.6875rem',
+                fontWeight: 600,
+                color: 'primary.contrastText',
+                backgroundColor: 'primary.main'
               }}
             >
-              <Icon icon='mdi:clock-check-outline' fontSize={50} color='primary' />
-            </Box>
-            <Typography variant='h4' fontWeight={700} color='text.primary' sx={{ mb: 1 }}>
+              {auth.user?.name
+                ?.split(' ')
+                .map(word => word[0])
+                .join('')
+                .toUpperCase()
+                .slice(0, 2) || 'U'}
+            </Avatar>
+            <Typography
+              sx={{
+                display: { xs: 'none', sm: 'block' },
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                color: colors.foreground,
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {auth.user?.name || 'User'}{' '}
+              <Box component='span' sx={{ fontWeight: 400, color: colors.mutedForeground }}>
+                {auth.user?.Role?.name || 'Cashier'}
+              </Box>
+            </Typography>
+          </Box>
+          <Tooltip title='Logout'>
+            <IconButton
+              onClick={handleLogoutClick}
+              size='small'
+              aria-label='Logout'
+              sx={{
+                width: 40,
+                height: 40,
+                color: colors.destructive,
+                border: `1px solid ${colors.destructive}`,
+                '&:hover': { backgroundColor: statusTokens.danger.bg }
+              }}
+            >
+              <Icon icon='tabler:logout' fontSize='1.125rem' />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Box>
+
+      {/* Shift selection */}
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: 'auto',
+          display: 'flex',
+          justifyContent: 'center',
+          p: { xs: 3, md: 6 }
+        }}
+      >
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: 520,
+            height: 'fit-content',
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 4,
+            borderRadius: `${radii['3xl']}px`,
+            border: `1px solid ${colors.border}`,
+            boxShadow: shadows.xs,
+            backgroundColor: colors.background
+          }}
+        >
+          <Box sx={{ textAlign: 'center' }}>
+            <Icon icon='tabler:clock-hour-4' fontSize='2.25rem' style={{ color: colors.foreground }} />
+            <Typography sx={{ mt: 1, fontSize: '0.9375rem', fontWeight: 600, color: colors.foreground }}>
               Pilih Shift Anda
             </Typography>
-            <Typography variant='body1' color='text.secondary'>
+            <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground }}>
               Silakan pilih shift untuk memulai transaksi
             </Typography>
           </Box>
 
-          {/* Shift Selection Cards */}
           {shifts.length === 0 ? (
-            <Card sx={{ maxWidth: 600, mx: 'auto', border: 1, borderColor: 'divider' }}>
-              <CardContent>
-                <Alert severity='warning'>Tidak ada shift yang tersedia. Silakan hubungi administrator.</Alert>
-              </CardContent>
-            </Card>
+            <Alert severity='warning'>Tidak ada shift yang tersedia. Silakan hubungi administrator.</Alert>
           ) : (
             <>
-              <Grid container spacing={3} justifyContent='center' sx={{ mb: 4 }}>
-                {shifts.map(shift => (
-                  <Grid item xs={12} sm={6} md={4} key={shift.id}>
-                    <Card
-                      sx={{
-                        cursor: 'pointer',
-                        border: 2,
-                        borderColor: selectedShift?.id === shift.id ? 'primary.main' : 'divider',
-                        bgcolor: selectedShift?.id === shift.id ? 'primary.lighter' : 'background.paper',
-                        boxShadow: selectedShift?.id === shift.id ? 3 : 0,
-                        transition: 'all 0.2s ease-in-out',
-                        '&:hover': {
-                          borderColor: 'primary.main',
-                          transform: 'translateY(-4px)',
-                          boxShadow: 3
-                        },
-                        height: '100%'
-                      }}
-                      onClick={() => setSelectedShift(shift)}
-                    >
-                      <CardContent>
-                        <Box display='flex' flexDirection='column' alignItems='center' textAlign='center' py={2}>
-                          <Box
-                            sx={{
-                              width: 80,
-                              height: 80,
-                              borderRadius: '50%',
-                              bgcolor: selectedShift?.id === shift.id ? 'primary.main' : 'grey.100',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              mb: 2,
-                              transition: 'all 0.2s ease-in-out'
-                            }}
-                          >
-                            <Icon
-                              icon='mdi:clock-time-four-outline'
-                              fontSize={48}
-                              color={selectedShift?.id === shift.id ? 'white' : 'grey'}
-                            />
-                          </Box>
-                          <Typography
-                            variant='h5'
-                            fontWeight={600}
-                            sx={{
-                              mb: 1,
-                              color: selectedShift?.id === shift.id ? 'primary.main' : 'text.primary'
-                            }}
-                          >
-                            {shift.name}
-                          </Typography>
-                          <Typography
-                            variant='h6'
-                            color={selectedShift?.id === shift.id ? 'primary.dark' : 'text.secondary'}
-                            fontWeight={500}
-                          >
-                            {formatTime(shift.startShift)} - {formatTime(shift.endShift)}
-                          </Typography>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' },
+                  gap: 3
+                }}
+              >
+                {shifts.map(shift => {
+                  const selected = selectedShift?.id === shift.id
 
-              {/* Action Button */}
-              <Box display='flex' justifyContent='center' sx={{ pb: 4 }}>
-                <Button
-                  variant='contained'
-                  onClick={handleStartShift}
-                  disabled={!selectedShift || starting}
-                  startIcon={
-                    starting ? <CircularProgress size={20} color='inherit' /> : <Icon icon='mdi:check-circle' />
-                  }
-                  size='large'
-                  sx={{
-                    minWidth: { xs: '100%', sm: 300 },
-                    py: 1.5,
-                    fontSize: '1rem',
-                    fontWeight: 600,
-                    textTransform: 'none'
-                  }}
-                >
-                  {starting ? 'Memulai Shift...' : 'Mulai Shift'}
-                </Button>
+                  return (
+                    <Box
+                      key={shift.id}
+                      role='radio'
+                      aria-checked={selected}
+                      tabIndex={0}
+                      onClick={() => setSelectedShift(shift)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' || e.key === ' ') setSelectedShift(shift)
+                      }}
+                      sx={{
+                        position: 'relative',
+                        p: 3,
+                        cursor: 'pointer',
+                        borderRadius: `${radii['3xl']}px`,
+                        border: `1px solid ${selected ? colors.foreground : colors.border}`,
+                        backgroundColor: selected ? stone[50] : colors.background,
+                        transition: 'border-color 0.15s',
+                        '&:hover': { borderColor: colors.border3 },
+                        '&:focus-visible': { outline: `2px solid ${colors.border3}`, outlineOffset: 2 }
+                      }}
+                    >
+                      {/* Radio mark */}
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 12,
+                          right: 12,
+                          width: 14,
+                          height: 14,
+                          borderRadius: '50%',
+                          border: `1px solid ${selected ? colors.foreground : colors.border3}`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        {selected && (
+                          <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: colors.foreground }} />
+                        )}
+                      </Box>
+                      <Box
+                        sx={{
+                          width: 28,
+                          height: 28,
+                          mb: 2,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: '50%',
+                          border: `1px solid ${colors.border}`,
+                          color: colors.foreground
+                        }}
+                      >
+                        <Icon icon='tabler:clock-hour-4' fontSize='0.875rem' />
+                      </Box>
+                      <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: colors.foreground }}>
+                        {shift.name}
+                      </Typography>
+                      <Typography sx={{ fontSize: '0.6875rem', color: colors.mutedForeground }}>
+                        {formatTime(shift.startShift)}-{formatTime(shift.endShift)}
+                      </Typography>
+                    </Box>
+                  )
+                })}
               </Box>
+
+              <Button
+                variant='contained'
+                fullWidth
+                onClick={handleStartShift}
+                disabled={!selectedShift || starting}
+                startIcon={
+                  starting ? (
+                    <CircularProgress size={16} color='inherit' />
+                  ) : (
+                    <Icon icon='tabler:checkbox' fontSize='1rem' />
+                  )
+                }
+                sx={{ height: 44 }}
+              >
+                {starting ? 'Memulai Shift...' : 'Mulai Shift'}
+              </Button>
             </>
           )}
         </Box>
-      </Container>
+      </Box>
     </Box>
   )
 }

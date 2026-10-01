@@ -1,11 +1,11 @@
-import { Box, Card, IconButton, Typography } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useRouter } from 'next/router'
+
+import { Box, Button, IconButton, Typography } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 import HandleSearh from 'src/helpers/handleSearch'
-import { useRouter } from 'next/router'
-import TableHeaderMasterTransformation from './TableHeaderMasterTransformation'
+
 import ModalAddMasterTransformation from './ModalAddMasterTransformation'
 import {
   deleteMasterDataTransformation,
@@ -14,13 +14,20 @@ import {
 } from 'src/store/apps/master/transformation'
 import { fetchMasterDataUnit } from 'src/store/apps/master/unit'
 
-const RowOptions = ({ id, name, productId }) => {
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+import TableToolbar from 'src/views/common/TableToolbar'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
+
+const RowOptions = ({ id, name, code, productId }) => {
   const dispatch = useDispatch()
-  const router = useRouter()
   const [openModalEdit, setOpenModalEdit] = useState(false)
+  const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
+  const { loadingDelete } = useSelector(state => state.masterTransformation)
 
   const handleDelete = () => {
     dispatch(deleteMasterDataTransformation({ id, name, productId }))
+    setOpenConfirmDelete(false)
   }
 
   const handleEdit = () => {
@@ -30,20 +37,25 @@ const RowOptions = ({ id, name, productId }) => {
 
   return (
     <>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+        <IconButton onClick={handleEdit} size='small'>
+          <Icon icon='tabler:edit' fontSize='1.125rem' />
+        </IconButton>
+        <IconButton onClick={() => setOpenConfirmDelete(true)} size='small' sx={{ color: 'error.main' }}>
+          <Icon icon='tabler:trash' fontSize='1.125rem' />
+        </IconButton>
+      </Box>
       {openModalEdit && (
         <ModalAddMasterTransformation open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
       )}
-      <Box sx={{ display: 'flex', alignItems: 'center', ml: -3 }}>
-        {/* <IconButton onClick={handlePageTransformation}>
-          <Icon icon='tabler:eye' />
-        </IconButton> */}
-        <IconButton onClick={handleEdit}>
-          <Icon icon='tabler:edit' />
-        </IconButton>
-        <IconButton onClick={handleDelete}>
-          <Icon icon='tabler:trash' />
-        </IconButton>
-      </Box>
+      <ConfirmDialog
+        open={openConfirmDelete}
+        onClose={() => setOpenConfirmDelete(false)}
+        onConfirm={handleDelete}
+        title='Hapus Transformasi'
+        itemName={code}
+        loading={loadingDelete}
+      />
     </>
   )
 }
@@ -54,7 +66,7 @@ export default function TableMasterTransformation({ product }) {
 
   const [searchText, setSearchText] = useState('')
   const [filteredData, setFilteredData] = useState([])
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 100 })
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
 
   const { data } = useSelector(state => state.masterTransformation)
 
@@ -77,7 +89,7 @@ export default function TableMasterTransformation({ product }) {
   }, [data])
 
   return (
-    <Card>
+    <>
       {openModalAdd && (
         <ModalAddMasterTransformation
           open={openModalAdd}
@@ -86,68 +98,56 @@ export default function TableMasterTransformation({ product }) {
           typeModal={'ADD'}
         />
       )}
-      <DataGrid
-        autoHeight
+      <DataTable
+        itemLabel='transformasi'
+        toolbar={
+          <TableToolbar
+            value={searchText}
+            placeholder='Cari transformasi produk'
+            onChange={event => handleSearch(event.target.value)}
+            clearSearch={() => handleSearch('')}
+            actions={
+              <Button
+                variant='contained'
+                onClick={() => setOpenModalAdd(true)}
+                startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+              >
+                Tambahkan Transformasi
+              </Button>
+            }
+          />
+        }
         columns={[
           {
-            flex: 0.1,
-            minWidth: 120,
+            flex: 0.3,
+            minWidth: 160,
             field: 'code',
-            headerName: 'Kode Transformasi',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.code}
-                </Typography>
-              )
-            }
+            headerName: 'KODE TRANSFORMASI',
+            renderCell: params => <Typography variant='body2'>{params.row.code}</Typography>
           },
           {
-            flex: 0.1,
-            minWidth: 120,
+            flex: 0.5,
+            minWidth: 200,
             field: 'info',
-            headerName: 'Perubahan Transformasi',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.info}
-                </Typography>
-              )
-            }
+            headerName: 'PERUBAHAN TRANSFORMASI',
+            renderCell: params => <Typography variant='body2'>{params.row.info}</Typography>
           },
           {
-            flex: 0.1,
+            flex: 0.15,
             minWidth: 120,
             sortable: false,
             field: 'actions',
-            headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions id={row.id} name={row.name} productId={row.masterProductId} />
+            headerName: 'ACTION',
+            renderCell: ({ row }) => (
+              <RowOptions id={row.id} name={row.name} code={row.code} productId={row.masterProductId} />
+            )
           }
         ]}
-        pageSizeOptions={[5, 10, 25, 50]}
+        pageSizeOptions={[25, 50, 100]}
         paginationModel={paginationModel}
-        slots={{ toolbar: TableHeaderMasterTransformation }}
         onPaginationModelChange={setPaginationModel}
         rows={filteredData}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          }
-        }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          toolbar: {
-            value: searchText,
-            placeholder: 'Cari transformasi produk',
-            clearSearch: () => handleSearch(''),
-            onChange: event => handleSearch(event.target.value),
-            openModalAdd: setOpenModalAdd
-          }
-        }}
       />
-    </Card>
+    </>
   )
 }

@@ -1,19 +1,27 @@
-import { Box, Card, IconButton, Typography } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
+import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+
 import Icon from 'src/@core/components/icon'
 import { autoSavePos } from 'src/helpers/pos/autoSavePos'
 import { priceFormat } from 'src/helpers/priceFormatter'
+
+// ** Shared Components
+import DataTable from 'src/views/common/DataTable'
+
+// ** Design Tokens
+import { colors } from 'src/configs/designTokens'
 
 const RowOptions = ({ row, setSelectedCustomerPos, setOpen }) => {
   const dataCustomer = {
     id: row.id,
     name: row.name,
-    email: row.email || "",
+    email: row.email || '',
     totalPos: row.totalPos || 0,
     totalAmountPos: row.totalAmountPos || 0,
     totalAmountPaidPos: row.totalAmountPaidPos || 0,
     totalAmountDebtPos: row.totalAmountDebtPos || 0,
-    lastDateDebtPos: row.lastDateDebtPos || "",
+    lastDateDebtPos: row.lastDateDebtPos || ''
   }
   const handleAddCustomerPos = () => {
     setSelectedCustomerPos(dataCustomer)
@@ -23,13 +31,11 @@ const RowOptions = ({ row, setSelectedCustomerPos, setOpen }) => {
   }
 
   return (
-    <>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={handleAddCustomerPos}>
-          <Icon icon='tabler:plus' />
-        </IconButton>
-      </Box>
-    </>
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+      <IconButton onClick={handleAddCustomerPos} size='small' aria-label='Pilih customer'>
+        <Icon icon='tabler:plus' fontSize='1.125rem' />
+      </IconButton>
+    </Box>
   )
 }
 
@@ -40,79 +46,67 @@ export default function TableCustomerPos({
   paginationModel,
   setPaginationModel,
   loading,
+  toolbar
 }) {
   return (
-    <Card>
-      <DataGrid
-        autoHeight
-        loading={loading}
-        columns={[
-          {
-            flex: 0.1,
-            minWidth: 200,
-            field: 'name',
-            headerName: 'Name',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {params.row.name}
+    <DataTable
+      itemLabel='customers'
+      toolbar={toolbar}
+      loading={loading}
+      columns={[
+        {
+          flex: 0.3,
+          minWidth: 160,
+          field: 'name',
+          headerName: 'Name'
+        },
+        {
+          flex: 0.35,
+          minWidth: 200,
+          field: 'email',
+          headerName: 'Email & Phone Number',
+          sortable: false,
+          renderCell: params => {
+            return (
+              <Box sx={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3 }}>
+                <Typography noWrap sx={{ fontSize: '0.875rem', color: colors.foreground }}>
+                  {params.row?.email || '-'}
                 </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.2,
-            minWidth: 120,
-            field: 'email',
-            headerName: 'Email & Phone',
-            renderCell: params => {
-              return (
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                    {params.row?.email || "-"}
-                  </Typography>
-                  <Typography noWrap variant='caption' sx={{ textAlign: 'center' }}>
-                    {params.row?.phoneNumber || "-"}
-                  </Typography>
-                </Box>
-
-              )
-            }
-          },
-          {
-            flex: 0.2,
-            minWidth: 120,
-            field: 'totalAmountDebtPos',
-            headerName: 'Hutang',
-            renderCell: params => {
-              return (
-                <Typography variant='body2' sx={{ color: 'text.primary' }}>
-                  {priceFormat(params.row?.totalAmountDebtPos || 0)}
+                <Typography noWrap sx={{ fontSize: '0.75rem', color: colors.mutedForeground }}>
+                  {params.row?.phoneNumber || '-'}
                 </Typography>
-              )
-            }
-          },
-          {
-            flex: 0.01,
-            minWidth: 120,
-            sortable: false,
-            field: 'actions',
-            headerName: 'Actions',
-            renderCell: ({ row }) => <RowOptions row={row} setSelectedCustomerPos={setSelectedCustomerPos} setOpen={setOpen} />
+              </Box>
+            )
           }
-        ]}
-        pageSizeOptions={[5, 10,]}
-        paginationMode='server'
-        rowCount={dataCustomer?.pagination?.total || 0}
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        rows={dataCustomer?.data || []}
-        sx={{
-          '& .MuiSvgIcon-root': {
-            fontSize: '1.125rem'
-          }
-        }}
-      />
-    </Card>
+        },
+        {
+          flex: 0.2,
+          minWidth: 110,
+          field: 'totalAmountDebtPos',
+          headerName: 'Hutang',
+          renderCell: params => (
+            <Typography sx={{ fontSize: '0.875rem', color: colors.foreground }}>
+              {params.row?.totalAmountDebtPos ? priceFormat(params.row.totalAmountDebtPos) : '-'}
+            </Typography>
+          )
+        },
+        {
+          flex: 0.15,
+          minWidth: 90,
+          sortable: false,
+          field: 'actions',
+          headerName: 'Action',
+          renderCell: ({ row }) => (
+            <RowOptions row={row} setSelectedCustomerPos={setSelectedCustomerPos} setOpen={setOpen} />
+          )
+        }
+      ]}
+      pageSizeOptions={[5, 10]}
+      paginationMode='server'
+      rowCount={dataCustomer?.pagination?.total || 0}
+      paginationModel={paginationModel}
+      onPaginationModelChange={setPaginationModel}
+      rows={dataCustomer?.data || []}
+    />
   )
 }

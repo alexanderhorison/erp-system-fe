@@ -2,28 +2,21 @@
 import { useState, useEffect, useMemo } from 'react'
 
 // ** MUI Imports
-import {
-  Box,
-  Button,
-  Checkbox,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  Paper
-} from '@mui/material'
+import Box from '@mui/material/Box'
+import Checkbox from '@mui/material/Checkbox'
+import Typography from '@mui/material/Typography'
+
 import Icon from 'src/@core/components/icon'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
+
+// ** Shared Components
+import AppModal from 'src/views/common/AppModal'
+import DataTable from 'src/views/common/DataTable'
+import HeaderedCard from 'src/views/common/HeaderedCard'
+import StatusChip from 'src/views/common/StatusChip'
+
+// ** Design Tokens
+import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
 
 /**
  * ModalPriceValidation
@@ -51,6 +44,7 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
   // key = cartIndex (index posisi item di cart), value = boolean (apply backend price)
   // Menggunakan cartIndex (bukan warehouseProductId) agar item duplikat tidak saling override
   const [applyMap, setApplyMap] = useState({})
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 })
 
   // Default: centang semua item yang harganya berbeda (isPriceDifferent)
   useEffect(() => {
@@ -106,335 +100,270 @@ export default function ModalPriceValidation({ open, onClose, onConfirm, validat
 
   if (validationResult.length === 0) return null
 
+  const summaryRows = [
+    { label: 'Sub Total Keranjang', value: priceFormatWIthCurrency(impact.cartTotal) },
+    { label: 'Subtotal Setelah Apply', value: priceFormatWIthCurrency(impact.afterApplyTotal) }
+  ]
+
+  const rows = validationResult.map((item, idx) => ({ ...item, id: item.cartIndex ?? idx }))
+
+  const columns = [
+    {
+      field: 'select',
+      width: 64,
+      sortable: false,
+      disableColumnMenu: true,
+      renderHeader: () =>
+        diffItems.length > 0 ? (
+          <Checkbox
+            size='small'
+            sx={{ p: 0 }}
+            checked={allDiffChecked}
+            indeterminate={!allDiffChecked && someDiffChecked}
+            onChange={e => toggleAll(e.target.checked)}
+          />
+        ) : null,
+      renderCell: ({ row }) => (
+        <Checkbox
+          size='small'
+          sx={{ p: 0 }}
+          checked={!!applyMap[row.cartIndex]}
+          disabled={!row.isPriceDifferent}
+          onChange={() => toggleApply(row.cartIndex)}
+        />
+      )
+    },
+    {
+      field: 'productName',
+      headerName: 'Produk',
+      flex: 1.3,
+      minWidth: 170,
+      renderCell: ({ row }) => (
+        <Box sx={{ py: 1, lineHeight: 1.3, minWidth: 0 }}>
+          <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, lineHeight: 1.3, color: colors.foreground }}>
+            {row.productName || '-'}
+          </Typography>
+          <Typography sx={{ fontSize: '0.6875rem', color: colors.mutedForeground }}>
+            {row.unitName || row.notes || '-'}
+          </Typography>
+        </Box>
+      )
+    },
+    {
+      field: 'quantity',
+      headerName: 'Qty',
+      width: 90,
+      sortable: false,
+      renderCell: ({ row }) => Number(row.quantity ?? 1)
+    },
+    {
+      field: 'cartPrice',
+      headerName: 'Harga Keranjang',
+      flex: 1,
+      minWidth: 150,
+      sortable: false,
+      align: 'right',
+      headerAlign: 'right',
+      renderCell: ({ row }) => {
+        const isDiff = !!row.isPriceDifferent
+        const isApplied = !!applyMap[row.cartIndex]
+        const priceDelta = Number(row.backendPrice) - Number(row.cartPrice)
+        const qty = Number(row.quantity ?? 1)
+        const cartSubTotal = Number(row.cartSubTotal ?? row.cartPrice * qty)
+        const struck = isDiff && isApplied
+
+        return (
+          <Box sx={{ textAlign: 'right', lineHeight: 1.3 }}>
+            <Typography
+              sx={{
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+                lineHeight: 1.3,
+                textDecoration: struck ? 'line-through' : 'none',
+                color: isDiff ? (priceDelta > 0 ? statusTokens.danger.fg : statusTokens.success.fg) : colors.foreground
+              }}
+            >
+              {priceFormatWIthCurrency(row.cartPrice)}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '0.6875rem',
+                color: colors.mutedForeground,
+                textDecoration: struck ? 'line-through' : 'none'
+              }}
+            >
+              ({priceFormatWIthCurrency(cartSubTotal)})
+            </Typography>
+          </Box>
+        )
+      }
+    },
+    {
+      field: 'backendPrice',
+      headerName: 'Harga Sistem',
+      flex: 1,
+      minWidth: 150,
+      sortable: false,
+      align: 'right',
+      headerAlign: 'right',
+      renderCell: ({ row }) => {
+        const isDiff = !!row.isPriceDifferent
+        const qty = Number(row.quantity ?? 1)
+        const backendSubTotal = Number(row.backendSubTotal ?? row.backendPrice * qty)
+
+        return (
+          <Box sx={{ textAlign: 'right', lineHeight: 1.3 }}>
+            <Typography
+              sx={{
+                fontSize: '0.8125rem',
+                fontWeight: isDiff ? 700 : 500,
+                lineHeight: 1.3,
+                color: colors.foreground
+              }}
+            >
+              {priceFormatWIthCurrency(row.backendPrice)}
+            </Typography>
+            <Typography sx={{ fontSize: '0.6875rem', color: colors.mutedForeground }}>
+              ({priceFormatWIthCurrency(backendSubTotal)})
+            </Typography>
+          </Box>
+        )
+      }
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      width: 130,
+      sortable: false,
+      renderCell: ({ row }) => {
+        if (!row.isPriceDifferent) return <StatusChip label='Sesuai' tone='success' />
+        if (applyMap[row.cartIndex]) return <StatusChip label='Diperbarui' tone='warning' />
+
+        return <StatusChip isActive={false} inactiveLabel='Diabaikan' />
+      }
+    }
+  ]
+
   return (
-    <Dialog
+    <AppModal
       open={open}
-      maxWidth='md'
-      fullWidth
-      scroll='paper'
       onClose={onClose}
-      sx={{
-        '& .MuiDialog-paper': {
-          borderRadius: 2,
-          // Responsive width: keep tablet-ish layout while expanding on larger screens
-          width: {
-            xs: '95%',
-            sm: '92%',
-            md: '880px',
-            lg: '1100px'
-          },
-        },
+      // Rows are checked inside AppModal's <form>; confirming goes through the footer button only.
+      onSubmit={event => {
+        event.preventDefault()
+        handleConfirm()
       }}
+      title='Validasi Harga Produk'
+      subtitle='Berikut perbandingan harga keranjang vs harga terkini dari sistem. Centang produk yang ingin diperbarui, lalu klik "Terapkan" untuk kembali ke keranjang dan charge seperti biasa.'
+      size='md'
+      cancelLabel='Batal'
+      submitLabel='Terapkan & Kembali ke Keranjang'
+      submitIcon='tabler:check'
     >
-      {/* ── Header ── */}
-      <DialogTitle
+      {/* ── Info note ── */}
+      <Box
         sx={{
+          mb: 4,
+          px: 3,
+          py: 2,
           display: 'flex',
-          alignItems: 'flex-start',
-          gap: 1.5,
-          pb: 1.5,
-          borderBottom: '1px solid',
-          borderColor: 'divider'
+          alignItems: 'center',
+          gap: 2,
+          borderRadius: `${radii['3xl']}px`,
+          border: `1px solid ${statusTokens.info.border}`,
+          backgroundColor: statusTokens.info.bg
         }}
       >
-        <Icon icon='tabler:alert-triangle' fontSize='1.5rem' style={{ color: '#FF9800', marginTop: 2, flexShrink: 0 }} />
-        <Box>
-          <Typography variant='h6' sx={{ fontWeight: 700, lineHeight: 1.3 }}>
-            Validasi Harga Produk
-          </Typography>
-          <Typography variant='caption' sx={{ color: 'text.secondary' }}>
-            Berikut perbandingan harga keranjang vs harga terkini dari sistem. Centang produk yang ingin diperbarui,
-            lalu klik <strong>"Terapkan"</strong> untuk kembali ke keranjang dan charge seperti biasa.
-          </Typography>
-        </Box>
-      </DialogTitle>
+        <Icon icon='tabler:info-circle' fontSize='1rem' style={{ color: statusTokens.info.fg, flexShrink: 0 }} />
+        <Typography sx={{ fontSize: '0.75rem', lineHeight: '16px', color: statusTokens.info.fg }}>
+          Produk yang <strong>dicentang</strong> akan diperbarui harganya di keranjang. Setelah klik{' '}
+          <strong>"Terapkan"</strong>, Anda akan kembali ke keranjang untuk memeriksa ulang sebelum charge.
+        </Typography>
+      </Box>
 
-      <DialogContent sx={{ px: 3, pt: '12px !important', pb: 0 }}>
-        {/* ── Summary chips ── */}
-        <Box sx={{ display: 'flex', gap: 1, mb: 1.5, flexWrap: 'wrap' }}>
-          <Chip
-            size='small'
-            icon={<Icon icon='tabler:package' fontSize='0.85rem' />}
-            label={`${validationResult.length} produk dicek`}
-            variant='outlined'
-            color='primary'
-          />
-          <Chip
-            size='small'
-            icon={<Icon icon='tabler:alert-circle' fontSize='0.85rem' />}
-            label={`${diffItems.length} harga berbeda`}
-            variant='outlined'
-            color={diffItems.length > 0 ? 'warning' : 'success'}
-          />
-          <Chip
-            size='small'
-            icon={<Icon icon='tabler:circle-check' fontSize='0.85rem' />}
-            label={`${validationResult.length - diffItems.length} harga sesuai`}
-            variant='outlined'
-            color='success'
-          />
-        </Box>
-
-        {/* ── Table ── */}
-        <TableContainer
-          component={Paper}
-          variant='outlined'
+      {/* ── Summary chips + table ── */}
+      <Box sx={{ mb: 4 }}>
+        <DataTable
+          itemLabel='datas'
+          toolbar={
+            <Box sx={{ p: 4, pb: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <SummaryChip tone='info' icon='tabler:package' label={`${validationResult.length} Produk dicek`} />
+              <SummaryChip
+                tone={diffItems.length > 0 ? 'warning' : 'success'}
+                icon='tabler:alert-triangle'
+                label={`${diffItems.length} Harga berbeda`}
+              />
+              <SummaryChip
+                tone='success'
+                icon='tabler:check'
+                label={`${validationResult.length - diffItems.length} Harga sesuai`}
+              />
+            </Box>
+          }
+          columns={columns}
+          rows={rows}
+          rowHeight={64}
+          disableColumnMenu
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          pageSizeOptions={[5]}
+          getRowClassName={({ row }) =>
+            !row.isPriceDifferent ? 'row-same' : applyMap[row.cartIndex] ? 'row-applied' : ''
+          }
           sx={{
-            borderRadius: 1,
-            mb: 2,
-            maxHeight: 360,
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            '&::-webkit-scrollbar': { width: 6 },
-            '&::-webkit-scrollbar-track': { background: 'transparent' },
-            '&::-webkit-scrollbar-thumb': { background: '#bdbdbd', borderRadius: 3 },
-            '&::-webkit-scrollbar-thumb:hover': { background: '#9e9e9e' }
+            '&& .MuiDataGrid-row.row-same, && .MuiDataGrid-row.row-same:hover': {
+              backgroundColor: statusTokens.success.bg
+            },
+            '&& .MuiDataGrid-row.row-applied, && .MuiDataGrid-row.row-applied:hover': {
+              backgroundColor: statusTokens.warning.bg
+            }
           }}
-        >
-          <Table size='medium' stickyHeader sx={{ tableLayout: 'fixed', width: '100%' }}>
-            <TableHead>
-              <TableRow>
-                <TableCell padding='checkbox' sx={{ bgcolor: 'grey.100', width: 40 }}>
-                  {diffItems.length > 0 && (
-                    <Checkbox
-                      size='small'
-                      checked={allDiffChecked}
-                      indeterminate={!allDiffChecked && someDiffChecked}
-                      onChange={e => toggleAll(e.target.checked)}
-                    />
-                  )}
-                </TableCell>
-                <TableCell sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '23%' }}>Produk</TableCell>
-                <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '20%' }}>Qty</TableCell>
-                <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '20%' }}>
-                  Harga Keranjang
-                </TableCell>
-                <TableCell align='center' sx={{ bgcolor: 'grey.100', width: 24, px: 0 }}></TableCell>
-                <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: '20%' }}>
-                  Harga Sistem
-                </TableCell>
-                <TableCell align='center' sx={{ bgcolor: 'grey.100', fontWeight: 700, fontSize: '0.75rem', width: 100 }}>
-                  Status
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {validationResult.map((item, idx) => {
-                const isDiff = !!item.isPriceDifferent
-                const isApplied = !!applyMap[item.cartIndex]
-                const priceDelta = Number(item.backendPrice) - Number(item.cartPrice)
-                const qty = Number(item.quantity ?? 1)
-                const cartSubTotal = Number(item.cartSubTotal ?? item.cartPrice * qty)
-                const backendSubTotal = Number(item.backendSubTotal ?? item.backendPrice * qty)
+        />
+      </Box>
 
-                return (
-                  <TableRow
-                    key={item.warehouseProductId ?? idx}
-                    sx={{
-                      bgcolor: !isDiff
-                        ? 'rgba(76, 175, 80, 0.04)'
-                        : isApplied
-                          ? 'rgba(255, 152, 0, 0.07)'
-                          : 'transparent',
-                      '&:hover': {
-                        bgcolor: !isDiff ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 152, 0, 0.12)'
-                      }
-                    }}
-                  >
-                    {/* Checkbox */}
-                    <TableCell padding='checkbox'>
-                      <Checkbox
-                        size='small'
-                        checked={isApplied}
-                        disabled={!isDiff}
-                        onChange={() => toggleApply(item.cartIndex)}
-                      />
-                    </TableCell>
-
-                    {/* Product Name + Unit */}
-                    <TableCell sx={{ fontSize: '0.75rem', py: 0.75, overflow: 'hidden' }}>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 600, lineHeight: 1.2, fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'wrap' }}
-                        title={item.productName}
-                      >
-                        {item.productName || '-'}
-                      </Typography>
-                      <Typography variant='caption' sx={{ color: 'text.secondary', fontSize: '0.68rem' }}>
-                        {item.unitName || item.notes || '-'}
-                      </Typography>
-                    </TableCell>
-
-                    {/* Qty */}
-                    <TableCell align='center' sx={{ fontSize: '0.75rem', color: 'text.secondary', py: 0.75 }}>
-                      {qty}
-                    </TableCell>
-
-                    {/* Cart Price + SubTotal */}
-                    <TableCell align='center' sx={{ py: 0.75 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{
-                          fontSize: '0.75rem',
-                          fontWeight: 500,
-                          textDecoration: isDiff && isApplied ? 'line-through' : 'none',
-                          opacity: isDiff && isApplied ? 0.5 : 1,
-                          color: isDiff
-                            ? priceDelta > 0 ? 'error.main' : 'success.main'
-                            : 'text.primary'
-                        }}
-                      >
-                        {priceFormatWIthCurrency(item.cartPrice)}
-                      </Typography>
-                      <Typography
-                        variant='caption'
-                        sx={{
-                          display: 'block',
-                          fontSize: '0.68rem',
-                          color: 'text.secondary',
-                          textDecoration: isDiff && isApplied ? 'line-through' : 'none',
-                          opacity: isDiff && isApplied ? 0.5 : 1
-                        }}
-                      >
-                        ({priceFormatWIthCurrency(cartSubTotal)})
-                      </Typography>
-                    </TableCell>
-
-                    {/* Arrow */}
-                    <TableCell align='center' sx={{ px: 0, py: 0.75 }}>
-                      {isDiff && (
-                        <Icon
-                          icon='tabler:arrow-right'
-                          fontSize='0.8rem'
-                          style={{ color: '#9E9E9E', verticalAlign: 'middle' }}
-                        />
-                      )}
-                    </TableCell>
-
-                    {/* Backend Price + SubTotal */}
-                    <TableCell align='center' sx={{ py: 0.75 }}>
-                      <Typography
-                        variant='body2'
-                        sx={{
-                          fontSize: '0.75rem',
-                          fontWeight: isDiff ? 700 : 400,
-                          color: isDiff ? 'primary.main' : 'text.secondary'
-                        }}
-                      >
-                        {priceFormatWIthCurrency(item.backendPrice)}
-                      </Typography>
-                      <Typography
-                        variant='caption'
-                        sx={{
-                          display: 'block',
-                          fontSize: '0.68rem',
-                          fontWeight: isDiff && isApplied ? 700 : 400,
-                          color: isDiff && isApplied ? 'primary.main' : 'text.secondary'
-                        }}
-                      >
-                        ({priceFormatWIthCurrency(backendSubTotal)})
-                      </Typography>
-                    </TableCell>
-
-                    {/* Status Chip */}
-                    <TableCell align='center' sx={{ py: 0.75 }}>
-                      {!isDiff ? (
-                        <Chip size='small' label='Sesuai' color='success' variant='outlined'
-                          sx={{ fontSize: '0.65rem', height: 20 }} />
-                      ) : isApplied ? (
-                        <Chip size='small' label='Diperbarui' color='warning'
-                          sx={{ fontSize: '0.65rem', height: 20 }} />
-                      ) : (
-                        <Chip size='small' label='Diabaikan' variant='outlined'
-                          sx={{ fontSize: '0.65rem', height: 20, color: 'text.disabled' }} />
-                      )}
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        {/* ── Impact Summary ── */}
-        <Box
-          sx={{
-            p: 1.5,
-            borderRadius: 1,
-            border: '1px solid',
-            borderColor: impact.delta !== 0 ? 'warning.main' : 'success.main',
-            bgcolor: impact.delta !== 0 ? 'rgba(255,152,0,0.05)' : 'rgba(76,175,80,0.05)',
-            mb: 1.5
-          }}
-        >
-          <Typography variant='subtitle2' sx={{ fontWeight: 700, mb: 0.75, color: 'text.primary', fontSize: '0.8rem' }}>
-            Ringkasan Dampak Perubahan Harga
-          </Typography>
-          <Grid container spacing={1}>
-            <Grid item xs={4}>
-              <Typography variant='caption' sx={{ color: 'text.secondary', display: 'block' }}>
-                SubTotal Keranjang
-              </Typography>
-              <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                {priceFormatWIthCurrency(impact.cartTotal)}
-              </Typography>
-            </Grid>
-            <Grid item xs={4}>
-              <Typography variant='caption' sx={{ color: 'text.secondary', display: 'block' }}>
-                SubTotal Setelah Apply
-              </Typography>
-              <Typography variant='body2' sx={{ fontWeight: 700, color: 'primary.main' }}>
-                {priceFormatWIthCurrency(impact.afterApplyTotal)}
-              </Typography>
-            </Grid>
-            <Grid item xs={4}>
-              <Typography variant='caption' sx={{ color: 'text.secondary', display: 'block' }}>
-                Selisih
-              </Typography>
-              <Typography
-                variant='body2'
-                sx={{
-                  fontWeight: 700,
-                  color: impact.delta === 0 ? 'success.main' : impact.delta > 0 ? 'error.main' : 'success.main'
-                }}
-              >
-                {impact.delta === 0 ? '–' : `${impact.delta > 0 ? '+' : ''}${priceFormatWIthCurrency(impact.delta)}`}
-              </Typography>
-            </Grid>
-          </Grid>
+      {/* ── Impact Summary ── */}
+      <HeaderedCard title='Ringkasan'>
+        <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {summaryRows.map(row => (
+            <Box key={row.label} sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+              <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>{row.label}</Typography>
+              <Typography sx={{ fontSize: '0.8125rem', color: colors.foreground }}>{row.value}</Typography>
+            </Box>
+          ))}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+            <Typography sx={{ fontSize: '0.9375rem', fontWeight: 500, color: colors.foreground }}>Selisih</Typography>
+            <Typography
+              sx={{
+                fontSize: '0.9375rem',
+                fontWeight: 700,
+                color: impact.delta > 0 ? colors.destructive : statusTokens.success.fg
+              }}
+            >
+              {impact.delta === 0 ? '–' : `${impact.delta > 0 ? '+' : ''}${priceFormatWIthCurrency(impact.delta)}`}
+            </Typography>
+          </Box>
         </Box>
-
-        {/* ── Info note ── */}
-        <Box
-          sx={{
-            p: 1.25,
-            borderRadius: 1,
-            bgcolor: 'rgba(33,150,243,0.06)',
-            border: '1px solid rgba(33,150,243,0.2)',
-            display: 'flex',
-            gap: 1,
-            alignItems: 'flex-start',
-            mb: 1
-          }}
-        >
-          <Icon icon='tabler:info-circle' fontSize='1rem' style={{ color: '#2196F3', marginTop: 2, flexShrink: 0 }} />
-          <Typography variant='caption' sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
-            Produk yang <strong>dicentang</strong> akan diperbarui harganya di keranjang. Setelah klik{' '}
-            <strong>"Terapkan"</strong>, Anda akan kembali ke keranjang untuk memeriksa ulang sebelum charge.
-          </Typography>
-        </Box>
-      </DialogContent>
-
-      <Divider />
-
-      <DialogActions sx={{ px: 3, py: 1.5, gap: 1 }}>
-        <Button variant='outlined' color='inherit' onClick={onClose} startIcon={<Icon icon='tabler:x' />}>
-          Batal
-        </Button>
-        <Button variant='contained' color='primary' onClick={handleConfirm} startIcon={<Icon icon='tabler:check' />}>
-          Terapkan &amp; Kembali ke Keranjang
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </HeaderedCard>
+    </AppModal>
   )
 }
+
+// ** Pill used in the summary row above the table
+const SummaryChip = ({ tone, icon, label }) => (
+  <Box
+    sx={{
+      px: 2.5,
+      height: 24,
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 1,
+      borderRadius: `${radii.full}px`,
+      border: `1px solid ${statusTokens[tone].border}`,
+      backgroundColor: statusTokens[tone].bg,
+      color: statusTokens[tone].fg
+    }}
+  >
+    <Icon icon={icon} fontSize='0.8125rem' />
+    <Typography sx={{ fontSize: '0.6875rem', fontWeight: 500, lineHeight: 1, color: 'inherit' }}>{label}</Typography>
+  </Box>
+)

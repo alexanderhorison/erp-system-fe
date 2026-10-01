@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Grid, MenuItem, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, InputAdornment, MenuItem, Typography } from '@mui/material'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useSelector, useDispatch } from 'react-redux'
@@ -16,6 +16,30 @@ import { populateCartFromTransaction, validatePricePos } from 'src/store/apps/po
 import Script from 'next/script'
 import TotalSectionPos from './TotalSectionPos'
 import ModalPriceValidation from './ModalPriceValidation'
+import Icon from 'src/@core/components/icon'
+import ConfirmDialog from 'src/views/common/ConfirmDialog'
+import { colors, radii, shadows, stone } from 'src/configs/designTokens'
+
+const surfaceSx = {
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: 0,
+  height: '100%',
+  borderRadius: `${radii['3xl']}px`,
+  border: `1px solid ${colors.border}`,
+  boxShadow: shadows.xs,
+  backgroundColor: colors.background,
+  overflow: 'hidden'
+}
+
+const outlinedPillSx = {
+  color: colors.foreground,
+  borderColor: colors.border3,
+  backgroundColor: colors.background,
+  boxShadow: shadows.xs,
+  whiteSpace: 'nowrap',
+  '&:hover': { borderColor: colors.border3, backgroundColor: stone[50] }
+}
 
 // Kedepannya jika tambah filter, bisa tambahkan field ini
 const listFilter = [
@@ -62,6 +86,9 @@ export default function PointOfSaleLayout({
   const [openModalAddCustomer, setOpenModalAddCustomer] = useState(false)
   const [openModalCharge, setOpenModalCharge] = useState(false)
   const [showProduct, setShowProduct] = useState(true)
+  const [searchProduct, setSearchProduct] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [openConfirmReset, setOpenConfirmReset] = useState(false)
 
   const [selectedProduct, setSelectedProduct] = useState({})
   const [selectedProductEdit, setSelectedProductEdit] = useState({})
@@ -121,9 +148,7 @@ export default function PointOfSaleLayout({
 
   const filteredProducts = useMemo(() => {
     const { typeFilter, typeValue, typeProduct } = filterForm
-    if (typeValue === 'ALL' && typeProduct === 'ALL') {
-      return listProductPos
-    }
+    const keyword = searchProduct.trim().toLowerCase()
 
     const filterKey = {
       CATEGORY: 'categoryId',
@@ -131,17 +156,24 @@ export default function PointOfSaleLayout({
       COMPANY: 'companyId'
     }[typeFilter]
 
-    return listProductPos.filter(el => {
+    return (listProductPos || []).filter(el => {
       // Check typeValue condition
       const matchesTypeValue = typeValue === 'ALL' || (filterKey && el[filterKey] === typeValue)
       // Check typeProduct condition
       const matchesTypeProduct =
         typeProduct === 'ALL' ? true : typeProduct === 'favorite' ? el.isFavorite === true : true
+      // Check the search box
+      const matchesSearch = !keyword || (el.productName || '').toLowerCase().includes(keyword)
 
-      // Combine both conditions with AND
-      return matchesTypeValue && matchesTypeProduct
+      // Combine all conditions with AND
+      return matchesTypeValue && matchesTypeProduct && matchesSearch
     })
-  }, [filterForm, listProductPos])
+  }, [filterForm, listProductPos, searchProduct])
+
+  const favoriteCount = useMemo(
+    () => (listProductPos || []).filter(el => el.isFavorite === true).length,
+    [listProductPos]
+  )
 
   const listLeftFilter = useMemo(() => {
     if (filterForm.typeFilter === 'COMPANY') {
@@ -196,9 +228,8 @@ export default function PointOfSaleLayout({
     if (Array.isArray(responseItems) && responseItems.length > 0) {
       // Backend may return items with cartIndex or in the same order — enrich using cartIndex or order
       const enriched = responseItems.map((r, rIdx) => {
-        const matchByCartIndex = r.cartIndex !== undefined
-          ? listSendProduct.find(p => p.cartIndex === r.cartIndex)
-          : null
+        const matchByCartIndex =
+          r.cartIndex !== undefined ? listSendProduct.find(p => p.cartIndex === r.cartIndex) : null
         const matchByOrder = listSendProduct[rIdx]
         const match = matchByCartIndex ?? matchByOrder
         const qty = r.quantity ?? Number(match?.quantity ?? 1)
@@ -232,7 +263,9 @@ export default function PointOfSaleLayout({
 
     if (appliedItems.length > 0) {
       const applyMap = {}
-      appliedItems.forEach(a => { applyMap[a.cartIndex] = a.backendPrice })
+      appliedItems.forEach(a => {
+        applyMap[a.cartIndex] = a.backendPrice
+      })
 
       const current = getValues('formData')
       const updated = current.map((item, index) => {
@@ -253,8 +286,9 @@ export default function PointOfSaleLayout({
 
   const helperTextPrice = index => {
     const info = {
-      detailItem: `${getValues(`formData[${index}].unitName`) ? getValues(`formData[${index}].unitName`) : ''} ${getValues(`formData[${index}].unitName`) ? `@` : ''
-        } ${priceFormatWithZero(getValues(`formData[${index}].price`))}`
+      detailItem: `${getValues(`formData[${index}].unitName`) ? getValues(`formData[${index}].unitName`) : ''} ${
+        getValues(`formData[${index}].unitName`) ? `@` : ''
+      } ${priceFormatWithZero(getValues(`formData[${index}].price`))}`
     }
     return info
   }
@@ -337,6 +371,25 @@ export default function PointOfSaleLayout({
     const updatedFields = formField.filter((_, i) => i !== index)
     localStorage.setItem('listProductPos', JSON.stringify(updatedFields))
     autoSavePos()
+  }
+
+  // Stepper on a cart row: same persistence as saving the edit dialog
+  const handleChangeQuantity = (index, nextQuantity) => {
+    const current = getValues('formData')[index]
+    const price = Number(current?.price) || 0
+    const updatedItem = { ...current, quantity: nextQuantity, subTotal: price * nextQuantity }
+    update(index, updatedItem)
+    const listProduct = JSON.parse(localStorage.getItem('listProductPos') || '[]')
+    localStorage.setItem(
+      'listProductPos',
+      JSON.stringify(listProduct.map((item, i) => (i === index ? updatedItem : item)))
+    )
+    autoSavePos()
+  }
+
+  const handleConfirmDeleteItem = () => {
+    handleDeleteCustom(deleteTarget.item, deleteTarget.index)
+    setDeleteTarget(null)
   }
 
   const handleSaveBill = () => {
@@ -427,401 +480,382 @@ export default function PointOfSaleLayout({
   }, [cartFromTransaction])
 
   return (
-    <Box
-      sx={{
-        height: '100%',
-        maxHeight: '100%',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column'
-      }}
-    >
-      {/* =============== HEADER SECTION ================= */}
-      <Box sx={{ flexShrink: 0, mb: isLowHeight ? 0.5 : 1 }}>
-        <Grid container spacing={isLowHeight ? 1 : 2}>
-          {/* FILTER */}
-          <Grid item xs={12} md={2} sx={{ display: showFilter ? 'block' : 'none' }}>
-            <Controller
-              name='typeFilter'
-              control={controlFilter}
-              render={({ field: { value, onChange } }) => (
-                <CustomTextField
-                  select
-                  fullWidth
-                  SelectProps={{
-                    value: value,
-                    onChange: e => {
-                      onChange(e)
-                      setFilter({
-                        ...filter,
-                        type: e.target.value
-                      })
-                    }
-                  }}
-                >
-                  {listFilter?.map((data, index) => {
-                    return (
-                      <MenuItem key={index} value={data.value}>
-                        {data.name}
-                      </MenuItem>
-                    )
-                  })}
-                </CustomTextField>
-              )}
-            />
-          </Grid>
-          {/* FILTER BODY PRODUCT */}
-          <Grid item xs={12} md={6}>
-            <Grid container spacing={{ xs: 1, md: 3 }} justifyContent='center' alignItems='center'>
-              <Grid item xs={4} md={4}>
-                <Button
-                  fullWidth
-                  variant={filterForm.typeProduct === 'ALL' ? 'contained' : 'outlined'}
-                  onClick={handleClickAll}
-                  disabled={warehouse?.warehouseId ? false : true}
-                >
-                  All
-                </Button>
-              </Grid>
-              <Grid item xs={4} md={4}>
-                <Button
-                  fullWidth
-                  variant={filterForm.typeProduct === 'favorite' ? 'contained' : 'outlined'}
-                  onClick={handleClickFavorite}
-                  disabled={warehouse?.warehouseId ? false : true}
-                >
-                  Favorite
-                </Button>
-              </Grid>
-              <Grid item xs={4} md={4}>
-                <Button
-                  fullWidth
-                  variant={filterForm.typeProduct === 'custom' ? 'contained' : 'outlined'}
-                  onClick={handleClickCustom}
-                  disabled={warehouse?.warehouseId ? false : true}
-                >
-                  Custom
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
-          {/* ADD CUSTOMER */}
-          <Grid item xs={12} md={showFilter ? 4 : 6}>
-            <Button fullWidth variant='contained' onClick={handleClickAddCustomer}>
-              {selectedCustomerPos?.name ? `${selectedCustomerPos.name}` : 'Add Customer'}
-            </Button>
-          </Grid>
-        </Grid>
-      </Box>
-
-      {/* =============== BODY SECTION ================= */}
+    <Box sx={{ height: '100%', maxHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       <Box
         sx={{
-          flexGrow: 1,
-          overflow: 'hidden',
+          flex: 1,
           minHeight: 0,
-          height: '100%'
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: isLowHeight ? 2 : 4,
+          overflow: { xs: 'auto', md: 'hidden' }
         }}
       >
-        <Grid
-          container
-          spacing={isLowHeight ? 1 : 2}
+        {/* =============== PRODUCTS PANEL ================= */}
+        <Box
           sx={{
-            height: '100%',
-            maxHeight: '100%',
-            overflow: 'hidden',
-            minHeight: 0
+            flex: { md: 2 },
+            minWidth: 0,
+            height: { xs: '80vh', md: 'auto' },
+            minHeight: { xs: 480, md: 0 },
+            flexShrink: { xs: 0, md: 1 }
           }}
         >
-          {/* Section Filter */}
-          <Grid
-            item
-            xs={12}
-            md={2}
-            sx={{
-              display: showFilter ? 'flex' : 'none',
-              height: '100%',
-              maxHeight: '100%',
-              flexDirection: 'column',
-              minHeight: 0
-            }}
-          >
-            <Box
-              sx={{
-                height: '100%',
-                flex: 1,
-                overflowY: 'auto',
-                overflowX: 'hidden',
-                paddingBottom: 2
-              }}
-            >
-              <Grid container direction='column' spacing={2}>
-                <Grid item xs={6} sm={4} md={4} key={999}>
-                  <Button
-                    fullWidth={true}
-                    variant={filterForm.typeValue === 'ALL' ? 'contained' : 'outlined'}
-                    sx={{
-                      height: 40,
-                      textWrap: 'wrap',
-                      textAlign: 'center'
-                    }}
-                    onClick={() => {
-                      setValueFilter('typeValue', 'ALL')
-                      setFilter({
-                        ...filter,
-                        typeValue: 'ALL'
-                      })
-                    }}
-                  >
-                    ALL
-                  </Button>
-                </Grid>
-                {listLeftFilter?.map((data, index) => (
-                  <Grid item xs={6} sm={4} md={4} key={index}>
-                    <Button
-                      fullWidth={true}
-                      variant={filterForm.typeValue === data?.id ? 'contained' : 'outlined'}
-                      sx={{
-                        height: 40,
-                        textWrap: 'wrap',
-                        textAlign: 'center'
+          <Box sx={{ ...surfaceSx, p: 4, gap: 3 }}>
+            {/* Toggle + search */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flexShrink: 0 }}>
+              <Button
+                variant='contained'
+                color='secondary'
+                onClick={() => setShowFilter(!showFilter)}
+                disabled={!showProduct}
+                startIcon={<Icon icon={showFilter ? 'tabler:filter-off' : 'tabler:filter'} fontSize='1rem' />}
+                sx={{
+                  whiteSpace: 'nowrap',
+                  color: colors.foreground,
+                  backgroundColor: stone[200],
+                  '&:hover': { backgroundColor: stone[300] }
+                }}
+              >
+                {showFilter ? 'Hide Filters' : 'Show Filters'}
+              </Button>
+              <CustomTextField
+                value={searchProduct}
+                placeholder='Cari produk'
+                onChange={e => setSearchProduct(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') e.preventDefault()
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position='start'>
+                      <Icon icon='tabler:search' fontSize='1.125rem' />
+                    </InputAdornment>
+                  )
+                }}
+                sx={{ flex: 1, minWidth: 160, maxWidth: 320 }}
+              />
+            </Box>
+
+            {/* Filter type + values */}
+            {showFilter && showProduct && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flexShrink: 0 }}>
+                <Controller
+                  name='typeFilter'
+                  control={controlFilter}
+                  render={({ field: { value, onChange } }) => (
+                    <CustomTextField
+                      select
+                      SelectProps={{
+                        value: value,
+                        onChange: e => {
+                          onChange(e)
+                          setFilter({
+                            ...filter,
+                            type: e.target.value
+                          })
+                        }
                       }}
+                      sx={{ minWidth: 130 }}
+                    >
+                      {listFilter?.map((data, index) => {
+                        return (
+                          <MenuItem key={index} value={data.value}>
+                            {data.name}
+                          </MenuItem>
+                        )
+                      })}
+                    </CustomTextField>
+                  )}
+                />
+                {[{ id: 'ALL', name: 'All' }, ...(listLeftFilter || [])].map(data => {
+                  const isAll = data.id === 'ALL'
+                  const selected = filterForm.typeValue === data.id
+
+                  return (
+                    <Button
+                      key={data.id}
+                      size='small'
+                      variant={selected ? 'contained' : 'outlined'}
+                      color={selected ? 'primary' : 'secondary'}
                       onClick={() => {
-                        setValueFilter('typeValue', data?.id)
+                        setValueFilter('typeValue', data.id)
                         setFilter({
                           ...filter,
-                          typeValue: data?.id
+                          typeValue: data.id
                         })
                       }}
+                      sx={{
+                        // Same box in both states: the outlined chip's border must not make it taller than the filled one
+                        height: 36,
+                        px: 4,
+                        border: '1px solid',
+                        borderColor: selected ? 'primary.main' : colors.border3,
+                        ...(!selected && outlinedPillSx),
+                        whiteSpace: 'nowrap'
+                      }}
                     >
-                      {data.name}
+                      {isAll ? 'All' : data.name}
                     </Button>
-                  </Grid>
-                ))}
-              </Grid>
+                  )
+                })}
+              </Box>
+            )}
+
+            {/* All / Favorite / Custom */}
+            <Box
+              sx={{
+                flexShrink: 0,
+                p: 1,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                gap: 1,
+                borderRadius: 9999,
+                backgroundColor: stone[100]
+              }}
+            >
+              {[
+                { key: 'ALL', label: 'All', count: listProductPos?.length || 0, onClick: handleClickAll },
+                { key: 'favorite', label: 'Favorite', count: favoriteCount, onClick: handleClickFavorite },
+                { key: 'custom', label: 'Custom', onClick: handleClickCustom }
+              ].map(tab => {
+                const active = filterForm.typeProduct === tab.key
+
+                return (
+                  <Button
+                    key={tab.key}
+                    fullWidth
+                    disableRipple
+                    onClick={tab.onClick}
+                    disabled={warehouse?.warehouseId ? false : true}
+                    sx={{
+                      height: 36,
+                      gap: 1.5,
+                      color: colors.foreground,
+                      backgroundColor: active ? colors.background : 'transparent',
+                      boxShadow: active ? shadows.xs : 'none',
+                      '&:hover': { backgroundColor: active ? colors.background : stone[200] }
+                    }}
+                  >
+                    {tab.label}
+                    {tab.count !== undefined && (
+                      <Box
+                        component='span'
+                        sx={{
+                          px: 1.5,
+                          minWidth: 22,
+                          height: 18,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: 9999,
+                          fontSize: '0.625rem',
+                          color: colors.primaryForeground,
+                          backgroundColor: 'primary.main'
+                        }}
+                      >
+                        {tab.count}
+                      </Box>
+                    )}
+                  </Button>
+                )
+              })}
             </Box>
-          </Grid>
-          {/** Products */}
-          <Grid
-            item
-            xs={12}
-            md={6}
-            sx={{
-              height: '100%',
-              maxHeight: '100%',
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-              minHeight: 0
-            }}
-          >
+
             {/* All Product */}
             <Box
               sx={{
-                height: '100%',
                 flex: 1,
+                minHeight: 0,
                 overflowY: 'auto',
                 overflowX: 'hidden',
-                display: showProduct ? 'block' : 'none',
-                paddingBottom: 2
+                display: showProduct ? 'block' : 'none'
               }}
             >
-              <Grid container spacing={{ xs: 1, md: 2 }} sx={{ paddingBottom: 2 }}>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(3, minmax(0, 1fr))' },
+                  gap: 3,
+                  pb: 2
+                }}
+              >
                 {filteredProducts?.map((data, index) => (
-                  <Grid item xs={6} sm={4} md={4} key={index}>
-                    <Button
-                      fullWidth
-                      onClick={e => {
-                        e.stopPropagation()
-                        setSelectedProduct(data)
-                        handleClickProduct()
-                      }}
-                      sx={{
-                        maxWidth: '300px',
-                        border: '1px solid',
-                        p: 3,
-                        textAlign: 'center',
-                        width: '100%',
-                        height: '5.5rem',
-                        backgroundColor: 'primary',
-                        textWrap: 'wrap',
-                        marginBottom: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
-                        {data.productName}
+                  <Button
+                    key={index}
+                    fullWidth
+                    onClick={e => {
+                      e.stopPropagation()
+                      setSelectedProduct(data)
+                      handleClickProduct()
+                    }}
+                    sx={{
+                      px: 3,
+                      py: 2,
+                      minHeight: 48,
+                      textAlign: 'center',
+                      textWrap: 'wrap',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: colors.foreground,
+                      backgroundColor: stone[100],
+                      border: `1px solid ${stone[400]}`,
+                      borderRadius: `${radii['3xl']}px`,
+                      '&:hover': { backgroundColor: stone[200] }
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '0.75rem', fontWeight: 500, lineHeight: 1.3, color: 'inherit' }}>
+                      {data.productName}
+                    </Typography>
+                    {data.description && (
+                      <Typography sx={{ fontSize: '0.6875rem', color: colors.mutedForeground }}>
+                        {`(${data.description})`}
                       </Typography>
-                      {data.description && (
-                        <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>
-                          {`(${data.description})`}
-                        </Typography>
-                      )}
-                    </Button>
-                  </Grid>
+                    )}
+                  </Button>
                 ))}
-              </Grid>
+              </Box>
             </Box>
             {/* Custom Product */}
             <Box
               sx={{
-                height: '100%',
                 flex: 1,
+                minHeight: 0,
                 overflowY: 'auto',
                 overflowX: 'hidden',
-                display: showProduct ? 'none' : 'block',
-                paddingBottom: 2
+                display: showProduct ? 'none' : 'block'
               }}
             >
               <ProductCustomField append={append} control={control} errors={errors} fields={fields} />
             </Box>
-          </Grid>
-          {/* Cart */}
-          <Grid
-            item
-            xs={12}
-            md={showFilter ? 4 : 6}
-            sx={{
-              height: '100%',
-              maxHeight: '100%',
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-              minHeight: 0
-            }}
-          >
-            {/* <Grid container spacing={{ xs: 1, md: 2 }} sx={{ height: showBreakdown ? '95%' : '100%' }}> */}
+          </Box>
+        </Box>
+
+        {/* =============== ORDER DETAILS ================= */}
+        <Box
+          sx={{
+            flex: { md: 1 },
+            minWidth: 0,
+            height: { xs: '85vh', md: 'auto' },
+            minHeight: { xs: 520, md: 0 },
+            flexShrink: { xs: 0, md: 1 },
+            maxWidth: { md: 440 }
+          }}
+        >
+          <Box sx={{ ...surfaceSx, p: 4, gap: 3 }}>
             <Box
               sx={{
-                flexGrow: 1,
-                overflowY: 'auto',
-                pr: 1, // for scrollbar spacing
-                '&::-webkit-scrollbar': { width: 6 },
-                '&::-webkit-scrollbar-thumb': {
-                  backgroundColor: '#c1c1c1',
-                  borderRadius: 3
-                },
-                '&::-webkit-scrollbar-thumb:hover': {
-                  backgroundColor: '#a0a0a0'
-                },
-                transition: 'max-height 0.3s ease',
-                height: showBreakdown ? '95%' : '100%'
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 2,
+                flexWrap: 'wrap',
+                flexShrink: 0
               }}
             >
-              <Grid item xs={12} sx={{ height: isLowHeight ? 'calc(100% - 120px)' : 'calc(100% - 180px)' }}>
-                <CartProductPos
-                  data={fields}
-                  control={control}
-                  helperTextPrice={helperTextPrice}
-                  setOpenEditProduct={() => setOpenModalEditProduct(true)}
-                  selectedProductEdit={selectedProductEdit}
-                  setSelectedProductEdit={setSelectedProductEdit}
-                  handleDeleteCustom={handleDeleteCustom}
-                  isMobile={isMobile}
-                  isTablet={isTablet}
-                  heightBody={heightBody}
-                  isLowHeight={isLowHeight}
-                />
-              </Grid>
-              <Grid item xs={12} sx={{ height: isLowHeight ? '120px' : '180px', mt: 2, flexShrink: 0 }}>
-                <Grid container spacing={{ xs: 1, md: 1 }} sx={{ height: '100%' }}>
-                  {/* === TOTAL SECTION === */}
-                  <TotalSectionPos
-                    isLowHeight={isLowHeight}
-                    getTotals={getTotals}
-                    showBreakdown={showBreakdown}
-                    setShowBreakdown={setShowBreakdown}
-                  />
-                  {/* === BUTTONS: NEXT BILL & CHARGE === */}
-                  <Grid item xs={12} sx={{ height: isLowHeight ? '60px' : '50px' }}>
-                    <Grid container spacing={{ xs: 2, md: 4 }} sx={{ height: '100%' }}>
-                      <Grid item xs={6}>
-                        <Button
-                          disabled={disableButtonCharge}
-                          fullWidth
-                          variant={'outlined'}
-                          onClick={handleSaveBill}
-                          sx={{
-                            height: '100%',
-                            fontSize: isLowHeight ? '0.7rem' : 'inherit'
-                          }}
-                        >
-                          Next Bill {isLowHeight ? '' : priceFormat(getValues('grandTotal'))}
-                        </Button>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Button
-                          disabled={disableButtonCharge || loadingValidatePrice}
-                          fullWidth
-                          variant={'contained'}
-                          color={'warning'}
-                          onClick={handleClickCharge}
-                          startIcon={loadingValidatePrice ? <CircularProgress size={16} color='inherit' /> : null}
-                          sx={{
-                            height: '100%',
-                            fontSize: isLowHeight ? '0.7rem' : 'inherit'
-                          }}
-                        >
-                          {loadingValidatePrice
-                            ? 'Memvalidasi...'
-                              : `Validate ${isLowHeight ? '' : priceFormat(getValues('grandTotal'))}`
-                          }
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  {/* === CLEAR BUTTON === */}
-                  <Grid item xs={12} sx={{ height: isLowHeight ? '35px' : '60px' }}>
-                    <Button
-                      disabled={disableButtonClear}
-                      fullWidth
-                      sx={{
-                        backgroundColor: '#ffcdd2',
-                        color: '#c62828',
-                        height: '100%',
-                        fontSize: isLowHeight ? '0.7rem' : 'inherit',
-                        '&:hover': {
-                          backgroundColor: '#ef9a9a'
-                        },
-                        '&:disabled': {
-                          backgroundColor: '#e0e0e0',
-                          color: '#9e9e9e'
-                        }
-                      }}
-                      onClick={() => {
-                        swalConfirmationOnly({
-                          title: 'Yakin menghapus keranjang?',
-                          text: 'Anda akan menghapus keranjang',
-                          icon: 'warning',
-                          showCancelButton: true,
-                          onClickYes: () => {
-                            remove()
-                            localStorage.setItem('listProductPos', JSON.stringify([]))
-                          }
-                        })
-                      }}
-                    >
-                      Clear
-                    </Button>
-                  </Grid>
-                </Grid>
-              </Grid>
+              <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.foreground }}>
+                Order Details
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Button
+                  size='small'
+                  variant={selectedCustomerPos?.name ? 'contained' : 'outlined'}
+                  color={selectedCustomerPos?.name ? 'primary' : 'secondary'}
+                  onClick={handleClickAddCustomer}
+                  sx={{
+                    // A chosen customer fills the button with the brand color; otherwise it stays an outlined pill
+                    ...(!selectedCustomerPos?.name && outlinedPillSx),
+                    // Same box as Reset: the outlined button's border must not make it taller than the filled one
+                    height: 32,
+                    border: '1px solid',
+                    borderColor: selectedCustomerPos?.name ? 'primary.main' : colors.border3,
+                    maxWidth: 160,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {selectedCustomerPos?.name ? `${selectedCustomerPos.name}` : 'Add Customer'}
+                </Button>
+                <Button
+                  size='small'
+                  variant='outlined'
+                  color='secondary'
+                  disabled={disableButtonClear}
+                  onClick={() => setOpenConfirmReset(true)}
+                  startIcon={<Icon icon='tabler:trash' fontSize='0.875rem' />}
+                  sx={{ ...outlinedPillSx, height: 32 }}
+                >
+                  Reset
+                </Button>
+              </Box>
             </Box>
-            {/* </Grid> */}
-          </Grid>
 
-          <Script
-            src='/epos-2.27.0.js'
-            strategy='afterInteractive'
-            onLoad={() => {
-              setScriptEpos(true)
-              console.log('📜 ePOS SDK Loaded')
-            }}
-          />
-        </Grid>
+            <Box
+              sx={{
+                flex: 1,
+                minHeight: 0,
+                overflowY: 'auto',
+                borderRadius: `${radii['3xl']}px`,
+                border: `1px solid ${colors.border}`
+              }}
+            >
+              <CartProductPos
+                data={fields}
+                control={control}
+                helperTextPrice={helperTextPrice}
+                setOpenEditProduct={() => setOpenModalEditProduct(true)}
+                setSelectedProductEdit={setSelectedProductEdit}
+                onChangeQuantity={handleChangeQuantity}
+                onRequestDelete={(item, index) => setDeleteTarget({ item, index })}
+              />
+            </Box>
+
+            <Box sx={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <TotalSectionPos getTotals={getTotals} />
+              <Box sx={{ display: 'flex', gap: 3 }}>
+                <Button
+                  disabled={disableButtonCharge}
+                  fullWidth
+                  variant='outlined'
+                  color='secondary'
+                  onClick={handleSaveBill}
+                  startIcon={<Icon icon='tabler:file-text' fontSize='1rem' />}
+                  sx={{ ...outlinedPillSx, height: 44 }}
+                >
+                  Next Bill
+                </Button>
+                <Button
+                  disabled={disableButtonCharge || loadingValidatePrice}
+                  fullWidth
+                  variant='contained'
+                  onClick={handleClickCharge}
+                  startIcon={
+                    loadingValidatePrice ? (
+                      <CircularProgress size={16} color='inherit' />
+                    ) : (
+                      <Icon icon='tabler:checkbox' fontSize='1rem' />
+                    )
+                  }
+                  sx={{ height: 44 }}
+                >
+                  {loadingValidatePrice ? 'Memvalidasi...' : 'Validate'}
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+
+        <Script
+          src='/epos-2.27.0.js'
+          strategy='afterInteractive'
+          onLoad={() => {
+            setScriptEpos(true)
+            console.log('📜 ePOS SDK Loaded')
+          }}
+        />
       </Box>
 
       {/* Modals */}
@@ -861,6 +895,42 @@ export default function PointOfSaleLayout({
         onClose={() => setPriceValidationOpen(false)}
         onConfirm={handlePriceValidationConfirm}
         validationResult={priceValidationResult}
+      />
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDeleteItem}
+        title='Hapus Produk dari Keranjang'
+        description={
+          <>
+            Apakah Anda yakin menghapus produk dari keranjang?
+            <Box component='span' sx={{ display: 'block', mt: 2 }}>
+              Produk:{' '}
+              <Box component='span' sx={{ fontWeight: 600, color: colors.foreground }}>
+                {deleteTarget?.item?.productName}
+              </Box>
+            </Box>
+          </>
+        }
+        confirmLabel='Ya'
+        cancelLabel='Tidak'
+        confirmIcon='tabler:check'
+        destructive={false}
+      />
+      <ConfirmDialog
+        open={openConfirmReset}
+        onClose={() => setOpenConfirmReset(false)}
+        onConfirm={() => {
+          remove()
+          localStorage.setItem('listProductPos', JSON.stringify([]))
+          setOpenConfirmReset(false)
+        }}
+        title='Yakin menghapus keranjang?'
+        description='Anda akan menghapus keranjang'
+        confirmLabel='Ya'
+        cancelLabel='Tidak'
+        confirmIcon='tabler:check'
+        destructive={false}
       />
       {openModalEditProduct && (
         <ModalEditProductPos

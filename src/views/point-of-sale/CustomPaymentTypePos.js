@@ -3,14 +3,17 @@ import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Radio from '@mui/material/Radio'
 import Typography from '@mui/material/Typography'
-import React from 'react'
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
 
+// ** Design Tokens
+import { colors, radii, stone } from 'src/configs/designTokens'
+
+// ** One payment option: icon, name and description, with a radio at the top right.
 export default function CustomPaymentTypePos(props) {
   // ** Props
-  const { data, icon, name, selected, gridProps, iconProps, handleChange, color = 'primary', iconWidth, iconHeight } = props
-  const { title, value, content, description } = data
+  const { data, icon, name, selected, gridProps, handleChange, color = 'primary' } = props
+  const { title, value, description } = data
+
+  const isSelected = selected === value
 
   const renderComponent = () => {
     return (
@@ -18,60 +21,53 @@ export default function CustomPaymentTypePos(props) {
         <Box
           onClick={() => handleChange(value)}
           sx={{
-            p: 2,
-            gap: 1,
+            p: 3,
+            gap: 3,
             height: '100%',
             display: 'flex',
-            borderRadius: 1,
+            flexDirection: 'column',
             cursor: 'pointer',
             position: 'relative',
-            alignItems: 'center',
-            flexDirection: 'column',
-            border: theme => `1px solid ${theme.palette.divider}`,
-            ...(selected === value
-              ? {
-                borderColor: `${color}.main`,
-                '& svg': { color: theme => `${theme.palette.primary.main} !important` }
-              }
-              : { '&:hover': { borderColor: theme => `rgba(${theme.palette.customColors.main}, 0.25)` } })
+            borderRadius: `${radii['3xl']}px`,
+            border: `1px solid ${isSelected ? colors.foreground : colors.border}`,
+            backgroundColor: isSelected ? stone[50] : colors.background,
+            transition: 'border-color 0.15s',
+            '&:hover': { borderColor: isSelected ? colors.foreground : colors.border3 }
           }}
         >
-          {
-            icon ? (
-              React.cloneElement(icon, { width: iconWidth, height: iconHeight, })
-            ) : (
-              <></>
-            )
-          }
-          {title ? (
-            typeof title === 'string' ? (
-              <Typography variant='h6' sx={{ ...(content ? { mb: 2 } : { my: 'auto' }) }}>
-                {title}
-              </Typography>
-            ) : (
-              title
-            )
-          ) : null}
-          {
-            description ? (
-              typeof description === 'string' ? (
-                <Typography sx={{ fontSize: '0.6rem', textAlign: 'center' }}>
-                  {description}
-                </Typography>
-              ) : (
-                description
-              )
-            ) : null
-          }
-          <Radio
-            name={name}
-            size='small'
-            color={color}
-            value={value}
-            onChange={handleChange}
-            checked={selected === value}
-          // sx={{ mb: -2, ...(!icon && !title && !content && { mt: -2 }) }}
-          />
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box
+              sx={{
+                width: 28,
+                height: 28,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '50%',
+                border: `1px solid ${colors.border}`,
+                color: colors.foreground
+              }}
+            >
+              {icon}
+            </Box>
+            <Radio
+              name={name}
+              size='small'
+              color={color}
+              value={value}
+              onChange={handleChange}
+              checked={isSelected}
+              sx={{ p: 0 }}
+            />
+          </Box>
+          <Box>
+            {title && (
+              <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: colors.foreground }}>{title}</Typography>
+            )}
+            {description && (
+              <Typography sx={{ fontSize: '0.6875rem', color: colors.mutedForeground }}>{description}</Typography>
+            )}
+          </Box>
         </Box>
       </Grid>
     )

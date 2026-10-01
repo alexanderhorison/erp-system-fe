@@ -1,4 +1,4 @@
-import { Card, Grid, useMediaQuery, useTheme, Typography, CircularProgress } from '@mui/material'
+import { Card, useMediaQuery, useTheme, Typography, CircularProgress } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchDataMasterCategory } from 'src/store/apps/master/category'
@@ -17,6 +17,8 @@ import RequestProductLayout from 'src/views/point-of-sale/request-product/Reques
 import { fetchPrinterHealthCheck } from 'src/store/apps/config/configPrinter'
 import axios from 'src/configs/axios'
 import { useRouter } from 'next/router'
+import Logo from 'src/icons/logo'
+import { colors, stone } from 'src/configs/designTokens'
 
 export default function PointOfSale() {
   const dispatch = useDispatch()
@@ -175,6 +177,8 @@ export default function PointOfSale() {
   // Status printer akan di-fetch otomatis dari backend via Redux
   // Tidak perlu manual connect dari frontend lagi
 
+  const isPosMenu = selectedMenu?.code === 'POS'
+
   return (
     <>
       <Box
@@ -182,138 +186,124 @@ export default function PointOfSale() {
           height: '100vh',
           maxHeight: '100vh',
           overflow: 'hidden',
-          p: isLowHeight ? 1 : 2,
           display: 'flex',
-          gap: isLowHeight ? 5 : 0,
           flexDirection: 'column',
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
+          backgroundColor: stone[100]
         }}
       >
-        {/* Header Section - Responsive */}
+        {/* Top bar: brand, navigation, shift and user */}
         <Box
+          component='header'
           sx={{
-            height: responsiveHeight.headerHeight,
-            minHeight: responsiveHeight.headerHeight,
-            maxHeight: responsiveHeight.headerHeight,
-            mb: isLowHeight ? 0.5 : -3,
-            flexShrink: 0
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 3,
+            px: { xs: 3, md: 5 },
+            py: isLowHeight ? 1 : 2,
+            borderBottom: `1px solid ${colors.border}`,
+            backgroundColor: colors.background
           }}
         >
-          <Grid container spacing={isLowHeight ? 1 : 2} sx={{ height: '100%' }}>
-            <Grid item xs={12} md={8}>
-              <Box sx={{ height: '100%' }}>
-                <MenuPosV2
-                  showFilter={showFilter}
-                  setShowFilter={setShowFilter}
-                  setSelectedMenu={setSelectedMenu}
-                  selectedMenu={selectedMenu}
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Box sx={{ height: '100%' }}>
-                <DetailUserPos
-                  user={user}
-                  warehouse={warehouse}
-                  currentShift={currentShift}
-                  onShiftEnded={handleShiftEnded}
-                  setOpenSetting={() =>
-                    setSelectedMenu({
-                      name: 'Setting',
-                      code: 'SETTING'
-                    })
-                  }
-                />
-              </Box>
-            </Grid>
-          </Grid>
+          <Logo width={36} height={36} style={{ flexShrink: 0 }} />
+          <MenuPosV2 setSelectedMenu={setSelectedMenu} selectedMenu={selectedMenu} />
+          <Box sx={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'flex-end' }}>
+            <DetailUserPos
+              user={user}
+              warehouse={warehouse}
+              currentShift={currentShift}
+              onShiftEnded={handleShiftEnded}
+              setOpenSetting={() =>
+                setSelectedMenu({
+                  name: 'Setting',
+                  code: 'SETTING'
+                })
+              }
+            />
+          </Box>
         </Box>
 
-        {/* Main Content Section - Responsive */}
-        <Box
-          sx={{
-            flex: 1,
-            minHeight: 0,
-            display: 'flex',
-            overflow: 'hidden',
-            maxHeight: `calc(100vh - ${responsiveHeight.headerHeight})` // Use actual header height to avoid overflow
-          }}
-        >
-          <Card
-            sx={{
-              width: '100%',
-              height: '100%',
-              maxHeight: '100%',
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column'
-            }}
-          >
-            <Box
+        {/* Main content */}
+        <Box sx={{ flex: 1, minHeight: 0, display: 'flex', p: isLowHeight ? 2 : { xs: 3, md: 4 } }}>
+          {isPosMenu ? (
+            <Box sx={{ width: '100%', height: '100%', minHeight: 0 }}>
+              <PointOfSaleLayout
+                showFilter={showFilter}
+                setShowFilter={setShowFilter}
+                warehouse={warehouse}
+                setScriptEpos={setScriptEpos}
+                heightBody={responsiveHeight.bodyHeight}
+                isMobile={isMobile}
+                isTablet={isTablet}
+                isLowHeight={isLowHeight}
+              />
+            </Box>
+          ) : (
+            <Card
               sx={{
+                width: '100%',
                 height: '100%',
-                p: isLowHeight ? 1 : 2,
-                pb: isLowHeight ? 2 : 3,
-                overflow: 'auto',
-                minHeight: 0,
+                maxHeight: '100%',
+                overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column'
               }}
             >
-              {selectedMenu?.code === 'POS' && (
-                <PointOfSaleLayout
-                  showFilter={showFilter}
-                  setShowFilter={setShowFilter}
-                  warehouse={warehouse}
-                  setScriptEpos={setScriptEpos}
-                  heightBody={responsiveHeight.bodyHeight}
-                  isMobile={isMobile}
-                  isTablet={isTablet}
-                  isLowHeight={isLowHeight}
-                />
-              )}
+              <Box
+                sx={{
+                  height: '100%',
+                  p: isLowHeight ? 1 : 2,
+                  pb: isLowHeight ? 2 : 3,
+                  overflow: 'auto',
+                  minHeight: 0,
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}
+              >
+                {selectedMenu?.code === 'TRANSACTION' && (
+                  <TransactionLayout
+                    warehouseId={warehouse.warehouseId}
+                    isMobile={isMobile}
+                    isTablet={isTablet}
+                    isLowHeight={isLowHeight}
+                  />
+                )}
 
-              {selectedMenu?.code === 'TRANSACTION' && (
-                <TransactionLayout
-                  warehouseId={warehouse.warehouseId}
-                  isMobile={isMobile}
-                  isTablet={isTablet}
-                  isLowHeight={isLowHeight}
-                />
-              )}
+                {selectedMenu?.code === 'OPEN_BILL' && (
+                  <OpenBillLayout
+                    setSelectedMenu={setSelectedMenu}
+                    warehouse={warehouse}
+                    isMobile={isMobile}
+                    isTablet={isTablet}
+                    isLowHeight={isLowHeight}
+                  >
+                    Open Bill
+                  </OpenBillLayout>
+                )}
 
-              {selectedMenu?.code === 'OPEN_BILL' && (
-                <OpenBillLayout
-                  setSelectedMenu={setSelectedMenu}
-                  warehouse={warehouse}
-                  isMobile={isMobile}
-                  isTablet={isTablet}
-                  isLowHeight={isLowHeight}
-                >
-                  Open Bill
-                </OpenBillLayout>
-              )}
+                {selectedMenu?.code === 'SETTING' && (
+                  <SettingPosLayout
+                    setWarehouse={setWarehouse}
+                    user={user}
+                    isMobile={isMobile}
+                    isTablet={isTablet}
+                    isLowHeight={isLowHeight}
+                  />
+                )}
 
-              {selectedMenu?.code === 'SETTING' && (
-                <SettingPosLayout
-                  setWarehouse={setWarehouse}
-                  user={user}
-                  isMobile={isMobile}
-                  isTablet={isTablet}
-                  isLowHeight={isLowHeight}
-                />
-              )}
-
-              {selectedMenu?.code === 'REQUEST_BARANG' && (
-                <RequestProductLayout
-                  warehouseId={warehouse.warehouseId}
-                  isMobile={isMobile}
-                  isTablet={isTablet}
-                  isLowHeight={isLowHeight}
-                />
-              )}
-            </Box>
-          </Card>
+                {selectedMenu?.code === 'REQUEST_BARANG' && (
+                  <RequestProductLayout
+                    warehouseId={warehouse.warehouseId}
+                    isMobile={isMobile}
+                    isTablet={isTablet}
+                    isLowHeight={isLowHeight}
+                  />
+                )}
+              </Box>
+            </Card>
+          )}
         </Box>
       </Box>
     </>

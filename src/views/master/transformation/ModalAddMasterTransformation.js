@@ -19,7 +19,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { addMasterDataTransformation, editMasterDataTransformation } from 'src/store/apps/master/transformation'
-import BaseModal from 'src/views/common/BaseModal'
+import AppModal from 'src/views/common/AppModal'
 
 // Styled Grid component
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -146,7 +146,7 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
     )
   }
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
@@ -272,6 +272,6 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
           </Grid>
         </Grid>
       </Grid>
-    </BaseModal>
+    </AppModal>
   )
 }

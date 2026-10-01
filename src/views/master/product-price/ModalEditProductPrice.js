@@ -6,7 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomTextField from 'src/@core/components/mui/text-field'
-import BaseModal from 'src/views/common/BaseModal'
+import AppModal from 'src/views/common/AppModal'
 import { addMasterDataProductPrice } from 'src/store/apps/master/product-price'
 import { forceUpdateMasterDataModal } from 'src/store/apps/master/modal'
 
@@ -100,7 +100,7 @@ export default function ModalEditProductPrice({ open, setOpen, row }) {
   }
 
   return (
-    <BaseModal
+    <AppModal
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
@@ -201,6 +201,6 @@ export default function ModalEditProductPrice({ open, setOpen, row }) {
           />
         </Grid>
       </Grid>
-    </BaseModal>
+    </AppModal>
   )
 }

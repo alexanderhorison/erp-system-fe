@@ -1,7 +1,26 @@
 import { Controller } from 'react-hook-form'
 import CustomTextField from 'src/@core/components/mui/text-field'
-import { InputAdornment, useTheme } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
+
+const StepButton = ({ icon, disabled, onClick }) => (
+  <IconButton
+    onClick={onClick}
+    disabled={disabled}
+    aria-label={icon === 'tabler:plus' ? 'Tambah' : 'Kurangi'}
+    sx={{
+      width: 36,
+      height: 36,
+      flexShrink: 0,
+      color: 'primary.contrastText',
+      backgroundColor: 'primary.main',
+      '&:hover': { backgroundColor: 'primary.dark' },
+      '&.Mui-disabled': { color: 'primary.contrastText', backgroundColor: 'primary.main', opacity: 0.4 }
+    }}
+  >
+    <Icon icon={icon} fontSize='1.125rem' />
+  </IconButton>
+)
 
 export default function FormInputNumberPos({
   label1 = 'Quantity',
@@ -16,10 +35,6 @@ export default function FormInputNumberPos({
   max,
   step = 1
 }) {
-  const theme = useTheme()
-  const buttonWidth = '70px'
-  const buttonHeight = '36px'
-
   return (
     <Controller
       name={name}
@@ -38,59 +53,14 @@ export default function FormInputNumberPos({
             </div>
           ) : null}
 
-          {/* New Layout: - | input | + */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {/* Minus Button */}
-            <Icon
+          {/* - | input | + : round stepper buttons either side of a pill field */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <StepButton
               icon='tabler:minus'
+              disabled={disabled || (min !== undefined && (Number(value) || 0) <= min)}
               onClick={() => {
-                if (disabled) return
-                const currentValue = Number(value) || 0
-                const newValue = currentValue - step
-                if (min === undefined || newValue >= min) {
-                  onChange(newValue)
-                }
-              }}
-              style={{
-                backgroundColor: (() => {
-                  const currentValue = Number(value) || 0
-                  const isDisabled = disabled || (min !== undefined && currentValue <= min)
-                  return isDisabled ? theme.palette.secondary.main : theme.palette.primary.main
-                })(),
-                width: buttonWidth,
-                height: buttonHeight,
-                borderRadius: '5px',
-                padding: '8px',
-                cursor: (() => {
-                  const currentValue = Number(value) || 0
-                  const isDisabled = disabled || (min !== undefined && currentValue <= min)
-                  return isDisabled ? 'not-allowed' : 'pointer'
-                })(),
-                opacity: (() => {
-                  const currentValue = Number(value) || 0
-                  const isDisabled = disabled || (min !== undefined && currentValue <= min)
-                  return isDisabled ? 0.6 : 1
-                })(),
-                border: (() => {
-                  const currentValue = Number(value) || 0
-                  const isDisabled = disabled || (min !== undefined && currentValue <= min)
-                  return `1px solid ${isDisabled ? theme.palette.secondary.main : theme.palette.primary.main}`
-                })(),
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: (() => {
-                  const currentValue = Number(value) || 0
-                  const isDisabled = disabled || (min !== undefined && currentValue <= min)
-                  return isDisabled ? theme.palette.secondary.contrastText : theme.palette.primary.contrastText
-                })(),
-                transition: 'all 0.2s ease',
-                '&:hover':
-                  !disabled && (min === undefined || Number(value) > min)
-                    ? {
-                        backgroundColor: theme.palette.primary.dark
-                      }
-                    : {}
+                const newValue = (Number(value) || 0) - step
+                if (min === undefined || newValue >= min) onChange(newValue)
               }}
             />
 
@@ -113,6 +83,7 @@ export default function FormInputNumberPos({
                 onChange(numVal)
               }}
               disabled={disabled}
+              keepDisabledField
               error={Boolean(errors[name])}
               aria-describedby={`validation-schema-${name}`}
               InputProps={{
@@ -129,57 +100,12 @@ export default function FormInputNumberPos({
               {...(errors[name] && { helperText: errors[name].message })}
             />
 
-            {/* Plus Button */}
-            <Icon
+            <StepButton
               icon='tabler:plus'
+              disabled={disabled || (max !== undefined && (Number(value) || 0) >= max)}
               onClick={() => {
-                if (disabled) return
-                const currentValue = Number(value) || 0
-                const newValue = currentValue + step
-                if (max === undefined || newValue <= max) {
-                  onChange(newValue)
-                }
-              }}
-              style={{
-                backgroundColor: (() => {
-                  const currentValue = Number(value) || 0
-                  const isDisabled = disabled || (max !== undefined && currentValue >= max)
-                  return isDisabled ? theme.palette.secondary.main : theme.palette.primary.main
-                })(),
-                width: buttonWidth,
-                height: buttonHeight,
-                borderRadius: '5px',
-                padding: '8px',
-                cursor: (() => {
-                  const currentValue = Number(value) || 0
-                  const isDisabled = disabled || (max !== undefined && currentValue >= max)
-                  return isDisabled ? 'not-allowed' : 'pointer'
-                })(),
-                opacity: (() => {
-                  const currentValue = Number(value) || 0
-                  const isDisabled = disabled || (max !== undefined && currentValue >= max)
-                  return isDisabled ? 0.6 : 1
-                })(),
-                border: (() => {
-                  const currentValue = Number(value) || 0
-                  const isDisabled = disabled || (max !== undefined && currentValue >= max)
-                  return `1px solid ${isDisabled ? theme.palette.secondary.main : theme.palette.primary.main}`
-                })(),
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: (() => {
-                  const currentValue = Number(value) || 0
-                  const isDisabled = disabled || (max !== undefined && currentValue >= max)
-                  return isDisabled ? theme.palette.secondary.contrastText : theme.palette.primary.contrastText
-                })(),
-                transition: 'all 0.2s ease',
-                '&:hover':
-                  !disabled && (max === undefined || Number(value) < max)
-                    ? {
-                        backgroundColor: theme.palette.primary.dark
-                      }
-                    : {}
+                const newValue = (Number(value) || 0) + step
+                if (max === undefined || newValue <= max) onChange(newValue)
               }}
             />
           </div>

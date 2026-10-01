@@ -1,9 +1,13 @@
 import React, { useState } from 'react'
-import { Box, Typography, Button, Stack, Avatar } from '@mui/material'
+import { Box, Typography, Button, Stack } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 import { useDispatch } from 'react-redux'
 import ModalSendEmailCustomer from './ModalSendEmailCustomer'
+import PrintConfirmDialog from './PrintConfirmDialog'
 import { printPos } from 'src/store/apps/pos'
+
+// ** Design Tokens
+import { colors, radii, shadows, status as statusTokens, stone } from 'src/configs/designTokens'
 
 export default function PaymentSuccess({
   alreadyPayment,
@@ -16,20 +20,30 @@ export default function PaymentSuccess({
   customer
 }) {
   const dispatch = useDispatch()
+  // Which print was asked for, while the cashier answers the confirmation
+  const [printMode, setPrintMode] = useState(null)
+
   const handlePrintReceipt = () => {
-    dispatch(printPos(dataPayment.code))
+    dispatch(printPos({ code: dataPayment.code, skipPrompt: true }))
   }
 
   const handlePrintReceipt2x = async () => {
     try {
-      const result1 = await dispatch(printPos(dataPayment.code)).unwrap()
+      const result1 = await dispatch(printPos({ code: dataPayment.code, skipPrompt: true })).unwrap()
       if (result1 && !result1.cancelled) {
         // Jika pertama berhasil, print kedua dengan flag isCopy
-        await dispatch(printPos({ code: dataPayment.code, isCopy: true })).unwrap()
+        await dispatch(printPos({ code: dataPayment.code, isCopy: true, skipPrompt: true })).unwrap()
       }
     } catch (error) {
       console.error('Error printing 2x:', error)
     }
+  }
+
+  const handleConfirmPrint = () => {
+    const mode = printMode
+    setPrintMode(null)
+    if (mode === 'double') handlePrintReceipt2x()
+    else handlePrintReceipt()
   }
 
   const [openModalEmail, setOpenModalEmail] = useState(false)
@@ -43,112 +57,127 @@ export default function PaymentSuccess({
     setOpen(false)
   }
 
+  const stats = [
+    { label: 'Total Payment', icon: 'tabler:wallet', value: Number(totalAmount || 0).toLocaleString('id-ID') },
+    { label: 'Paid', icon: 'tabler:receipt', value: Number(totalPayment || 0).toLocaleString('id-ID') },
+    {
+      label: change >= 0 ? 'Change' : 'Hutang',
+      icon: 'tabler:coin',
+      value: Math.abs(change || 0).toLocaleString('id-ID')
+    }
+  ]
+
+  const pillButtonSx = { height: 36, whiteSpace: 'nowrap' }
+
   return (
     <>
       {alreadyPayment && (
-        <Box sx={{ textAlign: 'center', margin: '18px auto', maxWidth: 760 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-            <Avatar
+        <Box sx={{ py: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 3 }}>
+            <Box
               sx={{
-                bgcolor: '#e8f0ff',
-                width: 88,
-                height: 88,
-                boxShadow: '0 8px 18px rgba(13,71,161,0.12)'
+                mt: 1,
+                width: 32,
+                height: 32,
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '50%',
+                color: statusTokens.success.fg,
+                border: `1px solid ${statusTokens.success.border}`,
+                backgroundColor: statusTokens.success.bg
               }}
             >
-              <Icon icon='tabler:circle-check' fontSize='2.75rem' />
-            </Avatar>
+              <Icon icon='tabler:check' fontSize='1.125rem' />
+            </Box>
+            <Box>
+              <Typography sx={{ fontSize: '1.25rem', fontWeight: 700, lineHeight: '28px', color: colors.foreground }}>
+                Pembayaran Berhasil
+              </Typography>
+              <Typography sx={{ fontSize: '0.875rem', color: colors.mutedForeground }}>
+                Terima kasih atas pembayarannya. Anda dapat mencetak struk atau memulai transaksi baru.
+              </Typography>
+            </Box>
           </Box>
 
-          <Typography variant='h4' sx={{ fontWeight: 800, color: '#111', mb: 1 }}>
-            Pembayaran Berhasil!
-          </Typography>
-          <Typography variant='body1' sx={{ mb: 4, color: '#6c757d', fontSize: 16 }}>
-            Terima kasih atas pembayarannya. Anda dapat mencetak struk atau memulai transaksi baru.
-          </Typography>
-
-          <Stack direction='row' spacing={4} justifyContent='center' sx={{ mb: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar sx={{ bgcolor: '#e6f7ef', width: 44, height: 44, mr: 2 }}>
-                <Icon icon='tabler:wallet' fontSize='1.1rem' />
-              </Avatar>
-              <Box sx={{ textAlign: 'left' }}>
-                <Typography variant='body2' sx={{ color: '#6c757d' }}>
-                  Total Payment:
-                </Typography>
-                <Typography variant='subtitle1' sx={{ fontWeight: 'bold', mt: 0.3 }}>
-                  Rp {Number(totalAmount || 0).toLocaleString('id-ID')}
-                </Typography>
+          <Box
+            sx={{
+              mt: 5,
+              p: 4,
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))' },
+              gap: 4,
+              borderRadius: `${radii['3xl']}px`,
+              border: `1px solid ${colors.border3}`,
+              backgroundColor: stone[100]
+            }}
+          >
+            {stats.map(stat => (
+              <Box key={stat.label} sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <Box
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    flexShrink: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '50%',
+                    color: colors.mutedForeground,
+                    backgroundColor: stone[200]
+                  }}
+                >
+                  <Icon icon={stat.icon} fontSize='1rem' />
+                </Box>
+                <Box>
+                  <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>{stat.label}</Typography>
+                  <Typography sx={{ fontSize: '0.9375rem', fontWeight: 500, color: colors.foreground }}>
+                    Rp {stat.value}
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
+            ))}
+          </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar sx={{ bgcolor: '#e6f7ef', width: 44, height: 44, mr: 2 }}>
-                <Icon icon='tabler:coin' fontSize='1.1rem' />
-              </Avatar>
-              <Box sx={{ textAlign: 'left' }}>
-                <Typography variant='body2' sx={{ color: '#6c757d' }}>
-                  Paid:
-                </Typography>
-                <Typography variant='subtitle1' sx={{ fontWeight: 'bold', mt: 0.3 }}>
-                  Rp {Number(totalPayment || 0).toLocaleString('id-ID')}
-                </Typography>
-              </Box>
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar sx={{ bgcolor: '#fff3e0', width: 44, height: 44, mr: 2 }}>
-                <Icon icon='tabler:arrows-exchange' fontSize='1.1rem' />
-              </Avatar>
-              <Box sx={{ textAlign: 'left' }}>
-                <Typography variant='body2' sx={{ color: '#6c757d' }}>
-                  {change >= 0 ? `Change:` : 'Hutang:'}
-                </Typography>
-                <Typography variant='subtitle1' sx={{ fontWeight: 'bold', mt: 0.3 }}>
-                  Rp {Math.abs(change || 0).toLocaleString('id-ID')}
-                </Typography>
-              </Box>
-            </Box>
-          </Stack>
-
-          {/* Removed full-width CTA per design update */}
-
-          <Stack direction='row' spacing={2} justifyContent='center'>
+          <Stack direction='row' flexWrap='wrap' justifyContent='center' gap={3} sx={{ mt: 5 }}>
             <Button
               variant='contained'
-              color='primary'
-              onClick={handlePrintReceipt2x}
-              sx={{ textTransform: 'none', fontWeight: 'bold' }}
+              onClick={() => setPrintMode('double')}
+              startIcon={<Icon icon='tabler:printer' fontSize='1rem' />}
+              sx={pillButtonSx}
             >
               Print 2x Receipt
             </Button>
             <Button
               variant='contained'
-              color='primary'
-              onClick={handlePrintReceipt}
-              sx={{ textTransform: 'none', fontWeight: 'bold' }}
+              onClick={() => setPrintMode('single')}
+              startIcon={<Icon icon='tabler:printer' fontSize='1rem' />}
+              sx={pillButtonSx}
             >
               Print Receipt
             </Button>
             <Button
               variant='contained'
-              color='primary'
               onClick={handleEmailReceipt}
-              sx={{ textTransform: 'none', fontWeight: 'bold' }}
+              startIcon={<Icon icon='tabler:mail' fontSize='1rem' />}
+              sx={pillButtonSx}
             >
               Email Receipt
             </Button>
             <Button
               variant='outlined'
-              color='primary'
+              color='secondary'
               onClick={handleNewSale}
-              sx={{ textTransform: 'none', fontWeight: 'bold' }}
+              startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+              sx={{ ...pillButtonSx, color: colors.foreground, borderColor: colors.border3, boxShadow: shadows.xs }}
             >
               New Sale
             </Button>
           </Stack>
         </Box>
       )}
+      <PrintConfirmDialog open={Boolean(printMode)} onClose={() => setPrintMode(null)} onConfirm={handleConfirmPrint} />
       {openModalEmail && (
         <ModalSendEmailCustomer
           open={openModalEmail}

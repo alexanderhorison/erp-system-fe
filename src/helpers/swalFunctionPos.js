@@ -1,5 +1,6 @@
 import swal from 'src/pages/sweetalert'
 import { swalError } from './swalFunction'
+import { messageFromError, messageFromResponse, notifyError, notifySuccess, toast } from 'src/helpers/notify'
 import { environtmentColor } from 'src/helpers/getEnvirontmentColor'
 
 // ONLY FOR ADD
@@ -10,45 +11,38 @@ export async function swalConfirmationChargePos({
   name = 'Data',
   axiosRequest,
   dispatchRequest,
-  title
+  title,
+  // The caller already asked for confirmation (shared ConfirmDialog), so go straight to the request
+  skipPrompt = false
 }) {
   try {
-    const result = await swal.fire({
-      title: title,
-      text: text,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Iya',
-      cancelButtonText: 'Tidak',
-      reverseButtons: true,
-      confirmButtonColor: environtmentColor(),
-      width: width,
-    })
+    const result = skipPrompt
+      ? { isConfirmed: true }
+      : await swal.fire({
+          title: title,
+          text: text,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Iya',
+          cancelButtonText: 'Tidak',
+          reverseButtons: true,
+          confirmButtonColor: environtmentColor(),
+          width: width
+        })
     if (result.dismiss) {
     } else {
-      // Show loading state
-      swal.fire({
-        title: 'Processing...',
-        text: 'Please wait',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        allowEnterKey: false,
-        showConfirmButton: false,
-        didOpen: () => {
-          swal.showLoading()
-        }
-      })
+      // Progress is a toast, not a popup: it never blocks the cashier
+      const loadingId = toast.loading('Memproses...')
 
-      const response = await axiosRequest()
-      if (dispatchRequest) {
-        dispatchRequest(response)
+      try {
+        const response = await axiosRequest()
+        if (dispatchRequest) {
+          dispatchRequest(response)
+        }
+        notifySuccess(messageFromResponse(response, `${name} berhasil ditambahkan`))
+      } finally {
+        toast.dismiss(loadingId)
       }
-      swal.fire({
-        title: response?.data?.message || `${name} berhasil ditambahkan`,
-        icon: 'success',
-        timer: 1500,
-        showConfirmButton: false
-      })
     }
   } catch (error) {
     swalError({ error, label })
@@ -58,8 +52,8 @@ export async function swalConfirmationChargePos({
 
 export async function swalConfirmationOnly({
   text,
-  onClickYes = () => { },
-  onClickNo = () => { },
+  onClickYes = () => {},
+  onClickNo = () => {},
   title,
   successMessage = 'Sukses',
   autoSuccess = true
@@ -72,54 +66,27 @@ export async function swalConfirmationOnly({
     confirmButtonText: 'Iya',
     cancelButtonText: 'Tidak',
     reverseButtons: true,
-    confirmButtonColor: environtmentColor(),
-  });
+    confirmButtonColor: environtmentColor()
+  })
 
   if (result.isConfirmed) {
+    const loadingId = toast.loading('Memproses...')
     try {
-      // show loading
-      swal.fire({
-        title: 'Processing...',
-        text: 'Please wait',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        allowEnterKey: false,
-        showConfirmButton: false,
-        didOpen: () => {
-          swal.showLoading()
-        }
-      })
-
       // await caller's async operation
       await onClickYes()
 
-      // close loading
-      swal.close()
+      toast.dismiss(loadingId)
 
       // show success if caller didn't handle it
       if (autoSuccess) {
-        await swal.fire({
-          title: successMessage,
-          icon: 'success',
-          timer: 1000,
-          showConfirmButton: false
-        })
+        notifySuccess(successMessage)
       }
     } catch (error) {
-      // close loading then show error modal so user knows what failed
-      try { swal.close() } catch (e) { }
-      const message = error?.response?.data?.message || error?.message || 'Terjadi kesalahan'
-      try {
-        await swal.fire({
-          title: 'Error',
-          text: message,
-          icon: 'error',
-          confirmButtonText: 'OK'
-        })
-      } catch (e) { }
+      toast.dismiss(loadingId)
+      notifyError(messageFromError(error, 'Terjadi kesalahan'))
       throw error
     }
   } else if (result.dismiss === swal.DismissReason.cancel) {
-    onClickNo();
+    onClickNo()
   }
 }

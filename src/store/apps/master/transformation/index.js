@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'src/configs/axios'
-import { swalConfirmationDelete, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
+import { swalDeleteConfirmed, swalError, swalSuccess, swalToastError } from 'src/helpers/swalFunction'
 
 const label = 'transformation'
 
@@ -80,7 +80,7 @@ export const deleteMasterDataTransformation = createAsyncThunk(
   'appMasterTransformation/deleteTransformation',
   async ({ id, name, productId }, { dispatch, rejectWithValue }) => {
     try {
-      await swalConfirmationDelete({
+      await swalDeleteConfirmed({
         label,
         name,
         axiosRequest: () => {

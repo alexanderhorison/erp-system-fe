@@ -14,6 +14,7 @@ import TableHeaderPointOfSale from './TableHeaderPointOfSale'
 import { priceFormatWIthCurrency } from 'src/helpers/priceFormatter'
 import { fetchDetailPointOfSale, printPos } from 'src/store/apps/pos'
 import ModalViewTransactionV4 from './ModalViewTransactionV4'
+import PrintConfirmDialog from '../PrintConfirmDialog'
 
 const RowOptions = ({ handleView, handlePrint }) => {
   return (
@@ -56,8 +57,16 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
     dispatch(fetchDetailPointOfSale(id))
   }
 
-  const handleRowPrint = async params => {
-    dispatch(printPos(params.code))
+  // Row waiting for the cashier's answer in the print confirmation
+  const [printTarget, setPrintTarget] = useState(null)
+
+  const handleRowPrint = params => {
+    setPrintTarget(params)
+  }
+
+  const handleConfirmPrint = () => {
+    dispatch(printPos({ code: printTarget.code, skipPrompt: true }))
+    setPrintTarget(null)
   }
 
   useEffect(() => {
@@ -266,6 +275,11 @@ export default function TablePointOfSale({ timeFilter, isMobile, isTablet, isLow
           }}
         />
         <ModalViewTransactionV4 setOpen={setOpenModalDetail} open={openModalDetail} />
+        <PrintConfirmDialog
+          open={Boolean(printTarget)}
+          onClose={() => setPrintTarget(null)}
+          onConfirm={handleConfirmPrint}
+        />
       </Card>
     </>
   )
