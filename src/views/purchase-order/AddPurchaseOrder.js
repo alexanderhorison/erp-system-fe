@@ -46,7 +46,7 @@ import DatePickerHighZIndexStyles from 'src/views/common/DatePickerHighZIndexSty
 import { colors, layout, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
 
 const surfaceCardSx = {
-  borderRadius: `${radii.lg}px`,
+  borderRadius: `${radii['3xl']}px`,
   border: `1px solid ${colors.border}`,
   boxShadow: shadows.xs
 }
@@ -1365,7 +1365,7 @@ export default function AddPurchaseOrder({}) {
                   <Card
                     elevation={0}
                     sx={{
-                      borderRadius: `${radii.lg}px`,
+                      borderRadius: `${radii['3xl']}px`,
                       border: `1px solid ${statusTokens.success.border}`,
                       boxShadow: shadows.xs,
                       backgroundColor: statusTokens.success.bg

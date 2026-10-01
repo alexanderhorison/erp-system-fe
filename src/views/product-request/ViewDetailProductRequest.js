@@ -125,7 +125,7 @@ const ViewDetailProductRequest = ({ data }) => {
             a plain `sx` rule on this element — hence the `&&` to match it. */}
         <TableContainer
           sx={{
-            '&&': { borderRadius: `${radii.lg}px` },
+            '&&': { borderRadius: `${radii['3xl']}px` },
             border: `1px solid ${colors.border}`,
             overflowX: 'auto'
           }}

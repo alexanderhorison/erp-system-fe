@@ -16,6 +16,7 @@ import SummaryCost from './SummaryCost'
 import ButtonBack from '../common/ButtonBack'
 import { useDispatch, useSelector } from 'react-redux'
 import { addDailyCost, fetchDetailDailyCostByDate, updateDailyCost } from 'src/store/apps/daily-cost'
+import { actionButtonSx } from 'src/views/common/actionButtonSx'
 
 dayjs.locale('id')
 
@@ -304,12 +305,13 @@ export default function DailyCostForm({ mode = 'ADD', selectedDate }) {
             <Grid item xs={12}>
               <Card>
                 <CardContent sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                  <Button variant='outlined' onClick={handleCancel} disabled={isSubmitting}>
+                  <Button variant='outlined' sx={actionButtonSx} onClick={handleCancel} disabled={isSubmitting}>
                     Cancel
                   </Button>
                   <Button
                     variant='contained'
                     type='submit'
+                    sx={actionButtonSx}
                     disabled={isSubmitting}
                     startIcon={isSubmitting ? <Icon icon='tabler:loader' className='animate-spin' /> : null}
                   >

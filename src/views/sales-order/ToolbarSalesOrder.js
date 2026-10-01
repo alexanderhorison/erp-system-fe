@@ -27,6 +27,8 @@ import HeaderedCard from 'src/views/common/HeaderedCard'
 import ConfirmDialog from 'src/views/common/ConfirmDialog'
 import DownloadButton from 'src/views/components/buttons/ButtonDownload'
 
+import { formatStatusLabel } from 'src/helpers/formatStatusLabel'
+
 // ** Design Tokens
 import { colors, radii, status as statusTokens } from 'src/configs/designTokens'
 
@@ -176,7 +178,7 @@ const ToolbarSalesOrder = ({ id, data }) => {
       {payment && (
         <HeaderedCard
           title='Status Pembayaran'
-          action={<Chip size='small' label={payment.label} sx={infoChipSx(payment.tone)} />}
+          action={<Chip size='small' label={formatStatusLabel(payment.label)} sx={infoChipSx(payment.tone)} />}
           sx={{ mt: 4 }}
         >
           <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground, mb: 1 }}>

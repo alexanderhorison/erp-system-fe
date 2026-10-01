@@ -14,6 +14,7 @@ import { initiateProductWarehouse } from 'src/store/apps/product-warehouse'
 import { useRouter } from 'next/router'
 import OptionsGroup from 'src/helpers/groupedInput'
 import { fetchMasterDataWarehouseRack } from 'src/store/apps/master/warehouse-rack'
+import { actionButtonSx } from 'src/views/common/actionButtonSx'
 
 export default function TableAddProductWarehouse({ warehouse }) {
   const dispatch = useDispatch()
@@ -312,6 +313,7 @@ export default function TableAddProductWarehouse({ warehouse }) {
               <Button
                 variant='tonal'
                 color='secondary'
+                sx={actionButtonSx}
                 onClick={() => router.back()}
                 startIcon={<Icon icon='tabler:x' />}
                 disabled={loadingInitiateProduct}
@@ -319,12 +321,12 @@ export default function TableAddProductWarehouse({ warehouse }) {
                 Cancel
               </Button>
               {loadingInitiateProduct ? (
-                <Button variant='contained' disabled>
+                <Button variant='contained' disabled sx={actionButtonSx}>
                   <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
                   Submitting...
                 </Button>
               ) : (
-                <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
+                <Button variant='contained' type='submit' sx={actionButtonSx} startIcon={<Icon icon='tabler:send' />}>
                   Submit
                 </Button>
               )}

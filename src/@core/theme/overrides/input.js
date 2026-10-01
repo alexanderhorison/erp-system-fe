@@ -1,3 +1,6 @@
+// ** Design Tokens
+import { radii } from 'src/configs/designTokens'
+
 const input = () => {
   return {
     MuiInputLabel: {
@@ -28,8 +31,8 @@ const input = () => {
       styleOverrides: {
         root: ({ theme }) => ({
           '&:not(.MuiInputBase-sizeSmall)': {
-            borderTopLeftRadius: 8,
-            borderTopRightRadius: 8
+            borderTopLeftRadius: radii['3xl'],
+            borderTopRightRadius: radii['3xl']
           },
           backgroundColor: `rgba(${theme.palette.customColors.main}, 0.04)`,
           '&:hover:not(.Mui-disabled)': {
@@ -48,7 +51,7 @@ const input = () => {
       styleOverrides: {
         root: ({ theme }) => ({
           '&:not(.MuiInputBase-sizeSmall)': {
-            borderRadius: 8
+            borderRadius: radii['3xl']
           },
           '&:hover:not(.Mui-focused):not(.Mui-disabled):not(.Mui-error) .MuiOutlinedInput-notchedOutline': {
             borderColor: `rgba(${theme.palette.customColors.main}, 0.28)`

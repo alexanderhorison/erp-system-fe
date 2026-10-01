@@ -97,7 +97,7 @@ export default function DetailStockOpname({ stockOpnameId, detailStockOpname }) 
 
           {status === 'APPROVED' && (
             <Grid item xs={12}>
-              <Alert severity='info' sx={{ borderRadius: `${radii.lg}px` }}>
+              <Alert severity='info' sx={{ borderRadius: `${radii['3xl']}px` }}>
                 Status telah disetujui. Anda dapat melakukan adjustment dengan mencentang opsi di bawah ini.
               </Alert>
             </Grid>

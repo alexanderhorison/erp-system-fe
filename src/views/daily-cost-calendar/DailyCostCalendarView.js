@@ -239,7 +239,7 @@ export default function DailyCostCalendarView({ }) {
       <Box
         sx={{
           p: 4,
-          borderRadius: `${radii.lg}px`,
+          borderRadius: `${radii['3xl']}px`,
           border: `1px solid ${colors.border}`,
           boxShadow: shadows.xs,
           backgroundColor: colors.background
@@ -349,7 +349,7 @@ export default function DailyCostCalendarView({ }) {
               sx={{
                 mt: 1,
                 width: 180,
-                borderRadius: `${radii.lg}px`,
+                borderRadius: `${radii['3xl']}px`,
                 border: `1px solid ${colors.border}`,
                 boxShadow: shadows.lg
               }}

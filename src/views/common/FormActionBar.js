@@ -13,6 +13,7 @@ import themeConfig from 'src/configs/themeConfig'
 
 // ** Design Tokens
 import { colors, shadows } from 'src/configs/designTokens'
+import { actionButtonSx } from 'src/views/common/actionButtonSx'
 
 // ** Height of the bar (py: 3 => 24px + a 38px button), used to reserve space
 // beneath the form for the pinned copy.
@@ -105,6 +106,7 @@ export default function FormActionBar({
             disabled={loading}
             startIcon={<Icon icon='tabler:x' fontSize='1rem' />}
             sx={{
+              ...actionButtonSx,
               color: colors.foreground,
               borderColor: colors.border3,
               boxShadow: shadows.xs,
@@ -116,6 +118,7 @@ export default function FormActionBar({
         )}
         <Button
           variant='contained'
+          sx={actionButtonSx}
           disabled={loading || disabled}
           {...(onSubmit ? { onClick: onSubmit } : { type: 'submit' })}
           startIcon={

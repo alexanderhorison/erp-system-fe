@@ -169,7 +169,7 @@ const DetailReceiptOrderOutstanding = ({ data, setData }) => {
             a plain `sx` rule on this element — hence the `&&` to match it. */}
         <TableContainer
           sx={{
-            '&&': { borderRadius: `${radii.lg}px` },
+            '&&': { borderRadius: `${radii['3xl']}px` },
             border: `1px solid ${colors.border}`,
             backgroundColor: colors.background,
             overflowX: 'auto'

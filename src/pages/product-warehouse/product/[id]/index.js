@@ -59,7 +59,7 @@ export default function HomeProduct() {
           </Box>
           <Card
             elevation={0}
-            sx={{ p: 4, borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
+            sx={{ p: 4, borderRadius: `${radii['3xl']}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
           >
             {[0, 1, 2].map(row => (
               <Box key={row} sx={{ display: 'flex', gap: 3, mb: 4 }}>

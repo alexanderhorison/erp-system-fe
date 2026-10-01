@@ -13,7 +13,7 @@ const SummaryCard = ({ label, value, color = colors.foreground, strong }) => (
       flex: 1,
       px: 4,
       py: 3,
-      borderRadius: `${radii.lg * 2}px`,
+      borderRadius: `${radii['3xl']}px`,
       border: `1px solid ${colors.border3}`,
       backgroundColor: '#F5F5F5'
     }}

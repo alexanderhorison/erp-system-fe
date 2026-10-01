@@ -45,7 +45,7 @@ import DatePickerHighZIndexStyles from 'src/views/common/DatePickerHighZIndexSty
 import { colors, layout, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
 
 const surfaceCardSx = {
-  borderRadius: `${radii.lg}px`,
+  borderRadius: `${radii['3xl']}px`,
   border: `1px solid ${colors.border}`,
   boxShadow: shadows.xs
 }
@@ -82,7 +82,7 @@ const priceBelowModalSx = {
 
 const infoChipSx = {
   height: 22,
-  borderRadius: `${radii.lg}px`,
+  borderRadius: `${radii['3xl']}px`,
   border: `1px solid ${colors.border}`,
   backgroundColor: 'transparent',
   '& .MuiChip-label': {
@@ -95,7 +95,7 @@ const infoChipSx = {
 
 const toneChipSx = tone => ({
   height: 22,
-  borderRadius: `${radii.lg}px`,
+  borderRadius: `${radii['3xl']}px`,
   border: `1px solid ${tone.border}`,
   backgroundColor: tone.bg,
   '& .MuiChip-label': {
@@ -1289,7 +1289,7 @@ export default function AddSalesOrderLoan({}) {
                   <Card
                     elevation={0}
                     sx={{
-                      borderRadius: `${radii.lg}px`,
+                      borderRadius: `${radii['3xl']}px`,
                       border: `1px solid ${statusTokens.success.border}`,
                       boxShadow: shadows.xs,
                       backgroundColor: statusTokens.success.bg

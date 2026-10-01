@@ -12,6 +12,7 @@ import { addMasterDataWarehouseRack, editMasterDataWarehouseRack } from 'src/sto
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import PickersComponent from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import { actionButtonSx } from 'src/views/common/actionButtonSx'
 
 export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
   const dispatch = useDispatch()
@@ -248,6 +249,7 @@ export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
               <Button
                 variant='tonal'
                 color='secondary'
+                sx={actionButtonSx}
                 onClick={() => router.back()}
                 startIcon={<Icon icon='tabler:x' />}
                 disabled={typeModal === 'ADD' ? loadingAdd : loadingEdit}
@@ -255,12 +257,12 @@ export default function TableAddMasterWarehouseRack({ warehouse, typeModal }) {
                 Cancel
               </Button>
               {(typeModal === 'ADD' ? loadingAdd : loadingEdit) ? (
-                <Button variant='contained' disabled>
+                <Button variant='contained' disabled sx={actionButtonSx}>
                   <CircularProgress size={20} sx={{ color: 'white', mr: 2 }} />
                   Submitting...
                 </Button>
               ) : (
-                <Button variant='contained' type='submit' startIcon={<Icon icon='tabler:send' />}>
+                <Button variant='contained' type='submit' sx={actionButtonSx} startIcon={<Icon icon='tabler:send' />}>
                   Submit
                 </Button>
               )}

@@ -64,7 +64,7 @@ export default function DetailSalesOrder({ }) {
     return (
       <Grid container>
         <Grid item xs={12}>
-          <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
+          <Alert severity='error' sx={{ borderRadius: `${radii['3xl']}px` }}>
             Surat Sales Order: {id} Tidak Ditemukan. Mohon cek list surat sales order:{' '}
             <Link href='/sales-order'>Surat Sales Order</Link>
           </Alert>

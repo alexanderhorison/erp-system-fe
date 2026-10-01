@@ -41,7 +41,7 @@ export default function EditSalesOrder() {
     return (
       <Grid container>
         <Grid item xs={12}>
-          <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
+          <Alert severity='error' sx={{ borderRadius: `${radii['3xl']}px` }}>
             Sales Order: {id} Tidak Ditemukan. Mohon cek list sales order:{' '}
             <Link href='/sales-order'>Sales Order</Link>
           </Alert>

@@ -31,7 +31,7 @@ import SectionHeading from 'src/views/common/SectionHeading'
 import { colors, radii, shadows, status as statusTokens, stone } from 'src/configs/designTokens'
 
 const surfaceCardSx = {
-  borderRadius: `${radii.lg}px`,
+  borderRadius: `${radii['3xl']}px`,
   border: `1px solid ${colors.border}`,
   boxShadow: shadows.xs
 }
@@ -198,7 +198,7 @@ export default function ReceiveDelivery({ data }) {
                 plain `sx` rule on this element — hence the `&&` to match it. */}
             <TableContainer
               sx={{
-                '&&': { borderRadius: `${radii.lg}px` },
+                '&&': { borderRadius: `${radii['3xl']}px` },
                 border: `1px solid ${colors.border}`,
                 backgroundColor: colors.background,
                 overflowX: 'auto'

@@ -256,7 +256,7 @@ export default function GeneralCostAndDeposit() {
 
   if (salesOrders?.length === 0) {
     return (
-      <Card elevation={0} sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
+      <Card elevation={0} sx={{ borderRadius: `${radii['3xl']}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
         <CardContent sx={{ p: 5 }}>
           <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground, mb: 1 }}>
             Biaya Umum & Deposit
@@ -273,7 +273,7 @@ export default function GeneralCostAndDeposit() {
   }
 
   return (
-    <Card elevation={0} sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
+    <Card elevation={0} sx={{ borderRadius: `${radii['3xl']}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
       <CardContent sx={{ p: 5 }}>
         <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground, mb: 1 }}>
           Biaya Umum & Deposit
@@ -285,7 +285,7 @@ export default function GeneralCostAndDeposit() {
         {salesOrders.map((field, index) => (
           <Box
             key={field.id}
-            sx={{ p: 3, mb: 3, borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}` }}
+            sx={{ p: 3, mb: 3, borderRadius: `${radii['3xl']}px`, border: `1px solid ${colors.border}` }}
           >
             <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: colors.foreground, mb: 3 }}>
               Detail:{' '}

@@ -48,7 +48,7 @@ export default function DetailDeliveryOrder() {
     return (
       <Grid container>
         <Grid item xs={12}>
-          <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
+          <Alert severity='error' sx={{ borderRadius: `${radii['3xl']}px` }}>
             Surat Jalan: {id} Tidak Ditemukan. Mohon cek list surat jalan:{' '}
             <Link href='/delivery-order'>Surat Jalan</Link>
           </Alert>

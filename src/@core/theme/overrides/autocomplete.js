@@ -1,6 +1,9 @@
 // ** Util Import
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 
+// ** Design Tokens
+import { radii } from 'src/configs/designTokens'
+
 const Autocomplete = skin => {
   const boxShadow = theme => {
     if (skin === 'bordered') {
@@ -15,6 +18,7 @@ const Autocomplete = skin => {
       styleOverrides: {
         popper: ({ theme }) => ({
           '.MuiPaper-root': {
+            borderRadius: `${radii['3xl']}px`,
             boxShadow: boxShadow(theme),
             ...(skin === 'bordered' && { border: `1px solid ${theme.palette.divider}` }),
             '& .MuiAutocomplete-option .MuiListItemButton-root:hover': {
@@ -23,6 +27,12 @@ const Autocomplete = skin => {
             '&.custom-autocomplete-paper': {
               ...theme.typography.body1,
               '& .MuiAutocomplete-option': {
+                // ** Options are inset from the paper edge and rounded to match it.
+                margin: theme.spacing(0, 2, 1),
+                borderRadius: `${radii['3xl']}px`,
+                '&:last-child': {
+                  marginBottom: 0
+                },
                 '&.Mui-focused': {
                   color: theme.palette.primary.main,
                   backgroundColor: hexToRGBA(theme.palette.primary.main, 0.08),

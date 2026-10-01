@@ -48,7 +48,7 @@ export default function ReceiveOrder() {
     return (
       <Grid container>
         <Grid item xs={12}>
-          <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
+          <Alert severity='error' sx={{ borderRadius: `${radii['3xl']}px` }}>
             Surat Jalan: {id} Tidak Ditemukan. Mohon cek list penerimaan surat jalan:{' '}
             <Link href='/receive-order'>Penerimaan Surat Jalan</Link>
           </Alert>

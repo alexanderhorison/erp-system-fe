@@ -1,11 +1,15 @@
 // ** Util Import
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 
+// ** Design Tokens
+import { radii } from 'src/configs/designTokens'
+
 const Menu = () => {
   return {
     MuiMenu: {
       styleOverrides: {
         paper: ({ theme }) => ({
+          borderRadius: `${radii['3xl']}px`,
           '& .MuiMenuItem-root .MuiCheckbox-root.Mui-checked path:first-of-type': {
             fill: theme.palette.common.white
           },
@@ -21,7 +25,7 @@ const Menu = () => {
         root: ({ theme }) => ({
           padding: theme.spacing(2, 4),
           margin: theme.spacing(0, 2, 1),
-          borderRadius: theme.shape.borderRadius,
+          borderRadius: `${radii['3xl']}px`,
           '&:last-child': {
             marginBottom: 0
           },

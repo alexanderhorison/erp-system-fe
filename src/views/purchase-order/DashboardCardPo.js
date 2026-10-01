@@ -9,7 +9,7 @@ import { colors, radii, shadows, status as statusTokens } from 'src/configs/desi
 
 const cardSx = {
   p: 4,
-  borderRadius: `${radii.lg}px`,
+  borderRadius: `${radii['3xl']}px`,
   border: `1px solid ${colors.border}`,
   boxShadow: shadows.xs,
   backgroundColor: colors.background

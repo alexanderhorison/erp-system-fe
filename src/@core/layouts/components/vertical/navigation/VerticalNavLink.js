@@ -46,8 +46,7 @@ const MenuNavLink = styled(ListItemButton)(({ theme }) => ({
   },
   '&.active': {
     '&, &:hover': {
-      backgroundColor: sidebar.activeBg,
-      borderLeft: `2px solid ${sidebar.activeAccent}`
+      backgroundColor: sidebar.activeBg
     },
     '& .MuiTypography-root': {
       color: `${sidebar.activeFg} !important`,

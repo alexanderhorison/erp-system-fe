@@ -308,7 +308,7 @@ export default function ModalFormLongTerm({ open, setOpen, typeModal = 'ADD', id
           <Box
             sx={{
               p: 4,
-              borderRadius: `${radii.lg}px`,
+              borderRadius: `${radii['3xl']}px`,
               border: `1px solid ${colors.border}`,
               backgroundColor: colors.background
             }}

@@ -90,7 +90,7 @@ function GroupCard({ group, expanded, onToggleExpand, checkedMenuIds, checkedAct
       disableGutters
       elevation={0}
       sx={{
-        borderRadius: `${radii.lg}px`,
+        borderRadius: `${radii['3xl']}px`,
         border: `1px solid ${colors.border}`,
         boxShadow: shadows.xs,
         '&:before': { display: 'none' },

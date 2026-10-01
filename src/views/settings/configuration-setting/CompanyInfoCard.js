@@ -41,7 +41,7 @@ export default function CompanyInfoCard({ companyInfo, loading }) {
   const companyData = companyInfo?.value_json ? companyInfo.value_json : companyInfo
 
   if (loading) {
-    return <Skeleton variant='rectangular' sx={{ borderRadius: `${radii.lg}px`, height: 260 }} />
+    return <Skeleton variant='rectangular' sx={{ borderRadius: `${radii['3xl']}px`, height: 260 }} />
   }
 
   return (
@@ -54,7 +54,7 @@ export default function CompanyInfoCard({ companyInfo, loading }) {
         <Box
           sx={{
             p: 4,
-            borderRadius: `${radii.lg}px`,
+            borderRadius: `${radii['3xl']}px`,
             border: `1px solid ${colors.border}`,
             boxShadow: shadows.xs,
             backgroundColor: colors.background

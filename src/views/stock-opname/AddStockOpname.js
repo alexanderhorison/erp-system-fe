@@ -32,7 +32,7 @@ import TableAddStockOpname from './TableAddStockOpname'
 import { colors, radii, shadows } from 'src/configs/designTokens'
 
 const surfaceCardSx = {
-  borderRadius: `${radii.lg}px`,
+  borderRadius: `${radii['3xl']}px`,
   border: `1px solid ${colors.border}`,
   boxShadow: shadows.xs
 }
@@ -210,7 +210,7 @@ export default function AddStockOpname({ warehouse }) {
           {checkStockOpname.isHaveStockOpname ? (
             <Alert
               severity='error'
-              sx={{ mt: 4, borderRadius: `${radii.lg}px`, ':hover': { cursor: 'pointer' } }}
+              sx={{ mt: 4, borderRadius: `${radii['3xl']}px`, ':hover': { cursor: 'pointer' } }}
               onClick={() => router.push(`/stock-opname/${checkStockOpname.stockOpnameCode}`)}
             >
               {checkStockOpname.message}

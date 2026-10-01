@@ -1,36 +1,22 @@
-import { useMemo } from 'react'
-import CustomChip from 'src/@core/components/mui/chip'
+import StatusChip from 'src/views/common/StatusChip'
+import { formatStatusLabel } from 'src/helpers/formatStatusLabel'
+
+// ** Tone per document status. Anything not listed (including unknown statuses)
+// renders as the plain outlined pill, the same as an inactive master record.
+const STATUS_TONE = {
+  APPROVED: 'success',
+  PAID: 'success',
+  PENDING: 'info',
+  DRAFT: 'warning',
+  REJECTED: 'danger',
+  VOID: 'danger'
+}
+
+// ** The `color` prop predates the pill and still takes MUI palette names.
+const COLOR_TONE = { success: 'success', error: 'danger', warning: 'warning', info: 'info' }
 
 export default function Status(props) {
-  const color = useMemo(() => {
-    if (props?.color) {
-      return props?.color
-    }
-    switch (props?.status) {
-      case 'VOID':
-        return 'error'
-      case 'PENDING':
-        return 'info'
-      case 'APPROVED':
-      case 'PAID':
-        return 'success'
-      case 'REJECTED':
-        return 'error'
-      case 'DRAFT':
-        return 'warning'
-      default:
-        return 'primary'
-    }
-  }, [props?.status])
+  const tone = props?.color ? COLOR_TONE[props.color] : STATUS_TONE[props?.status]
 
-  return (
-    <CustomChip
-      rounded
-      size='small'
-      skin='light'
-      color={color}
-      label={props.status || '-'}
-      sx={{ '& .MuiChip-label': { textTransform: 'capitalize' } }}
-    />
-  )
+  return <StatusChip tone={tone} label={props?.status ? formatStatusLabel(props.status) : '-'} />
 }

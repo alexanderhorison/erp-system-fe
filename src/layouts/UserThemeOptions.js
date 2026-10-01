@@ -62,10 +62,15 @@ const UserThemeOptions = () => {
             fontSize: px(paragraphSmall.fontSize),
             lineHeight: `${paragraphSmall.lineHeight}px`
           },
-          contained: {
+          // ** The core theme's `contained` override is a function; a plain object
+          // here replaces it in the merge and drops its padding, leaving contained
+          // buttons ~8px shorter than outlined ones. Medium padding is restated so
+          // Cancel/Save pairs stay the same height (matches `outlined` in core).
+          contained: ({ ownerState }) => ({
             boxShadow: shadows.xs,
-            '&:hover': { boxShadow: shadows.xs }
-          },
+            '&:hover': { boxShadow: shadows.xs },
+            ...(ownerState.size === 'medium' && { padding: '10px 20px' })
+          }),
           sizeSmall: { borderRadius: radii.full },
           sizeLarge: { borderRadius: radii.full }
         }
@@ -82,12 +87,12 @@ const UserThemeOptions = () => {
       },
       MuiCard: {
         styleOverrides: {
-          root: { borderRadius: radii.lg }
+          root: { borderRadius: radii['3xl'] }
         }
       },
       MuiPaper: {
         styleOverrides: {
-          rounded: { borderRadius: radii.lg }
+          rounded: { borderRadius: radii['3xl'] }
         }
       }
     },

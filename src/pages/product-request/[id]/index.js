@@ -46,7 +46,7 @@ export default function DetailProductRequest({}) {
     return (
       <Grid container>
         <Grid item xs={12}>
-          <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
+          <Alert severity='error' sx={{ borderRadius: `${radii['3xl']}px` }}>
             Produk Request: {id} Tidak Ditemukan. Mohon cek list Produk Request:{' '}
             <Link href='/product-request'>Product Request</Link>
           </Alert>

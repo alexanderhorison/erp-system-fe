@@ -167,7 +167,7 @@ export default function WarehouseCardList({}) {
           sx={{
             p: 8,
             textAlign: 'center',
-            borderRadius: `${radii.lg}px`,
+            borderRadius: `${radii['3xl']}px`,
             border: `1px solid ${colors.border}`,
             boxShadow: shadows.xs
           }}

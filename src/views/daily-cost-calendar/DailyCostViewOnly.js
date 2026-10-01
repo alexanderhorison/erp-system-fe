@@ -28,7 +28,7 @@ import PageHeader from 'src/views/common/PageHeader'
 import { colors, radii, shadows, stone } from 'src/configs/designTokens'
 
 const cardSx = {
-  borderRadius: `${radii.lg}px`,
+  borderRadius: `${radii['3xl']}px`,
   border: `1px solid ${colors.border}`,
   boxShadow: shadows.xs,
   backgroundColor: colors.background

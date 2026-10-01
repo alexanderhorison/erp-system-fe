@@ -66,7 +66,7 @@ const DetailGoodsOut = ({ data }) => {
   return (
     <Card
       elevation={0}
-      sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
+      sx={{ borderRadius: `${radii['3xl']}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
     >
       {/* Letterhead */}
       <CardContent sx={{ p: 5 }}>

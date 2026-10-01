@@ -171,9 +171,7 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
                 <Typography sx={{ fontSize: '1.125rem', fontWeight: 600, color: colors.foreground }}>
                   Detail Transaksi POS
                 </Typography>
-                <Typography sx={{ ...mutedSx, mt: 0.5 }}>
-                  {data?.code || '-'}
-                </Typography>
+                <Typography sx={{ ...mutedSx, mt: 0.5 }}>{data?.code || '-'}</Typography>
                 {(data?.queueNumber != null || data?.shift) && (
                   <Tooltip
                     title={
@@ -221,47 +219,39 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
               <CircularProgress />
             </Box>
           ) : errorDetailPointOfSale ? (
-            <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
+            <Alert severity='error' sx={{ borderRadius: `${radii['3xl']}px` }}>
               Point of sale: {data?.code || ''} Tidak Ditemukan. Mohon cek list point of sale:{' '}
               <Link href='/point-of-sale'>Point of Sale</Link>
             </Alert>
           ) : (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {/* Info strip */}
-              <Grid
-                container
-                spacing={4}
+              <Box
                 sx={{
-                  m: 0,
+                  display: 'grid',
+                  gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(4, minmax(0, 1fr))' },
+                  gap: 4,
                   p: 4,
-                  borderRadius: `${radii.lg}px`,
+                  borderRadius: `${radii['3xl']}px`,
                   backgroundColor: stone[100]
                 }}
               >
-                <Grid item xs={6} sm={3}>
-                  <InfoItem
-                    icon='tabler:calendar'
-                    label='Tanggal'
-                    value={`${returnFormatDate(data?.createdAt)}, ${returnFormatTime(data?.createdAt)}`}
-                  />
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <InfoItem icon='tabler:building-warehouse' label='Gudang' value={data?.warehouseName} />
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <InfoItem icon='tabler:user-shield' label='Kasir' value={data?.createdBy} />
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <InfoItem icon='tabler:user' label='Pelanggan' value={data?.customer?.name} />
-                </Grid>
-              </Grid>
+                <InfoItem
+                  icon='tabler:calendar'
+                  label='Tanggal'
+                  value={`${returnFormatDate(data?.createdAt)}, ${returnFormatTime(data?.createdAt)}`}
+                />
+                <InfoItem icon='tabler:building-warehouse' label='Gudang' value={data?.warehouseName} />
+                <InfoItem icon='tabler:user-shield' label='Kasir' value={data?.createdBy} />
+                <InfoItem icon='tabler:user' label='Pelanggan' value={data?.customer?.name} />
+              </Box>
 
               {/* 1. Ringkasan Pembayaran */}
               <Box>
                 <SectionHeading number={1} title='Ringkasan Pembayaran' />
                 <Box
                   sx={{
-                    borderRadius: `${radii.lg}px`,
+                    borderRadius: `${radii['3xl']}px`,
                     border: `1px solid ${statusTokens.success.border}`,
                     boxShadow: shadows.xs,
                     backgroundColor: statusTokens.success.bg,
@@ -342,9 +332,7 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
                     Produk Dibeli
                   </Typography>
                   <Box sx={{ flexGrow: 1, height: '1px', backgroundColor: colors.border }} />
-                  <Typography sx={{ ...mutedSx, flexShrink: 0 }}>
-                    {data?.listProducts?.length || 0} Items
-                  </Typography>
+                  <Typography sx={{ ...mutedSx, flexShrink: 0 }}>{data?.listProducts?.length || 0} Items</Typography>
                 </Box>
                 <DataTable
                   itemLabel='produk'
@@ -521,7 +509,7 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
           <Alert
             severity='warning'
             variant='outlined'
-            sx={{ mt: 4, borderRadius: `${radii.lg}px` }}
+            sx={{ mt: 4, borderRadius: `${radii['3xl']}px` }}
             icon={<Icon icon='tabler:alert-triangle' />}
           >
             <Typography variant='body2'>Aksi ini tidak dapat dibatalkan setelah dikonfirmasi</Typography>

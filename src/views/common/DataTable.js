@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 // ** MUI Imports
+import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import { DataGrid, useGridApiRef } from '@mui/x-data-grid'
 
@@ -140,7 +141,7 @@ export default function DataTable({
       sx={{
         width: '100%',
         minWidth: 0,
-        borderRadius: `${radii.lg}px`,
+        borderRadius: `${radii['3xl']}px`,
         border: `1px solid ${colors.border}`,
         boxShadow: shadows.xs,
         overflow: 'hidden'
@@ -149,76 +150,92 @@ export default function DataTable({
     >
       {toolbar}
 
-      <DataGrid
-        apiRef={apiRef}
-        autoHeight
-        disableRowSelectionOnClick
-        columnHeaderHeight={48}
-        rowHeight={52}
+      {/* The grid sits in its own rounded, bordered frame inside the card; the
+          frame clips the header's top corners to its radius. */}
+      <Box
         sx={{
-          border: 0,
-          width: '100%',
-          '& .MuiDataGrid-main': {
-            width: '100%'
-          },
-          '& .MuiDataGrid-virtualScroller': {
-            overflowX: 'auto'
-          },
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: stone[100],
-            borderBottom: `1px solid ${colors.border}`
-          },
-          '& .MuiDataGrid-columnHeader': {
-            paddingLeft: 16,
-            paddingRight: 16
-          },
-          '& .MuiDataGrid-iconButtonContainer': {
-            visibility: 'visible',
-            width: 'auto'
-          },
-          '& .MuiDataGrid-sortIcon': {
-            opacity: '1 !important',
-            color: colors.mutedForeground
-          },
-          '& .MuiDataGrid-columnHeaderTitle': {
-            fontSize: '0.875rem',
-            fontWeight: 500,
-            letterSpacing: 0,
-            textTransform: 'none',
-            color: colors.foreground
-          },
-          '& .MuiDataGrid-cell': {
-            fontSize: '0.875rem',
-            borderColor: colors.border,
-            color: colors.foreground,
-            paddingLeft: 16,
-            paddingRight: 16
-          },
-          // ** When the columns do not fill the viewport DataGrid appends a
-          // filler `.MuiDataGrid-cell` with no content. It inherits the border
-          // colour above but not a bottom border, so row separators would stop
-          // at the last real column.
-          '& .MuiDataGrid-row .MuiDataGrid-cell:empty': {
-            borderBottom: `1px solid ${colors.border}`
-          },
-          '& .MuiDataGrid-row:hover': {
-            backgroundColor: stone[50]
-          },
-          '& .MuiDataGrid-footerContainer': {
-            display: 'none'
-          },
-          ...sx
+          mx: 4,
+          mb: 4,
+          mt: toolbar ? 0 : 4,
+          border: `1px solid ${colors.border}`,
+          borderRadius: `${radii['3xl']}px`,
+          overflow: 'hidden'
         }}
-        hideFooter
-        columns={normalisedColumns}
-        {...dataGridProps}
-        slots={{
-          columnSortedAscendingIcon: SortAscIcon,
-          columnSortedDescendingIcon: SortDescIcon,
-          columnUnsortedIcon: SortUnsortedIcon,
-          ...slots
-        }}
-      />
+      >
+        <DataGrid
+          apiRef={apiRef}
+          autoHeight
+          disableRowSelectionOnClick
+          columnHeaderHeight={48}
+          rowHeight={52}
+          sx={{
+            border: 0,
+            width: '100%',
+            '& .MuiDataGrid-main': {
+              width: '100%'
+            },
+            '& .MuiDataGrid-virtualScroller': {
+              overflowX: 'auto'
+            },
+            // ** `&&` outranks the `MuiCard` override that squares every
+            // `.MuiDataGrid-columnHeaders` inside a card (see REVAMP_BASELINE §8).
+            '&& .MuiDataGrid-columnHeaders': {
+              backgroundColor: stone[100],
+              borderRadius: 0,
+              borderBottom: `1px solid ${colors.border}`
+            },
+            '& .MuiDataGrid-columnHeader': {
+              paddingLeft: 16,
+              paddingRight: 16
+            },
+            '& .MuiDataGrid-iconButtonContainer': {
+              visibility: 'visible',
+              width: 'auto'
+            },
+            '& .MuiDataGrid-sortIcon': {
+              opacity: '1 !important',
+              color: colors.mutedForeground
+            },
+            '& .MuiDataGrid-columnHeaderTitle': {
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              letterSpacing: 0,
+              textTransform: 'none',
+              color: colors.foreground
+            },
+            '& .MuiDataGrid-cell': {
+              fontSize: '0.875rem',
+              borderColor: colors.border,
+              color: colors.foreground,
+              paddingLeft: 16,
+              paddingRight: 16
+            },
+            // ** When the columns do not fill the viewport DataGrid appends a
+            // filler `.MuiDataGrid-cell` with no content. It inherits the border
+            // colour above but not a bottom border, so row separators would stop
+            // at the last real column.
+            '& .MuiDataGrid-row .MuiDataGrid-cell:empty': {
+              borderBottom: `1px solid ${colors.border}`
+            },
+            '& .MuiDataGrid-row:hover': {
+              backgroundColor: stone[50]
+            },
+            '& .MuiDataGrid-footerContainer': {
+              display: 'none'
+            },
+            ...sx
+          }}
+          hideFooter
+          columns={normalisedColumns}
+          {...dataGridProps}
+          slots={{
+            columnSortedAscendingIcon: SortAscIcon,
+            columnSortedDescendingIcon: SortDescIcon,
+            columnUnsortedIcon: SortUnsortedIcon,
+            ...slots
+          }}
+        />
+      </Box>
 
       {paginationModel && (
         <TablePagination

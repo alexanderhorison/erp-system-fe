@@ -162,7 +162,7 @@ export default function TableAddProductWarehouseV3(props) {
     <>
       <Card
         elevation={0}
-        sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
+        sx={{ borderRadius: `${radii['3xl']}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
       >
         <RepeaterWrapper>
           <Repeater count={count}>

@@ -44,7 +44,7 @@ const SummaryCard = ({ item }) => {
       sx={{
         p: 4,
         height: '100%',
-        borderRadius: `${radii.lg}px`,
+        borderRadius: `${radii['3xl']}px`,
         border: `1px solid ${colors.border}`,
         boxShadow: shadows.xs,
         backgroundColor: colors.background

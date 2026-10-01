@@ -27,7 +27,7 @@ import { ENUM, exportReport } from 'src/store/apps/export'
 import { colors, radii, shadows } from 'src/configs/designTokens'
 
 const surfaceCardSx = {
-  borderRadius: `${radii.lg}px`,
+  borderRadius: `${radii['3xl']}px`,
   border: `1px solid ${colors.border}`,
   boxShadow: shadows.xs
 }

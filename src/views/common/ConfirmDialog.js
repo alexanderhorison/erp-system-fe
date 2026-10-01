@@ -11,6 +11,7 @@ import Icon from 'src/@core/components/icon'
 
 // ** Design Tokens
 import { colors, radii, shadows } from 'src/configs/designTokens'
+import { actionButtonSx } from 'src/views/common/actionButtonSx'
 
 /**
  * ConfirmDialog
@@ -88,6 +89,7 @@ export default function ConfirmDialog({
           disabled={loading}
           startIcon={<Icon icon='tabler:x' fontSize='1rem' />}
           sx={{
+            ...actionButtonSx,
             color: colors.foreground,
             borderColor: colors.border3,
             boxShadow: shadows.xs,
@@ -103,14 +105,13 @@ export default function ConfirmDialog({
           startIcon={
             loading ? <CircularProgress size={16} sx={{ color: 'inherit' }} /> : <Icon icon={confirmIcon} fontSize='1rem' />
           }
-          sx={
-            accent
-              ? {
-                  backgroundColor: accent,
-                  '&:hover': { backgroundColor: accent, filter: 'brightness(0.92)' }
-                }
-              : undefined
-          }
+          sx={{
+            ...actionButtonSx,
+            ...(accent && {
+              backgroundColor: accent,
+              '&:hover': { backgroundColor: accent, filter: 'brightness(0.92)' }
+            })
+          }}
         >
           {loading ? loadingLabel : confirmLabel}
         </Button>

@@ -1,3 +1,6 @@
+// ** Design Tokens
+import { radii } from 'src/configs/designTokens'
+
 const Popover = skin => {
   const boxShadow = theme => {
     if (skin === 'bordered') {
@@ -11,6 +14,7 @@ const Popover = skin => {
     MuiPopover: {
       styleOverrides: {
         paper: ({ theme }) => ({
+          borderRadius: `${radii['3xl']}px`,
           boxShadow: boxShadow(theme),
           ...(skin === 'bordered' && { border: `1px solid ${theme.palette.divider}` })
         })

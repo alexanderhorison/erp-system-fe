@@ -51,7 +51,7 @@ export default function ReceiptOrderOutstandingDetail() {
     return (
       <Grid container>
         <Grid item xs={12}>
-          <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
+          <Alert severity='error' sx={{ borderRadius: `${radii['3xl']}px` }}>
             Surat Outstanding: {code} Tidak Ditemukan. Mohon cek list surat outstanding produk:{' '}
             <Link href='/receipt-order-outstanding'>Surat Outstanding Produk</Link>
           </Alert>

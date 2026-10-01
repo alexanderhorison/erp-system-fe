@@ -12,7 +12,7 @@ import ListItem from '@mui/material/ListItem'
 import { styled } from '@mui/material/styles'
 
 // ** Design Tokens
-import { sidebar } from 'src/configs/designTokens'
+import { radii, sidebar } from 'src/configs/designTokens'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import ListItemIcon from '@mui/material/ListItemIcon'
@@ -181,7 +181,7 @@ const VerticalNavGroup = props => {
             sx={{
               py: 2,
               mx: 3.5,
-              borderRadius: 1,
+              borderRadius: `${radii['3xl']}px`,
               width: theme => `calc(100% - ${theme.spacing(3.5 * 2)})`,
               transition: 'padding-left .25s ease-in-out, padding-right .25s ease-in-out',
               px: navCollapsed && !navHover ? (collapsedNavWidth - navigationBorderWidth - 22 - 28) / 8 : 4,

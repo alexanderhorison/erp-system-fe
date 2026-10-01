@@ -134,7 +134,7 @@ export default function FilterPanel({
             maxHeight: 'calc(100vh - 160px)',
             display: 'flex',
             flexDirection: 'column',
-            borderRadius: `${radii.lg}px`,
+            borderRadius: `${radii['3xl']}px`,
             border: `1px solid ${colors.border}`,
             boxShadow: shadows.lg,
             backgroundColor: colors.background
@@ -178,6 +178,7 @@ export default function FilterPanel({
           onClick={handleReset}
           startIcon={<Icon icon='tabler:rotate-2' fontSize='1rem' />}
           sx={{
+            minWidth: 104,
             color: colors.foreground,
             borderColor: colors.border3,
             boxShadow: shadows.xs,
@@ -189,6 +190,7 @@ export default function FilterPanel({
         <Button
           size='small'
           variant='contained'
+          sx={{ minWidth: 104 }}
           onClick={handleApply}
           startIcon={<Icon icon='tabler:filter' fontSize='1rem' />}
         >

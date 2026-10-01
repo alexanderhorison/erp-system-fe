@@ -44,7 +44,7 @@ export default function EditPurchaseOrder() {
     return (
       <Grid container>
         <Grid item xs={12}>
-          <Alert severity='error' sx={{ borderRadius: `${radii.lg}px` }}>
+          <Alert severity='error' sx={{ borderRadius: `${radii['3xl']}px` }}>
             Purchase Order: {id} Tidak Ditemukan. Mohon cek list purchase order:{' '}
             <Link href='/purchase-order'>Purchase Order</Link>
           </Alert>

@@ -163,7 +163,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
   const costEmployees = watch('costEmployees') || []
 
   return (
-    <Card elevation={0} sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
+    <Card elevation={0} sx={{ borderRadius: `${radii['3xl']}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
       <CardContent sx={{ p: 5 }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 3, mb: 4 }}>
           <Box>
@@ -188,7 +188,7 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                 sx={{
                   p: 3,
                   mb: 3,
-                  borderRadius: `${radii.lg}px`,
+                  borderRadius: `${radii['3xl']}px`,
                   border: `1px solid ${colors.border}`,
                   position: 'relative'
                 }}

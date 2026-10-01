@@ -23,6 +23,8 @@ import { UseAuth } from 'src/hooks/useAuth'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { returnToLocaleDateString } from 'src/helpers/formatDate'
 
+import { formatStatusLabel } from 'src/helpers/formatStatusLabel'
+
 // ** Design Tokens
 import { colors, radii, shadows, status as statusTokens, stone } from 'src/configs/designTokens'
 
@@ -118,7 +120,7 @@ const DetailPageSalesOrder = ({ data }) => {
               </Typography>
               <Chip
                 size='small'
-                label={data?.status || '-'}
+                label={data?.status ? formatStatusLabel(data.status) : '-'}
                 sx={{
                   height: 24,
                   borderRadius: `${radii.full}px`,
@@ -175,7 +177,7 @@ const DetailPageSalesOrder = ({ data }) => {
         <Typography sx={{ ...sectionLabelSx, fontSize: '1rem', mb: 3 }}>Barang Sales Order</Typography>
         <TableContainer
           sx={{
-            '&&': { borderRadius: `${radii.lg}px` },
+            '&&': { borderRadius: `${radii['3xl']}px` },
             border: `1px solid ${colors.border}`,
             overflowX: 'auto'
           }}
@@ -242,7 +244,7 @@ const DetailPageSalesOrder = ({ data }) => {
             <Typography sx={{ ...sectionLabelSx, fontSize: '1rem', mt: 6, mb: 3 }}>Barang Barter</Typography>
             <TableContainer
               sx={{
-                '&&': { borderRadius: `${radii.lg}px` },
+                '&&': { borderRadius: `${radii['3xl']}px` },
                 border: `1px solid ${colors.border}`,
                 overflowX: 'auto'
               }}

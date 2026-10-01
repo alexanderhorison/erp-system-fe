@@ -218,7 +218,7 @@ export default function ModalTransformProductSalesOrder({
                   gap: 3,
                   px: 4,
                   py: 3,
-                  borderRadius: `${radii.lg}px`,
+                  borderRadius: `${radii['3xl']}px`,
                   border: `1px solid ${tone.border}`,
                   backgroundColor: tone.bg
                 }}

@@ -41,7 +41,7 @@ export default function SummaryCost() {
   }
 
   return (
-    <Card elevation={0} sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
+    <Card elevation={0} sx={{ borderRadius: `${radii['3xl']}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
       <CardContent sx={{ p: 5 }}>
         <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: colors.foreground, mb: 1 }}>Ringkasan</Typography>
         <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground, mb: 3 }}>

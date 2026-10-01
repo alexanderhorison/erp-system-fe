@@ -22,6 +22,8 @@ import themeConfig from 'src/configs/themeConfig'
 import { priceFormat } from 'src/helpers/priceFormatter'
 import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 
+import { formatStatusLabel } from 'src/helpers/formatStatusLabel'
+
 // ** Design Tokens
 import { colors, radii, shadows, status as statusTokens, stone } from 'src/configs/designTokens'
 
@@ -119,7 +121,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
               </Typography>
               <Chip
                 size='small'
-                label={data?.status || '-'}
+                label={data?.status ? formatStatusLabel(data.status) : '-'}
                 sx={{
                   height: 24,
                   borderRadius: `${radii.full}px`,
@@ -169,7 +171,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
         <Typography sx={{ ...sectionLabelSx, fontSize: '1rem', mb: 3 }}>Barang Purchase Order</Typography>
         <TableContainer
           sx={{
-            '&&': { borderRadius: `${radii.lg}px` },
+            '&&': { borderRadius: `${radii['3xl']}px` },
             border: `1px solid ${colors.border}`,
             overflowX: 'auto'
           }}
@@ -232,7 +234,7 @@ const DetailPagePurchaseOrder = ({ data }) => {
             <Typography sx={{ ...sectionLabelSx, fontSize: '1rem', mt: 6, mb: 3 }}>Barang Barter</Typography>
             <TableContainer
               sx={{
-                '&&': { borderRadius: `${radii.lg}px` },
+                '&&': { borderRadius: `${radii['3xl']}px` },
                 border: `1px solid ${colors.border}`,
                 overflowX: 'auto'
               }}

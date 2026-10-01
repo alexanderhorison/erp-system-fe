@@ -24,6 +24,7 @@ import PageHeader from 'src/views/common/PageHeader'
 
 // ** Design Tokens
 import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
+import { actionButtonSx } from 'src/views/common/actionButtonSx'
 
 dayjs.locale('id')
 
@@ -438,7 +439,7 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
           <Box sx={{ position: { lg: 'sticky', xs: 'static' }, top: 20 }}>
             <Box
               sx={{
-                borderRadius: `${radii.lg}px`,
+                borderRadius: `${radii['3xl']}px`,
                 border: `1px solid ${colors.border}`,
                 boxShadow: shadows.xs,
                 backgroundColor: colors.background,
@@ -536,7 +537,7 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
 
             <Box
               sx={{
-                borderRadius: `${radii.lg}px`,
+                borderRadius: `${radii['3xl']}px`,
                 border: `1px solid ${colors.border}`,
                 boxShadow: shadows.xs,
                 backgroundColor: colors.background,
@@ -574,7 +575,7 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
                   alignItems: 'center',
                   flexWrap: 'wrap',
                   gap: 3,
-                  borderRadius: `${radii.lg}px`,
+                  borderRadius: `${radii['3xl']}px`,
                   border: `1px solid ${colors.border}`,
                   boxShadow: shadows.xs,
                   backgroundColor: colors.background
@@ -614,6 +615,7 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
                       disabled={isSubmitting || isStepChanging}
                       startIcon={<Icon icon='tabler:x' fontSize='1rem' />}
                       sx={{
+                        ...actionButtonSx,
                         color: colors.foreground,
                         borderColor: colors.border3,
                         boxShadow: shadows.xs,
@@ -627,6 +629,7 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
                   {activeStep < steps.length - 1 ? (
                     <Button
                       variant='contained'
+                      sx={actionButtonSx}
                       onClick={handleNext}
                       disabled={!isStepValid() || isSubmitting || isStepChanging}
                       endIcon={
@@ -643,6 +646,7 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
                     mode !== 'view' && (
                       <Button
                         variant='contained'
+                        sx={actionButtonSx}
                         onClick={handleSubmit}
                         disabled={isSubmitting || isStepChanging}
                         startIcon={

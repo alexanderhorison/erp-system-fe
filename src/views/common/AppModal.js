@@ -11,6 +11,7 @@ import Icon from 'src/@core/components/icon'
 
 // ** Design Tokens
 import { colors, radii, shadows } from 'src/configs/designTokens'
+import { actionButtonSx } from 'src/views/common/actionButtonSx'
 
 /**
  * AppModal
@@ -105,6 +106,7 @@ export default function AppModal({
               disabled={loading}
               startIcon={<Icon icon='tabler:x' fontSize='1rem' />}
               sx={{
+                ...actionButtonSx,
                 color: colors.foreground,
                 borderColor: colors.border3,
                 boxShadow: shadows.xs,
@@ -117,6 +119,7 @@ export default function AppModal({
               type='submit'
               variant='contained'
               disabled={loading}
+              sx={actionButtonSx}
               startIcon={
                 loading ? (
                   <CircularProgress size={16} sx={{ color: 'inherit' }} />

@@ -59,14 +59,14 @@ export default function DetailVendor({ data, loading }) {
   const [openModal, setOpenModal] = useState(false)
 
   if (loading) {
-    return <Skeleton variant='rectangular' sx={{ borderRadius: `${radii.lg}px`, height: 220 }} />
+    return <Skeleton variant='rectangular' sx={{ borderRadius: `${radii['3xl']}px`, height: 220 }} />
   }
 
   if (!data) return null
 
   const cardSx = {
     p: 4,
-    borderRadius: `${radii.lg}px`,
+    borderRadius: `${radii['3xl']}px`,
     border: `1px solid ${colors.border}`,
     boxShadow: shadows.xs,
     backgroundColor: colors.background

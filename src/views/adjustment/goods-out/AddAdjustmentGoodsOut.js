@@ -161,7 +161,7 @@ export default function AddAdjustmentGoodsOut() {
     <form onSubmit={handleSubmit(onSubmit)}>
       <Card
         elevation={0}
-        sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
+        sx={{ borderRadius: `${radii['3xl']}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}
       >
         <RepeaterWrapper>
           {/* Source warehouse. Changing it reloads the product list and clears

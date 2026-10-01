@@ -26,7 +26,7 @@ export default function TableHistoryProduct({ history, product }) {
     <Card
       elevation={0}
       sx={{
-        borderRadius: `${radii.lg}px`,
+        borderRadius: `${radii['3xl']}px`,
         border: `1px solid ${colors.border}`,
         boxShadow: shadows.xs
       }}

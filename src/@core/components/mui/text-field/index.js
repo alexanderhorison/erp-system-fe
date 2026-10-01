@@ -9,7 +9,7 @@ import { styled } from '@mui/material/styles'
 import InputAdornment from '@mui/material/InputAdornment'
 
 // ** Design Tokens
-import { colors } from 'src/configs/designTokens'
+import { colors, radii } from 'src/configs/designTokens'
 
 const TextFieldStyled = styled(TextField)(({ theme }) => ({
   alignItems: 'flex-start',
@@ -62,7 +62,7 @@ const TextFieldStyled = styled(TextField)(({ theme }) => ({
       borderRadius: 9999
     },
     '&.MuiInputBase-multiline': {
-      borderRadius: 18
+      borderRadius: radii['3xl']
     },
     '&.Mui-error': {
       borderColor: theme.palette.error.main

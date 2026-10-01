@@ -127,7 +127,7 @@ export default function EditConfigurationSetting() {
 
       <Grid container>
         <Grid item xs={12}>
-          <Card elevation={0} sx={{ borderRadius: `${radii.lg}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
+          <Card elevation={0} sx={{ borderRadius: `${radii['3xl']}px`, border: `1px solid ${colors.border}`, boxShadow: shadows.xs }}>
             <CardContent sx={{ p: 5 }}>
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={6}>
