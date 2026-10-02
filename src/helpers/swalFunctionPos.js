@@ -1,13 +1,11 @@
-import swal from 'src/pages/sweetalert'
 import { swalError } from './swalFunction'
+import { confirm } from 'src/helpers/confirm'
 import { messageFromError, messageFromResponse, notifyError, notifySuccess, toast } from 'src/helpers/notify'
-import { environtmentColor } from 'src/helpers/getEnvirontmentColor'
 
 // ONLY FOR ADD
 export async function swalConfirmationChargePos({
   label,
   text,
-  width = 300,
   name = 'Data',
   axiosRequest,
   dispatchRequest,
@@ -16,21 +14,18 @@ export async function swalConfirmationChargePos({
   skipPrompt = false
 }) {
   try {
-    const result = skipPrompt
-      ? { isConfirmed: true }
-      : await swal.fire({
-          title: title,
-          text: text,
-          icon: 'question',
-          showCancelButton: true,
-          confirmButtonText: 'Iya',
-          cancelButtonText: 'Tidak',
-          reverseButtons: true,
-          confirmButtonColor: environtmentColor(),
-          width: width
-        })
-    if (result.dismiss) {
-    } else {
+    const confirmed =
+      skipPrompt ||
+      (await confirm({
+        title,
+        description: text,
+        confirmLabel: 'Iya',
+        cancelLabel: 'Tidak',
+        confirmIcon: 'tabler:check',
+        destructive: false
+      }))
+
+    if (confirmed) {
       // Progress is a toast, not a popup: it never blocks the cashier
       const loadingId = toast.loading('Memproses...')
 
@@ -52,24 +47,27 @@ export async function swalConfirmationChargePos({
 
 export async function swalConfirmationOnly({
   text,
+  description,
   onClickYes = () => {},
   onClickNo = () => {},
   title,
   successMessage = 'Sukses',
-  autoSuccess = true
+  autoSuccess = true,
+  confirmButtonText = 'Iya',
+  cancelButtonText = 'Tidak',
+  confirmIcon = 'tabler:check',
+  destructive = false
 }) {
-  const result = await swal.fire({
-    title: title,
-    text: text,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Iya',
-    cancelButtonText: 'Tidak',
-    reverseButtons: true,
-    confirmButtonColor: environtmentColor()
+  const confirmed = await confirm({
+    title,
+    description: description || text,
+    confirmLabel: confirmButtonText,
+    cancelLabel: cancelButtonText,
+    confirmIcon,
+    destructive
   })
 
-  if (result.isConfirmed) {
+  if (confirmed) {
     const loadingId = toast.loading('Memproses...')
     try {
       // await caller's async operation
@@ -86,7 +84,7 @@ export async function swalConfirmationOnly({
       notifyError(messageFromError(error, 'Terjadi kesalahan'))
       throw error
     }
-  } else if (result.dismiss === swal.DismissReason.cancel) {
+  } else {
     onClickNo()
   }
 }

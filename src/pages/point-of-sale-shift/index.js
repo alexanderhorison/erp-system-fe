@@ -5,9 +5,8 @@ import axios from 'src/configs/axios'
 import { toast } from 'sonner'
 import Icon from 'src/@core/components/icon'
 import { UseAuth } from 'src/hooks/useAuth'
-import swal from 'src/pages/sweetalert'
+import { confirm } from 'src/helpers/confirm'
 import { notifyInfo } from 'src/helpers/notify'
-import { environtmentColor } from 'src/helpers/getEnvirontmentColor'
 import Logo from 'src/icons/logo'
 import { PosClock } from 'src/views/point-of-sale/DetailUserPos'
 import { colors, radii, shadows, status as statusTokens, stone } from 'src/configs/designTokens'
@@ -99,18 +98,15 @@ const PointOfSaleShiftPage = () => {
 
   const handleLogoutClick = async () => {
     try {
-      const result = await swal.fire({
+      const confirmed = await confirm({
         title: 'Konfirmasi Logout',
-        text: 'Apakah Anda yakin ingin keluar dari sistem?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Ya, Logout',
-        cancelButtonText: 'Batal',
-        reverseButtons: true,
-        confirmButtonColor: environtmentColor()
+        description: 'Apakah Anda yakin ingin keluar dari sistem?',
+        confirmLabel: 'Ya, Logout',
+        cancelLabel: 'Batal',
+        confirmIcon: 'tabler:logout'
       })
 
-      if (result.isConfirmed) {
+      if (confirmed) {
         notifyInfo('Logging out...')
 
         setTimeout(() => {

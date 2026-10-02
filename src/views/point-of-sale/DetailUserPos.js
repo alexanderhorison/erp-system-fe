@@ -10,9 +10,8 @@ import Typography from '@mui/material/Typography'
 
 import Icon from 'src/@core/components/icon'
 import { UseAuth } from 'src/hooks/useAuth'
-import swal from 'src/pages/sweetalert'
+import { confirm } from 'src/helpers/confirm'
 import { notifyInfo } from 'src/helpers/notify'
-import { environtmentColor } from 'src/helpers/getEnvirontmentColor'
 import ShiftTimer from './shift/ShiftTimer'
 import EndShiftModal from './shift/EndShiftModal'
 
@@ -47,18 +46,15 @@ export default function DetailUserPos({ user, warehouse, setOpenSetting, current
 
   const handleLogoutClick = async () => {
     try {
-      const result = await swal.fire({
+      const confirmed = await confirm({
         title: 'Konfirmasi Logout',
-        text: 'Apakah Anda yakin ingin keluar dari sistem Point of Sale? Semua data yang belum disimpan akan hilang.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Ya, Logout',
-        cancelButtonText: 'Batal',
-        reverseButtons: true,
-        confirmButtonColor: environtmentColor()
+        description: 'Apakah Anda yakin ingin keluar dari sistem Point of Sale? Semua data yang belum disimpan akan hilang.',
+        confirmLabel: 'Ya, Logout',
+        cancelLabel: 'Batal',
+        confirmIcon: 'tabler:logout'
       })
 
-      if (result.isConfirmed) {
+      if (confirmed) {
         // Show loading/success message
         notifyInfo('Logging out...')
 

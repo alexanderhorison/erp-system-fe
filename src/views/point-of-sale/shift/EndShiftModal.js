@@ -280,7 +280,9 @@ const EndShiftModal = ({ open, onClose, onShiftEnded }) => {
                     title: 'Konfirmasi Akhiri Shift',
                     text: 'Apakah Anda yakin ingin mengakhiri shift sekarang? Setelah shift diakhiri, Anda akan kembali ke halaman pemilihan shift.',
                     onClickYes: handleEndShift,
-                    successMessage: 'Shift berhasil diakhiri'
+                    successMessage: 'Shift berhasil diakhiri',
+                    confirmIcon: 'tabler:alarm-off',
+                    destructive: true
                   })
                 }}
                 startIcon={<Icon icon='mdi:logout' />}

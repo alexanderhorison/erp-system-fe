@@ -23,6 +23,7 @@ import 'src/@fake-db'
 
 // ** Third Party Import
 import { Toaster } from 'sonner'
+import ConfirmHost from 'src/views/common/ConfirmHost'
 
 // ** Component Imports
 import UserLayout from 'src/layouts/UserLayout'
@@ -137,6 +138,7 @@ const App = props => {
                           {getLayout(<Component {...pageProps} />)}
                         </AclGuard>
                       </Guard>
+                      <ConfirmHost />
                       <Toaster
                         position={settings.toastPosition}
                         richColors

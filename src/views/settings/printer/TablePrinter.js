@@ -8,11 +8,11 @@ import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 
-import Swal from 'sweetalert2'
 import Icon from 'src/@core/components/icon'
 import axios from 'src/configs/axios'
 import HandleSearch from 'src/helpers/handleSearch'
 import { swalConfirmationOnly } from 'src/helpers/swalFunctionPos'
+import { notifyError, notifySuccess } from 'src/helpers/notify'
 import {
   fetchAllPrinter,
   fetchDeletePrinter,
@@ -116,8 +116,8 @@ export default function TablePrinter() {
       text: `Apakah anda ingin melakukan test print pada ${printerName}?`,
       autoSuccess: false,
       confirmButtonText: 'Ya, Test Print',
-      showCancelButton: true,
       cancelButtonText: 'Tidak',
+      confirmIcon: 'tabler:printer',
       onClickYes: async () => {
         setTestingPrinter(prev => ({ ...prev, [printer.id]: true }))
         try {
@@ -130,20 +130,9 @@ export default function TablePrinter() {
             }
           })
 
-          Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: 'Test print berhasil dikirim ke printer',
-            timer: 2000,
-            showConfirmButton: false
-          })
+          notifySuccess('Test print berhasil dikirim ke printer')
         } catch (error) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Gagal!',
-            text: error?.response?.data?.message || 'Gagal melakukan test print',
-            confirmButtonText: 'OK'
-          })
+          notifyError(error?.response?.data?.message || 'Gagal melakukan test print')
         } finally {
           setTestingPrinter(prev => ({ ...prev, [printer.id]: false }))
         }

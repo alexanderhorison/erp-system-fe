@@ -171,7 +171,6 @@ export const chargePos = createAsyncThunk(
         skipPrompt,
         title: `Pembayaran menggunakan ${selectedPayment?.label}?`,
         text: `Sebesar Rp. ${subTotalPrice || 0}`,
-        width: 500,
         axiosRequest: () => {
           return axios({
             method: 'POST',
@@ -372,7 +371,9 @@ export const voidPointOfSale = createAsyncThunk(
         onClickNo: () => {
           resolve({ cancelled: true })
         },
-        successMessage: 'Transaksi berhasil di-VOID'
+        successMessage: 'Transaksi berhasil di-VOID',
+        confirmIcon: 'tabler:ban',
+        destructive: true
       }).catch(error => {
         // ensure outer promise rejects to avoid unhandled rejection
         reject(error)

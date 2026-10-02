@@ -63,7 +63,7 @@ export default function ConfirmDialog({
 
       {/* Body */}
       <Box sx={{ px: 5, py: 4 }}>
-        <Typography sx={{ fontSize: '0.875rem', lineHeight: '20px', color: colors.mutedForeground }}>
+        <Typography component='div' sx={{ fontSize: '0.875rem', lineHeight: '20px', color: colors.mutedForeground }}>
           {description || (
             <>
               Are you sure you want to delete

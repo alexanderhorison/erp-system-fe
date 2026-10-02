@@ -1,4 +1,4 @@
-import { Card, CardContent, Typography, CircularProgress } from '@mui/material'
+import { Box, Card, CardContent, Typography, CircularProgress } from '@mui/material'
 import { useState } from 'react'
 import Icon from 'src/@core/components/icon'
 import axios from 'src/configs/axios'
@@ -13,17 +13,22 @@ export default function CardTestPrinter({ printer }) {
 
     swalConfirmationOnly({
       title: `Test Print ${printer.description}`,
-      html: `
-        <div style="text-align: left; padding: 10px;">
-          <p><strong>Printer:</strong> ${printer.description}</p>
-          <p><strong>IP Address:</strong> ${printer.value_json.ip || printer.value_json.printerHost}</p>
-          <p style="margin-top: 15px;">Apakah Anda ingin melakukan test print?</p>
-        </div>
-      `,
+      description: (
+        <>
+          <Box component='span' sx={{ display: 'block' }}>
+            <strong>Printer:</strong> {printer.description}
+          </Box>
+          <Box component='span' sx={{ display: 'block' }}>
+            <strong>IP Address:</strong> {printer.value_json.ip || printer.value_json.printerHost}
+          </Box>
+          <Box component='span' sx={{ display: 'block', mt: 3 }}>
+            Apakah Anda ingin melakukan test print?
+          </Box>
+        </>
+      ),
       confirmButtonText: 'Ya, Test Print',
-      showCancelButton: true,
       cancelButtonText: 'Batal',
-      icon: 'question',
+      confirmIcon: 'tabler:printer',
       onClickYes: handleTestPrint,
       autoSuccess: false
     })
