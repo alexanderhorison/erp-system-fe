@@ -6,7 +6,6 @@ import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 
@@ -30,7 +29,7 @@ import { enumActions } from 'src/helpers/enumActions'
 
 // ** Shared Components
 import AppModal from 'src/views/common/AppModal'
-import { FieldLabel, LabelLink, SubTotalField, UnitPicker } from './ProductModalParts'
+import { FieldLabel, IconAction, SubTotalField, UnitPicker } from './ProductModalParts'
 
 // ** Design Tokens
 import { colors, shadows, status as statusTokens } from 'src/configs/designTokens'
@@ -174,6 +173,7 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
   }
 
   const userData = JSON.parse(localStorage.getItem('userData'))
+  const canEditBasePrice = Boolean(userData?.actions?.includes(enumActions.EDIT_POS_BASE_PRICE.value))
 
   const handleSelectUnit = item => {
     setSelected(item)
@@ -236,27 +236,21 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
             <UnitPicker units={detailProductPos} selectedUnitName={selected?.unitName} onSelect={handleSelectUnit} />
           </Grid>
 
-          <Grid item xs={4} sm={3}>
-            <CustomTextField fullWidth label='Stok' value={tempQuantity()} disabled keepDisabledField />
+          {/* Each row: left half = field + its icon action, right half = Kuantiti / Sub Total */}
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 3 }}>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <CustomTextField fullWidth label='Stok' value={tempQuantity()} disabled keepDisabledField />
+              </Box>
+              <IconAction
+                label='Transformasi'
+                icon='lucide:arrow-left-right'
+                onClick={handleTransformation}
+                disabled={!(getValues('quantity') > 0 && selected)}
+              />
+            </Box>
           </Grid>
-          <Grid item xs={3} sm={2.5}>
-            <FieldLabel>Transformasi</FieldLabel>
-            <IconButton
-              onClick={handleTransformation}
-              disabled={!(getValues('quantity') > 0 && selected)}
-              aria-label='Transformasi Produk'
-              sx={{
-                width: 40,
-                height: 40,
-                border: `1px solid ${colors.border3}`,
-                color: colors.foreground,
-                '&.Mui-disabled': { borderColor: colors.border, color: colors.mutedForeground, opacity: 0.6 }
-              }}
-            >
-              <Icon icon='lucide:arrow-left-right' fontSize='1.125rem' />
-            </IconButton>
-          </Grid>
-          <Grid item xs={12} sm={6.5}>
+          <Grid item xs={12} sm={6}>
             <FieldLabel>Kuantiti</FieldLabel>
             <FormInputNumberPos
               control={control}
@@ -272,27 +266,30 @@ export default function ModalAddProductPos({ open, setOpen, data, addProduct, fi
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <FieldLabel
-              action={
-                userData?.actions?.includes(enumActions.EDIT_POS_BASE_PRICE.value) ? (
-                  <LabelLink onClick={() => setOpenModalBasePrice(true)}>Add Base Price</LabelLink>
-                ) : null
-              }
-            >
-              Harga
-            </FieldLabel>
-            <FormInputPricePos
-              control={control}
-              name='price'
-              errors={errors}
-              label=''
-              disabled={
-                !selected ||
-                (selected.basePrice !== undefined && selected.basePrice !== null && selected.basePrice !== 0)
-              }
-              keepDisabledField
-              fullWidth
-            />
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 3 }}>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <FieldLabel>Harga</FieldLabel>
+                <FormInputPricePos
+                  control={control}
+                  name='price'
+                  errors={errors}
+                  label=''
+                  disabled={
+                    !selected ||
+                    (selected.basePrice !== undefined && selected.basePrice !== null && selected.basePrice !== 0)
+                  }
+                  keepDisabledField
+                  fullWidth
+                />
+              </Box>
+              <IconAction
+                label='Add Base Price'
+                icon='tabler:tags'
+                onClick={() => setOpenModalBasePrice(true)}
+                disabled={!canEditBasePrice}
+                tooltip={canEditBasePrice ? '' : "You don't have authority to perform this actions"}
+              />
+            </Box>
           </Grid>
           <Grid item xs={12} sm={6}>
             <SubTotalField value={priceFormatWIthCurrency(calculateSubTotal)} />

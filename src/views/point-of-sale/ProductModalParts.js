@@ -1,7 +1,12 @@
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+
+// ** Icon Imports
+import Icon from 'src/@core/components/icon'
 
 // ** Design Tokens
 import { colors, status as statusTokens } from 'src/configs/designTokens'
@@ -18,25 +23,31 @@ export const FieldLabel = ({ children, action = null }) => (
   </Box>
 )
 
-// ** Underlined text action that sits at the right of a field label
-export const LabelLink = ({ children, onClick }) => (
-  <Typography
-    component='button'
-    type='button'
-    onClick={onClick}
-    sx={{
-      p: 0,
-      border: 0,
-      cursor: 'pointer',
-      background: 'none',
-      fontSize: '0.75rem',
-      color: colors.mutedForeground,
-      textDecoration: 'underline',
-      '&:hover': { color: colors.foreground }
-    }}
-  >
-    {children}
-  </Typography>
+// ** Labelled round icon button that sits between two fields (Transformasi, Add Base Price)
+// ** Fixed width (sized for the longest label) so the field beside it is the same length on every row.
+export const IconAction = ({ label, icon, onClick, disabled = false, tooltip = '' }) => (
+  <Box sx={{ width: 96, flexShrink: 0 }}>
+    <FieldLabel>{label}</FieldLabel>
+    {/* A disabled button swallows pointer events, so the span carries the tooltip */}
+    <Tooltip title={tooltip} disableHoverListener={!tooltip} placement='bottom-start'>
+      <Box component='span' sx={{ display: 'inline-flex' }}>
+        <IconButton
+          onClick={onClick}
+          disabled={disabled}
+          aria-label={label}
+          sx={{
+            width: 40,
+            height: 40,
+            border: `1px solid ${colors.border3}`,
+            color: colors.foreground,
+            '&.Mui-disabled': { borderColor: colors.border, color: colors.mutedForeground, opacity: 0.6 }
+          }}
+        >
+          <Icon icon={icon} fontSize='1.125rem' />
+        </IconButton>
+      </Box>
+    </Tooltip>
+  </Box>
 )
 
 // ** Two-column grid of unit pills; the picked unit is filled.
