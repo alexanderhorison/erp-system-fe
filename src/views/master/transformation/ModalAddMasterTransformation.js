@@ -2,18 +2,16 @@
 import { useCallback, useEffect, useState } from 'react'
 
 // ** MUI Imports
+import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
-import { styled } from '@mui/material/styles'
+import MenuItem from '@mui/material/MenuItem'
 import Typography from '@mui/material/Typography'
 
 // ** Custom Component Import
 import CustomTextField from 'src/@core/components/mui/text-field'
 
-// ** Styles Import
-import 'react-credit-cards/es/styles-compiled.css'
-
 // ** Icon Imports
-import { CardContent, CircularProgress, MenuItem } from '@mui/material'
+import Icon from 'src/@core/components/icon'
 import { useDispatch, useSelector } from 'react-redux'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -21,27 +19,56 @@ import * as yup from 'yup'
 import { addMasterDataTransformation, editMasterDataTransformation } from 'src/store/apps/master/transformation'
 import AppModal from 'src/views/common/AppModal'
 
-// Styled Grid component
-const StyledGrid = styled(Grid)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  textAlign: 'center'
-  // justifyContent: 'center'
-  // border: '1px solid'
-  // [theme.breakpoints.down('md')]: {
-  //   borderBottom: `1px solid ${theme.palette.divider}`
-  // },
-  // [theme.breakpoints.up('md')]: {
-  //   // borderRight: `1px solid ${theme.palette.divider}`,
-  //   // borders: `1px solid ${theme.palette.divider}`,
-  //   border: `1px solid ${theme.palette.divider}`
-  // }
-}))
+// ** Design Tokens
+import { colors, radii, status } from 'src/configs/designTokens'
+
+// ** One conversion reading, "1 Karton → 10 Slop", in the same tinted pill the warehouse Transformasi dialog uses.
+const ConversionPill = ({ from, to }) => (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexWrap: 'wrap',
+      gap: 3,
+      px: 4,
+      py: 3,
+      borderRadius: `${radii['3xl']}px`,
+      border: `1px solid ${status.info.border}`,
+      backgroundColor: status.info.bg
+    }}
+  >
+    <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: status.info.fg }}>{from}</Typography>
+    <Box
+      sx={{
+        width: 28,
+        height: 28,
+        flexShrink: 0,
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: colors.background,
+        color: status.info.fg,
+        border: `1px solid ${status.info.border}`
+      }}
+    >
+      <Icon icon='tabler:arrow-right' fontSize='1rem' />
+    </Box>
+    <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: status.info.fg }}>{to}</Typography>
+  </Box>
+)
 
 export default function ModalAddMasterTransformation({ open, setOpen, typeModal, product, id }) {
   const dispatch = useDispatch()
   const { data: masterDataUnit } = useSelector(state => state.unit)
-  const { defaultValue, detail: detailTransformation, loadingDetail, loadingAdd, loadingEdit } = useSelector(data => data.masterTransformation)
+  const {
+    defaultValue,
+    detail: detailTransformation,
+    loadingDetail,
+    loadingAdd,
+    loadingEdit
+  } = useSelector(data => data.masterTransformation)
 
   const [valueTransform, setValueTransform] = useState({
     unitFromId: '',
@@ -133,18 +160,6 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
     [masterDataUnit, getValues, valueTransform]
   )
 
-  if (typeModal == 'EDIT' && loadingDetail) {
-    return (
-      <CircularProgress
-        sx={{
-          color: 'common.white',
-          width: '20px !important',
-          height: '20px !important',
-          mr: theme => theme.spacing(2)
-        }}
-      />
-    )
-  }
   return (
     <AppModal
       open={open}
@@ -156,120 +171,107 @@ export default function ModalAddMasterTransformation({ open, setOpen, typeModal,
       size='sm'
       showActions={typeModal !== 'VIEW'}
       loading={typeModal === 'ADD' ? loadingAdd : loadingEdit}
+      loadingPage={typeModal === 'EDIT' && loadingDetail}
     >
-      <Grid container spacing={6}>
-        <StyledGrid item xs={12} md={12}>
-          <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img
-              width={140}
-              height={140}
-              alt='Product'
-              src='https://img.freepik.com/premium-vector/cigarettes-pack-illustration-design-element-flat-icon_645658-280.jpg'
-            />
-          </CardContent>
-        </StyledGrid>
-        <Grid item xs={12}>
-          <Grid container spacing={6}>
-            <Grid item xs={12} sm={12}>
-              <Controller
-                name='unitFromId'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    select
-                    fullWidth
-                    label='Unit Awal'
-                    value={value || ''}
-                    onChange={e => {
-                      onChange(e)
-                      handleValueTransform('unitFromId')
-                    }}
-                    disabled={typeModal === 'VIEW'}
-                    error={Boolean(errors.unitFromId)}
-                    aria-describedby='validation-schema-unitFromId'
-                    {...(errors.unitFromId && { helperText: errors.unitFromId.message })}
-                  >
-                    {masterDataUnit.map(item => {
-                      return (
-                        <MenuItem key={item.id} value={item.id}>
-                          {item.name}
-                        </MenuItem>
-                      )
-                    })}
-                  </CustomTextField>
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <Controller
-                name='unitToId'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    select
-                    fullWidth
-                    label='Unit Tujuan'
-                    value={value || ''}
-                    onChange={e => {
-                      onChange(e)
-                      handleValueTransform('unitToId')
-                    }}
-                    disabled={typeModal === 'VIEW'}
-                    error={Boolean(errors.unitToId)}
-                    aria-describedby='validation-schema-unitToId'
-                    {...(errors.unitToId && { helperText: errors.unitToId.message })}
-                  >
-                    {masterDataUnit.map(item => {
-                      return (
-                        <MenuItem key={item.id} value={item.id}>
-                          {item.name}
-                        </MenuItem>
-                      )
-                    })}
-                  </CustomTextField>
-                )}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Controller
-                name='amountTo'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <CustomTextField
-                    fullWidth
-                    value={value}
-                    label='Quantity'
-                    placeholder=''
-                    type='number'
-                    onChange={e => {
-                      onChange(e)
-                      handleValueTransform('amountTo')
-                    }}
-                    disabled={typeModal === 'VIEW'}
-                    error={Boolean(errors.amountTo)}
-                    aria-describedby='validation-schema-amountTo'
-                    {...(errors.amountTo && { helperText: errors.amountTo.message })}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant=''>{'Hasil'}</Typography>
-            </Grid>
-            {valueTransform.unitFromId && valueTransform.amountTo && valueTransform.unitToId && (
-              <>
-                <Grid item xs={12} sx={{ marginTop: -4 }}>
-                  <Typography variant=''>{`1 ${valueTransform.unitFromId} = ${valueTransform.amountTo} ${valueTransform.unitToId}`}</Typography>
-                </Grid>
-                <Grid item xs={12} sx={{ marginTop: -4 }}>
-                  <Typography variant=''>{`${valueTransform.amountTo} ${valueTransform.unitToId} = 1 ${valueTransform.unitFromId}`}</Typography>
-                </Grid>
-              </>
+      <Grid container spacing={4}>
+        <Grid item xs={12} sm={6}>
+          <Controller
+            name='unitFromId'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                select
+                fullWidth
+                label='Unit Awal'
+                value={value || ''}
+                onChange={e => {
+                  onChange(e)
+                  handleValueTransform('unitFromId')
+                }}
+                disabled={typeModal === 'VIEW'}
+                error={Boolean(errors.unitFromId)}
+                aria-describedby='validation-schema-unitFromId'
+                {...(errors.unitFromId && { helperText: errors.unitFromId.message })}
+              >
+                {masterDataUnit.map(item => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </CustomTextField>
             )}
-          </Grid>
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Controller
+            name='unitToId'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                select
+                fullWidth
+                label='Unit Tujuan'
+                value={value || ''}
+                onChange={e => {
+                  onChange(e)
+                  handleValueTransform('unitToId')
+                }}
+                disabled={typeModal === 'VIEW'}
+                error={Boolean(errors.unitToId)}
+                aria-describedby='validation-schema-unitToId'
+                {...(errors.unitToId && { helperText: errors.unitToId.message })}
+              >
+                {masterDataUnit.map(item => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </CustomTextField>
+            )}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Controller
+            name='amountTo'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                fullWidth
+                value={value}
+                label='Quantity'
+                placeholder=''
+                type='number'
+                onChange={e => {
+                  onChange(e)
+                  handleValueTransform('amountTo')
+                }}
+                disabled={typeModal === 'VIEW'}
+                error={Boolean(errors.amountTo)}
+                aria-describedby='validation-schema-amountTo'
+                {...(errors.amountTo && { helperText: errors.amountTo.message })}
+              />
+            )}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground, mb: 2 }}>
+            Hasil
+          </Typography>
+          {valueTransform.unitFromId && valueTransform.amountTo && valueTransform.unitToId && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <ConversionPill
+                from={`1 ${valueTransform.unitFromId}`}
+                to={`${valueTransform.amountTo} ${valueTransform.unitToId}`}
+              />
+              <ConversionPill
+                from={`${valueTransform.amountTo} ${valueTransform.unitToId}`}
+                to={`1 ${valueTransform.unitFromId}`}
+              />
+            </Box>
+          )}
         </Grid>
       </Grid>
     </AppModal>
