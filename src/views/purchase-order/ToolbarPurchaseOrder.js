@@ -141,6 +141,17 @@ const ToolbarPurchaseOrder = ({ id, data }) => {
         )}
       </HeaderedCard>
 
+      <HeaderedCard
+        title='Informasi Tambahan'
+        action={<Chip size='small' label='Important!' sx={infoChipSx(statusTokens.warning)} />}
+        sx={{ mt: 4 }}
+      >
+        <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground }}>
+          Jika purchase order diterima, maka barang akan langsung masuk ke gudang. Jika barang tidak ada, maka barang
+          akan di inisialisasi.
+        </Typography>
+      </HeaderedCard>
+
       {payment && (
         <HeaderedCard
           title='Status Pembayaran'
@@ -176,17 +187,6 @@ const ToolbarPurchaseOrder = ({ id, data }) => {
           </Box>
         </HeaderedCard>
       )}
-
-      <HeaderedCard
-        title='Informasi Tambahan'
-        action={<Chip size='small' label='Important!' sx={infoChipSx(statusTokens.warning)} />}
-        sx={{ mt: 4 }}
-      >
-        <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground }}>
-          Jika purchase order diterima, maka barang akan langsung masuk ke gudang. Jika barang tidak ada, maka barang
-          akan di inisialisasi.
-        </Typography>
-      </HeaderedCard>
 
       {isShow && (
         <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>

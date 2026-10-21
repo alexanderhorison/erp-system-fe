@@ -9,6 +9,7 @@ import Chip from '@mui/material/Chip'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
+import LinearProgress from '@mui/material/LinearProgress'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -107,6 +108,7 @@ const ToolbarSalesOrder = ({ id, data }) => {
 
   const canApprove = [1, 3].includes(auth?.user?.roleId) && data?.status === 'PENDING'
   const payment = data?.status === 'APPROVED' && data?.id ? paymentTone(data) : null
+  const paidPercent = data?.grandTotal ? Math.min(100, Math.round(((data.amountPaid || 0) / data.grandTotal) * 100)) : 0
 
   return (
     <>
@@ -181,12 +183,33 @@ const ToolbarSalesOrder = ({ id, data }) => {
           action={<Chip size='small' label={formatStatusLabel(payment.label)} sx={infoChipSx(payment.tone)} />}
           sx={{ mt: 4 }}
         >
-          <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground, mb: 1 }}>
-            Total yang sudah dibayar: Rp {priceFormat(data?.amountPaid)}
+          <LinearProgress
+            variant='determinate'
+            value={paidPercent}
+            sx={{
+              height: 6,
+              borderRadius: `${radii.full}px`,
+              backgroundColor: colors.border,
+              mb: 1,
+              '& .MuiLinearProgress-bar': { borderRadius: `${radii.full}px`, backgroundColor: statusTokens.success.fg }
+            }}
+          />
+          <Typography sx={{ fontSize: '0.75rem', color: colors.mutedForeground, mb: 3 }}>
+            {paidPercent}% dari Rp {priceFormat(data?.grandTotal)}
           </Typography>
-          <Typography sx={{ fontSize: '0.8125rem', lineHeight: '20px', color: colors.mutedForeground }}>
-            Total yang belum dibayar: Rp {priceFormat(data?.amountDebt)}
-          </Typography>
+
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5 }}>
+            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>Total sudah bayar</Typography>
+            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.foreground }}>
+              Rp {priceFormat(data?.amountPaid)}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5 }}>
+            <Typography sx={{ fontSize: '0.8125rem', color: colors.mutedForeground }}>Total belum bayar</Typography>
+            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: statusTokens.danger.fg }}>
+              Rp {priceFormat(data?.amountDebt)}
+            </Typography>
+          </Box>
         </HeaderedCard>
       )}
 
