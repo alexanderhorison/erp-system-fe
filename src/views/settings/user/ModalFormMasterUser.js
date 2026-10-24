@@ -1,5 +1,4 @@
 // ** MUI Imports
-import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
@@ -110,6 +109,7 @@ export default function ModalFormMasterUser({ open, setOpen, typeModal, data }) 
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors }
   } = useForm({
     values: isEdit ? data : defaultValues,
@@ -164,30 +164,33 @@ export default function ModalFormMasterUser({ open, setOpen, typeModal, data }) 
             placeholder='cakra@email.com'
           />
         </Grid>
-        <Grid item xs={12} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-          <Box sx={{ flexGrow: 1 }}>
-            <Controller
-              name='password'
-              control={control}
-              render={({ field: { value, onChange, onBlur } }) => (
-                <FormInputTextPassword
-                  value={value}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                  disabled={isEdit && !changePassword}
-                  error={Boolean(errors.password)}
-                  helperText={errors.password?.message}
-                  showPassword={showPassword}
-                  setShowPassword={setShowPassword}
-                />
-              )}
-            />
-          </Box>
-          {isEdit && (
-            <Button sx={{ fontSize: '0.75rem', mt: 5.5 }} onClick={() => setChangePassword(!changePassword)}>
-              Ganti password
-            </Button>
-          )}
+        <Grid item xs={12}>
+          <Controller
+            name='password'
+            control={control}
+            render={({ field: { value, onChange, onBlur } }) => (
+              <FormInputTextPassword
+                value={value}
+                onChange={onChange}
+                onBlur={onBlur}
+                locked={isEdit && !changePassword}
+                changing={isEdit && changePassword}
+                error={Boolean(errors.password)}
+                helperText={errors.password?.message}
+                showPassword={showPassword}
+                setShowPassword={setShowPassword}
+                onChangePassword={() => {
+                  setValue('password', '')
+                  setChangePassword(true)
+                }}
+                onCancelChange={() => {
+                  setValue('password', '')
+                  setShowPassword(false)
+                  setChangePassword(false)
+                }}
+              />
+            )}
+          />
         </Grid>
         <Grid item xs={12}>
           <FormSelectSimple
@@ -240,29 +243,57 @@ export default function ModalFormMasterUser({ open, setOpen, typeModal, data }) 
 }
 
 // ** Password field needs a visibility toggle `FormInputText` doesn't support.
-function FormInputTextPassword({ value, onChange, onBlur, disabled, error, helperText, showPassword, setShowPassword }) {
+// Editing a user keeps the field locked (masked) until "Ganti" is pressed; the
+// stored password is never shown, so the field starts empty when unlocked.
+function FormInputTextPassword({
+  value,
+  onChange,
+  onBlur,
+  locked,
+  changing,
+  error,
+  helperText,
+  showPassword,
+  setShowPassword,
+  onChangePassword,
+  onCancelChange
+}) {
   return (
     <CustomTextField
       fullWidth
+      keepDisabledField
       label='Password'
-      value={value}
-      disabled={disabled}
+      value={locked ? '••••••••' : value ?? ''}
+      disabled={locked}
       onChange={onChange}
       onBlur={onBlur}
       error={error}
-      helperText={helperText}
-      type={showPassword ? 'text' : 'password'}
+      helperText={helperText || (changing ? 'Minimal 5 karakter' : undefined)}
+      placeholder={changing ? 'Password baru' : undefined}
+      type={locked || showPassword ? 'text' : 'password'}
       InputProps={{
         endAdornment: (
           <InputAdornment position='end'>
-            <IconButton
-              edge='end'
-              disabled={disabled}
-              onMouseDown={event => event.preventDefault()}
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              <Icon fontSize='1.25rem' icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} />
-            </IconButton>
+            {locked ? (
+              <Button size='small' onClick={onChangePassword} sx={{ mr: 1.5, fontSize: '0.75rem' }}>
+                Ganti
+              </Button>
+            ) : (
+              <>
+                <IconButton
+                  edge='end'
+                  onMouseDown={event => event.preventDefault()}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <Icon fontSize='1.25rem' icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} />
+                </IconButton>
+                {changing && (
+                  <Button size='small' onClick={onCancelChange} sx={{ mx: 1.5, fontSize: '0.75rem' }}>
+                    Batal
+                  </Button>
+                )}
+              </>
+            )}
           </InputAdornment>
         )
       }}

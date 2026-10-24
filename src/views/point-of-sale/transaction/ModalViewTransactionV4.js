@@ -431,7 +431,8 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
           event.preventDefault()
           setOpenConfirmVoid(true)
         }}
-        title={`Void Transaksi ${data?.code || ''}`}
+        title='Void Transaksi'
+        subtitle={data?.code || null}
         size='xs'
         cancelLabel='Batal'
         submitLabel={submitting ? 'Memproses...' : 'Confirm VOID'}

@@ -104,7 +104,8 @@ export default function ModalEditProductPrice({ open, setOpen, row }) {
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
-      title={`Edit Price — ${row?.productName} (${row?.unitName})`}
+      title='Edit Price'
+      subtitle={`${row?.productName} (${row?.unitName})`}
       size='sm'
       submitLabel='Simpan'
       cancelLabel='Batal'

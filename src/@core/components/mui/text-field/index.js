@@ -219,9 +219,13 @@ const selectedOptionLabel = (children, value) => {
 // ** Only plain "Rp" / unit prefixes and suffixes carry meaning in the text view.
 // ** Autocomplete's own end adornment (clear / popup buttons) is not an InputAdornment.
 const adornmentContent = adornment => {
-  if (isValidElement(adornment) && adornment.type === InputAdornment) return adornment.props.children
+  if (!isValidElement(adornment) || adornment.type !== InputAdornment) return null
 
-  return null
+  // ** Icon buttons (e.g. a password visibility toggle) are controls, not text —
+  // stringifying one prints "[object Object]".
+  const content = adornment.props.children
+
+  return typeof content === 'string' || typeof content === 'number' ? content : null
 }
 
 /**

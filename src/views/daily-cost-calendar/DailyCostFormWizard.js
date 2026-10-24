@@ -21,6 +21,7 @@ import { addDailyCost, fetchDetailDailyCostByDate, updateDailyCost } from 'src/s
 
 // ** Shared Components
 import PageHeader from 'src/views/common/PageHeader'
+import FormActionBar from 'src/views/common/FormActionBar'
 
 // ** Design Tokens
 import { colors, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
@@ -326,6 +327,8 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
     }
   }
 
+  const isLastStep = activeStep === steps.length - 1
+
   const handleBack = () => {
     setIsStepChanging(true)
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -565,37 +568,29 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
               {renderStepContent(activeStep)}
             </Grid>
 
-            {/* Navigation Buttons */}
+            {/* Navigation: pinned to the foot of the window like the other full-page forms */}
             <Grid item xs={12}>
-              <Box
-                sx={{
-                  p: 4,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: 3,
-                  borderRadius: `${radii['3xl']}px`,
-                  border: `1px solid ${colors.border}`,
-                  boxShadow: shadows.xs,
-                  backgroundColor: colors.background
-                }}
-              >
-                <Box>
+              {isLastStep && mode === 'view' ? null : (
+                <FormActionBar
+                  onCancel={handleCancel}
+                  onSubmit={isLastStep ? handleSubmit : handleNext}
+                  showCancel={activeStep === 0}
+                  loading={isSubmitting || isStepChanging}
+                  disabled={!isLastStep && !isStepValid()}
+                  submitLabel={isLastStep ? 'Save' : 'Next'}
+                  submitIcon={isLastStep ? 'tabler:device-floppy' : 'tabler:chevron-right'}
+                  submitIconPosition={isLastStep ? 'start' : 'end'}
+                  loadingLabel={isLastStep ? 'Saving...' : 'Loading...'}
+                >
                   {activeStep > 0 && (
                     <Button
                       variant='outlined'
                       color='secondary'
                       onClick={handleBack}
                       disabled={isSubmitting || isStepChanging}
-                      startIcon={
-                        isStepChanging ? (
-                          <Icon icon='tabler:loader' className='animate-spin' />
-                        ) : (
-                          <Icon icon='tabler:chevron-left' fontSize='1rem' />
-                        )
-                      }
+                      startIcon={<Icon icon='tabler:chevron-left' fontSize='1rem' />}
                       sx={{
+                        ...actionButtonSx,
                         color: colors.foreground,
                         borderColor: colors.border3,
                         boxShadow: shadows.xs,
@@ -605,64 +600,8 @@ export default function DailyCostFormWizard({ mode = 'ADD', selectedDate }) {
                       Previous
                     </Button>
                   )}
-                </Box>
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  {activeStep === 0 && (
-                    <Button
-                      variant='outlined'
-                      color='secondary'
-                      onClick={handleCancel}
-                      disabled={isSubmitting || isStepChanging}
-                      startIcon={<Icon icon='tabler:x' fontSize='1rem' />}
-                      sx={{
-                        ...actionButtonSx,
-                        color: colors.foreground,
-                        borderColor: colors.border3,
-                        boxShadow: shadows.xs,
-                        '&:hover': { borderColor: colors.border3 }
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  )}
-
-                  {activeStep < steps.length - 1 ? (
-                    <Button
-                      variant='contained'
-                      sx={actionButtonSx}
-                      onClick={handleNext}
-                      disabled={!isStepValid() || isSubmitting || isStepChanging}
-                      endIcon={
-                        isStepChanging ? (
-                          <Icon icon='tabler:loader' className='animate-spin' />
-                        ) : (
-                          <Icon icon='tabler:chevron-right' fontSize='1rem' />
-                        )
-                      }
-                    >
-                      {isStepChanging ? 'Loading...' : 'Next'}
-                    </Button>
-                  ) : (
-                    mode !== 'view' && (
-                      <Button
-                        variant='contained'
-                        sx={actionButtonSx}
-                        onClick={handleSubmit}
-                        disabled={isSubmitting || isStepChanging}
-                        startIcon={
-                          isSubmitting ? (
-                            <Icon icon='tabler:loader' className='animate-spin' />
-                          ) : (
-                            <Icon icon='tabler:device-floppy' fontSize='1rem' />
-                          )
-                        }
-                      >
-                        {isSubmitting ? 'Saving...' : 'Save'}
-                      </Button>
-                    )
-                  )}
-                </Box>
-              </Box>
+                </FormActionBar>
+              )}
             </Grid>
           </Grid>
         </Grid>

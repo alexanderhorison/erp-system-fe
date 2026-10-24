@@ -19,7 +19,7 @@ import DataTable from 'src/views/common/DataTable'
 import TableToolbar from 'src/views/common/TableToolbar'
 import ConfirmDialog from 'src/views/common/ConfirmDialog'
 
-const RowOptions = ({ id, name, code, productId }) => {
+const RowOptions = ({ id, name, code, productId, product }) => {
   const dispatch = useDispatch()
   const [openModalEdit, setOpenModalEdit] = useState(false)
   const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
@@ -46,7 +46,13 @@ const RowOptions = ({ id, name, code, productId }) => {
         </IconButton>
       </Box>
       {openModalEdit && (
-        <ModalAddMasterTransformation open={openModalEdit} setOpen={setOpenModalEdit} typeModal={'EDIT'} id={id} />
+        <ModalAddMasterTransformation
+          open={openModalEdit}
+          setOpen={setOpenModalEdit}
+          typeModal={'EDIT'}
+          id={id}
+          product={product}
+        />
       )}
       <ConfirmDialog
         open={openConfirmDelete}
@@ -139,7 +145,7 @@ export default function TableMasterTransformation({ product }) {
             field: 'actions',
             headerName: 'ACTION',
             renderCell: ({ row }) => (
-              <RowOptions id={row.id} name={row.name} code={row.code} productId={row.masterProductId} />
+              <RowOptions id={row.id} name={row.name} code={row.code} productId={row.masterProductId} product={product} />
             )
           }
         ]}

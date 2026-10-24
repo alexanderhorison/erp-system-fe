@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Button, Grid, Card, CardContent } from '@mui/material'
+import { Box, Grid } from '@mui/material'
 import { useForm, FormProvider } from 'react-hook-form'
 import { useRouter } from 'next/router'
-import Icon from 'src/@core/components/icon'
 import dayjs from 'dayjs'
 import 'dayjs/locale/id'
 import * as yup from 'yup'
@@ -16,7 +15,7 @@ import SummaryCost from './SummaryCost'
 import ButtonBack from '../common/ButtonBack'
 import { useDispatch, useSelector } from 'react-redux'
 import { addDailyCost, fetchDetailDailyCostByDate, updateDailyCost } from 'src/store/apps/daily-cost'
-import { actionButtonSx } from 'src/views/common/actionButtonSx'
+import FormActionBar from 'src/views/common/FormActionBar'
 
 dayjs.locale('id')
 
@@ -300,28 +299,17 @@ export default function DailyCostForm({ mode = 'ADD', selectedDate }) {
           <Grid item xs={12}>
             <SummaryCost />
           </Grid>
-
-          {mode !== 'view' && (
-            <Grid item xs={12}>
-              <Card>
-                <CardContent sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                  <Button variant='outlined' sx={actionButtonSx} onClick={handleCancel} disabled={isSubmitting}>
-                    Cancel
-                  </Button>
-                  <Button
-                    variant='contained'
-                    type='submit'
-                    sx={actionButtonSx}
-                    disabled={isSubmitting}
-                    startIcon={isSubmitting ? <Icon icon='tabler:loader' className='animate-spin' /> : null}
-                  >
-                    {isSubmitting ? 'Saving...' : 'Save'}
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          )}
         </Grid>
+
+        {mode !== 'view' && (
+          <FormActionBar
+            onCancel={handleCancel}
+            loading={isSubmitting}
+            submitLabel='Save'
+            submitIcon='tabler:device-floppy'
+            loadingLabel='Saving...'
+          />
+        )}
       </form>
     </FormProvider>
   )

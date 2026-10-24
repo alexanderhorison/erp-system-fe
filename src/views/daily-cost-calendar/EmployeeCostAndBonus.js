@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useFieldArray, useFormContext, useWatch, Controller } from 'react-hook-form'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -29,8 +29,6 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
     control,
     name: 'costEmployees'
   })
-
-  const [bonusCheckboxes, setBonusCheckboxes] = useState({})
 
   useEffect(() => {
     dispatch(fetchMasterDataEmployee({ active: true }))
@@ -79,8 +77,6 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
   }
 
   const handleEmployeeChange = (index, selectedEmployee) => {
-    // Uncheck bonus checkbox when employee changes
-    setBonusCheckboxes(prev => ({ ...prev, [index]: false }))
     if (selectedEmployee) {
       setValue(`costEmployees.${index}.employeeId`, selectedEmployee.id, { shouldValidate: true })
       setValue(`costEmployees.${index}.employeeName`, selectedEmployee.nama, { shouldValidate: true })
@@ -104,39 +100,6 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
       calculateTotal()
     }
   }
-  const handleBonusCheckboxChange = (index, checked) => {
-    setBonusCheckboxes(prev => ({ ...prev, [index]: checked }))
-    if (!checked) {
-      setValue(`costEmployees.${index}.bonus`, 0, { shouldValidate: true })
-      calculateTotal()
-    } else {
-      // If checked, update bonus from the selected employee if available
-      const costEmployees = watch('costEmployees')
-      const employeeId = costEmployees[index]?.employeeId
-      if (employeeId) {
-        const selectedEmployee = employees.find(emp => emp.id === employeeId)
-        if (selectedEmployee) {
-          setValue(`costEmployees.${index}.bonus`, parseNumber(selectedEmployee.bonus) || 0, { shouldValidate: true })
-          calculateTotal()
-        }
-      }
-    }
-  }
-
-  useEffect(() => {
-    const initialCheckboxState = {}
-    fields.forEach((field, index) => {
-      if (bonusCheckboxes[index] === undefined) {
-        const bonusValue = watch(`costEmployees.${index}.bonus`) || 0
-        initialCheckboxState[index] = bonusValue > 0
-      }
-    })
-
-    if (Object.keys(initialCheckboxState).length > 0) {
-      setBonusCheckboxes(prev => ({ ...prev, ...initialCheckboxState }))
-    }
-  }, [fields.length])
-
   // Function to check if amountDebt or amountDebtPaid has value
   const handleDebtFieldChange = async (index, field, value) => {
     setValue(`costEmployees.${index}.${field}`, value, { shouldValidate: true })
@@ -193,15 +156,13 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                   position: 'relative'
                 }}
               >
+                {/* In flow, above the fields, so it never sits on top of the first row. */}
                 {!readOnly && (
-                  <IconButton
-                    color='error'
-                    size='small'
-                    onClick={() => remove(index)}
-                    sx={{ position: 'absolute', top: 8, right: 8 }}
-                  >
-                    <Icon icon='tabler:trash' fontSize='1.125rem' />
-                  </IconButton>
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+                    <IconButton color='error' size='small' onClick={() => remove(index)}>
+                      <Icon icon='tabler:trash' fontSize='1.125rem' />
+                    </IconButton>
+                  </Box>
                 )}
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={4}>
@@ -277,26 +238,11 @@ export default function EmployeeCostAndBonus({ readOnly = false }) {
                         <CustomTextField
                           {...field}
                           value={value === null || isNaN(value) ? '0' : formatNumber(value)}
-                          label={
-                            <Box sx={{ display: 'flex', alignItems: 'center', height: '15px' }}>
-                              <input
-                                type='checkbox'
-                                checked={bonusCheckboxes[index] || false}
-                                onChange={e => handleBonusCheckboxChange(index, e.target.checked)}
-                                style={{
-                                  width: '1em',
-                                  height: '1em',
-                                  marginRight: '8px'
-                                }}
-                                disabled={readOnly}
-                              />
-                              Bonus
-                            </Box>
-                          }
+                          label='Bonus'
                           fullWidth
                           error={!!error}
                           helperText={error?.message}
-                          disabled={readOnly || !bonusCheckboxes[index]}
+                          disabled={readOnly}
                           inputProps={{
                             inputMode: 'numeric'
                           }}

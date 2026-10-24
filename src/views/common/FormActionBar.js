@@ -45,6 +45,7 @@ export default function FormActionBar({
   submitLabel = 'Submit',
   cancelLabel = 'Cancel',
   submitIcon = 'tabler:send',
+  submitIconPosition = 'start',
   loadingLabel = 'Submitting...',
   sticky = true,
   showCancel = true,
@@ -121,13 +122,13 @@ export default function FormActionBar({
           sx={actionButtonSx}
           disabled={loading || disabled}
           {...(onSubmit ? { onClick: onSubmit } : { type: 'submit' })}
-          startIcon={
-            loading ? (
+          {...{
+            [submitIconPosition === 'end' ? 'endIcon' : 'startIcon']: loading ? (
               <CircularProgress size={16} sx={{ color: 'inherit' }} />
             ) : (
               <Icon icon={submitIcon} fontSize='1rem' />
             )
-          }
+          }}
         >
           {loading ? loadingLabel : submitLabel}
         </Button>

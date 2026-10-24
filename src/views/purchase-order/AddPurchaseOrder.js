@@ -1459,6 +1459,7 @@ export default function AddPurchaseOrder({}) {
           warehouseId={warehouseId}
           handleTransformProductUpdate={handleTransformProductUpdate}
           setDataWarehouseIds={setDataWarehouseIds}
+          rowLabel='PO'
         />
       )}
       {openModalVendor && (

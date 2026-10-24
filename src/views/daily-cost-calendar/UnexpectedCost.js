@@ -96,15 +96,13 @@ export default function UnexpectedCost({ readOnly = false }) {
                   position: 'relative'
                 }}
               >
+                {/* In flow, above the fields, so it never sits on top of the first row. */}
                 {!readOnly && (
-                  <IconButton
-                    color='error'
-                    size='small'
-                    onClick={() => remove(index)}
-                    sx={{ position: 'absolute', top: 8, right: 8 }}
-                  >
-                    <Icon icon='tabler:trash' fontSize='1.125rem' />
-                  </IconButton>
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+                    <IconButton color='error' size='small' onClick={() => remove(index)}>
+                      <Icon icon='tabler:trash' fontSize='1.125rem' />
+                    </IconButton>
+                  </Box>
                 )}
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={6}>
