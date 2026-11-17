@@ -33,6 +33,7 @@ export default function TableToolbar({
   onOpenFilters,
   activeFilterCount = 0,
   actions = null,
+  searchAddon = null,
   children
 }) {
   return (
@@ -86,6 +87,9 @@ export default function TableToolbar({
             {activeFilterCount > 0 ? `Filters (${activeFilterCount})` : 'Filters'}
           </Button>
         )}
+
+        {/* Quick-filter pills that sit beside the search field */}
+        {searchAddon}
       </Box>
 
       {/* Actions */}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 // ** MUI Imports
 import Typography from '@mui/material/Typography'
@@ -7,19 +7,80 @@ import Typography from '@mui/material/Typography'
 import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Shared Components
+import ChoicePill from 'src/views/common/ChoicePill'
 import DataTable from 'src/views/common/DataTable'
+import StatusChip from 'src/views/common/StatusChip'
+import TableToolbar from 'src/views/common/TableToolbar'
 
-// ** Design Tokens
-import { colors } from 'src/configs/designTokens'
+// ** Helpers
+import { formatDiff, getDiff, getSystemStock, summarizeDiff } from './stockOpnameDiff'
+
+const FILTER_ALL = 'ALL'
+const FILTER_DIFF = 'DIFF'
 
 export default function TableAddStockOpname({ data, handleChange, type = 'add', loading }) {
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 50 })
+  const [searchText, setSearchText] = useState('')
+  const [filter, setFilter] = useState(FILTER_ALL)
+
+  const rows = useMemo(() => data || [], [data])
+  const summary = useMemo(() => summarizeDiff(rows, type), [rows, type])
+
+  const filteredRows = useMemo(() => {
+    const keyword = searchText.trim().toLowerCase()
+
+    return rows.filter(row => {
+      if (filter === FILTER_DIFF && getDiff(row, type) === null) return false
+      if (!keyword) return true
+
+      return (
+        `${row.productName ?? ''}`.toLowerCase().includes(keyword) ||
+        `${row.companyName ?? ''}`.toLowerCase().includes(keyword)
+      )
+    })
+  }, [rows, searchText, filter, type])
+
+  const goToFirstPage = () => setPaginationModel(prev => ({ ...prev, page: 0 }))
+
+  const handleSearch = value => {
+    setSearchText(value)
+    goToFirstPage()
+  }
+
+  const handleFilter = value => {
+    setFilter(value)
+    goToFirstPage()
+  }
 
   return (
     <DataTable
       itemLabel='products'
       loading={loading}
       getRowId={row => row.productWarehouseId}
+      toolbar={
+        <TableToolbar
+          value={searchText}
+          placeholder='Cari Produk atau perusahaan'
+          onChange={e => handleSearch(e.target.value)}
+          clearSearch={() => handleSearch('')}
+          searchAddon={
+            <>
+              <ChoicePill
+                label='Semua'
+                count={summary.total}
+                selected={filter === FILTER_ALL}
+                onClick={() => handleFilter(FILTER_ALL)}
+              />
+              <ChoicePill
+                label='Ada selisih'
+                count={summary.withDiff}
+                selected={filter === FILTER_DIFF}
+                onClick={() => handleFilter(FILTER_DIFF)}
+              />
+            </>
+          }
+        />
+      }
       columns={[
         {
           flex: 0.24,
@@ -72,7 +133,7 @@ export default function TableAddStockOpname({ data, handleChange, type = 'add', 
           headerName: 'STOCK',
           renderCell: params => (
             <Typography variant='body2' sx={{ color: 'text.primary' }}>
-              {type === 'add' ? params.row.quantity : params.row.systemStock}
+              {getSystemStock(params.row, type)}
             </Typography>
           )
         },
@@ -101,18 +162,19 @@ export default function TableAddStockOpname({ data, handleChange, type = 'add', 
           minWidth: 90,
           sortable: false,
           field: 'actions',
+          align: 'left',
+          headerAlign: 'left',
           headerName: 'SELISIH',
           renderCell: params => {
-            const stock = type === 'add' ? params.row.quantity : params.row.systemStock
-            const actualStock = params.row.actualStock
-            let selisih = stock - actualStock
-            if (actualStock === null || actualStock === '') {
-              selisih = '-'
-            }
-            return (
-              <Typography variant='body2' sx={{ color: colors.mutedForeground }}>
-                {Math.abs(selisih) || '-'}
+            const diff = getDiff(params.row, type)
+
+            // ** Shortfall reads red, surplus green; no diff stays a plain dash.
+            return diff === null ? (
+              <Typography variant='body2' sx={{ color: 'text.primary' }}>
+                -
               </Typography>
+            ) : (
+              <StatusChip label={formatDiff(diff)} tone={diff > 0 ? 'success' : 'danger'} />
             )
           }
         }
@@ -120,7 +182,7 @@ export default function TableAddStockOpname({ data, handleChange, type = 'add', 
       pageSizeOptions={[25, 50, 100]}
       paginationModel={paginationModel}
       onPaginationModelChange={setPaginationModel}
-      rows={data || []}
+      rows={filteredRows}
       sx={{
         '& .MuiDataGrid-overlayWrapper': {
           zIndex: 0

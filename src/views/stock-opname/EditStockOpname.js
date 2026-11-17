@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
@@ -11,6 +11,8 @@ import CustomTextField from 'src/@core/components/mui/text-field'
 import TableAddStockOpname from './TableAddStockOpname'
 import { fetchDetailStockOpname, updateStockOpname } from 'src/store/apps/stock-opname'
 import HeaderDetailStockOpname from './HeaderDetailStockOpname'
+import SummaryStockOpname from './SummaryStockOpname'
+import { summarizeDiff } from './stockOpnameDiff'
 
 // ** Shared Components
 import HeaderedCard from 'src/views/common/HeaderedCard'
@@ -25,6 +27,7 @@ export default function EditStockOpname({}) {
   const { detailStockOpname, loading, loadingUpdate } = useSelector(state => state.stockOpname)
 
   const [fields, setFields] = useState([])
+  const summary = useMemo(() => summarizeDiff(fields, 'edit'), [fields])
 
   const {
     control,
@@ -129,6 +132,7 @@ export default function EditStockOpname({}) {
               )}
             />
           </HeaderedCard>
+          <SummaryStockOpname summary={summary} />
         </Grid>
 
         <Grid item xs={12}>

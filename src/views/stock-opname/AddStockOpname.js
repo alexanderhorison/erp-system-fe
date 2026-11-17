@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useState } from 'react'
+import { forwardRef, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
 import { Controller, useForm } from 'react-hook-form'
@@ -27,6 +27,8 @@ import { checkStockOpnameWarehouse, createStockOpname } from 'src/store/apps/sto
 import HeaderedCard from 'src/views/common/HeaderedCard'
 import FormActionBar from 'src/views/common/FormActionBar'
 import TableAddStockOpname from './TableAddStockOpname'
+import SummaryStockOpname from './SummaryStockOpname'
+import { summarizeDiff } from './stockOpnameDiff'
 
 // ** Design Tokens
 import { colors, radii, shadows } from 'src/configs/designTokens'
@@ -58,6 +60,8 @@ export default function AddStockOpname({ warehouse }) {
   const { dataListProductWarehouse: dataProduct, loadingListProductWarehouse: loading } = useSelector(
     state => state.productWarehouse
   )
+
+  const summary = useMemo(() => summarizeDiff(fields, 'add'), [fields])
 
   const { checkStockOpname, loadingCheckStockOpname, loadingCreate } = useSelector(state => state.stockOpname)
 
@@ -248,6 +252,7 @@ export default function AddStockOpname({ warehouse }) {
               )}
             />
           </HeaderedCard>
+          <SummaryStockOpname summary={summary} />
         </Grid>
 
         <Grid item xs={12}>
