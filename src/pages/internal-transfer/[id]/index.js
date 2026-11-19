@@ -14,6 +14,7 @@ import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 import PageDetailInternalTransfer from 'src/views/internalTransfer/PageDetailInternalTransfer'
 import ToolbarInternalTransfer from 'src/views/internalTransfer/ToolbarInternalTransfer'
 import PageHeader from 'src/views/common/PageHeader'
+import { Status } from 'src/@core/components/common'
 
 export default function DetailInternalTransfer({}) {
   const dispatch = useDispatch()
@@ -74,6 +75,7 @@ export default function DetailInternalTransfer({}) {
         <PageHeader
           title='Surat Internal Transfer'
           subtitle={data?.code}
+          subtitleAdornment={data?.status ? <Status status={data?.status} /> : null}
           onBack={() => router.back()}
           breadcrumbs={[
             { label: 'Inventory' },

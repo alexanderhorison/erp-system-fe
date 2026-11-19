@@ -52,6 +52,14 @@ const status = {
   info: { fg: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' }
 }
 
+// ** Order list cards (Sales / Purchase Order): outline by payment state, tint for
+// documents created today. Tailwind green/600, red/600 and orange/50.
+const orderCard = {
+  paid: '#16A34A',
+  unpaid: '#DC2626',
+  today: '#FFF7ED'
+}
+
 // ** Typography (Figma: heading */paragraph *). Font family is Geist.
 const fontFamilyBody = 'Geist'
 
@@ -134,6 +142,7 @@ const shadows = {
 module.exports = {
   stone,
   status,
+  orderCard,
   sidebarPalette,
   sidebarIsLight,
   colors,

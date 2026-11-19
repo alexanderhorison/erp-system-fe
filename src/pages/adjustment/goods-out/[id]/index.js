@@ -14,6 +14,7 @@ import { fetchCompanyInfo } from 'src/store/apps/config/configCompany'
 import DetailGoodsOut from 'src/views/adjustment/goods-out/DetailGoodsOut'
 import ToolbarGoodsOut from 'src/views/adjustment/goods-out/ToolbarGoodsOut'
 import PageHeader from 'src/views/common/PageHeader'
+import { Status } from 'src/@core/components/common'
 
 export default function DetailAdjustmentGoodsOut({}) {
   const dispatch = useDispatch()
@@ -74,6 +75,7 @@ export default function DetailAdjustmentGoodsOut({}) {
         <PageHeader
           title='Surat Barang Keluar'
           subtitle={data?.code}
+          subtitleAdornment={data?.status ? <Status status={data?.status} /> : null}
           onBack={() => router.back()}
           breadcrumbs={[
             { label: 'Inventory' },

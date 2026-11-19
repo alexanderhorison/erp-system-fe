@@ -10,6 +10,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 
 // ** Shared Components
 import PageHeader from 'src/views/common/PageHeader'
+import { Status } from 'src/@core/components/common'
 import { fetchDetailReceiptOrderOutstanding } from 'src/store/apps/receipt-order-outstanding'
 import ToolbarReceiptOrderOutstanding from 'src/views/receipt-order-outstanding/TollbarReceiptOrderOutstanding'
 import DetailReceiptOrderOutstanding from 'src/views/receipt-order-outstanding/DetailReceiptOrderOutstanding'
@@ -68,6 +69,7 @@ export default function ReceiptOrderOutstandingDetail() {
         <PageHeader
           title='Surat Outstanding Produk'
           subtitle={detail?.code}
+          subtitleAdornment={detail?.status ? <Status status={detail?.status} /> : null}
           onBack={() => router.back()}
           breadcrumbs={[
             { label: 'Home' },

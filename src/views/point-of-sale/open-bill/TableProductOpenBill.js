@@ -11,6 +11,7 @@ import { colors } from 'src/configs/designTokens'
 export default function TablePorductOpenBill({ data = [] }) {
   return (
     <DataTable
+      bare
       getRowHeight={() => 'auto'}
       columns={[
         {

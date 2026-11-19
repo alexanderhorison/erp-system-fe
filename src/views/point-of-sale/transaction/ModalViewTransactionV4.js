@@ -37,6 +37,12 @@ const mutedSx = {
   color: colors.mutedForeground
 }
 
+// ** Product table: grows with its rows up to this many, then scrolls inside the grid
+// (header stays pinned). Heights mirror DataTable's columnHeaderHeight / rowHeight.
+const PRODUCT_TABLE_MAX_ROWS = 6
+const PRODUCT_TABLE_HEADER_HEIGHT = 48
+const PRODUCT_TABLE_ROW_HEIGHT = 52
+
 const InfoItem = ({ icon, label, value }) => (
   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
     <Box
@@ -131,6 +137,12 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
     })
   }
 
+  const productRowCount = data?.listProducts?.length || 0
+  const productTableHeight =
+    PRODUCT_TABLE_HEADER_HEIGHT +
+    Math.min(productRowCount || 2, PRODUCT_TABLE_MAX_ROWS) * PRODUCT_TABLE_ROW_HEIGHT +
+    2
+
   const changeAmount = (data?.totalPayment || 0) - (data?.grandTotal || 0)
 
   return (
@@ -150,68 +162,95 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
           }
         }}
       >
-        {/* Header */}
-        <Box sx={{ p: 5, pb: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
-              <Box
-                sx={{
-                  width: 40,
-                  height: 40,
-                  flexShrink: 0,
-                  borderRadius: `${radii['3xl']}px`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: stone[200],
-                  color: colors.mutedForeground,
-                }}
-              >
-                <Icon icon='tabler:file-invoice' fontSize='1.25rem' />
-              </Box>
-              <Box sx={{ minWidth: 0 }}>
-                <Typography sx={{ fontSize: '1.125rem', fontWeight: 600, color: colors.foreground }}>
-                  Detail Transaksi POS
-                </Typography>
-                <Typography sx={{ ...mutedSx, mt: 0.5 }}>{data?.code || '-'}</Typography>
-                {(data?.queueNumber != null || data?.shift) && (
-                  <Tooltip
-                    title={
-                      data?.shift ? (
-                        <Box>
-                          <Typography variant='caption' display='block'>
-                            <strong>{data.shift.shiftName}</strong>
-                          </Typography>
-                          <Typography variant='caption' display='block'>
-                            {data.shift.startShift ? data.shift.startShift.substring(0, 5) : '-'} -{' '}
-                            {data.shift.endShift ? data.shift.endShift.substring(0, 5) : '-'}
-                          </Typography>
-                        </Box>
-                      ) : (
-                        ''
-                      )
-                    }
-                  >
-                    <Typography sx={mutedSx}>
-                      {data?.queueNumber != null && `Antrian #${data.queueNumber}`}
-                      {data?.queueNumber != null && data?.shift && ' | '}
-                      {data?.shift &&
-                        `${data.shift.shiftName || 'Shift'} (${
-                          data.shift.startShift ? data.shift.startShift.substring(0, 5) : '-'
-                        })`}
-                    </Typography>
-                  </Tooltip>
-                )}
-              </Box>
-            </Box>
+        {/* Header: title + close, same as AppModal */}
+        <Box sx={{ p: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+          <Typography
+            sx={{
+              fontSize: '1.25rem',
+              fontWeight: 600,
+              lineHeight: '24px',
+              color: colors.foreground,
+              minWidth: 0,
+              overflowWrap: 'anywhere'
+            }}
+          >
+            Detail Transaksi POS
+          </Typography>
+          <IconButton
+            onClick={handleClose}
+            size='small'
+            aria-label='close'
+            sx={{ color: colors.foreground, p: 1, flexShrink: 0 }}
+          >
+            <Icon icon='tabler:x' fontSize='1rem' />
+          </IconButton>
+        </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
-              {data?.status && <Status status={data.status} />}
-              <IconButton onClick={handleClose} size='small' aria-label='close' sx={{ color: colors.foreground, p: 1 }}>
-                <Icon icon='tabler:x' fontSize='1rem' />
-              </IconButton>
+        {/* Transaction identity + status */}
+        <Box
+          sx={{
+            px: 5,
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: 1
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                flexShrink: 0,
+                borderRadius: `${radii['3xl']}px`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: stone[200],
+                color: colors.mutedForeground
+              }}
+            >
+              <Icon icon='tabler:file-invoice' fontSize='1.25rem' />
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontSize: '1.125rem', fontWeight: 600, color: colors.foreground }}>
+                {data?.code || '-'}
+              </Typography>
+              {(data?.queueNumber != null || data?.shift) && (
+                <Tooltip
+                  title={
+                    data?.shift ? (
+                      <Box>
+                        <Typography variant='caption' display='block'>
+                          <strong>{data.shift.shiftName}</strong>
+                        </Typography>
+                        <Typography variant='caption' display='block'>
+                          {data.shift.startShift ? data.shift.startShift.substring(0, 5) : '-'} -{' '}
+                          {data.shift.endShift ? data.shift.endShift.substring(0, 5) : '-'}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      ''
+                    )
+                  }
+                >
+                  <Typography sx={{ ...mutedSx, mt: 0.5 }}>
+                    {data?.queueNumber != null && `Antrian #${data.queueNumber}`}
+                    {data?.queueNumber != null && data?.shift && ' | '}
+                    {data?.shift &&
+                      `${data.shift.shiftName || 'Shift'} (${
+                        data.shift.startShift ? data.shift.startShift.substring(0, 5) : '-'
+                      })`}
+                  </Typography>
+                </Tooltip>
+              )}
             </Box>
           </Box>
+          {data?.status && (
+            <Box sx={{ flexShrink: 0 }}>
+              <Status status={data.status} />
+            </Box>
+          )}
         </Box>
 
         {/* Body */}
@@ -226,7 +265,7 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
               <Link href='/point-of-sale'>Point of Sale</Link>
             </Alert>
           ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               {/* Info strip */}
               <Box
                 sx={{
@@ -338,9 +377,11 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
                   <Typography sx={{ ...mutedSx, flexShrink: 0 }}>{data?.listProducts?.length || 0} Items</Typography>
                 </Box>
                 <DataTable
+                  bare
                   itemLabel='produk'
                   rows={data?.listProducts || []}
                   getRowId={row => row.id}
+                  autoHeight={false}
                   columns={[
                     {
                       flex: 0.4,
@@ -394,7 +435,7 @@ export default function ModalViewTransactionV4({ open, setOpen, disableActions =
                       )
                     }
                   ]}
-                  sx={{ '& .MuiDataGrid-cell': { alignItems: 'flex-start', py: 1 } }}
+                  sx={{ height: productTableHeight, '& .MuiDataGrid-cell': { alignItems: 'flex-start', py: 1 } }}
                 />
               </Box>
             </Box>

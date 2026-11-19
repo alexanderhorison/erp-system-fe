@@ -65,6 +65,7 @@ export default function DetailRequestProduct({ data }) {
       </HeaderedCard>
 
       <DataTable
+        bare
         columns={[
           { flex: 0.5, minWidth: 180, field: 'productName', headerName: 'Nama Produk' },
           { flex: 0.25, minWidth: 100, field: 'unitName', headerName: 'Satuan' },

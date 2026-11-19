@@ -13,6 +13,7 @@ import { fetchDetailProcessRequestOrder } from 'src/store/apps/product-request-o
 
 // ** Shared Components
 import PageHeader from 'src/views/common/PageHeader'
+import { Status } from 'src/@core/components/common'
 import ViewDetailProductRequest from 'src/views/product-request/ViewDetailProductRequest'
 import ToolbarProductRequest from 'src/views/product-request/ToolbarProductRequest'
 
@@ -63,6 +64,7 @@ export default function DetailProductRequest({}) {
         <PageHeader
           title='Surat Product Request'
           subtitle={detailProcessRequestOrder?.code}
+          subtitleAdornment={detailProcessRequestOrder?.status ? <Status status={detailProcessRequestOrder?.status} /> : null}
           onBack={() => router.back()}
           breadcrumbs={[
             { label: 'Home' },

@@ -23,8 +23,17 @@ import { colors } from 'src/configs/designTokens'
  *
  * `onBack` renders a back arrow beside the title, and `subtitle` a muted line
  * beneath it (used by detail pages such as a warehouse's product list).
+ * `subtitleAdornment` sits right after the subtitle on that line — a document's
+ * status pill beside its code.
  */
-export default function PageHeader({ title, subtitle, breadcrumbs = [], action = null, onBack = null }) {
+export default function PageHeader({
+  title,
+  subtitle,
+  subtitleAdornment = null,
+  breadcrumbs = [],
+  action = null,
+  onBack = null
+}) {
   return (
     <Box sx={{ mb: 4 }}>
       {breadcrumbs.length > 0 && (
@@ -80,10 +89,15 @@ export default function PageHeader({ title, subtitle, breadcrumbs = [], action =
             <Typography variant='h3' sx={{ color: colors.foreground }}>
               {title}
             </Typography>
-            {subtitle && (
-              <Typography sx={{ fontSize: '0.875rem', lineHeight: '20px', color: colors.mutedForeground }}>
-                {subtitle}
-              </Typography>
+            {(subtitle || subtitleAdornment) && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                {subtitle && (
+                  <Typography sx={{ fontSize: '0.875rem', lineHeight: '20px', color: colors.mutedForeground }}>
+                    {subtitle}
+                  </Typography>
+                )}
+                {subtitleAdornment}
+              </Box>
             )}
           </Box>
         </Box>

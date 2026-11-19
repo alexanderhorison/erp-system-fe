@@ -15,6 +15,9 @@ import { fetchAllSalesOrder } from 'src/store/apps/sales-order'
 
 // ** Shared Components
 import DataTable from 'src/views/common/DataTable'
+import CardList from 'src/views/common/CardList'
+import ViewModeToggle from 'src/views/common/ViewModeToggle'
+import OrderCard, { getPaymentState, isCreatedToday, formatShortDate } from 'src/views/common/OrderCard'
 import TableToolbar from 'src/views/common/TableToolbar'
 import FilterPanel from 'src/views/common/FilterPanel'
 import DateCell from 'src/views/common/DateCell'
@@ -22,6 +25,10 @@ import { monthOptions, yearOptions, currentYear } from 'src/views/common/filterO
 
 // ** Design Tokens
 import { colors } from 'src/configs/designTokens'
+
+// ** Card layout shows 9 per page (3 per row); the table keeps its own page size.
+const PAGE_SIZE = { card: 9, table: 25 }
+const VIEW_MODE_STORAGE_KEY = 'sales-order-list-view'
 
 const RowOptions = ({ handleView, handleEdit, data }) => (
   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
@@ -45,7 +52,9 @@ export default function TableAllSalesOrder() {
   const router = useRouter()
 
   const [searchText, setSearchText] = useState('')
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 })
+  const [viewMode, setViewMode] = useState('card')
+  const [viewReady, setViewReady] = useState(false)
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: PAGE_SIZE.card })
   const [filterAnchor, setFilterAnchor] = useState(null)
 
   const [dataFilter, setDataFilter] = useState({
@@ -197,13 +206,42 @@ export default function TableAllSalesOrder() {
     fetchData({ page: 1, orderBy, orderType }, searchText, nextFilters, paginationModel)
   }
 
+  // Restore the last-used layout once on mount (browser storage is per viewer and may be
+  // unavailable), then let the initial fetch run with that layout's page size.
+  useEffect(() => {
+    let stored = null
+    try {
+      stored = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY)
+    } catch (e) {
+      // storage blocked — fall back to the default layout
+    }
+    const mode = stored === 'table' ? 'table' : 'card'
+    setViewMode(mode)
+    setPaginationModel({ page: 0, pageSize: PAGE_SIZE[mode] })
+    setViewReady(true)
+  }, [])
+
+  const handleChangeViewMode = mode => {
+    setViewMode(mode)
+    try {
+      window.localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode)
+    } catch (e) {
+      // storage blocked — the choice just will not be remembered
+    }
+    const nextModel = { page: 0, pageSize: PAGE_SIZE[mode] }
+    setPaginationModel(nextModel)
+    fetchData({ page: 1, limit: nextModel.pageSize }, searchText, dataFilter, nextModel)
+  }
+
   // Initial fetch and fetch when the year/month filter changes.
   useEffect(() => {
+    if (!viewReady) return
+
     const dateRange = getDateRange(dataFilter.year, dataFilter.month)
     dispatch(
       fetchAllSalesOrder({
         page: 1,
-        limit: 25,
+        limit: paginationModel.pageSize,
         orderBy: 'createdAt',
         orderType: 'DESC',
         ...dateRange,
@@ -211,7 +249,37 @@ export default function TableAllSalesOrder() {
       })
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, dataFilter.year, dataFilter.month])
+  }, [dispatch, dataFilter.year, dataFilter.month, viewReady])
+
+  const toolbar = (
+    <TableToolbar
+      value={searchText}
+      placeholder='Cari sales order'
+      onChange={event => handleSearch(event.target.value)}
+      clearSearch={() => handleSearch('')}
+      onOpenFilters={setFilterAnchor}
+      activeFilterCount={activeFilterCount}
+      searchAddon={<ViewModeToggle value={viewMode} onChange={handleChangeViewMode} />}
+      actions={
+        <>
+          <Button
+            variant='contained'
+            onClick={handleAddLoan}
+            startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+          >
+            Buat Sales Order Loan
+          </Button>
+          <Button
+            variant='contained'
+            onClick={handleAdd}
+            startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
+          >
+            Buat Sales Order
+          </Button>
+        </>
+      }
+    />
+  )
 
   return (
     <>
@@ -225,142 +293,151 @@ export default function TableAllSalesOrder() {
         onReset={handleResetFilters}
       />
 
-      <DataTable
-        itemLabel='sales order'
-        loading={loading}
-        rows={data || []}
-        rowCount={pagination?.total || 0}
-        paginationMode='server'
-        sortingMode='server'
-        getRowId={row => row.code}
-        onRowClick={params => handleView(params.row)}
-        onSortModelChange={handleSortModelChange}
-        getRowClassName={params => {
-          const amountDebt = params.row.amountDebt
-          return amountDebt !== null && amountDebt !== 0 && amountDebt !== '0' ? 'row-with-debt' : ''
-        }}
-        toolbar={
-          <TableToolbar
-            value={searchText}
-            placeholder='Cari sales order'
-            onChange={event => handleSearch(event.target.value)}
-            clearSearch={() => handleSearch('')}
-            onOpenFilters={setFilterAnchor}
-            activeFilterCount={activeFilterCount}
-            actions={
-              <>
-                <Button
-                  variant='contained'
-                  onClick={handleAddLoan}
-                  startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
-                >
-                  Buat Sales Order Loan
-                </Button>
-                <Button
-                  variant='contained'
-                  onClick={handleAdd}
-                  startIcon={<Icon icon='tabler:plus' fontSize='1rem' />}
-                >
-                  Buat Sales Order
-                </Button>
-              </>
-            }
-          />
-        }
-        columns={[
-          {
-            flex: 0.12,
-            minWidth: 120,
-            field: 'code',
-            headerName: 'KODE',
-            renderCell: params => (
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
-                  {params.row.code}
-                </Typography>
-                {params.row.isLoanStockSO && (
-                  <Typography noWrap sx={{ fontSize: '0.75rem', fontStyle: 'italic', color: colors.mutedForeground }}>
-                    Loan Stock SO
+      {viewMode === 'card' ? (
+        <CardList
+          toolbar={toolbar}
+          items={data || []}
+          getItemKey={row => row.code}
+          loading={loading}
+          rowCount={pagination?.total || 0}
+          itemLabel='sales order'
+          emptyText='Belum ada sales order'
+          paginationModel={paginationModel}
+          onPaginationModelChange={handlePaginationChange}
+          renderItem={row => (
+            <OrderCard
+              name={row.customer?.name}
+              phone={row.customer?.phoneNumber}
+              code={row.code}
+              status={row.status}
+              subtitle={row.isLoanStockSO ? 'Loan Stock SO' : null}
+              dates={[
+                { label: 'Tgl. Dibuat', value: formatShortDate(row.createdAt) },
+                { label: 'Tgl. Dikirim', value: formatShortDate(row.shippingTime) },
+                { label: 'Tgl. Diterima', value: formatShortDate(row.approvedAt) }
+              ]}
+              totalLabel='Total Sales'
+              total={row.grandTotalCustomer}
+              barter={row.grandTotalBarter}
+              grandTotal={row.grandTotal}
+              payment={getPaymentState(row)}
+              isToday={isCreatedToday(row.createdAt)}
+              onView={() => handleView(row)}
+              onEdit={row.status === 'PENDING' ? () => handleEdit(row) : undefined}
+            />
+          )}
+        />
+      ) : (
+        <DataTable
+          itemLabel='sales order'
+          loading={loading}
+          rows={data || []}
+          rowCount={pagination?.total || 0}
+          paginationMode='server'
+          sortingMode='server'
+          getRowId={row => row.code}
+          onRowClick={params => handleView(params.row)}
+          onSortModelChange={handleSortModelChange}
+          getRowClassName={params => {
+            const amountDebt = params.row.amountDebt
+            return amountDebt !== null && amountDebt !== 0 && amountDebt !== '0' ? 'row-with-debt' : ''
+          }}
+          toolbar={toolbar}
+          columns={[
+            {
+              flex: 0.12,
+              minWidth: 120,
+              field: 'code',
+              headerName: 'KODE',
+              renderCell: params => (
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Typography variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+                    {params.row.code}
                   </Typography>
-                )}
-              </Box>
-            )
-          },
-          {
-            flex: 0.15,
-            minWidth: 140,
-            field: 'createdAt',
-            headerName: 'TANGGAL DIBUAT',
-            renderCell: params => <DateCell date={params.row.dateCreated} timestamp={params.row.createdAt} />
-          },
-          {
-            flex: 0.15,
-            minWidth: 140,
-            field: 'approvedAt',
-            headerName: 'TANGGAL DITERIMA',
-            renderCell: params => <DateCell date={params.row.dateApproved} timestamp={params.row.approvedAt} />
-          },
-          {
-            flex: 0.15,
-            minWidth: 140,
-            field: 'shippingDate',
-            headerName: 'TANGGAL DIKIRIM',
-            renderCell: params => <DateCell date={params.row.shippingDate} timestamp={params.row.shippingTime} />
-          },
-          {
-            flex: 0.16,
-            minWidth: 150,
-            field: 'createdBy',
-            headerName: 'DIBUAT OLEH',
-            sortable: false,
-            renderCell: params => {
-              const { row } = params
-              return (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {renderClient(params)}
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography noWrap variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
-                      {row.createdBy.name}
+                  {params.row.isLoanStockSO && (
+                    <Typography noWrap sx={{ fontSize: '0.75rem', fontStyle: 'italic', color: colors.mutedForeground }}>
+                      Loan Stock SO
                     </Typography>
-                    <Typography noWrap sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
-                      {row.createdBy.roleName}
-                    </Typography>
+                  )}
+                </Box>
+              )
+            },
+            {
+              flex: 0.15,
+              minWidth: 140,
+              field: 'createdAt',
+              headerName: 'TANGGAL DIBUAT',
+              renderCell: params => <DateCell date={params.row.dateCreated} timestamp={params.row.createdAt} />
+            },
+            {
+              flex: 0.15,
+              minWidth: 140,
+              field: 'approvedAt',
+              headerName: 'TANGGAL DITERIMA',
+              renderCell: params => <DateCell date={params.row.dateApproved} timestamp={params.row.approvedAt} />
+            },
+            {
+              flex: 0.15,
+              minWidth: 140,
+              field: 'shippingDate',
+              headerName: 'TANGGAL DIKIRIM',
+              renderCell: params => <DateCell date={params.row.shippingDate} timestamp={params.row.shippingTime} />
+            },
+            {
+              flex: 0.16,
+              minWidth: 150,
+              field: 'createdBy',
+              headerName: 'DIBUAT OLEH',
+              sortable: false,
+              renderCell: params => {
+                const { row } = params
+                return (
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    {renderClient(params)}
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography noWrap variant='body2' sx={{ fontWeight: 500, color: 'text.primary' }}>
+                        {row.createdBy.name}
+                      </Typography>
+                      <Typography noWrap sx={{ fontSize: '0.75rem', lineHeight: '16px', color: colors.mutedForeground }}>
+                        {row.createdBy.roleName}
+                      </Typography>
+                    </Box>
                   </Box>
+                )
+              }
+            },
+            {
+              flex: 0.1,
+              minWidth: 110,
+              field: 'status',
+              headerName: 'STATUS',
+              renderCell: params => <Status status={params.row.status} />
+            },
+            {
+              flex: 0.08,
+              minWidth: 90,
+              sortable: false,
+              field: 'actions',
+              headerName: 'ACTION',
+              renderCell: ({ row }) => (
+                <Box onClick={event => event.stopPropagation()} sx={{ width: '100%' }}>
+                  <RowOptions handleView={() => handleView(row)} handleEdit={() => handleEdit(row)} data={row} />
                 </Box>
               )
             }
-          },
-          {
-            flex: 0.1,
-            minWidth: 110,
-            field: 'status',
-            headerName: 'STATUS',
-            renderCell: params => <Status status={params.row.status} />
-          },
-          {
-            flex: 0.08,
-            minWidth: 90,
-            sortable: false,
-            field: 'actions',
-            headerName: 'ACTION',
-            renderCell: ({ row }) => (
-              <Box onClick={event => event.stopPropagation()} sx={{ width: '100%' }}>
-                <RowOptions handleView={() => handleView(row)} handleEdit={() => handleEdit(row)} data={row} />
-              </Box>
-            )
-          }
-        ]}
-        pageSizeOptions={[5, 10, 25, 50]}
-        paginationModel={paginationModel}
-        onPaginationModelChange={handlePaginationChange}
-        sx={{
-          '& .MuiDataGrid-row': { cursor: 'pointer' },
-          '& .row-with-debt': {
-            backgroundColor: 'rgba(244, 67, 54, 0.08)',
-            '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.12)' }
-          }
-        }}
-      />
+          ]}
+          pageSizeOptions={[5, 10, 25, 50]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={handlePaginationChange}
+          sx={{
+            '& .MuiDataGrid-row': { cursor: 'pointer' },
+            '& .row-with-debt': {
+              backgroundColor: 'rgba(244, 67, 54, 0.08)',
+              '&:hover': { backgroundColor: 'rgba(244, 67, 54, 0.12)' }
+            }
+          }}
+        />
+      )}
     </>
   )
 }

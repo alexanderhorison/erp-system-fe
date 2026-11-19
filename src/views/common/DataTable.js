@@ -51,6 +51,9 @@ export default function DataTable({
   itemLabel = 'items',
   rowCount,
   showActions = true,
+  // ** Drops the outer card outline and the gap around the grid frame, for tables
+  // that already sit inside their own section (e.g. a modal or detail page).
+  bare = false,
   sx,
   slots,
   columns,
@@ -142,8 +145,9 @@ export default function DataTable({
         width: '100%',
         minWidth: 0,
         borderRadius: `${radii['3xl']}px`,
-        border: `1px solid ${colors.border}`,
-        boxShadow: shadows.xs,
+        border: bare ? 0 : `1px solid ${colors.border}`,
+        boxShadow: bare ? 'none' : shadows.xs,
+        backgroundColor: bare ? 'transparent' : undefined,
         overflow: 'hidden'
       }}
       elevation={0}
@@ -154,9 +158,9 @@ export default function DataTable({
           frame clips the header's top corners to its radius. */}
       <Box
         sx={{
-          mx: 4,
-          mb: 4,
-          mt: toolbar ? 0 : 4,
+          mx: bare ? 0 : 4,
+          mb: bare ? 0 : 4,
+          mt: bare || toolbar ? 0 : 4,
           border: `1px solid ${colors.border}`,
           borderRadius: `${radii['3xl']}px`,
           overflow: 'hidden'

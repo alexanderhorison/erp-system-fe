@@ -9,6 +9,7 @@ import Alert from '@mui/material/Alert'
 
 // ** Shared Components
 import PageHeader from 'src/views/common/PageHeader'
+import { Status } from 'src/@core/components/common'
 import CustomTab from 'src/views/common/CustomTab'
 import { fetchDetailPurchaseOrder } from 'src/store/apps/purchase-order'
 import ToolbarPurchaseOrder from 'src/views/purchase-order/ToolbarPurchaseOrder'
@@ -77,6 +78,7 @@ export default function DetailPurchaseOrder({}) {
         <PageHeader
           title='Purchase Order Details'
           subtitle={data?.code}
+          subtitleAdornment={data?.status ? <Status status={data.status} /> : null}
           onBack={() => router.back()}
           breadcrumbs={[
             { label: 'Home' },

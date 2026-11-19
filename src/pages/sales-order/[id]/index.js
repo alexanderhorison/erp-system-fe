@@ -10,6 +10,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 
 // ** Shared Components
 import PageHeader from 'src/views/common/PageHeader'
+import { Status } from 'src/@core/components/common'
 import CustomTab from 'src/views/common/CustomTab'
 import { fetchDetailSalesOrder } from 'src/store/apps/sales-order'
 import ToolbarSalesOrder from 'src/views/sales-order/ToolbarSalesOrder'
@@ -83,6 +84,7 @@ export default function DetailSalesOrder({ }) {
         <PageHeader
           title='Sales Order Details'
           subtitle={data?.code}
+          subtitleAdornment={data?.status ? <Status status={data.status} /> : null}
           onBack={() => router.back()}
           breadcrumbs={[
             { label: 'Home' },
