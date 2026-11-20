@@ -12,7 +12,7 @@ import StatusChip from 'src/views/common/StatusChip'
 import { Status } from 'src/@core/components/common'
 
 // ** Design Tokens
-import { colors, orderCard, radii, shadows } from 'src/configs/designTokens'
+import { colors, orderCard, radii, shadows, status as statusTokens } from 'src/configs/designTokens'
 
 // ** Statuses that carry a payment state. Pending / rejected documents have not
 // produced a receivable or payable yet, so they get no payment outline or chip.
@@ -74,7 +74,8 @@ const actionSx = {
  * One Sales / Purchase Order in the card layout of its list page.
  *
  * Outline follows the payment state (green = Lunas, red = not fully paid; no
- * payment state = neutral border). A document created today is tinted orange/50.
+ * payment state = neutral border). A document created today carries a "Dibuat hari ini"
+ * pill sitting on the top edge of the card.
  *
  * Props
  *  - name, phone, code, status          header content
@@ -82,7 +83,7 @@ const actionSx = {
  *  - dates                              [{ label, value }] shown in one row
  *  - totalLabel / total, barter, grandTotal   the Orders block; `barter` hides when falsy
  *  - payment                            result of `getPaymentState(row)`
- *  - isToday                            tint the background
+ *  - isToday                            show the "Dibuat hari ini" pill
  *  - onView / onEdit                    `onEdit` omitted → only "Lihat Detail", full width
  */
 export default function OrderCard({
@@ -118,9 +119,33 @@ export default function OrderCard({
         borderRadius: `${radii['3xl']}px`,
         border: `1px solid ${borderColor}`,
         boxShadow: shadows.xs,
-        backgroundColor: isToday ? orderCard.today : colors.background
+        position: 'relative',
+        backgroundColor: colors.background
       }}
     >
+      {isToday && (
+        <Box
+          sx={{
+            top: -12,
+            left: 16,
+            px: 2,
+            gap: 1,
+            height: 24,
+            display: 'flex',
+            position: 'absolute',
+            alignItems: 'center',
+            borderRadius: `${radii.full}px`,
+            border: `1px solid ${statusTokens.info.border}`,
+            // Opaque, so the card's outline does not show through behind the pill.
+            backgroundColor: statusTokens.info.bg,
+            color: statusTokens.info.fg
+          }}
+        >
+          <Icon icon='tabler:circle-check' fontSize='0.875rem' />
+          <Typography sx={{ fontSize: '0.75rem', lineHeight: '16px', color: 'inherit' }}>Dibuat hari ini</Typography>
+        </Box>
+      )}
+
       {/* Name + code, phone + statuses */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         <Box
